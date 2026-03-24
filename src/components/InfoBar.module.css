@@ -1,0 +1,97 @@
+.bar {
+  background: linear-gradient(180deg, #252220 0%, #1f1c1a 100%);
+  border-top: 2px solid #3d3632;
+  flex-shrink: 0;
+}
+
+.toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 8px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9a8e82;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.15s;
+}
+
+.toggle:hover {
+  color: #f5efe6;
+}
+
+.content {
+  display: flex;
+  padding: 0 20px 12px;
+  gap: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.section {
+  flex: 1;
+  padding: 0 16px;
+}
+
+.divider {
+  width: 1px;
+  background: #3d3632;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #e86a2a;
+  margin-bottom: 6px;
+}
+
+.commands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #d4cdc4;
+}
+
+.hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #736860;
+  margin-top: 6px;
+}
+
+.recipes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recipe {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+}
+
+.recipeName {
+  color: #f5efe6;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.recipeReward {
+  color: #f0c850;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.recipeSteps {
+  color: #9a8e82;
+  white-space: nowrap;
+}

@@ -1,0 +1,79 @@
+.assembly {
+  padding: 0 20px 20px;
+}
+
+.divider {
+  font-family: 'Lilita One', cursive;
+  font-size: 13px;
+  color: #5cb85c;
+  text-align: center;
+  padding: 8px 0;
+  margin-bottom: 8px;
+}
+
+.plates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.plate {
+  width: 120px;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.empty {
+  background: rgba(30, 26, 23, 0.5);
+  border: 2px dashed #ffffff15;
+}
+
+.filled {
+  background: rgba(92, 184, 92, 0.10);
+  border: 2px solid #5cb85c44;
+}
+
+.plateNum {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #736860;
+  margin-bottom: 2px;
+}
+
+.plateIcon {
+  font-size: 24px;
+  opacity: 0.2;
+}
+
+.emptyLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #57504a;
+}
+
+.dishName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  color: #f5efe6;
+  margin-bottom: 4px;
+}
+
+.ingredients {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.ingredientEmoji {
+  font-size: 16px;
+}
+
+.serveHint {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #5cb85c;
+  font-weight: 700;
+}

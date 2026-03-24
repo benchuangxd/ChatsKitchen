@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Space+Mono:wght@400;700&family=Fredoka:wght@400;600;700&display=swap');
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #1c1917;
+  color: #f5efe6;
+  font-family: 'Fredoka', sans-serif;
+}
+
+.header {
+  background: linear-gradient(135deg, #302a27 0%, #1c1917 100%);
+  border-bottom: 3px solid #ffffff30;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.header h1 {
+  font-family: 'Lilita One', cursive;
+  font-size: 24px;
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+  margin: 0;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #171412;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.chatToggle {
+  border: 2px solid #9146ff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  background: transparent;
+  color: #9146ff;
+}
+
+.chatToggle:hover {
+  background: #9146ff22;
+}
+
+.chatToggleOn {
+  background: #9146ff;
+  color: #fff;
+}
+
+.chatToggleOn:hover {
+  background: #a66bff;
+}
+
+.botToggle {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.botToggleOn {
+  background: #5cb85c;
+  color: #1c1917;
+}
+
+.botToggleOn:hover {
+  background: #4da64d;
+}
+
+.botToggleOff {
+  background: #d94f4f;
+  color: #fff;
+}
+
+.botToggleOff:hover {
+  background: #c04444;
+}
+
+.exitBtn {
+  border: 2px solid #d94f4f;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  background: transparent;
+  color: #d94f4f;
+}
+
+.exitBtn:hover {
+  background: #d94f4f;
+  color: #fff;
+}
+
+.twitchIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9146ff;
+  padding: 4px 10px;
+  border: 1px solid #9146ff44;
+  border-radius: 6px;
+}
+
+.twitchDot {
+  width: 6px;
+  height: 6px;
+  background: #5cb85c;
+  border-radius: 50%;
+  animation: twitchPulse 1.5s infinite;
+}
+
+@keyframes twitchPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

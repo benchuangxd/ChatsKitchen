@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat's Kitchen — Twitch Chat Restaurant Game</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Space+Mono:wght@400;700&family=Fredoka:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1117;
+    font-family: 'Fredoka', sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    color: #f0e6d3;
+  }
+
+  #game-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  #game-header {
+    background: linear-gradient(135deg, #2d1b2e 0%, #1a1117 100%);
+    border-bottom: 3px solid #ff6b35;
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  #game-header h1 {
+    font-family: 'Lilita One', cursive;
+    font-size: 24px;
+    color: #ff6b35;
+    text-shadow: 2px 2px 0 #1a1117;
+    letter-spacing: 1px;
+  }
+
+  .stat-bar {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .stat {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stat .label { color: #8a7a6b; }
+  .stat .value { color: #ffe066; font-weight: 700; }
+  .stat .value.rep { color: #66ff88; }
+
+  #game-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #12090f;
+  }
+
+  #chat-panel {
+    width: 320px;
+    background: linear-gradient(180deg, #1e1428 0%, #18101e 100%);
+    border-left: 3px solid #9146ff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  #chat-header {
+    background: #9146ff;
+    padding: 10px 16px;
+    font-family: 'Lilita One', cursive;
+    font-size: 16px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  #chat-header .dot {
+    width: 8px; height: 8px;
+    background: #66ff88;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    scrollbar-width: thin;
+    scrollbar-color: #9146ff33 transparent;
+  }
+
+  .chat-msg {
+    line-height: 1.4;
+    padding: 2px 0;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chat-msg .username {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+
+  .chat-msg .text { color: #d4c8b8; }
+  .chat-msg.system .text { color: #ffe066; font-style: italic; }
+  .chat-msg.error .text { color: #ff6b6b; }
+  .chat-msg.success .text { color: #66ff88; }
+
+  #chat-input-area {
+    padding: 10px;
+    border-top: 1px solid #ffffff15;
+    display: flex;
+    gap: 8px;
+  }
+
+  #chat-input {
+    flex: 1;
+    background: #0d0a10;
+    border: 2px solid #9146ff44;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #f0e6d3;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #chat-input:focus { border-color: #9146ff; }
+
+  #chat-send {
+    background: #9146ff;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    padding: 8px 14px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  #chat-send:hover { background: #a66bff; }
+
+  #help-panel {
+    padding: 8px 10px;
+    border-top: 1px solid #ffffff10;
+    font-size: 11px;
+    color: #6b5f80;
+    font-family: 'Space Mono', monospace;
+    line-height: 1.5;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+
+  #help-panel strong { color: #9146ff; }
+
+  .order-popup {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-wrapper">
+  <div id="game-header">
+    <h1>🍳 Chat's Kitchen</h1>
+    <div class="stat-bar">
+      <div class="stat"><span class="label">MONEY</span><span class="value" id="stat-money">$0</span></div>
+      <div class="stat"><span class="label">SERVED</span><span class="value" id="stat-served">0</span></div>
+      <div class="stat"><span class="label">LOST</span><span class="value" id="stat-lost">0</span></div>
+      <div class="stat"><span class="label">REP</span><span class="value rep" id="stat-rep">★★★</span></div>
+      <div class="stat"><span class="label">SHIFT</span><span class="value" id="stat-shift">1</span></div>
+    </div>
+  </div>
+  <div id="game-container"></div>
+</div>
+
+<div id="chat-panel">
+  <div id="chat-header"><span class="dot"></span> TWITCH CHAT (Simulated)</div>
+  <div id="chat-messages"></div>
+  <div id="help-panel">
+    <strong>Commands:</strong><br>
+    !chop [item] — !grill [item]<br>
+    !fry [item] — !boil [item]<br>
+    !toast [item] — !take [station]<br>
+    !plate [dish] — !serve table[N]<br>
+    !clean [station] — !extinguish<br>
+    <br>
+    <strong>Items:</strong> lettuce, tomato, patty, bun, potato, pasta, cheese, egg, bacon, rice, fish, shrimp
+  </div>
+  <div id="chat-input-area">
+    <input id="chat-input" type="text" placeholder="Type !command here..." autocomplete="off">
+    <button id="chat-send">Send</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// GAME DATA
+// ============================================================
+const RECIPES = {
+  burger: {
+    name: 'Burger', emoji: '🍔', reward: 50, patience: 45000,
+    steps: [
+      { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 0, produces: 'chopped_lettuce' },
+      { action: 'grill', target: 'patty', station: 'grill', duration: 4000, burnAt: 9000, produces: 'grilled_patty' },
+      { action: 'toast', target: 'bun', station: 'oven', duration: 3000, burnAt: 8000, produces: 'toasted_bun' },
+    ],
+    plate: ['chopped_lettuce', 'grilled_patty', 'toasted_bun']
+  },
+  fries: {
+    name: 'Fries', emoji: '🍟', reward: 30, patience: 35000,
+    steps: [
+      { action: 'chop', target: 'potato', station: 'cutting_board', duration: 0, produces: 'chopped_potato' },
+      { action: 'fry', target: 'potato', station: 'fryer', duration: 4000, burnAt: 9000, produces: 'fried_potato' },
+    ],
+    plate: ['chopped_potato', 'fried_potato']
+  },
+  pasta: {
+    name: 'Pasta', emoji: '🍝', reward: 60, patience: 55000,
+    steps: [
+      { action: 'boil', target: 'pasta', station: 'stove', duration: 5000, burnAt: 11000, produces: 'boiled_pasta' },
+      { action: 'chop', target: 'tomato', station: 'cutting_board', duration: 0, produces: 'chopped_tomato' },
+      { action: 'grill', target: 'cheese', station: 'grill', duration: 2000, burnAt: 6000, produces: 'melted_cheese' },
+    ],
+    plate: ['boiled_pasta', 'chopped_tomato', 'melted_cheese']
+  },
+  salad: {
+    name: 'Salad', emoji: '🥗', reward: 25, patience: 30000,
+    steps: [
+      { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 0, produces: 'chopped_lettuce' },
+      { action: 'chop', target: 'tomato', station: 'cutting_board', duration: 0, produces: 'chopped_tomato' },
+    ],
+    plate: ['chopped_lettuce', 'chopped_tomato']
+  },
+  fish_tacos: {
+    name: 'Fish Tacos', emoji: '🌮', reward: 70, patience: 50000,
+    steps: [
+      { action: 'fry', target: 'fish', station: 'fryer', duration: 5000, burnAt: 10000, produces: 'fried_fish' },
+      { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 0, produces: 'chopped_lettuce' },
+      { action: 'toast', target: 'bun', station: 'oven', duration: 2000, burnAt: 7000, produces: 'toasted_bun' },
+    ],
+    plate: ['fried_fish', 'chopped_lettuce', 'toasted_bun']
+  }
+};
+
+const STATION_DEFS = {
+  cutting_board: { name: 'Cutting Board', emoji: '🔪', color: 0x66bb6a, actions: ['chop'] },
+  grill:         { name: 'Grill',         emoji: '🔥', color: 0xff7043, actions: ['grill'] },
+  fryer:         { name: 'Fryer',         emoji: '🫕', color: 0xffa726, actions: ['fry'] },
+  stove:         { name: 'Stove',         emoji: '♨️', color: 0xef5350, actions: ['boil'] },
+  oven:          { name: 'Oven',          emoji: '🧱', color: 0x8d6e63, actions: ['toast'] },
+  plate_station: { name: 'Plating',       emoji: '🍽️', color: 0x78909c, actions: ['plate'] },
+};
+
+const BOT_NAMES = [
+  'ChefChat42', 'SoupLord', 'BurgerBoss', 'PastaKing99', 'FryQueen',
+  'TacoMaster', 'GrillGod', 'NoodleNinja', 'SaladSam', 'DishDash',
+  'FlipperFred', 'CookieMonsta', 'SpicyMike', 'UmamiQueen', 'ChopChop77',
+  'WokStar', 'RamenRanger', 'SizzleSis', 'PlateUp_Pro', 'OvenMitt'
+];
+
+const NAME_COLORS = [
+  '#ff6b6b', '#ffa06b', '#ffe66b', '#6bff8a', '#6bd1ff',
+  '#a16bff', '#ff6bb5', '#ff9146', '#46ffc3', '#c39bff'
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+const state = {
+  money: 0,
+  served: 0,
+  lost: 0,
+  reputation: 3,
+  shift: 1,
+  stations: {},
+  orders: [],
+  preparedItems: [],
+  platedDishes: [],
+  nextOrderId: 1,
+  userCooldowns: {},
+  fire: false,
+  dirty: {},
+};
+
+function initStations() {
+  for (const [id, def] of Object.entries(STATION_DEFS)) {
+    state.stations[id] = {
+      id, ...def,
+      state: 'idle',
+      currentItem: null,
+      cookStart: 0,
+      cookDuration: 0,
+      burnAt: 0,
+    };
+  }
+}
+
+// ============================================================
+// CHAT SYSTEM
+// ============================================================
+const chatMessages = document.getElementById('chat-messages');
+const chatInput = document.getElementById('chat-input');
+const chatSend = document.getElementById('chat-send');
+
+function addChatMessage(username, text, type = 'normal') {
+  const div = document.createElement('div');
+  div.className = `chat-msg ${type}`;
+  const color = NAME_COLORS[Math.abs(hashStr(username)) % NAME_COLORS.length];
+  div.innerHTML = type === 'system'
+    ? `<span class="text">⚡ ${text}</span>`
+    : `<span class="username" style="color:${color}">${username}:</span><span class="text">${text}</span>`;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  if (chatMessages.children.length > 200) chatMessages.removeChild(chatMessages.firstChild);
+}
+
+function hashStr(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+chatSend.addEventListener('click', () => submitChat());
+chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitChat(); });
+
+function submitChat() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  chatInput.value = '';
+  addChatMessage('You', text);
+  processCommand('You', text);
+}
+
+// ============================================================
+// COMMAND PROCESSOR
+// ============================================================
+function processCommand(user, text) {
+  if (!text.startsWith('!')) return;
+
+  const now = Date.now();
+  if (state.userCooldowns[user] && now - state.userCooldowns[user] < 1500) {
+    return; // cooldown
+  }
+  state.userCooldowns[user] = now;
+
+  const parts = text.slice(1).toLowerCase().split(/\s+/);
+  const action = parts[0];
+  const target = parts.slice(1).join('_') || null;
+
+  // EXTINGUISH
+  if (action === 'extinguish') {
+    if (state.fire) {
+      state.fire = false;
+      for (const s of Object.values(state.stations)) {
+        if (s.state === 'on_fire') { s.state = 'dirty'; s.currentItem = null; state.dirty[s.id] = true; }
+      }
+      addChatMessage('KITCHEN', `${user} put out the fire! 🧯`, 'success');
+    } else {
+      addChatMessage('KITCHEN', 'No fire to extinguish!', 'error');
+    }
+    return;
+  }
+
+  // CLEAN
+  if (action === 'clean') {
+    const stationId = target || null;
+    if (stationId && state.stations[stationId] && state.dirty[stationId]) {
+      state.stations[stationId].state = 'idle';
+      delete state.dirty[stationId];
+      addChatMessage('KITCHEN', `${user} cleaned the ${state.stations[stationId].name}! ✨`, 'success');
+    } else {
+      addChatMessage('KITCHEN', 'Nothing to clean there!', 'error');
+    }
+    return;
+  }
+
+  // TAKE (remove cooked item from station)
+  if (action === 'take') {
+    const stationId = target || null;
+    if (stationId && state.stations[stationId] && state.stations[stationId].state === 'done') {
+      const item = state.stations[stationId].currentItem;
+      state.preparedItems.push(item.produces);
+      state.stations[stationId].state = 'idle';
+      state.stations[stationId].currentItem = null;
+      addChatMessage('KITCHEN', `${user} took ${item.produces.replace(/_/g, ' ')} from ${state.stations[stationId].name}! 📦`, 'success');
+    } else {
+      addChatMessage('KITCHEN', 'Nothing ready to take there!', 'error');
+    }
+    return;
+  }
+
+  // PLATE
+  if (action === 'plate') {
+    const dishKey = target;
+    if (!dishKey || !RECIPES[dishKey]) {
+      addChatMessage('KITCHEN', `Unknown dish: ${target}. Try: ${Object.keys(RECIPES).join(', ')}`, 'error');
+      return;
+    }
+    const recipe = RECIPES[dishKey];
+    const needed = [...recipe.plate];
+    const available = [...state.preparedItems];
+    const used = [];
+    for (const item of needed) {
+      const idx = available.indexOf(item);
+      if (idx === -1) {
+        addChatMessage('KITCHEN', `Missing ${item.replace(/_/g, ' ')} for ${recipe.name}!`, 'error');
+        return;
+      }
+      available.splice(idx, 1);
+      used.push(item);
+    }
+    // Remove used items from prepared
+    for (const item of used) {
+      const idx = state.preparedItems.indexOf(item);
+      if (idx !== -1) state.preparedItems.splice(idx, 1);
+    }
+    state.platedDishes.push(dishKey);
+    addChatMessage('KITCHEN', `${user} plated a ${recipe.emoji} ${recipe.name}! Ready to serve!`, 'success');
+    return;
+  }
+
+  // SERVE
+  if (action === 'serve') {
+    const tableMatch = target && target.match(/table(\d+)/);
+    if (!tableMatch) {
+      addChatMessage('KITCHEN', 'Usage: !serve table1, !serve table2, etc.', 'error');
+      return;
+    }
+    const tableNum = parseInt(tableMatch[1]);
+    const order = state.orders.find(o => o.table === tableNum && !o.served);
+    if (!order) {
+      addChatMessage('KITCHEN', `No order at table ${tableNum}!`, 'error');
+      return;
+    }
+    const dishIdx = state.platedDishes.indexOf(order.dish);
+    if (dishIdx === -1) {
+      addChatMessage('KITCHEN', `No plated ${RECIPES[order.dish].name} ready! Plate it first.`, 'error');
+      return;
+    }
+    state.platedDishes.splice(dishIdx, 1);
+    order.served = true;
+    const timeBonus = Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30));
+    const reward = RECIPES[order.dish].reward + timeBonus;
+    state.money += reward;
+    state.served++;
+    addChatMessage('KITCHEN', `${user} served ${RECIPES[order.dish].emoji} to table ${tableNum}! +$${reward} 💰`, 'success');
+    updateStats();
+    return;
+  }
+
+  // COOKING ACTIONS (chop, grill, fry, boil, toast)
+  const stationEntry = Object.entries(STATION_DEFS).find(([, def]) => def.actions.includes(action));
+  if (!stationEntry) {
+    return; // unknown command, silently ignore
+  }
+  const [stationId] = stationEntry;
+  const station = state.stations[stationId];
+
+  if (station.state === 'on_fire') {
+    addChatMessage('KITCHEN', `The ${station.name} is on fire! Type !extinguish first!`, 'error');
+    return;
+  }
+  if (station.state === 'dirty') {
+    addChatMessage('KITCHEN', `The ${station.name} is dirty! Type !clean ${stationId} first!`, 'error');
+    return;
+  }
+  if (station.state !== 'idle') {
+    addChatMessage('KITCHEN', `The ${station.name} is busy!`, 'error');
+    return;
+  }
+
+  // Find a matching recipe step
+  let matchedStep = null;
+  for (const recipe of Object.values(RECIPES)) {
+    for (const step of recipe.steps) {
+      if (step.action === action && step.target === target) {
+        matchedStep = step;
+        break;
+      }
+    }
+    if (matchedStep) break;
+  }
+
+  if (!matchedStep) {
+    addChatMessage('KITCHEN', `Can't ${action} ${(target || '').replace(/_/g, ' ')} there!`, 'error');
+    return;
+  }
+
+  if (matchedStep.duration === 0) {
+    // instant action (e.g. chop)
+    state.preparedItems.push(matchedStep.produces);
+    addChatMessage('KITCHEN', `${user} ${action}ped ${target.replace(/_/g, ' ')}! ✅`, 'success');
+  } else {
+    station.state = 'cooking';
+    station.currentItem = matchedStep;
+    station.cookStart = Date.now();
+    station.cookDuration = matchedStep.duration;
+    station.burnAt = matchedStep.burnAt || Infinity;
+    addChatMessage('KITCHEN', `${user} started ${action}ing ${target.replace(/_/g, ' ')} on ${station.name}! ⏲️`, 'success');
+  }
+}
+
+function updateStats() {
+  document.getElementById('stat-money').textContent = `$${state.money}`;
+  document.getElementById('stat-served').textContent = state.served;
+  document.getElementById('stat-lost').textContent = state.lost;
+  const rep = Math.max(0, Math.min(5, state.reputation));
+  document.getElementById('stat-rep').textContent = '★'.repeat(rep) + '☆'.repeat(5 - rep);
+  document.getElementById('stat-shift').textContent = state.shift;
+}
+
+// ============================================================
+// BOT SIMULATION
+// ============================================================
+function simulateBot() {
+  const name = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
+
+  // Smart bot: look at what needs doing
+  // Check for fires first
+  if (state.fire) {
+    addChatMessage(name, '!extinguish');
+    processCommand(name, '!extinguish');
+    return;
+  }
+
+  // Check for dirty stations
+  for (const [id, dirty] of Object.entries(state.dirty)) {
+    if (dirty) {
+      addChatMessage(name, `!clean ${id}`);
+      processCommand(name, `!clean ${id}`);
+      return;
+    }
+  }
+
+  // Check for done stations (take items)
+  for (const [id, station] of Object.entries(state.stations)) {
+    if (station.state === 'done') {
+      addChatMessage(name, `!take ${id}`);
+      processCommand(name, `!take ${id}`);
+      return;
+    }
+  }
+
+  // Check if we can plate any order
+  for (const order of state.orders) {
+    if (order.served) continue;
+    const recipe = RECIPES[order.dish];
+    const available = [...state.preparedItems];
+    let canPlate = true;
+    for (const item of recipe.plate) {
+      const idx = available.indexOf(item);
+      if (idx === -1) { canPlate = false; break; }
+      available.splice(idx, 1);
+    }
+    if (canPlate) {
+      addChatMessage(name, `!plate ${order.dish}`);
+      processCommand(name, `!plate ${order.dish}`);
+      return;
+    }
+  }
+
+  // Check if we can serve
+  for (const order of state.orders) {
+    if (order.served) continue;
+    if (state.platedDishes.includes(order.dish)) {
+      addChatMessage(name, `!serve table${order.table}`);
+      processCommand(name, `!serve table${order.table}`);
+      return;
+    }
+  }
+
+  // Start cooking something needed
+  for (const order of state.orders) {
+    if (order.served) continue;
+    const recipe = RECIPES[order.dish];
+    for (const step of recipe.steps) {
+      const stationId = step.station;
+      const station = state.stations[stationId];
+      if (station.state !== 'idle') continue;
+      // Check if already prepared
+      if (state.preparedItems.includes(step.produces)) continue;
+      addChatMessage(name, `!${step.action} ${step.target}`);
+      processCommand(name, `!${step.action} ${step.target}`);
+      return;
+    }
+  }
+
+  // Random chatter if nothing to do
+  const chatter = ['let\'s go!', 'waiting for orders...', 'COOK COOK COOK', '🔥🔥🔥', 'we got this chat!', 'any orders?'];
+  addChatMessage(name, chatter[Math.floor(Math.random() * chatter.length)]);
+}
+
+// ============================================================
+// PHASER GAME
+// ============================================================
+const GAME_W = 900;
+const GAME_H = 580;
+
+const config = {
+  type: Phaser.AUTO,
+  width: GAME_W,
+  height: GAME_H,
+  parent: 'game-container',
+  backgroundColor: '#2b1d23',
+  scene: { preload, create, update },
+};
+
+const game = new Phaser.Game(config);
+
+let stationSprites = {};
+let orderSprites = [];
+let prepText, platedText;
+let customerGroup;
+let tickTimer = 0;
+let orderTimer = 0;
+let botTimer = 0;
+let gameTime = 0;
+
+function preload() {}
+
+function create() {
+  initStations();
+
+  const scene = this;
+
+  // Floor
+  const floorGfx = scene.add.graphics();
+  // Kitchen area (top)
+  floorGfx.fillStyle(0x3e2723, 1);
+  floorGfx.fillRect(0, 0, GAME_W, 340);
+  // Dining area (bottom)
+  floorGfx.fillStyle(0x4e342e, 1);
+  floorGfx.fillRect(0, 340, GAME_W, 240);
+  // Counter divider
+  floorGfx.fillStyle(0x795548, 1);
+  floorGfx.fillRect(0, 330, GAME_W, 16);
+
+  // Tile pattern in kitchen
+  const tileGfx = scene.add.graphics();
+  tileGfx.lineStyle(1, 0x4e342e, 0.3);
+  for (let x = 0; x < GAME_W; x += 50) tileGfx.lineBetween(x, 0, x, 330);
+  for (let y = 0; y < 330; y += 50) tileGfx.lineBetween(0, y, GAME_W, y);
+
+  // Draw stations
+  const stationKeys = Object.keys(STATION_DEFS);
+  const stationW = 130;
+  const stationH = 90;
+  const startX = 30;
+  const startY = 20;
+  const cols = 3;
+
+  stationKeys.forEach((key, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = startX + col * (stationW + 20);
+    const y = startY + row * (stationH + 25);
+    const def = STATION_DEFS[key];
+
+    const container = scene.add.container(x, y);
+
+    // Background
+    const bg = scene.add.graphics();
+    bg.fillStyle(0x1a1117, 0.85);
+    bg.fillRoundedRect(0, 0, stationW, stationH, 8);
+    bg.lineStyle(2, def.color, 1);
+    bg.strokeRoundedRect(0, 0, stationW, stationH, 8);
+    container.add(bg);
+
+    // Label
+    const label = scene.add.text(stationW / 2, 14, `${def.emoji} ${def.name}`, {
+      fontFamily: 'Fredoka', fontSize: '14px', color: '#f0e6d3', fontStyle: 'bold'
+    }).setOrigin(0.5);
+    container.add(label);
+
+    // Status text
+    const status = scene.add.text(stationW / 2, 38, 'idle', {
+      fontFamily: 'Space Mono', fontSize: '12px', color: '#8a7a6b'
+    }).setOrigin(0.5);
+    container.add(status);
+
+    // Progress bar bg
+    const progBg = scene.add.graphics();
+    progBg.fillStyle(0x000000, 0.4);
+    progBg.fillRoundedRect(10, 58, stationW - 20, 10, 4);
+    container.add(progBg);
+
+    // Progress bar fill
+    const progFill = scene.add.graphics();
+    container.add(progFill);
+
+    // Item text
+    const itemText = scene.add.text(stationW / 2, 78, '', {
+      fontFamily: 'Space Mono', fontSize: '10px', color: '#ffe066'
+    }).setOrigin(0.5);
+    container.add(itemText);
+
+    stationSprites[key] = { container, bg, label, status, progBg, progFill, itemText, x, y, w: stationW, h: stationH, def };
+  });
+
+  // Prepared items display
+  scene.add.text(480, 20, '📦 Prepared:', {
+    fontFamily: 'Fredoka', fontSize: '14px', color: '#ffe066', fontStyle: 'bold'
+  });
+  prepText = scene.add.text(480, 40, 'none', {
+    fontFamily: 'Space Mono', fontSize: '11px', color: '#d4c8b8', wordWrap: { width: 400 }
+  });
+
+  // Plated dishes display
+  scene.add.text(480, 90, '🍽️ Plated:', {
+    fontFamily: 'Fredoka', fontSize: '14px', color: '#66ff88', fontStyle: 'bold'
+  });
+  platedText = scene.add.text(480, 110, 'none', {
+    fontFamily: 'Space Mono', fontSize: '11px', color: '#d4c8b8', wordWrap: { width: 400 }
+  });
+
+  // Section label
+  scene.add.text(GAME_W / 2, 345, '— DINING ROOM —', {
+    fontFamily: 'Lilita One', fontSize: '13px', color: '#8d6e63'
+  }).setOrigin(0.5, 0);
+
+  // Order ticket area - tables
+  customerGroup = scene.add.container(0, 0);
+
+  // Intro message
+  addChatMessage('KITCHEN', 'Welcome to Chat\'s Kitchen! Type commands to cook! 🍳', 'system');
+  addChatMessage('KITCHEN', 'Customers are arriving... first order incoming!', 'system');
+
+  // Start bot simulation
+  scene.time.addEvent({
+    delay: 2500 + Math.random() * 2000,
+    callback: () => {
+      simulateBot();
+      scene.time.addEvent({
+        delay: 2000 + Math.random() * 3000,
+        loop: true,
+        callback: simulateBot
+      });
+    }
+  });
+}
+
+function spawnOrder(scene) {
+  const dishKeys = Object.keys(RECIPES);
+  const dish = dishKeys[Math.floor(Math.random() * dishKeys.length)];
+  const recipe = RECIPES[dish];
+
+  // Find free table
+  const usedTables = state.orders.filter(o => !o.served).map(o => o.table);
+  let table = 0;
+  for (let t = 1; t <= 5; t++) {
+    if (!usedTables.includes(t)) { table = t; break; }
+  }
+  if (table === 0) return; // all tables full
+
+  const order = {
+    id: state.nextOrderId++,
+    dish,
+    table,
+    served: false,
+    patienceMax: recipe.patience,
+    patienceLeft: recipe.patience,
+    spawnTime: Date.now(),
+  };
+  state.orders.push(order);
+  addChatMessage('CUSTOMER', `Table ${table} wants a ${recipe.emoji} ${recipe.name}!`, 'system');
+}
+
+function update(time, delta) {
+  const scene = this;
+  gameTime += delta;
+
+  // Spawn orders
+  orderTimer += delta;
+  const orderInterval = Math.max(5000, 14000 - state.shift * 1000);
+  if (orderTimer > orderInterval) {
+    orderTimer = 0;
+    spawnOrder(scene);
+  }
+
+  // Spawn first order quickly
+  if (state.orders.length === 0 && gameTime > 2000 && gameTime < 3000) {
+    spawnOrder(scene);
+  }
+
+  const now = Date.now();
+
+  // Update stations
+  for (const [id, station] of Object.entries(state.stations)) {
+    const sprite = stationSprites[id];
+    if (!sprite) continue;
+
+    sprite.progFill.clear();
+
+    if (station.state === 'cooking' && station.currentItem) {
+      const elapsed = now - station.cookStart;
+      const progress = Math.min(1, elapsed / station.cookDuration);
+
+      // Check burn
+      if (elapsed >= station.burnAt) {
+        station.state = 'on_fire';
+        station.currentItem = null;
+        state.fire = true;
+        addChatMessage('KITCHEN', `🔥 THE ${station.name.toUpperCase()} IS ON FIRE! Type !extinguish!`, 'system');
+      } else if (elapsed >= station.cookDuration && station.state === 'cooking') {
+        station.state = 'done';
+        sprite.status.setText('DONE! !take ' + id);
+        sprite.status.setColor('#66ff88');
+      }
+
+      if (station.state === 'cooking') {
+        sprite.status.setText(`cooking... ${Math.floor(progress * 100)}%`);
+        sprite.status.setColor('#ffa726');
+        const barW = (sprite.w - 20) * progress;
+        const burnProgress = elapsed / station.burnAt;
+        const barColor = burnProgress > 0.7 ? 0xff5252 : burnProgress > 0.4 ? 0xffa726 : 0x66bb6a;
+        sprite.progFill.fillStyle(barColor, 1);
+        sprite.progFill.fillRoundedRect(10, 58, barW, 10, 4);
+      }
+
+      sprite.itemText.setText(station.currentItem ? station.currentItem.target : '');
+    } else if (station.state === 'done') {
+      sprite.status.setText('DONE! !take ' + id);
+      sprite.status.setColor('#66ff88');
+      sprite.progFill.fillStyle(0x66ff88, 1);
+      sprite.progFill.fillRoundedRect(10, 58, sprite.w - 20, 10, 4);
+      sprite.itemText.setText(station.currentItem ? station.currentItem.produces.replace(/_/g, ' ') : '');
+    } else if (station.state === 'on_fire') {
+      sprite.status.setText('🔥 ON FIRE!');
+      sprite.status.setColor('#ff5252');
+      sprite.itemText.setText('!extinguish');
+      // Flash effect
+      sprite.bg.clear();
+      sprite.bg.fillStyle(Math.random() > 0.5 ? 0x4a1010 : 0x1a1117, 0.85);
+      sprite.bg.fillRoundedRect(0, 0, sprite.w, sprite.h, 8);
+      sprite.bg.lineStyle(2, 0xff5252, 1);
+      sprite.bg.strokeRoundedRect(0, 0, sprite.w, sprite.h, 8);
+    } else if (station.state === 'dirty') {
+      sprite.status.setText('DIRTY! !clean ' + id);
+      sprite.status.setColor('#8d6e63');
+      sprite.itemText.setText('');
+      sprite.bg.clear();
+      sprite.bg.fillStyle(0x1a1117, 0.85);
+      sprite.bg.fillRoundedRect(0, 0, sprite.w, sprite.h, 8);
+      sprite.bg.lineStyle(2, 0x8d6e63, 1);
+      sprite.bg.strokeRoundedRect(0, 0, sprite.w, sprite.h, 8);
+    } else {
+      sprite.status.setText('idle');
+      sprite.status.setColor('#8a7a6b');
+      sprite.itemText.setText('');
+      sprite.bg.clear();
+      sprite.bg.fillStyle(0x1a1117, 0.85);
+      sprite.bg.fillRoundedRect(0, 0, sprite.w, sprite.h, 8);
+      sprite.bg.lineStyle(2, sprite.def.color, 1);
+      sprite.bg.strokeRoundedRect(0, 0, sprite.w, sprite.h, 8);
+    }
+  }
+
+  // Update prepared items display
+  if (state.preparedItems.length > 0) {
+    prepText.setText(state.preparedItems.map(i => i.replace(/_/g, ' ')).join(', '));
+  } else {
+    prepText.setText('none');
+  }
+
+  if (state.platedDishes.length > 0) {
+    platedText.setText(state.platedDishes.map(d => `${RECIPES[d].emoji} ${RECIPES[d].name}`).join(', '));
+  } else {
+    platedText.setText('none');
+  }
+
+  // Update orders / customers in dining room
+  customerGroup.removeAll(true);
+  const activeOrders = state.orders.filter(o => !o.served);
+  const expiredOrders = [];
+
+  activeOrders.forEach((order, i) => {
+    order.patienceLeft -= delta;
+    if (order.patienceLeft <= 0) {
+      expiredOrders.push(order);
+      return;
+    }
+
+    const recipe = RECIPES[order.dish];
+    const tx = 40 + (order.table - 1) * 175;
+    const ty = 370;
+
+    // Table bg
+    const bg = scene.add.graphics();
+    const urgency = order.patienceLeft / order.patienceMax;
+    const bgColor = urgency < 0.25 ? 0x4a1010 : urgency < 0.5 ? 0x3e2a10 : 0x1a1117;
+    bg.fillStyle(bgColor, 0.9);
+    bg.fillRoundedRect(tx, ty, 155, 105, 8);
+    bg.lineStyle(2, urgency < 0.25 ? 0xff5252 : urgency < 0.5 ? 0xffa726 : 0x66bb6a, 1);
+    bg.strokeRoundedRect(tx, ty, 155, 105, 8);
+    customerGroup.add(bg);
+
+    // Table label
+    const tLabel = scene.add.text(tx + 78, ty + 12, `Table ${order.table}`, {
+      fontFamily: 'Fredoka', fontSize: '13px', color: '#f0e6d3', fontStyle: 'bold'
+    }).setOrigin(0.5);
+    customerGroup.add(tLabel);
+
+    // Order text
+    const oText = scene.add.text(tx + 78, ty + 32, `${recipe.emoji} ${recipe.name}`, {
+      fontFamily: 'Fredoka', fontSize: '16px', color: '#ffe066', fontStyle: 'bold'
+    }).setOrigin(0.5);
+    customerGroup.add(oText);
+
+    // Ingredients needed
+    const needed = recipe.plate.map(p => {
+      const have = state.preparedItems.includes(p) || state.platedDishes.includes(order.dish);
+      return have ? `✅` : `⬜`;
+    }).join(' ');
+    const nText = scene.add.text(tx + 78, ty + 54, needed, {
+      fontFamily: 'Space Mono', fontSize: '14px', color: '#d4c8b8'
+    }).setOrigin(0.5);
+    customerGroup.add(nText);
+
+    // Patience bar
+    const pbBg = scene.add.graphics();
+    pbBg.fillStyle(0x000000, 0.4);
+    pbBg.fillRoundedRect(tx + 10, ty + 72, 135, 8, 3);
+    customerGroup.add(pbBg);
+
+    const pbFill = scene.add.graphics();
+    const barColor = urgency < 0.25 ? 0xff5252 : urgency < 0.5 ? 0xffa726 : 0x66bb6a;
+    pbFill.fillStyle(barColor, 1);
+    pbFill.fillRoundedRect(tx + 10, ty + 72, 135 * urgency, 8, 3);
+    customerGroup.add(pbFill);
+
+    // Serve hint
+    if (state.platedDishes.includes(order.dish)) {
+      const hint = scene.add.text(tx + 78, ty + 92, `!serve table${order.table}`, {
+        fontFamily: 'Space Mono', fontSize: '10px', color: '#66ff88'
+      }).setOrigin(0.5);
+      customerGroup.add(hint);
+    }
+  });
+
+  // Handle expired orders
+  for (const order of expiredOrders) {
+    order.served = true; // remove from active
+    state.lost++;
+    state.reputation = Math.max(0, state.reputation - 1);
+    addChatMessage('CUSTOMER', `Table ${order.table} left angry! 😤 Lost a ${RECIPES[order.dish].emoji}!`, 'error');
+    updateStats();
+  }
+
+  // Clean up old served orders
+  state.orders = state.orders.filter(o => !o.served || (now - o.spawnTime < 2000));
+
+  // Shift progression
+  if (state.served > 0 && state.served % 8 === 0 && state.shift < Math.ceil(state.served / 8) + 1) {
+    state.shift = Math.ceil(state.served / 8) + 1;
+    addChatMessage('KITCHEN', `🎉 SHIFT ${state.shift} — Things are heating up!`, 'system');
+    updateStats();
+  }
+
+  updateStats();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+.dining {
+  padding: 12px 20px;
+}
+
+.divider {
+  font-family: 'Lilita One', cursive;
+  font-size: 13px;
+  color: #a07862;
+  text-align: center;
+  padding: 0 0 8px;
+  margin-bottom: 12px;
+}
+
+.tables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.empty {
+  color: #736860;
+  font-size: 13px;
+  font-style: italic;
+}

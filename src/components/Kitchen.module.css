@@ -1,0 +1,20 @@
+.kitchen {
+  padding: 20px 0;
+}
+
+.divider {
+  font-family: 'Lilita One', cursive;
+  font-size: 13px;
+  color: #a07862;
+  text-align: center;
+  padding: 0 0 8px;
+  margin-bottom: 12px;
+}
+
+.stations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 0 20px;
+}

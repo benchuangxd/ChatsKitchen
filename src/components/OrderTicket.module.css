@@ -1,0 +1,51 @@
+.ticket {
+  background: rgba(30, 26, 23, 0.9);
+  border: 2px solid;
+  border-radius: 8px;
+  padding: 10px;
+  width: 155px;
+  text-align: center;
+}
+
+.critical { background: rgba(74, 20, 16, 0.9); }
+.warning { background: rgba(62, 42, 16, 0.9); }
+
+.orderLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  color: #f5efe6;
+  font-weight: bold;
+}
+
+.dishName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  color: #f0c850;
+  font-weight: bold;
+  margin: 4px 0;
+}
+
+.ingredients {
+  font-size: 16px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.ingredientEmoji {
+  cursor: default;
+}
+
+.patienceBg {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.patienceFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}

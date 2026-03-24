@@ -1,0 +1,196 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #1c1917;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  perspective: 1200px;
+  z-index: 1;
+}
+
+/* --- Door panels --- */
+
+.door {
+  width: 50vw;
+  height: 100vh;
+  position: relative;
+  backface-visibility: hidden;
+}
+
+.door::after {
+  content: '';
+  position: absolute;
+  inset: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.doorLeft {
+  background: linear-gradient(135deg, #b85a1f 0%, #8b4513 40%, #6d3410 100%);
+  transform-origin: left center;
+  border-right: 3px solid #5a2d0e;
+  box-shadow: inset -10px 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.doorRight {
+  background: linear-gradient(225deg, #b85a1f 0%, #8b4513 40%, #6d3410 100%);
+  transform-origin: right center;
+  border-left: 3px solid #5a2d0e;
+  box-shadow: inset 10px 0 30px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Door decorations --- */
+
+.doorWindow {
+  position: absolute;
+  top: 25%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(28, 25, 23, 0.6) 0%, rgba(28, 25, 23, 0.85) 100%);
+  border: 5px solid #a0522d;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.doorLeft .doorWindow {
+  right: 40px;
+}
+
+.doorRight .doorWindow {
+  left: 40px;
+}
+
+.doorHandle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 70px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #d4a04a, #b8860b);
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.doorLeft .doorHandle {
+  right: 20px;
+}
+
+.doorRight .doorHandle {
+  left: 20px;
+}
+
+/* --- Phase: closing --- */
+
+.doorLeft.closing {
+  animation: swingLeftClose 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.doorRight.closing {
+  animation: swingRightClose 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* --- Phase: holding --- */
+
+.doorLeft.holding {
+  transform: rotateY(0deg);
+}
+
+.doorRight.holding {
+  transform: rotateY(0deg);
+}
+
+/* --- Phase: opening --- */
+
+.doorLeft.opening {
+  animation: swingLeftOpen 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.doorRight.opening {
+  animation: swingRightOpen 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* --- Phase: done --- */
+
+.doorLeft.done {
+  transform: rotateY(-95deg);
+}
+
+.doorRight.done {
+  transform: rotateY(95deg);
+}
+
+/* --- Keyframes --- */
+
+@keyframes swingLeftClose {
+  0%   { transform: rotateY(-95deg); }
+  70%  { transform: rotateY(5deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+@keyframes swingRightClose {
+  0%   { transform: rotateY(95deg); }
+  70%  { transform: rotateY(-5deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+@keyframes swingLeftOpen {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(-95deg); }
+}
+
+@keyframes swingRightOpen {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(95deg); }
+}
+
+/* --- Center text --- */
+
+.centerText {
+  position: absolute;
+  z-index: 10;
+  font-family: 'Lilita One', cursive;
+  font-size: 56px;
+  color: #e86a2a;
+  text-shadow: 0 0 40px rgba(232, 106, 42, 0.5), 0 4px 8px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.textVisible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* --- Responsive --- */
+
+@media (max-width: 480px) {
+  .doorWindow {
+    width: 70px;
+    height: 70px;
+  }
+
+  .doorLeft .doorWindow {
+    right: 20px;
+  }
+
+  .doorRight .doorWindow {
+    left: 20px;
+  }
+
+  .centerText {
+    font-size: 36px;
+  }
+}

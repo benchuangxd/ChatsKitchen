@@ -1,0 +1,175 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #1c1917;
+  gap: 24px;
+  overflow-y: auto;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.title {
+  font-family: 'Lilita One', cursive;
+  font-size: 48px;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.statValue {
+  font-family: 'Lilita One', cursive;
+  font-size: 36px;
+  color: #f0c850;
+}
+
+.statLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  color: #9a8e82;
+  margin-top: 4px;
+}
+
+.leaderboard {
+  background: rgba(30, 26, 23, 0.9);
+  border: 2px solid #3d3632;
+  border-radius: 10px;
+  padding: 16px;
+  width: 420px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.lbTitle {
+  font-family: 'Lilita One', cursive;
+  font-size: 18px;
+  color: #a07862;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.lbHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid #3d3632;
+  margin-bottom: 4px;
+}
+
+.lbHeader span {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #736860;
+  font-weight: 700;
+}
+
+.lbRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+.lbRow:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.lbYou {
+  background: rgba(232, 106, 42, 0.1) !important;
+  border: 1px solid rgba(232, 106, 42, 0.25);
+}
+
+.lbRank {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #9a8e82;
+  font-weight: 700;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lbName {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lbMoney {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #f0c850;
+  font-weight: 700;
+  width: 56px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.lbDetail {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #9a8e82;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 240px;
+}
+
+.playAgainBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: #e86a2a;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.playAgainBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+}
+
+.menuBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: #3d3632;
+  color: #f5efe6;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.menuBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.2);
+}
