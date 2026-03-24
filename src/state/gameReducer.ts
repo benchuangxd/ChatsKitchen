@@ -15,7 +15,7 @@ export type GameAction =
 export function createInitialState(
   shiftDuration = 120000,
   durationMultiplier = 1,
-  stationCapacity: StationCapacity = { chopping: 2, cooking: 2, plating: 2 }
+  stationCapacity: StationCapacity = { chopping: 3, cooking: 2, plating: 2 }
 ): GameState {
   const stations: Record<string, Station> = {}
   for (const id of Object.keys(STATION_DEFS)) {

@@ -21,7 +21,7 @@ type Screen = 'menu' | 'options' | 'twitch' | 'countdown' | 'playing' | 'gameove
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
-  const [gameOptions, setGameOptions] = useState<GameOptions>({ durationMultiplier: 1, shiftDuration: 120000, stationCapacity: { chopping: 2, cooking: 2, plating: 2 } })
+  const [gameOptions, setGameOptions] = useState<GameOptions>({ durationMultiplier: 1, shiftDuration: 120000, stationCapacity: { chopping: 3, cooking: 2, plating: 2 } })
   const [state, dispatch] = useReducer(gameReducer, undefined, () =>
     createInitialState(gameOptions.shiftDuration, gameOptions.durationMultiplier, gameOptions.stationCapacity)
   )
