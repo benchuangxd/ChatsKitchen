@@ -1,5 +1,9 @@
 .dining {
   padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #171412;
 }
 
 .divider {
