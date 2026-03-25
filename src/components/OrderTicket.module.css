@@ -49,3 +49,14 @@
   border-radius: 3px;
   transition: width 0.1s linear;
 }
+
+@media (max-width: 480px) {
+  .ticket {
+    width: auto;
+    min-width: 120px;
+  }
+
+  .orderLabel {
+    font-size: 14px;
+  }
+}

@@ -148,3 +148,31 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+@media (max-width: 480px) {
+  .header {
+    flex-wrap: wrap;
+    padding: 6px 12px;
+    gap: 6px;
+  }
+
+  .header h1 {
+    font-size: 18px;
+  }
+
+  .headerButtons {
+    gap: 6px;
+  }
+
+  .chatToggle,
+  .botToggle,
+  .exitBtn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .twitchIndicator {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}

@@ -72,3 +72,22 @@
   font-size: 13px;
   font-style: italic;
 }
+
+@media (max-width: 480px) {
+  .toggle {
+    font-size: 12px;
+    padding: 3px 10px;
+  }
+
+  .emoji {
+    font-size: 20px;
+  }
+
+  .count {
+    font-size: 13px;
+  }
+
+  .name {
+    font-size: 12px;
+  }
+}
