@@ -26,3 +26,13 @@
   font-size: 13px;
   font-style: italic;
 }
+
+@media (max-width: 480px) {
+  .dining {
+    padding: 8px 12px;
+  }
+
+  .tables {
+    gap: 8px;
+  }
+}

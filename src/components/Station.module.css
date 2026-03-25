@@ -131,3 +131,38 @@
   color: #9a8e82;
   margin-left: 6px;
 }
+
+@media (max-width: 480px) {
+  .station {
+    min-width: 140px;
+  }
+
+  .slotUser {
+    font-size: 12px;
+    max-width: 70px;
+  }
+
+  .slotItem {
+    font-size: 12px;
+  }
+
+  .slotStatus {
+    font-size: 12px;
+  }
+
+  .capacity {
+    font-size: 12px;
+  }
+
+  .burnLabel {
+    font-size: 11px;
+  }
+
+  .progressBg {
+    height: 10px;
+  }
+
+  .burnBg {
+    height: 7px;
+  }
+}
