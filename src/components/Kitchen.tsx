@@ -22,7 +22,7 @@ export default function Kitchen({ state }: Props) {
     <div className={styles.kitchen}>
       <AssemblyArea state={state} />
       <PreparedItems items={state.preparedItems} />
-      <div className={styles.divider}>— STATIONS —</div>
+      <div className={styles.divider}>🔥 STATIONS</div>
       <div className={styles.stations}>
         {stationIds.map(id => (
           <Station

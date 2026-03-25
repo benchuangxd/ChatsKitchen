@@ -9,10 +9,13 @@
 }
 
 .title {
-  font-family: 'Lilita One', cursive;
-  font-size: 64px;
-  color: #ffffff;
-  text-shadow: 3px 3px 0 #1c1917, 0 0 40px rgba(255, 255, 255, 0.15);
+  font-family: 'Fredoka', sans-serif;
+  font-size: 60px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+  -webkit-text-stroke: 2px #b87333;
+  text-shadow: 3px 3px 0 #8b5a2b, 6px 6px 0 rgba(0, 0, 0, 0.3);
   margin: 0;
 }
 
@@ -51,7 +54,7 @@
 }
 
 .btnPlay {
-  background: #e86a2a;
+  background: #b87333;
   color: #fff;
 }
 

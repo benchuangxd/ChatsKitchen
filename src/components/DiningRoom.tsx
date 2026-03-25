@@ -11,7 +11,7 @@ export default function OrdersBar({ state }: Props) {
 
   return (
     <div className={styles.dining}>
-      <div className={styles.divider}>— ORDERS —</div>
+      <div className={styles.divider}>📋 ORDERS</div>
       <div className={styles.tables}>
         {activeOrders.map(order => (
           <OrderTicket

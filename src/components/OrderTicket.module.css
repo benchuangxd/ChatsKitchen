@@ -1,52 +1,96 @@
 .ticket {
-  background: rgba(30, 26, 23, 0.9);
-  border: 2px solid;
-  border-radius: 8px;
-  padding: 10px;
-  width: 155px;
+  width: 150px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* Torn bottom edge */
+.ticket::after {
+  content: '';
+  display: block;
+  height: 6px;
+  background: linear-gradient(135deg, #f5f0e8 33.33%, transparent 33.33%) -4px 0,
+              linear-gradient(225deg, #f5f0e8 33.33%, transparent 33.33%) -4px 0;
+  background-size: 8px 6px;
+  background-color: transparent;
+}
+
+.normal {}
+
+.critical .body {
+  background: #f5e8e8;
+}
+
+.warning .body {
+  background: #f5f0e0;
+}
+
+.header {
+  padding: 6px 10px;
   text-align: center;
 }
 
-.critical { background: rgba(74, 20, 16, 0.9); }
-.warning { background: rgba(62, 42, 16, 0.9); }
+.orderNum {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
 
-.orderLabel {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 13px;
-  color: #f5efe6;
-  font-weight: bold;
+.body {
+  background: #f5f0e8;
+  padding: 8px 10px 6px;
 }
 
 .dishName {
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
-  color: #f0c850;
+  font-size: 15px;
   font-weight: bold;
+  color: #2a2420;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.divider {
+  border-top: 1px dashed #c0b8a8;
   margin: 4px 0;
 }
 
 .ingredients {
-  font-size: 16px;
-  margin-bottom: 6px;
   display: flex;
-  justify-content: center;
-  gap: 4px;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.ingredientRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .ingredientEmoji {
-  cursor: default;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.ingredientName {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #4a4038;
 }
 
 .patienceBg {
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 3px;
-  height: 8px;
+  background: #d8d0c4;
+  border-radius: 2px;
+  height: 5px;
   overflow: hidden;
 }
 
 .patienceFill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 2px;
   transition: width 0.1s linear;
 }
 
@@ -56,7 +100,15 @@
     min-width: 120px;
   }
 
-  .orderLabel {
-    font-size: 14px;
+  .orderNum {
+    font-size: 15px;
+  }
+
+  .dishName {
+    font-size: 16px;
+  }
+
+  .ingredientName {
+    font-size: 11px;
   }
 }

@@ -1,5 +1,5 @@
 .dining {
-  padding: 12px 20px;
+  padding: 6px 20px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -8,17 +8,18 @@
 
 .divider {
   font-family: 'Lilita One', cursive;
-  font-size: 13px;
+  font-size: 16px;
   color: #a07862;
   text-align: center;
-  padding: 0 0 8px;
-  margin-bottom: 12px;
+  padding: 0 0 4px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .tables {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
 
 .empty {
@@ -29,7 +30,11 @@
 
 @media (max-width: 480px) {
   .dining {
-    padding: 8px 12px;
+    padding: 4px 12px;
+  }
+
+  .divider {
+    font-size: 18px;
   }
 
   .tables {

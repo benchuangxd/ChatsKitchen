@@ -88,8 +88,8 @@
 }
 
 .lbYou {
-  background: rgba(232, 106, 42, 0.1) !important;
-  border: 1px solid rgba(232, 106, 42, 0.25);
+  background: rgba(184, 115, 51, 0.1) !important;
+  border: 1px solid rgba(184, 115, 51, 0.25);
 }
 
 .lbRank {
@@ -145,7 +145,7 @@
   font-family: 'Fredoka', sans-serif;
   font-size: 18px;
   font-weight: 700;
-  background: #e86a2a;
+  background: #b87333;
   color: #fff;
   cursor: pointer;
   transition: transform 0.1s, filter 0.1s;

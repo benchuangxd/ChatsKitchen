@@ -1,74 +1,49 @@
 .assembly {
-  padding: 0 20px 20px;
+  padding: 6px 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .divider {
   font-family: 'Lilita One', cursive;
-  font-size: 13px;
+  font-size: 16px;
   color: #5cb85c;
   text-align: center;
-  padding: 8px 0;
-  margin-bottom: 8px;
+  padding: 0 0 4px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 480px) {
+  .divider {
+    font-size: 18px;
+  }
 }
 
 .plates {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  justify-content: center;
 }
 
 .plate {
-  width: 120px;
-  border-radius: 8px;
-  padding: 8px;
-  text-align: center;
-}
-
-.empty {
-  background: rgba(30, 26, 23, 0.5);
-  border: 2px dashed #ffffff15;
-}
-
-.filled {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   background: rgba(92, 184, 92, 0.10);
-  border: 2px solid #5cb85c44;
+  border: 1px solid #5cb85c44;
+  border-radius: 20px;
+  padding: 4px 12px;
 }
 
-.plateNum {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: #736860;
-  margin-bottom: 2px;
+.emoji {
+  font-size: 18px;
 }
 
-.plateIcon {
-  font-size: 24px;
-  opacity: 0.2;
-}
-
-.emptyLabel {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: #57504a;
-}
-
-.dishName {
+.name {
   font-family: 'Fredoka', sans-serif;
   font-size: 13px;
   font-weight: bold;
   color: #f5efe6;
-  margin-bottom: 4px;
-}
-
-.ingredients {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  margin-bottom: 4px;
-}
-
-.ingredientEmoji {
-  font-size: 16px;
 }
 
 .serveHint {
@@ -79,26 +54,15 @@
 }
 
 @media (max-width: 480px) {
-  .plate {
-    width: auto;
-    min-width: 90px;
+  .emoji {
+    font-size: 20px;
   }
 
-  .plateNum,
-  .emptyLabel,
-  .serveHint {
-    font-size: 12px;
-  }
-
-  .dishName {
+  .name {
     font-size: 14px;
   }
 
-  .plateIcon {
-    font-size: 28px;
-  }
-
-  .ingredientEmoji {
-    font-size: 18px;
+  .serveHint {
+    font-size: 12px;
   }
 }

@@ -6,6 +6,8 @@ interface Props {
   items: string[]
 }
 
+const ALL_INGREDIENTS = Object.keys(INGREDIENT_EMOJI)
+
 export default function PreparedItems({ items }: Props) {
   const [showNames, setShowNames] = useState(false)
 
@@ -14,26 +16,26 @@ export default function PreparedItems({ items }: Props) {
     counts[item] = (counts[item] || 0) + 1
   }
 
-  const entries = Object.entries(counts)
-
   return (
     <div className={styles.prep}>
       <div className={styles.header}>
-        <div className={styles.divider}>— PREPPED INGREDIENTS —</div>
+        <div className={styles.divider}>🥘 PREPPED INGREDIENTS</div>
         <button className={styles.toggle} onClick={() => setShowNames(s => !s)}>
           {showNames ? 'Hide names' : 'Show names'}
         </button>
       </div>
       <div className={styles.items}>
-        {entries.length > 0 ? entries.map(([item, count]) => (
-          <div key={item} className={styles.pill}>
-            <span className={styles.emoji}>{INGREDIENT_EMOJI[item] || '?'}</span>
-            <span className={styles.count}>{count > 1 ? `\u{00D7}${count}` : ''}</span>
-            {showNames && <span className={styles.name}>{item.replace(/_/g, ' ')}</span>}
-          </div>
-        )) : (
-          <div className={styles.empty}>No ingredients prepared</div>
-        )}
+        {ALL_INGREDIENTS.map((item) => {
+          const count = counts[item] || 0
+          const filled = count > 0
+          return (
+            <div key={item} className={`${styles.tray} ${filled ? styles.trayFilled : styles.trayEmpty}`}>
+              <span className={styles.emoji}>{INGREDIENT_EMOJI[item]}</span>
+              {filled && <span className={styles.count}>{count > 1 ? `\u{00D7}${count}` : ''}</span>}
+              {showNames && <span className={styles.name}>{item.replace(/_/g, ' ')}</span>}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

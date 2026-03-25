@@ -65,6 +65,7 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
       if (state.preparedItems.includes(step.produces)) continue
       const alreadyCooking = station.slots.some(s => s.produces === step.produces)
       if (alreadyCooking) continue
+      if (step.requires && !state.preparedItems.includes(step.requires)) continue
       return { name, command: `!${step.action} ${step.target}` }
     }
   }

@@ -2,7 +2,7 @@
   background: rgba(30, 26, 23, 0.85);
   border: 2px solid;
   border-radius: 8px;
-  padding: 10px;
+  padding: 6px;
   min-width: 170px;
   text-align: center;
 }
@@ -40,12 +40,12 @@
 .slots {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .slot {
   border-top: 1px solid #ffffff10;
-  padding-top: 6px;
+  padding-top: 3px;
 }
 
 .slot:first-child {

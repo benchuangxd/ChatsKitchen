@@ -247,9 +247,21 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       if (!matchedStep) return addMsg(withCooldown, 'KITCHEN', `Can't ${cookAction} ${(target || '').replace(/_/g, ' ')} there!`, 'error')
 
+      // Check ingredient prerequisite
+      let afterRequire = withCooldown
+      if (matchedStep.requires) {
+        const idx = afterRequire.preparedItems.indexOf(matchedStep.requires)
+        if (idx === -1) {
+          return addMsg(afterRequire, 'KITCHEN', `Need ${matchedStep.requires.replace(/_/g, ' ')} first!`, 'error')
+        }
+        const newItems = [...afterRequire.preparedItems]
+        newItems.splice(idx, 1)
+        afterRequire = { ...afterRequire, preparedItems: newItems }
+      }
+
       const speed = state.durationMultiplier
       const newSlot: StationSlot = {
-        id: `slot_${withCooldown.nextSlotId}`,
+        id: `slot_${afterRequire.nextSlotId}`,
         user,
         target: matchedStep.target,
         produces: matchedStep.produces,
@@ -262,14 +274,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted' }
 
       if (matchedStep.duration === 0) {
-        const withStat = addStat(withCooldown, user, 'cooked', 1)
+        const withStat = addStat(afterRequire, user, 'cooked', 1)
         return addMsg(
           { ...withStat, preparedItems: [...withStat.preparedItems, matchedStep.produces] },
           'KITCHEN', `${user} ${PAST_TENSE[cookAction] || cookAction + 'ed'} ${target.replace(/_/g, ' ')}!`, 'success'
         )
       }
 
-      const withStat = addStat(withCooldown, user, 'cooked', 1)
+      const withStat = addStat(afterRequire, user, 'cooked', 1)
       return addMsg(
         {
           ...withStat,

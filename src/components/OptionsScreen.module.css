@@ -11,7 +11,7 @@
 .title {
   font-family: 'Lilita One', cursive;
   font-size: 36px;
-  color: #e86a2a;
+  color: #b87333;
   margin: 0;
 }
 
@@ -46,13 +46,13 @@
 }
 
 .preset:hover {
-  border-color: #e86a2a;
+  border-color: #b87333;
   color: #f5efe6;
 }
 
 .active {
-  border-color: #e86a2a;
-  background: #e86a2a;
+  border-color: #b87333;
+  background: #b87333;
   color: #fff;
 }
 
@@ -129,7 +129,7 @@
 }
 
 .capacityBtn:hover {
-  border-color: #e86a2a;
+  border-color: #b87333;
   background: #3d3632;
 }
 
@@ -137,7 +137,7 @@
   font-family: 'Space Mono', monospace;
   font-size: 18px;
   font-weight: 700;
-  color: #e86a2a;
+  color: #b87333;
   min-width: 24px;
   text-align: center;
 }

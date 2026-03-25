@@ -9,7 +9,7 @@ interface Props {
 export default function MainMenu({ onPlay, onOptions, onTwitch }: Props) {
   return (
     <div className={styles.menu}>
-      <h1 className={styles.title}>🧑‍🍳 Let Chat Cook</h1>
+      <h1 className={styles.title}>🍳 Let Chat Cook 🔪</h1>
       <p className={styles.subtitle}>A Twitch Chat Restaurant Game</p>
       <div className={styles.buttons}>
         <button className={`${styles.btn} ${styles.btnPlay}`} onClick={onPlay}>
