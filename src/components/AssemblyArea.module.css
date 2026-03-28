@@ -3,66 +3,155 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.divider {
+/* Plating section */
+
+.platingDivider {
   font-family: 'Lilita One', cursive;
   font-size: 16px;
-  color: #5cb85c;
+  color: #b0a090;
   text-align: center;
   padding: 0 0 4px;
   margin-bottom: 4px;
 }
 
-@media (max-width: 480px) {
-  .divider {
-    font-size: 18px;
-  }
-}
-
-.plates {
+.platingSlots {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
 }
 
-.plate {
+.platingSlot {
   display: flex;
   align-items: center;
+  gap: 8px;
+  background: rgba(176, 160, 144, 0.10);
+  border: 1px solid #b0a09044;
+  border-radius: 12px;
+  padding: 8px 12px;
+  min-width: 160px;
+}
+
+.platingDone {
+  background: rgba(92, 184, 92, 0.12);
+  border-color: #5cb85c66;
+}
+
+.platingEmpty {
+  opacity: 0.35;
+}
+
+.plateIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.platingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.platingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 6px;
-  background: rgba(92, 184, 92, 0.10);
-  border: 1px solid #5cb85c44;
-  border-radius: 20px;
-  padding: 4px 12px;
 }
 
-.emoji {
-  font-size: 18px;
+.platingUser {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80px;
 }
 
-.name {
+.platingDish {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #f0c850;
+}
+
+.platingProgressBg {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.platingProgressFill {
+  height: 100%;
+  border-radius: 4px;
+  background: #b0a090;
+  transition: width 0.1s linear;
+}
+
+.platingStatus {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #b0a090;
+}
+
+.doneDish {
   font-family: 'Fredoka', sans-serif;
   font-size: 13px;
   font-weight: bold;
   color: #f5efe6;
 }
 
-.serveHint {
+.doneStatus {
   font-family: 'Space Mono', monospace;
   font-size: 10px;
   color: #5cb85c;
   font-weight: 700;
 }
 
+.emptyLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #9a8e82;
+}
+
 @media (max-width: 480px) {
-  .emoji {
-    font-size: 20px;
+  .platingDivider {
+    font-size: 18px;
   }
 
-  .name {
+  .platingUser {
+    font-size: 12px;
+    max-width: 70px;
+  }
+
+  .platingDish {
+    font-size: 12px;
+  }
+
+  .platingProgressBg {
+    height: 10px;
+  }
+
+  .platingStatus {
+    font-size: 12px;
+  }
+
+  .doneDish {
     font-size: 14px;
   }
 
-  .serveHint {
+  .doneStatus {
     font-size: 12px;
+  }
+
+  .emptyLabel {
+    font-size: 12px;
+  }
+
+  .plateIcon {
+    font-size: 28px;
   }
 }
