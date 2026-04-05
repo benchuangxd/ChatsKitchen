@@ -15,6 +15,7 @@ import LevelSelect from './components/LevelSelect'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
 import { getLevelConfig, getStarRating } from './data/levels'
+import { RECIPES } from './data/recipes'
 import StatsBar from './components/StatsBar'
 import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
@@ -29,7 +30,8 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   cookingSpeed: 1,
   orderSpeed: 1,
   shiftDuration: 120000,
-  stationCapacity: { chopping: 3, cooking: 2, plating: 2 }
+  stationCapacity: { chopping: 3, cooking: 2, plating: 2 },
+  enabledRecipes: Object.keys(RECIPES)
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -73,7 +75,7 @@ export default function App() {
 
   const startFreePlay = useCallback(() => {
     setCurrentLevel(null)
-    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity })
+    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity, enabledRecipes: gameOptions.enabledRecipes })
     setScreen('countdown')
   }, [gameOptions])
 
@@ -161,7 +163,7 @@ export default function App() {
   const startLevel = useCallback((level: number) => {
     const config = getLevelConfig(level)
     setCurrentLevel(level)
-    dispatch({ type: 'RESET', shiftDuration: config.shiftDuration, cookingSpeed: config.cookingSpeed, orderSpeed: config.orderSpeed, stationCapacity: gameOptions.stationCapacity })
+    dispatch({ type: 'RESET', shiftDuration: config.shiftDuration, cookingSpeed: config.cookingSpeed, orderSpeed: config.orderSpeed, stationCapacity: gameOptions.stationCapacity, enabledRecipes: gameOptions.enabledRecipes })
     setScreen('countdown')
   }, [gameOptions.stationCapacity])
 

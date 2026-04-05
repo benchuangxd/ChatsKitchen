@@ -53,6 +53,7 @@ export interface GameOptions {
   orderSpeed: number
   shiftDuration: number
   stationCapacity: StationCapacity
+  enabledRecipes: string[]
 }
 
 export interface AudioSettings {
@@ -74,6 +75,7 @@ export interface GameState {
   cookingSpeed: number
   orderSpeed: number
   stationCapacity: StationCapacity
+  enabledRecipes: string[]
   stations: Record<string, Station>
   orders: Order[]
   preparedItems: string[]
