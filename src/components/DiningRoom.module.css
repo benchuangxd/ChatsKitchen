@@ -1,9 +1,7 @@
 .dining {
   padding: 6px 20px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
   background: #171412;
+  flex-shrink: 0;
 }
 
 .divider {
@@ -18,8 +16,10 @@
 
 .tables {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
 .empty {
