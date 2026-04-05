@@ -1,0 +1,106 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: #1c1917;
+  gap: 24px;
+  overflow-y: auto;
+  padding: 32px 24px;
+  box-sizing: border-box;
+}
+
+.backBtn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: #b87333;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+  z-index: 10;
+}
+
+.backBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.2);
+}
+
+.title {
+  font-family: 'Lilita One', cursive;
+  font-size: 36px;
+  color: #b87333;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  max-width: 700px;
+  width: 100%;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: #2e2926;
+  border: 2px solid #3d3632;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.card:hover {
+  border-color: #b87333;
+  transform: scale(1.04);
+}
+
+.levelNum {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f5efe6;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+  font-size: 18px;
+}
+
+.starFilled {
+  filter: none;
+}
+
+.starEmpty {
+  filter: grayscale(1) opacity(0.3);
+}
+
+.thresholds {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.threshold {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #736860;
+}
+
+.thresholdDone {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #5cb85c;
+}

@@ -45,7 +45,7 @@ function SlotRow({ slot, stationId }: { slot: StationSlot; stationId: string }) 
         </div>
       )}
       <div className={styles.slotStatus} style={{ color: slot.state === 'done' ? '#5cb85c' : '#e8943a' }}>
-        {slot.state === 'cooking' ? `${stationId === 'plating' ? 'plating' : 'cooking'} ${Math.floor(progress * 100)}%` : `DONE! !take ${slot.target}`}
+        {slot.state === 'cooking' ? `${stationId === 'plating' ? 'plating' : 'cooking'} ${Math.floor(progress * 100)}%` : `DONE! take ${slot.target}`}
       </div>
     </div>
   )
@@ -66,7 +66,7 @@ export default function Station({ station, capacity }: Props) {
     <div className={`${styles.station} ${station.onFire ? styles.fire : ''}`} style={{ borderColor }}>
       <div className={styles.label}>{def.emoji} {def.name} <span className={styles.capacity}>{station.slots.length}/{capacity}</span></div>
       {station.onFire ? (
-        <div className={styles.fireStatus}>ON FIRE! !extinguish</div>
+        <div className={styles.fireStatus}>ON FIRE! extinguish {station.id.replace(/_/g, ' ')}</div>
       ) : station.slots.length === 0 ? (
         <div className={styles.idleStatus}>idle</div>
       ) : (

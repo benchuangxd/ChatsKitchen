@@ -16,11 +16,14 @@ export default function StatsBar({ money, served, lost, timeLeft }: Props) {
 
   return (
     <div className={styles.bar}>
-      <div className={styles.stat}>
-        <span className={styles.label}>TIME</span>
-        <span className={styles.value} style={{ color: timerColor }}>{timerStr}</span>
+      <div className={styles.primary}>
+        <span className={styles.primaryLabel}>TIME</span>
+        <span className={styles.primaryValue} style={{ color: timerColor }}>{timerStr}</span>
       </div>
-      <div className={styles.stat}><span className={styles.label}>MONEY</span><span className={styles.value}>${money}</span></div>
+      <div className={styles.primary}>
+        <span className={styles.primaryLabel}>MONEY</span>
+        <span className={styles.primaryValue} style={{ color: '#f0c850' }}>${money}</span>
+      </div>
       <div className={styles.stat}><span className={styles.label}>SERVED</span><span className={styles.value}>{served}</span></div>
       <div className={styles.stat}><span className={styles.label}>LOST</span><span className={styles.value}>{lost}</span></div>
     </div>

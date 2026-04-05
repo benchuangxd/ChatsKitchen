@@ -12,16 +12,16 @@ function expand(value: string): string {
 }
 
 export function parseCommand(user: string, text: string): GameAction | null {
-  if (!text.startsWith('!')) return null
-
-  const parts = text.slice(1).toLowerCase().split(/\s+/)
+  const trimmed = text.startsWith('!') ? text.slice(1) : text
+  const parts = trimmed.toLowerCase().split(/\s+/)
+  if (parts.length === 0) return null
   const action = parts[0]
   const rawTarget = parts.slice(1).join('_') || ''
   const target = expand(rawTarget)
 
   switch (action) {
     case 'extinguish':
-      return { type: 'EXTINGUISH', user }
+      return target ? { type: 'EXTINGUISH', user, stationId: expand(target) } : null
     case 'take':
       return target ? { type: 'TAKE', user, ingredient: target } : null
     case 'plate':

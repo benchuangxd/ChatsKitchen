@@ -115,17 +115,20 @@
 }
 
 .backBtn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
   border: none;
-  border-radius: 8px;
-  padding: 12px 40px;
+  border-radius: 10px;
+  padding: 12px 28px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  background: #3d3632;
-  color: #f5efe6;
+  background: #b87333;
+  color: #fff;
   cursor: pointer;
   transition: transform 0.1s, filter 0.1s;
-  margin-top: 12px;
+  z-index: 10;
 }
 
 .backBtn:hover {

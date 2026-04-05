@@ -7,7 +7,7 @@ export type GameAction =
   | { type: 'TAKE'; user: string; ingredient: string }
   | { type: 'PLATE'; user: string; dishKey: string; now: number }
   | { type: 'SERVE'; user: string; orderId: number }
-  | { type: 'EXTINGUISH'; user: string }
+  | { type: 'EXTINGUISH'; user: string; stationId: string }
   | { type: 'SPAWN_ORDER'; now: number }
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
   | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; stationCapacity: StationCapacity }
@@ -72,21 +72,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return addMsg(state, action.username, action.text, action.msgType)
 
     case 'EXTINGUISH': {
-      const anyFire = Object.values(state.stations).some(s => s.onFire)
-      if (!anyFire) return addMsg(state, 'KITCHEN', 'No fire to extinguish!', 'error')
-      const newStations = { ...state.stations }
+      const { stationId, user } = action
+      const station = state.stations[stationId]
+      if (!station) return addMsg(state, 'KITCHEN', 'Unknown station!', 'error')
+      if (!station.onFire) return addMsg(state, 'KITCHEN', `The ${STATION_DEFS[stationId].name} is not on fire!`, 'error')
+
       const newActiveUsers = { ...state.activeUsers }
-      for (const [id, station] of Object.entries(newStations)) {
-        if (station.onFire) {
-          // Remove all users from this station's slots
-          for (const slot of station.slots) {
-            delete newActiveUsers[slot.user]
-          }
-          newStations[id] = { ...station, slots: [], onFire: false }
-        }
+      for (const slot of station.slots) {
+        delete newActiveUsers[slot.user]
       }
-      const withStat = addStat({ ...state, stations: newStations, activeUsers: newActiveUsers }, action.user, 'extinguished', 1)
-      return addMsg(withStat, 'KITCHEN', `${action.user} put out the fire!`, 'success')
+      const newStations = { ...state.stations, [stationId]: { ...station, slots: [], onFire: false } }
+      const stationName = STATION_DEFS[stationId].name
+      const withStat = addStat({ ...state, stations: newStations, activeUsers: newActiveUsers }, user, 'extinguished', 1)
+      return addMsg(withStat, 'KITCHEN', `${user} put out the fire on the ${stationName}!`, 'success')
     }
 
     case 'TAKE': {
@@ -248,7 +246,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const [stationId] = stationEntry
       const station = withCooldown.stations[stationId]
 
-      if (station.onFire) return addMsg(withCooldown, 'KITCHEN', `The ${STATION_DEFS[stationId].name} is on fire! Type !extinguish first!`, 'error')
+      if (station.onFire) return addMsg(withCooldown, 'KITCHEN', `The ${STATION_DEFS[stationId].name} is on fire! Type extinguish ${stationId.replace(/_/g, ' ')} first!`, 'error')
 
       // Station capacity check
       const maxSlots = getStationCapacity(stationId, state.stationCapacity)
@@ -372,7 +370,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             fireStarted = true
             slotsChanged = true
             delete newActiveUsers[slot.user]
-            messages.push({ id: nextMsgId++, username: 'KITCHEN', text: `THE ${STATION_DEFS[id].name.toUpperCase()} IS ON FIRE! Type !extinguish!`, type: 'system' })
+            messages.push({ id: nextMsgId++, username: 'KITCHEN', text: `THE ${STATION_DEFS[id].name.toUpperCase()} IS ON FIRE! Type extinguish ${id.replace(/_/g, ' ')}!`, type: 'system' })
           } else {
             updatedSlots.push(slot)
           }

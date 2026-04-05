@@ -1,5 +1,6 @@
 import { PlayerStats } from '../state/types'
 import { NAME_COLORS } from '../data/recipes'
+import { getLevelConfig, getStarRating } from '../data/levels'
 import styles from './GameOver.module.css'
 
 function hashStr(s: string): number {
@@ -13,18 +14,42 @@ interface Props {
   served: number
   lost: number
   playerStats: Record<string, PlayerStats>
+  level: number | null
   onPlayAgain: () => void
+  onNextLevel?: () => void
   onMenu: () => void
 }
 
-export default function GameOver({ money, served, lost, playerStats, onPlayAgain, onMenu }: Props) {
+export default function GameOver({ money, served, lost, playerStats, level, onPlayAgain, onNextLevel, onMenu }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.taken + s.plated + s.served + s.extinguished
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
 
+  const stars = level != null ? getStarRating(level, money) : null
+  const config = level != null ? getLevelConfig(level) : null
+
   return (
     <div className={styles.screen}>
-      <h1 className={styles.title}>Time's Up!</h1>
+      <h1 className={styles.title}>{level != null ? `Level ${level} Complete!` : "Time's Up!"}</h1>
+
+      {stars != null && config && (
+        <div className={styles.starSection}>
+          <div className={styles.starRow}>
+            {[1, 2, 3].map(s => (
+              <span key={s} className={s <= stars ? styles.starFilled : styles.starEmpty}>
+                {'\u{2B50}'}
+              </span>
+            ))}
+          </div>
+          <div className={styles.starThresholds}>
+            {config.stars.map((t, i) => (
+              <span key={i} className={money >= t ? styles.thresholdMet : styles.thresholdUnmet}>
+                {i + 1}{'\u{2B50}'} ${t}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className={styles.stats}>
         <div className={styles.stat}>
@@ -68,8 +93,13 @@ export default function GameOver({ money, served, lost, playerStats, onPlayAgain
       )}
 
       <div className={styles.buttons}>
-        <button className={styles.playAgainBtn} onClick={onPlayAgain}>
-          Play Again
+        {level != null && onNextLevel && level < 10 && (
+          <button className={styles.playAgainBtn} onClick={onNextLevel}>
+            Next Level
+          </button>
+        )}
+        <button className={level != null ? styles.menuBtn : styles.playAgainBtn} onClick={onPlayAgain}>
+          {level != null ? 'Repeat Level' : 'Play Again'}
         </button>
         <button className={styles.menuBtn} onClick={onMenu}>
           Main Menu

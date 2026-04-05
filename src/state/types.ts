@@ -62,6 +62,10 @@ export interface AudioSettings {
   sfxMuted: boolean
 }
 
+export interface LevelProgress {
+  [level: number]: number // level → best stars (0-3)
+}
+
 export interface GameState {
   money: number
   served: number

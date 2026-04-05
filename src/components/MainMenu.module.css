@@ -60,14 +60,62 @@
   transform: scale(0.98);
 }
 
-.btnPlay {
+.sectionHeader {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #b87333;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: -6px;
+}
+
+.btnLevels {
   background: #b87333;
+  color: #fff;
+}
+
+.btnFreePlay {
+  background: #a0662e;
   color: #fff;
 }
 
 .btnTwitch {
   background: #9146ff;
   color: #fff;
+}
+
+.twitchStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9a8e82;
+  text-align: center;
+  margin-top: -6px;
+}
+
+.twitchDot {
+  width: 8px;
+  height: 8px;
+  background: #5cb85c;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: twitchPulse 1.5s infinite;
+}
+
+@keyframes twitchPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.twitchChannel {
+  color: #9146ff;
+  font-weight: 700;
+  font-size: 15px;
 }
 
 .btnOptions {

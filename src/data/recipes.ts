@@ -47,9 +47,9 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'boil', target: 'pasta', station: 'stove', duration: 10000, burnAt: 21000, produces: 'boiled_pasta' },
       { action: 'chop', target: 'tomato', station: 'cutting_board', duration: 7000, produces: 'chopped_tomato' },
-      { action: 'grill', target: 'cheese', station: 'grill', duration: 7000, burnAt: 16000, produces: 'melted_cheese' },
+      { action: 'grill', target: 'cheese', station: 'grill', duration: 7000, burnAt: 16000, produces: 'grilled_cheese' },
     ],
-    plate: ['boiled_pasta', 'chopped_tomato', 'melted_cheese']
+    plate: ['boiled_pasta', 'chopped_tomato', 'grilled_cheese']
   },
   salad: {
     name: 'Salad', emoji: '\u{1F957}', reward: 25, patience: 45000,
@@ -63,9 +63,9 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Mushroom Soup', emoji: '\u{1F372}', reward: 35, patience: 50000,
     steps: [
       { action: 'chop', target: 'mushroom', station: 'cutting_board', duration: 7000, produces: 'chopped_mushroom' },
-      { action: 'boil', target: 'mushroom', station: 'stove', duration: 10000, burnAt: 20000, produces: 'mushroom_soup', requires: 'chopped_mushroom' },
+      { action: 'boil', target: 'mushroom', station: 'stove', duration: 10000, burnAt: 20000, produces: 'boiled_mushroom', requires: 'chopped_mushroom' },
     ],
-    plate: ['mushroom_soup']
+    plate: ['boiled_mushroom']
   },
   fish_burger: {
     name: 'Fish Burger', emoji: '\u{1F354}', reward: 70, patience: 80000,
@@ -95,10 +95,10 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
   fried_potato: '\u{1F35F}',
   boiled_pasta: '\u{1F35D}',
   chopped_tomato: '\u{1F345}',
-  melted_cheese: '\u{1F9C0}',
+  grilled_cheese: '\u{1F9C0}',
   fried_fish: '\u{1F41F}',
   chopped_mushroom: '\u{1F344}',
-  mushroom_soup: '\u{1F372}',
+  boiled_mushroom: '\u{1F372}',
 }
 
 export const BOT_NAMES = [
