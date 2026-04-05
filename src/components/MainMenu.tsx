@@ -29,7 +29,7 @@ export default function MainMenu({ onPlay, onLevels, onOptions, onTwitch, twitch
         {!twitchConnected && (
           <div className={`${styles.twitchStatus} ${styles.twitchStatusWarning}`}>
             <span className={styles.twitchDotWarning} />
-            Connect to Twitch before playing so chat can join you.
+            Disconnected
           </div>
         )}
         <div className={styles.sectionHeader}>Play</div>
