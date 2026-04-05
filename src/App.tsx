@@ -1,7 +1,7 @@
 import { useReducer, useCallback, useState } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats } from './state/types'
+import { AudioSettings, GameOptions, LevelProgress, PlayerStats } from './state/types'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
@@ -11,6 +11,8 @@ import OptionsScreen from './components/OptionsScreen'
 import TwitchConnect from './components/TwitchConnect'
 import Countdown from './components/Countdown'
 import GameOver from './components/GameOver'
+import LevelSelect from './components/LevelSelect'
+import { getLevelConfig, getStarRating } from './data/levels'
 import StatsBar from './components/StatsBar'
 import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
@@ -18,7 +20,7 @@ import ChatPanel from './components/ChatPanel'
 import InfoBar from './components/InfoBar'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'options' | 'twitch' | 'countdown' | 'playing' | 'gameover'
+type Screen = 'menu' | 'levelselect' | 'options' | 'twitch' | 'countdown' | 'playing' | 'gameover'
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
@@ -38,6 +40,15 @@ export default function App() {
     }
   })
   const [finalStats, setFinalStats] = useState<{ money: number; served: number; lost: number; playerStats: Record<string, PlayerStats> }>({ money: 0, served: 0, lost: 0, playerStats: {} })
+  const [currentLevel, setCurrentLevel] = useState<number | null>(null)
+  const [levelProgress, setLevelProgress] = useState<LevelProgress>(() => {
+    try {
+      const saved = localStorage.getItem('chatsKitchen_levelProgress')
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  })
 
   const handleCommand = useCallback((user: string, text: string) => {
     const action = parseCommand(user, text)
@@ -57,13 +68,29 @@ export default function App() {
 
   const handleGameOver = useCallback(() => {
     setFinalStats({ money: state.money, served: state.served, lost: state.lost, playerStats: state.playerStats })
+    if (currentLevel != null) {
+      const stars = getStarRating(currentLevel, state.money)
+      if (stars > (levelProgress[currentLevel] || 0)) {
+        const updated = { ...levelProgress, [currentLevel]: stars }
+        setLevelProgress(updated)
+        localStorage.setItem('chatsKitchen_levelProgress', JSON.stringify(updated))
+      }
+    }
     setScreen('gameover')
-  }, [state.money, state.served, state.lost, state.playerStats])
+  }, [state.money, state.served, state.lost, state.playerStats, currentLevel, levelProgress])
 
   const resetGame = useCallback(() => {
+    setCurrentLevel(null)
     dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity })
     setScreen('countdown')
   }, [gameOptions])
+
+  const startLevel = useCallback((level: number) => {
+    const config = getLevelConfig(level)
+    setCurrentLevel(level)
+    dispatch({ type: 'RESET', shiftDuration: config.shiftDuration, cookingSpeed: config.cookingSpeed, orderSpeed: config.orderSpeed, stationCapacity: gameOptions.stationCapacity })
+    setScreen('countdown')
+  }, [gameOptions.stationCapacity])
 
   const handleAudioChange = useCallback((settings: AudioSettings) => {
     setAudioSettings(settings)
@@ -79,8 +106,21 @@ export default function App() {
     return (
       <MainMenu
         onPlay={resetGame}
+        onLevels={() => setScreen('levelselect')}
         onOptions={() => setScreen('options')}
         onTwitch={() => setScreen('twitch')}
+        twitchChannel={twitchChannel}
+        twitchConnected={twitchChat.status === 'connected'}
+      />
+    )
+  }
+
+  if (screen === 'levelselect') {
+    return (
+      <LevelSelect
+        progress={levelProgress}
+        onSelectLevel={startLevel}
+        onBack={() => setScreen('menu')}
       />
     )
   }
@@ -113,7 +153,9 @@ export default function App() {
         served={finalStats.served}
         lost={finalStats.lost}
         playerStats={finalStats.playerStats}
-        onPlayAgain={resetGame}
+        level={currentLevel}
+        onPlayAgain={currentLevel != null ? () => startLevel(currentLevel) : resetGame}
+        onNextLevel={currentLevel != null && currentLevel < 10 ? () => startLevel(currentLevel + 1) : undefined}
         onMenu={() => setScreen('menu')}
       />
     )

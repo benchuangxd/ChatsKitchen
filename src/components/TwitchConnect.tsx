@@ -18,7 +18,7 @@ export default function TwitchConnect({ channel, status, error, onConnect, onDis
 
   const handleConnect = () => {
     if (!input.trim()) return
-    onConnect(input.trim().toLowerCase())
+    onConnect(input.trim())
   }
 
   const statusColor = isConnected ? '#5cb85c' : isConnecting ? '#e8943a' : status === 'error' ? '#d94f4f' : '#d94f4f'
@@ -65,10 +65,10 @@ export default function TwitchConnect({ channel, status, error, onConnect, onDis
       </div>
 
       <p className={styles.note}>
-        When connected, your Twitch chat viewers can send commands like <strong>!chop lettuce</strong> to play together!
+        When connected, your Twitch chat viewers can send commands like <strong>chop lettuce</strong> to play together!
       </p>
 
-      <button className={styles.backBtn} onClick={onBack}>Back</button>
+      <button className={styles.backBtn} onClick={onBack}>{'\u{2190}'} Back</button>
     </div>
   )
 }

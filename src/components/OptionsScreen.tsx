@@ -20,137 +20,143 @@ const DURATION_PRESETS = [
 export default function OptionsScreen({ options, onChange, audioSettings, onAudioChange, onBack }: Props) {
   return (
     <div className={styles.screen}>
+      <button className={styles.backBtn} onClick={onBack}>{'\u{2190}'} Back</button>
       <h1 className={styles.title}>Options</h1>
+      <div className={styles.subtitle}>These options affect Free Play only. Levels have fixed settings.</div>
 
-      <div className={styles.section}>
-        <div className={styles.label}>Cooking Speed</div>
-        <div className={styles.presets}>
-          {SPEED_PRESETS.map(speed => (
-            <button
-              key={speed}
-              className={`${styles.preset} ${options.cookingSpeed === speed ? styles.active : ''}`}
-              onClick={() => onChange({ ...options, cookingSpeed: speed })}
-            >
-              {speed}x
-            </button>
-          ))}
-        </div>
-        <div className={styles.hint}>
-          Higher = faster cooking and plating
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <div className={styles.label}>Order Speed</div>
-        <div className={styles.presets}>
-          {SPEED_PRESETS.map(speed => (
-            <button
-              key={speed}
-              className={`${styles.preset} ${options.orderSpeed === speed ? styles.active : ''}`}
-              onClick={() => onChange({ ...options, orderSpeed: speed })}
-            >
-              {speed}x
-            </button>
-          ))}
-        </div>
-        <div className={styles.hint}>
-          Higher = less time to fulfill orders
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <div className={styles.label}>Round Duration</div>
-        <div className={styles.presets}>
-          {DURATION_PRESETS.map(({ label, value }) => (
-            <button
-              key={value}
-              className={`${styles.preset} ${options.shiftDuration === value ? styles.active : ''}`}
-              onClick={() => onChange({ ...options, shiftDuration: value })}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <div className={styles.label}>Station Slots</div>
-        <div className={styles.capacityGrid}>
-          {([
-            { key: 'chopping' as const, label: '\u{1F52A} Chopping' },
-            { key: 'cooking' as const, label: '\u{1F525} Cooking' },
-            { key: 'plating' as const, label: '\u{1F37D}\u{FE0F} Plating' },
-          ]).map(({ key, label }) => (
-            <div key={key} className={styles.capacityRow}>
-              <span className={styles.capacityLabel}>{label}</span>
-              <div className={styles.capacityControl}>
+      <div className={styles.columns}>
+        <div className={styles.column}>
+          <div className={styles.section}>
+            <div className={styles.label}>Cooking Speed</div>
+            <div className={styles.presets}>
+              {SPEED_PRESETS.map(speed => (
                 <button
-                  className={styles.capacityBtn}
-                  onClick={() => onChange({
-                    ...options,
-                    stationCapacity: { ...options.stationCapacity, [key]: Math.max(1, options.stationCapacity[key] - 1) }
-                  })}
-                >-</button>
-                <span className={styles.capacityValue}>{options.stationCapacity[key]}</span>
+                  key={speed}
+                  className={`${styles.preset} ${options.cookingSpeed === speed ? styles.active : ''}`}
+                  onClick={() => onChange({ ...options, cookingSpeed: speed })}
+                >
+                  {speed}x
+                </button>
+              ))}
+            </div>
+            <div className={styles.hint}>
+              Higher = faster cooking and plating
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.label}>Order Speed</div>
+            <div className={styles.presets}>
+              {SPEED_PRESETS.map(speed => (
                 <button
-                  className={styles.capacityBtn}
-                  onClick={() => onChange({
-                    ...options,
-                    stationCapacity: { ...options.stationCapacity, [key]: Math.min(8, options.stationCapacity[key] + 1) }
-                  })}
-                >+</button>
+                  key={speed}
+                  className={`${styles.preset} ${options.orderSpeed === speed ? styles.active : ''}`}
+                  onClick={() => onChange({ ...options, orderSpeed: speed })}
+                >
+                  {speed}x
+                </button>
+              ))}
+            </div>
+            <div className={styles.hint}>
+              Higher = less time to fulfill orders
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.label}>Round Duration</div>
+            <div className={styles.presets}>
+              {DURATION_PRESETS.map(({ label, value }) => (
+                <button
+                  key={value}
+                  className={`${styles.preset} ${options.shiftDuration === value ? styles.active : ''}`}
+                  onClick={() => onChange({ ...options, shiftDuration: value })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.column}>
+          <div className={styles.section}>
+            <div className={styles.label}>Station Slots</div>
+            <div className={styles.capacityGrid}>
+              {([
+                { key: 'chopping' as const, label: '\u{1F52A} Chopping' },
+                { key: 'cooking' as const, label: '\u{1F525} Cooking' },
+                { key: 'plating' as const, label: '\u{1F37D}\u{FE0F} Plating' },
+              ]).map(({ key, label }) => (
+                <div key={key} className={styles.capacityRow}>
+                  <span className={styles.capacityLabel}>{label}</span>
+                  <div className={styles.capacityControl}>
+                    <button
+                      className={styles.capacityBtn}
+                      onClick={() => onChange({
+                        ...options,
+                        stationCapacity: { ...options.stationCapacity, [key]: Math.max(1, options.stationCapacity[key] - 1) }
+                      })}
+                    >-</button>
+                    <span className={styles.capacityValue}>{options.stationCapacity[key]}</span>
+                    <button
+                      className={styles.capacityBtn}
+                      onClick={() => onChange({
+                        ...options,
+                        stationCapacity: { ...options.stationCapacity, [key]: Math.min(8, options.stationCapacity[key] + 1) }
+                      })}
+                    >+</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className={styles.hint}>
+              Slots per station type (cooking applies to each: grill, fryer, stove, oven)
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.label}>Audio</div>
+            <div className={styles.sliderGrid}>
+              <div className={styles.sliderRow}>
+                <span className={styles.sliderLabel}>Music</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Math.round(audioSettings.musicVolume * 100)}
+                  onChange={e => onAudioChange({ ...audioSettings, musicVolume: Number(e.target.value) / 100 })}
+                  className={styles.slider}
+                />
+                <span className={styles.sliderValue}>{Math.round(audioSettings.musicVolume * 100)}%</span>
+                <button
+                  className={`${styles.muteBtn} ${audioSettings.musicMuted ? styles.muteBtnActive : ''}`}
+                  onClick={() => onAudioChange({ ...audioSettings, musicMuted: !audioSettings.musicMuted })}
+                >
+                  {audioSettings.musicMuted ? 'OFF' : 'ON'}
+                </button>
+              </div>
+              <div className={styles.sliderRow}>
+                <span className={styles.sliderLabel}>SFX</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Math.round(audioSettings.sfxVolume * 100)}
+                  onChange={e => onAudioChange({ ...audioSettings, sfxVolume: Number(e.target.value) / 100 })}
+                  className={styles.slider}
+                />
+                <span className={styles.sliderValue}>{Math.round(audioSettings.sfxVolume * 100)}%</span>
+                <button
+                  className={`${styles.muteBtn} ${audioSettings.sfxMuted ? styles.muteBtnActive : ''}`}
+                  onClick={() => onAudioChange({ ...audioSettings, sfxMuted: !audioSettings.sfxMuted })}
+                >
+                  {audioSettings.sfxMuted ? 'OFF' : 'ON'}
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-        <div className={styles.hint}>
-          Slots per station type (cooking applies to each: grill, fryer, stove, oven)
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <div className={styles.label}>Audio</div>
-        <div className={styles.sliderGrid}>
-          <div className={styles.sliderRow}>
-            <span className={styles.sliderLabel}>Music</span>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={Math.round(audioSettings.musicVolume * 100)}
-              onChange={e => onAudioChange({ ...audioSettings, musicVolume: Number(e.target.value) / 100 })}
-              className={styles.slider}
-            />
-            <span className={styles.sliderValue}>{Math.round(audioSettings.musicVolume * 100)}%</span>
-            <button
-              className={`${styles.muteBtn} ${audioSettings.musicMuted ? styles.muteBtnActive : ''}`}
-              onClick={() => onAudioChange({ ...audioSettings, musicMuted: !audioSettings.musicMuted })}
-            >
-              {audioSettings.musicMuted ? 'OFF' : 'ON'}
-            </button>
-          </div>
-          <div className={styles.sliderRow}>
-            <span className={styles.sliderLabel}>SFX</span>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={Math.round(audioSettings.sfxVolume * 100)}
-              onChange={e => onAudioChange({ ...audioSettings, sfxVolume: Number(e.target.value) / 100 })}
-              className={styles.slider}
-            />
-            <span className={styles.sliderValue}>{Math.round(audioSettings.sfxVolume * 100)}%</span>
-            <button
-              className={`${styles.muteBtn} ${audioSettings.sfxMuted ? styles.muteBtnActive : ''}`}
-              onClick={() => onAudioChange({ ...audioSettings, sfxMuted: !audioSettings.sfxMuted })}
-            >
-              {audioSettings.sfxMuted ? 'OFF' : 'ON'}
-            </button>
           </div>
         </div>
       </div>
-
-      <button className={styles.backBtn} onClick={onBack}>Back</button>
     </div>
   )
 }

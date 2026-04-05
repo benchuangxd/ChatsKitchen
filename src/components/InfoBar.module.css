@@ -1,7 +1,6 @@
 .bar {
   background: linear-gradient(180deg, #252220 0%, #1f1c1a 100%);
   border-top: 2px solid #3d3632;
-  flex-shrink: 0;
 }
 
 .toggle {

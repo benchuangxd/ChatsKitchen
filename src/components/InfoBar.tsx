@@ -15,15 +15,15 @@ export default function InfoBar() {
           <div className={styles.section}>
             <div className={styles.sectionTitle}>Commands</div>
             <div className={styles.commands}>
-              <span>!chop [item]</span>
-              <span>!grill [item]</span>
-              <span>!fry [item]</span>
-              <span>!boil [item]</span>
-              <span>!toast [item]</span>
-              <span>!take [ingredient]</span>
-              <span>!plate [dish]</span>
-              <span>!serve [order#]</span>
-              <span>!extinguish</span>
+              <span>chop [item]</span>
+              <span>grill [item]</span>
+              <span>fry [item]</span>
+              <span>boil [item]</span>
+              <span>toast [item]</span>
+              <span>take [ingredient]</span>
+              <span>plate [dish]</span>
+              <span>serve [order#]</span>
+              <span>extinguish [station]</span>
             </div>
             <div className={styles.hint}>
               Items: lettuce(lett), tomato, patty, bun, potato, pasta, cheese, fish
@@ -41,8 +41,8 @@ export default function InfoBar() {
                   <span className={styles.recipeName}>{recipe.emoji} {recipe.name}</span>
                   <span className={styles.recipeReward}>${recipe.reward}</span>
                   <span className={styles.recipeSteps}>
-                    {recipe.steps.map(s => `!${s.action} ${s.target}`).join(' \u{2192} ')}
-                    {' \u{2192} '}!plate {key.replace(/_/g, ' ')} {'\u{2192}'} !serve #
+                    {recipe.steps.map(s => `${s.action} ${s.target}`).join(' \u{2192} ')}
+                    {' \u{2192} '}plate {key.replace(/_/g, ' ')} {'\u{2192}'} serve #
                   </span>
                 </div>
               ))}

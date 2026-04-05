@@ -12,8 +12,8 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
   if (state.activeUsers[name]) return null
 
   // Fire — any station on fire
-  for (const station of Object.values(state.stations)) {
-    if (station.onFire) return { name, command: '!extinguish' }
+  for (const [id, station] of Object.entries(state.stations)) {
+    if (station.onFire) return { name, command: `extinguish ${id}` }
   }
 
   // Done slots — take bot's own first, then any done slot (skip plating — auto-completes)
@@ -21,14 +21,14 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
     if (id === 'plating') continue
     const doneSlot = station.slots.find(s => s.state === 'done' && s.user === name)
       || station.slots.find(s => s.state === 'done')
-    if (doneSlot) return { name, command: `!take ${doneSlot.target}` }
+    if (doneSlot) return { name, command: `take ${doneSlot.target}` }
   }
 
   // Serve — check plating station for done slots
   const plating = state.stations['plating']
   for (const order of state.orders) {
     if (order.served) continue
-    if (plating.slots.some(s => s.state === 'done' && s.produces === order.dish)) return { name, command: `!serve ${order.id}` }
+    if (plating.slots.some(s => s.state === 'done' && s.produces === order.dish)) return { name, command: `serve ${order.id}` }
   }
 
   // Plate — check plating station capacity
@@ -45,7 +45,7 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
         if (idx === -1) { canPlate = false; break }
         available.splice(idx, 1)
       }
-      if (canPlate) return { name, command: `!plate ${order.dish}` }
+      if (canPlate) return { name, command: `plate ${order.dish}` }
     }
   }
 
@@ -67,7 +67,7 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
       const alreadyCooking = station.slots.some(s => s.produces === step.produces)
       if (alreadyCooking) continue
       if (step.requires && !state.preparedItems.includes(step.requires)) continue
-      return { name, command: `!${step.action} ${step.target}` }
+      return { name, command: `${step.action} ${step.target}` }
     }
   }
 

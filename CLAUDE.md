@@ -264,3 +264,7 @@ When implementing a new feature of similar scope, create a plan document in this
 4. **`activeUsers`** — a player cooking at one station cannot simultaneously use another. Check and clear this map correctly on station completion/fire.
 5. **Chat messages are capped at 200** — `ADD_CHAT` slices to `chatMessages.slice(-200)`.
 6. **Plating is timed** — `!plate` queues a slot in the plating station and consumes ingredients immediately. The dish appears in `platedDishes` automatically when the slot timer completes (no `!take` needed for plating).
+
+## Workflow
+
+1. Always create a new git branch, do not work on main directly.
