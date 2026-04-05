@@ -1,15 +1,14 @@
 import { useReducer, useCallback, useState } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { GameOptions, PlayerStats } from './state/types'
+import { AudioSettings, GameOptions, PlayerStats } from './state/types'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
-import { useYouTubeChat } from './hooks/useYouTubeChat'
+import { useGameAudio } from './audio/useGameAudio'
 import MainMenu from './components/MainMenu'
 import OptionsScreen from './components/OptionsScreen'
 import TwitchConnect from './components/TwitchConnect'
-import YouTubeConnect from './components/YouTubeConnect'
 import Countdown from './components/Countdown'
 import GameOver from './components/GameOver'
 import StatsBar from './components/StatsBar'
@@ -19,18 +18,25 @@ import ChatPanel from './components/ChatPanel'
 import InfoBar from './components/InfoBar'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'options' | 'twitch' | 'youtube' | 'countdown' | 'playing' | 'gameover'
+type Screen = 'menu' | 'options' | 'twitch' | 'countdown' | 'playing' | 'gameover'
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
-  const [gameOptions, setGameOptions] = useState<GameOptions>({ durationMultiplier: 1, shiftDuration: 120000, stationCapacity: { chopping: 3, cooking: 2, plating: 2 } })
+  const [gameOptions, setGameOptions] = useState<GameOptions>({ cookingSpeed: 1, orderSpeed: 1, shiftDuration: 120000, stationCapacity: { chopping: 3, cooking: 2, plating: 2 } })
   const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    createInitialState(gameOptions.shiftDuration, gameOptions.durationMultiplier, gameOptions.stationCapacity)
+    createInitialState(gameOptions.shiftDuration, gameOptions.cookingSpeed, gameOptions.orderSpeed, gameOptions.stationCapacity)
   )
   const [botsEnabled, setBotsEnabled] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
   const [twitchChannel, setTwitchChannel] = useState<string | null>(null)
-  const [youtubeVideoInput, setYoutubeVideoInput] = useState<string | null>(null)
+  const [audioSettings, setAudioSettings] = useState<AudioSettings>(() => {
+    try {
+      const saved = localStorage.getItem('audioSettings')
+      return saved ? { musicVolume: 0.5, sfxVolume: 0.5, musicMuted: false, sfxMuted: false, ...JSON.parse(saved) } : { musicVolume: 0.5, sfxVolume: 0.5, musicMuted: false, sfxMuted: false }
+    } catch {
+      return { musicVolume: 0.5, sfxVolume: 0.5, musicMuted: false, sfxMuted: false }
+    }
+  })
   const [finalStats, setFinalStats] = useState<{ money: number; served: number; lost: number; playerStats: Record<string, PlayerStats> }>({ money: 0, served: 0, lost: 0, playerStats: {} })
 
   const handleCommand = useCallback((user: string, text: string) => {
@@ -44,8 +50,6 @@ export default function App() {
   }, [handleCommand])
 
   const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
-  const youtubeChat = useYouTubeChat(youtubeVideoInput, handleTwitchMessage)
-
   const handleChatSend = useCallback((text: string) => {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
     handleCommand('You', text)
@@ -57,13 +61,19 @@ export default function App() {
   }, [state.money, state.served, state.lost, state.playerStats])
 
   const resetGame = useCallback(() => {
-    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, durationMultiplier: gameOptions.durationMultiplier, stationCapacity: gameOptions.stationCapacity })
+    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity })
     setScreen('countdown')
   }, [gameOptions])
+
+  const handleAudioChange = useCallback((settings: AudioSettings) => {
+    setAudioSettings(settings)
+    localStorage.setItem('audioSettings', JSON.stringify(settings))
+  }, [])
 
   const isPlaying = screen === 'playing'
   useGameLoop(state, dispatch, isPlaying ? handleGameOver : undefined)
   useBotSimulation(state, dispatch, handleCommand, isPlaying && botsEnabled)
+  useGameAudio(screen, state, audioSettings)
 
   if (screen === 'menu') {
     return (
@@ -71,13 +81,12 @@ export default function App() {
         onPlay={resetGame}
         onOptions={() => setScreen('options')}
         onTwitch={() => setScreen('twitch')}
-        onYouTube={() => setScreen('youtube')}
       />
     )
   }
 
   if (screen === 'options') {
-    return <OptionsScreen options={gameOptions} onChange={setGameOptions} onBack={() => setScreen('menu')} />
+    return <OptionsScreen options={gameOptions} onChange={setGameOptions} audioSettings={audioSettings} onAudioChange={handleAudioChange} onBack={() => setScreen('menu')} />
   }
 
   if (screen === 'twitch') {
@@ -88,19 +97,6 @@ export default function App() {
         error={twitchChat.error}
         onConnect={(ch) => setTwitchChannel(ch)}
         onDisconnect={() => setTwitchChannel(null)}
-        onBack={() => setScreen('menu')}
-      />
-    )
-  }
-
-  if (screen === 'youtube') {
-    return (
-      <YouTubeConnect
-        videoInput={youtubeVideoInput}
-        status={youtubeChat.status}
-        error={youtubeChat.error}
-        onConnect={(v) => setYoutubeVideoInput(v)}
-        onDisconnect={() => setYoutubeVideoInput(null)}
         onBack={() => setScreen('menu')}
       />
     )
@@ -140,12 +136,18 @@ export default function App() {
               {twitchChannel}
             </span>
           )}
-          {youtubeVideoInput && youtubeChat.status === 'connected' && (
-            <span className={styles.youtubeIndicator}>
-              <span className={styles.youtubeDot} />
-              YT Live
-            </span>
-          )}
+          <button
+            className={`${styles.muteToggle} ${audioSettings.musicMuted ? styles.muteToggleMuted : ''}`}
+            onClick={() => handleAudioChange({ ...audioSettings, musicMuted: !audioSettings.musicMuted })}
+          >
+            {audioSettings.musicMuted ? 'Music: OFF' : 'Music: ON'}
+          </button>
+          <button
+            className={`${styles.muteToggle} ${audioSettings.sfxMuted ? styles.muteToggleMuted : ''}`}
+            onClick={() => handleAudioChange({ ...audioSettings, sfxMuted: !audioSettings.sfxMuted })}
+          >
+            {audioSettings.sfxMuted ? 'SFX: OFF' : 'SFX: ON'}
+          </button>
           <button
             className={`${styles.chatToggle} ${chatOpen ? styles.chatToggleOn : ''}`}
             onClick={() => setChatOpen(o => !o)}

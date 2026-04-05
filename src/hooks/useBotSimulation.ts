@@ -21,7 +21,7 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
     if (id === 'plating') continue
     const doneSlot = station.slots.find(s => s.state === 'done' && s.user === name)
       || station.slots.find(s => s.state === 'done')
-    if (doneSlot) return { name, command: `!take ${id}` }
+    if (doneSlot) return { name, command: `!take ${doneSlot.target}` }
   }
 
   // Serve — check plating station for done slots

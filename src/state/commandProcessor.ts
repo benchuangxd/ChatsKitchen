@@ -4,6 +4,7 @@ const ALIASES: Record<string, string> = {
   cboard: 'cutting_board',
   lett: 'lettuce',
   fburger: 'fish_burger',
+  msoup: 'mushroom_soup',
 }
 
 function expand(value: string): string {
@@ -22,7 +23,7 @@ export function parseCommand(user: string, text: string): GameAction | null {
     case 'extinguish':
       return { type: 'EXTINGUISH', user }
     case 'take':
-      return target ? { type: 'TAKE', user, stationId: expand(target) } : null
+      return target ? { type: 'TAKE', user, ingredient: target } : null
     case 'plate':
       return target ? { type: 'PLATE', user, dishKey: expand(target), now: Date.now() } : null
     case 'serve': {

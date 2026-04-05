@@ -1,9 +1,11 @@
-import { GameOptions } from '../state/types'
+import { AudioSettings, GameOptions } from '../state/types'
 import styles from './OptionsScreen.module.css'
 
 interface Props {
   options: GameOptions
   onChange: (options: GameOptions) => void
+  audioSettings: AudioSettings
+  onAudioChange: (settings: AudioSettings) => void
   onBack: () => void
 }
 
@@ -15,26 +17,44 @@ const DURATION_PRESETS = [
   { label: '5 min', value: 300000 },
 ]
 
-export default function OptionsScreen({ options, onChange, onBack }: Props) {
+export default function OptionsScreen({ options, onChange, audioSettings, onAudioChange, onBack }: Props) {
   return (
     <div className={styles.screen}>
       <h1 className={styles.title}>Options</h1>
 
       <div className={styles.section}>
-        <div className={styles.label}>Game Speed</div>
+        <div className={styles.label}>Cooking Speed</div>
         <div className={styles.presets}>
           {SPEED_PRESETS.map(speed => (
             <button
               key={speed}
-              className={`${styles.preset} ${options.durationMultiplier === speed ? styles.active : ''}`}
-              onClick={() => onChange({ ...options, durationMultiplier: speed })}
+              className={`${styles.preset} ${options.cookingSpeed === speed ? styles.active : ''}`}
+              onClick={() => onChange({ ...options, cookingSpeed: speed })}
             >
               {speed}x
             </button>
           ))}
         </div>
         <div className={styles.hint}>
-          Higher = faster cooking, faster orders
+          Higher = faster cooking and plating
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <div className={styles.label}>Order Speed</div>
+        <div className={styles.presets}>
+          {SPEED_PRESETS.map(speed => (
+            <button
+              key={speed}
+              className={`${styles.preset} ${options.orderSpeed === speed ? styles.active : ''}`}
+              onClick={() => onChange({ ...options, orderSpeed: speed })}
+            >
+              {speed}x
+            </button>
+          ))}
+        </div>
+        <div className={styles.hint}>
+          Higher = less time to fulfill orders
         </div>
       </div>
 
@@ -85,6 +105,48 @@ export default function OptionsScreen({ options, onChange, onBack }: Props) {
         </div>
         <div className={styles.hint}>
           Slots per station type (cooking applies to each: grill, fryer, stove, oven)
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <div className={styles.label}>Audio</div>
+        <div className={styles.sliderGrid}>
+          <div className={styles.sliderRow}>
+            <span className={styles.sliderLabel}>Music</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={Math.round(audioSettings.musicVolume * 100)}
+              onChange={e => onAudioChange({ ...audioSettings, musicVolume: Number(e.target.value) / 100 })}
+              className={styles.slider}
+            />
+            <span className={styles.sliderValue}>{Math.round(audioSettings.musicVolume * 100)}%</span>
+            <button
+              className={`${styles.muteBtn} ${audioSettings.musicMuted ? styles.muteBtnActive : ''}`}
+              onClick={() => onAudioChange({ ...audioSettings, musicMuted: !audioSettings.musicMuted })}
+            >
+              {audioSettings.musicMuted ? 'OFF' : 'ON'}
+            </button>
+          </div>
+          <div className={styles.sliderRow}>
+            <span className={styles.sliderLabel}>SFX</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={Math.round(audioSettings.sfxVolume * 100)}
+              onChange={e => onAudioChange({ ...audioSettings, sfxVolume: Number(e.target.value) / 100 })}
+              className={styles.slider}
+            />
+            <span className={styles.sliderValue}>{Math.round(audioSettings.sfxVolume * 100)}%</span>
+            <button
+              className={`${styles.muteBtn} ${audioSettings.sfxMuted ? styles.muteBtnActive : ''}`}
+              onClick={() => onAudioChange({ ...audioSettings, sfxMuted: !audioSettings.sfxMuted })}
+            >
+              {audioSettings.sfxMuted ? 'OFF' : 'ON'}
+            </button>
+          </div>
         </div>
       </div>
 

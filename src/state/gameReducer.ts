@@ -4,17 +4,18 @@ import { RECIPES, STATION_DEFS } from '../data/recipes'
 export type GameAction =
   | { type: 'TICK'; delta: number; now: number }
   | { type: 'COOK'; user: string; action: string; target: string; now: number }
-  | { type: 'TAKE'; user: string; stationId: string }
+  | { type: 'TAKE'; user: string; ingredient: string }
   | { type: 'PLATE'; user: string; dishKey: string; now: number }
   | { type: 'SERVE'; user: string; orderId: number }
   | { type: 'EXTINGUISH'; user: string }
   | { type: 'SPAWN_ORDER'; now: number }
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
-  | { type: 'RESET'; shiftDuration: number; durationMultiplier: number; stationCapacity: StationCapacity }
+  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; stationCapacity: StationCapacity }
 
 export function createInitialState(
   shiftDuration = 120000,
-  durationMultiplier = 1,
+  cookingSpeed = 1,
+  orderSpeed = 1,
   stationCapacity: StationCapacity = { chopping: 3, cooking: 2, plating: 2 }
 ): GameState {
   const stations: Record<string, Station> = {}
@@ -27,7 +28,8 @@ export function createInitialState(
     served: 0,
     lost: 0,
     timeLeft: shiftDuration,
-    durationMultiplier,
+    cookingSpeed,
+    orderSpeed,
     stationCapacity,
     stations,
     orders: [],
@@ -64,7 +66,7 @@ function getStationCapacity(stationId: string, capacity: StationCapacity): numbe
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RESET':
-      return createInitialState(action.shiftDuration, action.durationMultiplier, action.stationCapacity)
+      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.stationCapacity)
 
     case 'ADD_CHAT':
       return addMsg(state, action.username, action.text, action.msgType)
@@ -88,18 +90,34 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'TAKE': {
-      const { stationId, user } = action
-      const station = state.stations[stationId]
-      if (!station) return addMsg(state, 'KITCHEN', 'Unknown station!', 'error')
+      const { ingredient, user } = action
 
-      // Find user's own done slot first, then any done slot
-      let slotIdx = station.slots.findIndex(s => s.state === 'done' && s.user === user)
-      if (slotIdx === -1) slotIdx = station.slots.findIndex(s => s.state === 'done')
-      if (slotIdx === -1) return addMsg(state, 'KITCHEN', 'Nothing ready to take there!', 'error')
+      if (state.activeUsers[user]) {
+        return addMsg(state, 'KITCHEN', `${user} is already busy!`, 'error')
+      }
 
-      const slot = station.slots[slotIdx]
-      const newSlots = station.slots.filter((_, i) => i !== slotIdx)
-      const newStations = { ...state.stations, [stationId]: { ...station, slots: newSlots } }
+      // Search all stations for a done slot matching by target or produces name
+      // Prioritise user's own done slot, then any done slot
+      let foundStation: string | null = null
+      let foundIdx = -1
+      for (const [id, station] of Object.entries(state.stations)) {
+        const idx = station.slots.findIndex(s => s.state === 'done' && s.user === user && (s.target === ingredient || s.produces === ingredient))
+        if (idx !== -1) { foundStation = id; foundIdx = idx; break }
+      }
+      if (foundIdx === -1) {
+        for (const [id, station] of Object.entries(state.stations)) {
+          const idx = station.slots.findIndex(s => s.state === 'done' && (s.target === ingredient || s.produces === ingredient))
+          if (idx !== -1) { foundStation = id; foundIdx = idx; break }
+        }
+      }
+      if (foundStation === null || foundIdx === -1) {
+        return addMsg(state, 'KITCHEN', `No ready ${ingredient.replace(/_/g, ' ')} to take!`, 'error')
+      }
+
+      const station = state.stations[foundStation]
+      const slot = station.slots[foundIdx]
+      const newSlots = station.slots.filter((_, i) => i !== foundIdx)
+      const newStations = { ...state.stations, [foundStation]: { ...station, slots: newSlots } }
 
       // Only free the slot's user if they have no remaining cooking slots anywhere
       const newActiveUsers = { ...state.activeUsers }
@@ -156,7 +174,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
       // Plating takes 3 seconds (scaled by speed multiplier)
-      const plateDuration = 3000 / state.durationMultiplier
+      const plateDuration = 3000 / state.cookingSpeed
 
       const newSlot: StationSlot = {
         id: `slot_${withCooldown.nextSlotId}`,
@@ -259,7 +277,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         afterRequire = { ...afterRequire, preparedItems: newItems }
       }
 
-      const speed = state.durationMultiplier
+      const speed = state.cookingSpeed
       const newSlot: StationSlot = {
         id: `slot_${afterRequire.nextSlotId}`,
         user,
@@ -304,7 +322,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const dish = dishKeys[Math.floor(Math.random() * dishKeys.length)]
       const recipe = RECIPES[dish]
 
-      const scaledPatience = recipe.patience / state.durationMultiplier
+      const scaledPatience = recipe.patience / state.orderSpeed
       const order: Order = {
         id: state.nextOrderId,
         dish,

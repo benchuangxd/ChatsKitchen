@@ -49,9 +49,17 @@ export interface StationCapacity {
 }
 
 export interface GameOptions {
-  durationMultiplier: number
+  cookingSpeed: number
+  orderSpeed: number
   shiftDuration: number
   stationCapacity: StationCapacity
+}
+
+export interface AudioSettings {
+  musicVolume: number
+  sfxVolume: number
+  musicMuted: boolean
+  sfxMuted: boolean
 }
 
 export interface GameState {
@@ -59,7 +67,8 @@ export interface GameState {
   served: number
   lost: number
   timeLeft: number
-  durationMultiplier: number
+  cookingSpeed: number
+  orderSpeed: number
   stationCapacity: StationCapacity
   stations: Record<string, Station>
   orders: Order[]

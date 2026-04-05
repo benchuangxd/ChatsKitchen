@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getAudioManager } from '../audio/AudioManager'
 import styles from './Countdown.module.css'
 
 type Phase = 'closing' | 'holding' | 'opening' | 'done'
@@ -11,8 +12,12 @@ export default function Countdown({ onDone }: Props) {
   const [phase, setPhase] = useState<Phase>('closing')
 
   useEffect(() => {
+    const audio = getAudioManager()
     const timers = [
-      setTimeout(() => setPhase('holding'), 600),
+      setTimeout(() => {
+        setPhase('holding')
+        audio.playSfx('countdown-beep')
+      }, 600),
       setTimeout(() => setPhase('opening'), 1400),
       setTimeout(() => setPhase('done'), 2000),
       setTimeout(() => onDone(), 2200),

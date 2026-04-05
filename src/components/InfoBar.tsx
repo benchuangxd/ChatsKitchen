@@ -20,7 +20,7 @@ export default function InfoBar() {
               <span>!fry [item]</span>
               <span>!boil [item]</span>
               <span>!toast [item]</span>
-              <span>!take [station]</span>
+              <span>!take [ingredient]</span>
               <span>!plate [dish]</span>
               <span>!serve [order#]</span>
               <span>!extinguish</span>
@@ -29,7 +29,7 @@ export default function InfoBar() {
               Items: lettuce(lett), tomato, patty, bun, potato, pasta, cheese, fish
             </div>
             <div className={styles.hint}>
-              Shortforms: cboard=cutting_board, fburger=fish_burger
+              Shortforms: cboard=cutting board, fburger=fish burger, msoup=mushroom soup
             </div>
           </div>
           <div className={styles.divider} />
@@ -42,7 +42,7 @@ export default function InfoBar() {
                   <span className={styles.recipeReward}>${recipe.reward}</span>
                   <span className={styles.recipeSteps}>
                     {recipe.steps.map(s => `!${s.action} ${s.target}`).join(' \u{2192} ')}
-                    {' \u{2192} '}!plate {key} {'\u{2192}'} !serve #
+                    {' \u{2192} '}!plate {key.replace(/_/g, ' ')} {'\u{2192}'} !serve #
                   </span>
                 </div>
               ))}

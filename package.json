@@ -10,12 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "howler": "^2.2.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tmi.js": "^1.8.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@types/howler": "^2.2.12",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/tmi.js": "^1.8.6",

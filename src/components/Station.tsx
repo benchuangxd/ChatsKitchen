@@ -2,7 +2,6 @@ import { Station as StationType, StationSlot } from '../state/types'
 import { STATION_DEFS, NAME_COLORS } from '../data/recipes'
 import styles from './Station.module.css'
 
-const SHORT_ID: Record<string, string> = { cutting_board: 'cboard' }
 
 function hashStr(s: string): number {
   let h = 0
@@ -21,7 +20,6 @@ function SlotRow({ slot, stationId }: { slot: StationSlot; stationId: string }) 
     ? Math.min(1, Math.max(0, burnElapsed / burnWindow)) : 0
 
   const nameColor = NAME_COLORS[Math.abs(hashStr(slot.user)) % NAME_COLORS.length]
-  const shortId = SHORT_ID[stationId] || stationId
 
   return (
     <div className={styles.slot}>
@@ -47,7 +45,7 @@ function SlotRow({ slot, stationId }: { slot: StationSlot; stationId: string }) 
         </div>
       )}
       <div className={styles.slotStatus} style={{ color: slot.state === 'done' ? '#5cb85c' : '#e8943a' }}>
-        {slot.state === 'cooking' ? `${stationId === 'plating' ? 'plating' : 'cooking'} ${Math.floor(progress * 100)}%` : `DONE! !take ${shortId}`}
+        {slot.state === 'cooking' ? `${stationId === 'plating' ? 'plating' : 'cooking'} ${Math.floor(progress * 100)}%` : `DONE! !take ${slot.target}`}
       </div>
     </div>
   )
