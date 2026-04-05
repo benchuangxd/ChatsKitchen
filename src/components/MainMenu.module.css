@@ -3,9 +3,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
   background: #1c1917;
   gap: 12px;
+  padding: 32px 16px 16px;
+  box-sizing: border-box;
 }
 
 .title {
@@ -142,10 +144,9 @@
 }
 
 .footer {
-  position: absolute;
-  bottom: 16px;
   font-family: 'Space Mono', monospace;
   font-size: 10px;
   color: #4a4440;
-  margin: 0;
+  margin: auto 0 0;
+  padding-top: 16px;
 }
