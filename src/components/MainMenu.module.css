@@ -136,6 +136,11 @@
   color: #f5efe6;
 }
 
+.btnTutorial {
+  background: #f0c850;
+  color: #3d2c11;
+}
+
 .footer {
   position: absolute;
   bottom: 16px;

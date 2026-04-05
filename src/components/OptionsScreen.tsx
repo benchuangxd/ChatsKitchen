@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { AudioSettings, GameOptions } from '../state/types'
 import styles from './OptionsScreen.module.css'
 
@@ -6,6 +7,7 @@ interface Props {
   onChange: (options: GameOptions) => void
   audioSettings: AudioSettings
   onAudioChange: (settings: AudioSettings) => void
+  onResetAll: () => void
   onBack: () => void
 }
 
@@ -17,7 +19,26 @@ const DURATION_PRESETS = [
   { label: '5 min', value: 300000 },
 ]
 
-export default function OptionsScreen({ options, onChange, audioSettings, onAudioChange, onBack }: Props) {
+export default function OptionsScreen({ options, onChange, audioSettings, onAudioChange, onResetAll, onBack }: Props) {
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [resetComplete, setResetComplete] = useState(false)
+
+  useEffect(() => {
+    if (!resetComplete) return
+    const timeout = window.setTimeout(() => {
+      setResetComplete(false)
+      onBack()
+    }, 1100)
+
+    return () => window.clearTimeout(timeout)
+  }, [resetComplete, onBack])
+
+  const handleConfirmReset = () => {
+    onResetAll()
+    setConfirmOpen(false)
+    setResetComplete(true)
+  }
+
   return (
     <div className={styles.screen}>
       <button className={styles.backBtn} onClick={onBack}>{'\u{2190}'} Back</button>
@@ -157,6 +178,45 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
           </div>
         </div>
       </div>
+
+      <div className={styles.resetSection}>
+        <button className={styles.resetBtn} onClick={() => setConfirmOpen(true)}>
+          Reset Everything To Default
+        </button>
+        <div className={styles.resetHint}>
+          Clears free play settings, audio settings, level progress, and tutorial prompt preferences.
+        </div>
+      </div>
+
+      {confirmOpen && (
+        <div className={styles.overlay}>
+          <div className={styles.dialog}>
+            <div className={styles.dialogTitle}>Reset Everything?</div>
+            <div className={styles.dialogText}>
+              This will clear your saved stars, audio preferences, free play settings, and tutorial flags.
+            </div>
+            <div className={styles.dialogActions}>
+              <button className={styles.dialogCancelBtn} onClick={() => setConfirmOpen(false)}>
+                Cancel
+              </button>
+              <button className={styles.dialogConfirmBtn} onClick={handleConfirmReset}>
+                Yes, Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {resetComplete && (
+        <div className={styles.overlay}>
+          <div className={`${styles.dialog} ${styles.successDialog}`}>
+            <div className={styles.dialogTitle}>Everything Reset</div>
+            <div className={styles.dialogText}>
+              Defaults restored. Taking you back to the main menu.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

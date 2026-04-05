@@ -21,7 +21,7 @@ export default function LevelSelect({ progress, onSelectLevel, onBack, twitchCha
           Welcome <span className={styles.twitchChannel}>{twitchChannel}</span> and your community!
         </div>
       )}
-      <div className={styles.subtitle}>NO PROGRESS SAVED once you exit the browser, take a screenshot to flex your achievements if you would like :D</div>
+      <div className={styles.subtitle}>PROGRESS will disappear / be deleted, take a screenshot to flex your achievements if you would like :D</div>
       <div className={styles.grid}>
         {Array.from({ length: 10 }, (_, i) => i + 1).map(level => {
           const config = getLevelConfig(level)
