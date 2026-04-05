@@ -121,6 +121,8 @@ export default function App() {
         progress={levelProgress}
         onSelectLevel={startLevel}
         onBack={() => setScreen('menu')}
+        twitchChannel={twitchChannel}
+        twitchConnected={twitchChat.status === 'connected'}
       />
     )
   }

@@ -6,14 +6,22 @@ interface Props {
   progress: LevelProgress
   onSelectLevel: (level: number) => void
   onBack: () => void
+  twitchChannel: string | null
+  twitchConnected: boolean
 }
 
-export default function LevelSelect({ progress, onSelectLevel, onBack }: Props) {
+export default function LevelSelect({ progress, onSelectLevel, onBack, twitchChannel, twitchConnected }: Props) {
   return (
     <div className={styles.screen}>
       <button className={styles.backBtn} onClick={onBack}>{'\u{2190}'} Back</button>
       <h1 className={styles.title}>Select Level</h1>
-      <div className={styles.subtitle}>NO PROGRESS SAVED once you exit the browser, take a screenshot to flex your stars if you would like :D</div>
+      {twitchConnected && twitchChannel && (
+        <div className={styles.twitchStatus}>
+          <span className={styles.twitchDot} />
+          Welcome <span className={styles.twitchChannel}>{twitchChannel}</span> and your community!
+        </div>
+      )}
+      <div className={styles.subtitle}>NO PROGRESS SAVED once you exit the browser, take a screenshot to flex your achievements if you would like :D</div>
       <div className={styles.grid}>
         {Array.from({ length: 10 }, (_, i) => i + 1).map(level => {
           const config = getLevelConfig(level)

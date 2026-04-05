@@ -98,6 +98,10 @@
   margin-top: -6px;
 }
 
+.twitchStatusWarning {
+  color: #d8b07c;
+}
+
 .twitchDot {
   width: 8px;
   height: 8px;
@@ -110,6 +114,15 @@
 @keyframes twitchPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
+}
+
+.twitchDotWarning {
+  width: 8px;
+  height: 8px;
+  background: #d94f4f;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: twitchPulse 1.5s infinite;
 }
 
 .twitchChannel {
