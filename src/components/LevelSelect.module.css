@@ -39,6 +39,17 @@
   margin: 0;
 }
 
+.subtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #a99a8f;
+  margin: -12px 0 0;
+  max-width: 640px;
+  text-align: center;
+  line-height: 1.5;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

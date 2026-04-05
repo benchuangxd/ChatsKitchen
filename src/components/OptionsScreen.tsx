@@ -22,7 +22,7 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
     <div className={styles.screen}>
       <button className={styles.backBtn} onClick={onBack}>{'\u{2190}'} Back</button>
       <h1 className={styles.title}>Options</h1>
-      <div className={styles.subtitle}>These options affect Free Play only. Levels have fixed settings.</div>
+      <div className={styles.subtitle}>These options affect Free Play only. Levels have fixed parameters.</div>
 
       <div className={styles.columns}>
         <div className={styles.column}>

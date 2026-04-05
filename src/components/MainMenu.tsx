@@ -14,7 +14,7 @@ export default function MainMenu({ onPlay, onLevels, onOptions, onTwitch, twitch
     <div className={styles.menu}>
       <h1 className={styles.title}>🍳 Let Chat Cook 🔪</h1>
       <p className={styles.subtitle}>A Livestream Chat Restaurant Game — v0.1</p>
-      <p className={styles.disclaimer}>Work in progress — EVERYTHING may change</p>
+      <p className={styles.disclaimer}>Work in progress — EVERYTHING may change, NO data is saved when you close the browser</p>
       <div className={styles.buttons}>
         <div className={styles.sectionHeader}>Play</div>
         <button className={`${styles.btn} ${styles.btnLevels}`} onClick={onLevels}>
