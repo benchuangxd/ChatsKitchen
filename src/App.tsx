@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect, useState } from 'react'
+import { useReducer, useCallback, useState } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
 import { AudioSettings, GameOptions, LevelProgress, PlayerStats } from './state/types'
@@ -23,6 +23,7 @@ import InfoBar from './components/InfoBar'
 import styles from './App.module.css'
 
 type Screen = 'menu' | 'levelselect' | 'options' | 'twitch' | 'countdown' | 'playing' | 'gameover'
+type TutorialDestination = 'menu' | 'freeplay' | 'levelselect'
 
 const DEFAULT_GAME_OPTIONS: GameOptions = {
   cookingSpeed: 1,
@@ -66,52 +67,67 @@ export default function App() {
       return {}
     }
   })
-  const [hasSeenTutorialPrompt, setHasSeenTutorialPrompt] = useState(() => {
-    try {
-      return localStorage.getItem('chatsKitchen_tutorialPromptSeen') === 'true'
-    } catch {
-      return false
-    }
-  })
-  const [hideTutorialPrompt, setHideTutorialPrompt] = useState(() => {
-    try {
-      return localStorage.getItem('chatsKitchen_tutorialPromptHidden') === 'true'
-    } catch {
-      return false
-    }
-  })
+  const [hideTutorialPrompt, setHideTutorialPrompt] = useState(false)
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false)
+  const [tutorialDestination, setTutorialDestination] = useState<TutorialDestination>('menu')
 
-  const markTutorialPromptSeen = useCallback(() => {
-    setHasSeenTutorialPrompt(true)
-    try {
-      localStorage.setItem('chatsKitchen_tutorialPromptSeen', 'true')
-    } catch {
-      // Ignore storage failures and keep the current session working.
+  const startFreePlay = useCallback(() => {
+    setCurrentLevel(null)
+    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity })
+    setScreen('countdown')
+  }, [gameOptions])
+
+  const continueFromTutorial = useCallback((destination: TutorialDestination) => {
+    if (destination === 'freeplay') {
+      startFreePlay()
+      return
     }
+
+    if (destination === 'levelselect') {
+      setScreen('levelselect')
+      return
+    }
+
+    setScreen('menu')
+  }, [startFreePlay])
+
+  const openTutorial = useCallback((destination: TutorialDestination) => {
+    setShowTutorialPrompt(false)
+    setTutorialDestination(destination)
+    setTutorialOpen(true)
   }, [])
 
-  const openTutorial = useCallback(() => {
-    markTutorialPromptSeen()
-    setShowTutorialPrompt(false)
-    setTutorialOpen(true)
-  }, [markTutorialPromptSeen])
-
   const dismissTutorialPrompt = useCallback(() => {
-    markTutorialPromptSeen()
     setShowTutorialPrompt(false)
-  }, [markTutorialPromptSeen])
+    continueFromTutorial(tutorialDestination)
+  }, [continueFromTutorial, tutorialDestination])
 
   const disableTutorialPrompt = useCallback(() => {
-    markTutorialPromptSeen()
     setHideTutorialPrompt(true)
     setShowTutorialPrompt(false)
-    try {
-      localStorage.setItem('chatsKitchen_tutorialPromptHidden', 'true')
-    } catch {
-      // Ignore storage failures and keep the current session working.
+    continueFromTutorial(tutorialDestination)
+  }, [continueFromTutorial, tutorialDestination])
+
+  const handleMenuTutorial = useCallback(() => {
+    setTutorialDestination('menu')
+    setTutorialOpen(true)
+    setShowTutorialPrompt(false)
+  }, [])
+
+  const handleMenuPlay = useCallback((destination: TutorialDestination) => {
+    if (!hideTutorialPrompt) {
+      setTutorialDestination(destination)
+      setShowTutorialPrompt(true)
+      return
     }
-  }, [markTutorialPromptSeen])
+
+    continueFromTutorial(destination)
+  }, [continueFromTutorial, hideTutorialPrompt])
+
+  const handleTutorialStartCooking = useCallback(() => {
+    setTutorialOpen(false)
+    continueFromTutorial(tutorialDestination)
+  }, [continueFromTutorial, tutorialDestination])
 
   const handleCommand = useCallback((user: string, text: string) => {
     const action = parseCommand(user, text)
@@ -142,12 +158,6 @@ export default function App() {
     setScreen('gameover')
   }, [state.money, state.served, state.lost, state.playerStats, currentLevel, levelProgress])
 
-  const resetGame = useCallback(() => {
-    setCurrentLevel(null)
-    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity })
-    setScreen('countdown')
-  }, [gameOptions])
-
   const startLevel = useCallback((level: number) => {
     const config = getLevelConfig(level)
     setCurrentLevel(level)
@@ -165,41 +175,35 @@ export default function App() {
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
     setLevelProgress({})
     setTwitchChannel(null)
-    setHasSeenTutorialPrompt(false)
     setHideTutorialPrompt(false)
     setShowTutorialPrompt(false)
+    setTutorialDestination('menu')
     setTutorialOpen(false)
 
     try {
       localStorage.setItem('audioSettings', JSON.stringify(DEFAULT_AUDIO_SETTINGS))
       localStorage.removeItem('chatsKitchen_levelProgress')
-      localStorage.removeItem('chatsKitchen_tutorialPromptSeen')
-      localStorage.removeItem('chatsKitchen_tutorialPromptHidden')
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
   }, [])
-
-  useEffect(() => {
-    if ((screen === 'countdown' || screen === 'playing') && !hasSeenTutorialPrompt && !hideTutorialPrompt) {
-      setShowTutorialPrompt(true)
-    }
-  }, [screen, hasSeenTutorialPrompt, hideTutorialPrompt])
 
   const isPlaying = screen === 'playing'
   useGameLoop(state, dispatch, isPlaying ? handleGameOver : undefined)
   useBotSimulation(state, dispatch, handleCommand, isPlaying && botsEnabled)
   useGameAudio(screen, state, audioSettings)
 
+  const gameplayModeLabel = currentLevel != null ? `Level ${currentLevel}` : 'Free Play'
+
   let content
 
   if (screen === 'menu') {
     content = (
       <MainMenu
-        onPlay={resetGame}
-        onLevels={() => setScreen('levelselect')}
+        onPlay={() => handleMenuPlay('freeplay')}
+        onLevels={() => handleMenuPlay('levelselect')}
         onOptions={() => setScreen('options')}
-        onTutorial={openTutorial}
+        onTutorial={handleMenuTutorial}
         onTwitch={() => setScreen('twitch')}
         twitchChannel={twitchChannel}
         twitchConnected={twitchChat.status === 'connected'}
@@ -238,7 +242,7 @@ export default function App() {
         lost={finalStats.lost}
         playerStats={finalStats.playerStats}
         level={currentLevel}
-        onPlayAgain={currentLevel != null ? () => startLevel(currentLevel) : resetGame}
+        onPlayAgain={currentLevel != null ? () => startLevel(currentLevel) : startFreePlay}
         onNextLevel={currentLevel != null && currentLevel < 10 ? () => startLevel(currentLevel + 1) : undefined}
         onMenu={() => setScreen('menu')}
       />
@@ -247,7 +251,10 @@ export default function App() {
     content = (
       <div className={styles.layout}>
         <header className={styles.header}>
-          <h1>🧑‍🍳 Let Chat Cook</h1>
+          <div className={styles.headerBrand}>
+            <h1>🧑‍🍳 Let Chat Cook</h1>
+            <span className={styles.levelIndicator}>{gameplayModeLabel}</span>
+          </div>
           <StatsBar
             money={state.money}
             served={state.served}
@@ -311,14 +318,19 @@ export default function App() {
   return (
     <>
       {content}
-      {showTutorialPrompt && (screen === 'countdown' || screen === 'playing') && !tutorialOpen && (
+      {showTutorialPrompt && screen === 'menu' && !tutorialOpen && (
         <TutorialPrompt
-          onYes={openTutorial}
+          onYes={() => openTutorial(tutorialDestination)}
           onNo={dismissTutorialPrompt}
           onDontShowAgain={disableTutorialPrompt}
         />
       )}
-      {tutorialOpen && <TutorialModal onClose={() => setTutorialOpen(false)} />}
+      {tutorialOpen && (
+        <TutorialModal
+          onClose={() => setTutorialOpen(false)}
+          onStartCooking={handleTutorialStartCooking}
+        />
+      )}
     </>
   )
 }

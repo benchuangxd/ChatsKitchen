@@ -2,9 +2,10 @@ import styles from './TutorialModal.module.css'
 
 interface Props {
   onClose: () => void
+  onStartCooking: () => void
 }
 
-export default function TutorialModal({ onClose }: Props) {
+export default function TutorialModal({ onClose, onStartCooking }: Props) {
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
@@ -71,7 +72,7 @@ export default function TutorialModal({ onClose }: Props) {
           </div>
 
           <div className={styles.footer}>
-            <button className={styles.doneBtn} onClick={onClose}>Start Cooking!</button>
+            <button className={styles.doneBtn} onClick={onStartCooking}>Start Cooking!</button>
           </div>
         </div>
       </div>

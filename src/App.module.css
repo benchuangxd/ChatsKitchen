@@ -20,12 +20,33 @@
   flex-shrink: 0;
 }
 
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .header h1 {
   font-family: 'Lilita One', cursive;
   font-size: 24px;
   color: #ffffff;
   text-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
   margin: 0;
+}
+
+.levelIndicator {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #b8733370;
+  border-radius: 999px;
+  padding: 5px 12px;
+  background: #b8733320;
+  color: #f0c850;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .headerButtons {
@@ -186,6 +207,15 @@
 
   .header h1 {
     font-size: 18px;
+  }
+
+  .headerBrand {
+    gap: 8px;
+  }
+
+  .levelIndicator {
+    font-size: 10px;
+    padding: 4px 8px;
   }
 
   .headerButtons {
