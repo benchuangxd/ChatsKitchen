@@ -10,13 +10,14 @@ export type GameAction =
   | { type: 'EXTINGUISH'; user: string; stationId: string }
   | { type: 'SPAWN_ORDER'; now: number }
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
-  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; stationCapacity: StationCapacity }
+  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; stationCapacity: StationCapacity; enabledRecipes: string[] }
 
 export function createInitialState(
   shiftDuration = 120000,
   cookingSpeed = 1,
   orderSpeed = 1,
-  stationCapacity: StationCapacity = { chopping: 3, cooking: 2, plating: 2 }
+  stationCapacity: StationCapacity = { chopping: 3, cooking: 2, plating: 2 },
+  enabledRecipes: string[] = Object.keys(RECIPES)
 ): GameState {
   const stations: Record<string, Station> = {}
   for (const id of Object.keys(STATION_DEFS)) {
@@ -31,6 +32,7 @@ export function createInitialState(
     cookingSpeed,
     orderSpeed,
     stationCapacity,
+    enabledRecipes,
     stations,
     orders: [],
     preparedItems: [],
@@ -66,7 +68,7 @@ function getStationCapacity(stationId: string, capacity: StationCapacity): numbe
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RESET':
-      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.stationCapacity)
+      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.stationCapacity, action.enabledRecipes)
 
     case 'ADD_CHAT':
       return addMsg(state, action.username, action.text, action.msgType)
@@ -316,7 +318,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const activeOrders = state.orders.filter(o => !o.served).length
       if (activeOrders >= 5) return state
 
-      const dishKeys = Object.keys(RECIPES)
+      const dishKeys = state.enabledRecipes.length > 0 ? state.enabledRecipes : Object.keys(RECIPES)
       const dish = dishKeys[Math.floor(Math.random() * dishKeys.length)]
       const recipe = RECIPES[dish]
 

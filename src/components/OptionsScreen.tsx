@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AudioSettings, GameOptions } from '../state/types'
+import { RECIPES } from '../data/recipes'
 import styles from './OptionsScreen.module.css'
 
 interface Props {
@@ -133,6 +134,32 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
             <div className={styles.hint}>
               Slots per station type (cooking applies to each: grill, fryer, stove, oven)
             </div>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.label}>Active Recipes</div>
+            <div className={styles.recipeGrid}>
+              {Object.entries(RECIPES).map(([key, recipe]) => {
+                const isEnabled = options.enabledRecipes.includes(key)
+                const isLast = options.enabledRecipes.length === 1 && isEnabled
+                return (
+                  <button
+                    key={key}
+                    className={`${styles.recipeBtn} ${isEnabled ? styles.active : ''}`}
+                    disabled={isLast}
+                    onClick={() => {
+                      const next = isEnabled
+                        ? options.enabledRecipes.filter(r => r !== key)
+                        : [...options.enabledRecipes, key]
+                      onChange({ ...options, enabledRecipes: next })
+                    }}
+                  >
+                    {recipe.emoji} {recipe.name} <span className={styles.recipeReward}>${recipe.reward}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <div className={styles.hint}>Only selected recipes will appear as orders in Free Play</div>
           </div>
 
           <div className={styles.section}>
