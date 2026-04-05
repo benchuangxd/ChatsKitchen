@@ -21,6 +21,18 @@ function SlotRow({ slot, stationId }: { slot: StationSlot; stationId: string }) 
 
   const nameColor = NAME_COLORS[Math.abs(hashStr(slot.user)) % NAME_COLORS.length]
 
+  if (slot.state === 'onFire') {
+    return (
+      <div className={`${styles.slot} ${styles.slotOnFire}`}>
+        <div className={styles.slotHeader}>
+          <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
+          <span className={styles.slotItem}>{slot.target}</span>
+        </div>
+        <div className={styles.fireSlotStatus}>🔥 ON FIRE! !extinguish {stationId.replace(/_/g, ' ')}</div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.slot}>
       <div className={styles.slotHeader}>
@@ -60,14 +72,13 @@ export default function Station({ station, capacity }: Props) {
   const def = STATION_DEFS[station.id]
   if (!def) return null
 
-  const borderColor = station.onFire ? '#d94f4f' : def.color
+  const hasActiveFire = station.slots.some(s => s.state === 'onFire')
+  const borderColor = hasActiveFire ? '#d94f4f' : def.color
 
   return (
-    <div className={`${styles.station} ${station.onFire ? styles.fire : ''}`} style={{ borderColor }}>
+    <div className={`${styles.station} ${hasActiveFire ? styles.fire : ''}`} style={{ borderColor }}>
       <div className={styles.label}>{def.emoji} {def.name} <span className={styles.capacity}>{station.slots.length}/{capacity}</span></div>
-      {station.onFire ? (
-        <div className={styles.fireStatus}>ON FIRE! extinguish {station.id.replace(/_/g, ' ')}</div>
-      ) : station.slots.length === 0 ? (
+      {station.slots.length === 0 ? (
         <div className={styles.idleStatus}>idle</div>
       ) : (
         <div className={styles.slots}>

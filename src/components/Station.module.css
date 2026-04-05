@@ -127,6 +127,25 @@
   margin-top: 2px;
 }
 
+.slotOnFire {
+  animation: slotFireFlash 0.4s infinite alternate;
+  border-radius: 4px;
+  padding: 3px;
+}
+
+@keyframes slotFireFlash {
+  from { background: rgba(180, 40, 20, 0.35); }
+  to { background: rgba(80, 20, 10, 0.2); }
+}
+
+.fireSlotStatus {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #d94f4f;
+  margin-top: 2px;
+}
+
 .capacity {
   font-family: 'Space Mono', monospace;
   font-size: 10px;

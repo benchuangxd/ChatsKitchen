@@ -11,9 +11,9 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
   // Skip if this bot is already busy
   if (state.activeUsers[name]) return null
 
-  // Fire — any station on fire
+  // Fire — any burning slot across all stations
   for (const [id, station] of Object.entries(state.stations)) {
-    if (station.onFire) return { name, command: `extinguish ${id}` }
+    if (station.slots.some(s => s.state === 'onFire')) return { name, command: `extinguish ${id}` }
   }
 
   // Done slots — take bot's own first, then any done slot (skip plating — auto-completes)
@@ -55,7 +55,7 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
     const recipe = RECIPES[order.dish]
     for (const step of recipe.steps) {
       const station = state.stations[step.station]
-      if (!station || station.onFire) continue
+      if (!station) continue
 
       // Check capacity
       const capacity = step.station === 'cutting_board'

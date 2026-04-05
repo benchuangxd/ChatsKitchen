@@ -31,7 +31,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   orderSpeed: 1,
   shiftDuration: 120000,
   stationCapacity: { chopping: 3, cooking: 2, plating: 2 },
-  enabledRecipes: Object.keys(RECIPES)
+  enabledRecipes: Object.keys(RECIPES).filter(k => k !== 'mushroom_soup' && k !== 'fish_burger')
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {

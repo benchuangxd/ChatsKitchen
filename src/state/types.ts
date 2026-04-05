@@ -1,4 +1,4 @@
-export type SlotState = 'cooking' | 'done'
+export type SlotState = 'cooking' | 'done' | 'onFire'
 
 export interface StationSlot {
   id: string
@@ -14,7 +14,6 @@ export interface StationSlot {
 export interface Station {
   id: string
   slots: StationSlot[]
-  onFire: boolean
 }
 
 export interface Order {
