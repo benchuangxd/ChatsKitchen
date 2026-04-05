@@ -3,7 +3,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: #1c1917;
   gap: 12px;
   padding: 32px 16px 16px;
@@ -147,6 +148,5 @@
   font-family: 'Space Mono', monospace;
   font-size: 10px;
   color: #4a4440;
-  margin: auto 0 0;
-  padding-top: 16px;
+  margin: 4px 0 0;
 }
