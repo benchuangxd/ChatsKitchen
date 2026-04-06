@@ -126,7 +126,11 @@ export default function App() {
 
   const disableTutorialPrompt = useCallback(() => {
     setHideTutorialPrompt(true)
-    localStorage.setItem('chatsKitchen_hideTutorialPrompt', 'true')
+    try {
+      localStorage.setItem('chatsKitchen_hideTutorialPrompt', 'true')
+    } catch {
+      // Ignore storage failures; in-memory state already updated above.
+    }
     setShowTutorialPrompt(false)
     continueFromTutorial(tutorialDestination)
   }, [continueFromTutorial, tutorialDestination])
