@@ -203,7 +203,9 @@ export default function App() {
     try {
       if (ch) localStorage.setItem('chatsKitchen_twitchChannel', ch)
       else localStorage.removeItem('chatsKitchen_twitchChannel')
-    } catch {}
+    } catch {
+      // Ignore storage failures and keep the in-memory state change.
+    }
   }, [])
 
   const handleResetAll = useCallback(() => {
