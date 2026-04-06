@@ -31,7 +31,8 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   orderSpeed: 1,
   shiftDuration: 120000,
   stationCapacity: { chopping: 3, cooking: 2, plating: 2 },
-  enabledRecipes: Object.keys(RECIPES).filter(k => k !== 'mushroom_soup' && k !== 'fish_burger')
+  enabledRecipes: Object.keys(RECIPES).filter(k => k !== 'mushroom_soup' && k !== 'fish_burger'),
+  allowShortformCommands: true
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -132,9 +133,9 @@ export default function App() {
   }, [continueFromTutorial, tutorialDestination])
 
   const handleCommand = useCallback((user: string, text: string) => {
-    const action = parseCommand(user, text)
+    const action = parseCommand(user, text, gameOptions.allowShortformCommands)
     if (action) dispatch(action)
-  }, [])
+  }, [gameOptions.allowShortformCommands])
 
   const handleTwitchMessage = useCallback((user: string, text: string) => {
     dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
@@ -312,7 +313,7 @@ export default function App() {
             />
           )}
         </div>
-        <InfoBar />
+        <InfoBar shortformEnabled={gameOptions.allowShortformCommands} />
       </div>
     )
   }
