@@ -83,7 +83,13 @@ export default function App() {
       return {}
     }
   })
-  const [hideTutorialPrompt, setHideTutorialPrompt] = useState(false)
+  const [hideTutorialPrompt, setHideTutorialPrompt] = useState(() => {
+    try {
+      return localStorage.getItem('chatsKitchen_hideTutorialPrompt') === 'true'
+    } catch {
+      return false
+    }
+  })
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false)
   const [tutorialDestination, setTutorialDestination] = useState<TutorialDestination>('menu')
 
@@ -120,6 +126,7 @@ export default function App() {
 
   const disableTutorialPrompt = useCallback(() => {
     setHideTutorialPrompt(true)
+    localStorage.setItem('chatsKitchen_hideTutorialPrompt', 'true')
     setShowTutorialPrompt(false)
     continueFromTutorial(tutorialDestination)
   }, [continueFromTutorial, tutorialDestination])
@@ -213,6 +220,7 @@ export default function App() {
       localStorage.setItem('audioSettings', JSON.stringify(DEFAULT_AUDIO_SETTINGS))
       localStorage.removeItem('chatsKitchen_levelProgress')
       localStorage.removeItem('chatsKitchen_gameOptions')
+      localStorage.removeItem('chatsKitchen_hideTutorialPrompt')
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
