@@ -116,6 +116,14 @@
   flex-shrink: 0;
 }
 
+.burnLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #e8943a;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .slotOnFire {
   animation: slotFireFlash 0.4s infinite alternate;
   border-radius: 4px;

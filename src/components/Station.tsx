@@ -27,11 +27,29 @@ function SlotRow({ slot, stationId }: { slot: StationSlot; stationId: string }) 
   }
 
   if (slot.state === 'done') {
+    const burnWindow = slot.burnAt - slot.cookDuration
+    const burnElapsed = Math.max(0, elapsed - slot.cookDuration)
+    const burnProgress = slot.burnAt > 0 && slot.burnAt < Infinity && burnWindow > 0
+      ? Math.min(1, burnElapsed / burnWindow)
+      : 0
+    const burnBarColor = burnProgress > 0.75 ? '#d94f4f' : burnProgress > 0.4 ? '#e8943a' : '#f0c850'
+
     return (
       <div className={`${styles.slot} ${styles.slotDone}`}>
         <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
         <span className={styles.slotItem}>{slot.target.replace(/_/g, ' ')}</span>
-        <span className={styles.slotDoneLabel}>DONE — !take</span>
+        <span className={styles.slotDoneLabel}>DONE</span>
+        {burnProgress > 0 && (
+          <>
+            <span className={styles.burnLabel}>BURN</span>
+            <div className={styles.progressBg}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${Math.floor(burnProgress * 100)}%`, background: burnBarColor }}
+              />
+            </div>
+          </>
+        )}
       </div>
     )
   }

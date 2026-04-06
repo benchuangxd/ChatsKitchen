@@ -11,7 +11,7 @@ export default function PreparedItems({ items, enabledRecipes }: Props) {
   const [showNames, setShowNames] = useState(true)
 
   const allowedIngredients = new Set(
-    enabledRecipes.flatMap(key => RECIPES[key]?.plate ?? [])
+    enabledRecipes.flatMap(key => RECIPES[key]?.steps.map(s => s.produces) ?? [])
   )
   const visibleIngredients = Object.keys(INGREDIENT_EMOJI).filter(i => allowedIngredients.has(i))
 
