@@ -1,9 +1,9 @@
 .station {
-  background: rgba(30, 26, 23, 0.85);
+  background: var(--station-bg);
   border: 2px solid;
   border-radius: 8px;
-  padding: 6px;
-  min-width: 170px;
+  padding: 10px;
+  min-width: 260px;
   text-align: center;
 }
 
@@ -13,41 +13,43 @@
 
 @keyframes fireFlash {
   from { background: rgba(74, 20, 16, 0.85); }
-  to { background: rgba(30, 26, 23, 0.85); }
+  to { background: var(--station-bg); }
 }
 
 .label {
   font-family: 'Fredoka', sans-serif;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: bold;
-  color: #f5efe6;
-  margin-bottom: 6px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.capacity {
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-left: 6px;
 }
 
 .idleStatus {
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #9a8e82;
-}
-
-.fireStatus {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #d94f4f;
-  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-secondary);
 }
 
 .slots {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 220px;
-  overflow-y: auto;
 }
 
 .slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
   border-top: 1px solid #ffffff10;
-  padding-top: 3px;
+  text-align: left;
 }
 
 .slot:first-child {
@@ -55,33 +57,35 @@
   padding-top: 0;
 }
 
-.slotHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 3px;
-}
-
 .slotUser {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
+  width: 100px;
+  min-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 80px;
+  color: var(--text);
 }
 
 .slotItem {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 12px;
   color: #f0c850;
+  width: 80px;
+  min-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .progressBg {
+  flex: 1;
   background: rgba(0, 0, 0, 0.4);
   border-radius: 4px;
-  height: 8px;
+  height: 10px;
+  min-width: 50px;
   overflow: hidden;
 }
 
@@ -91,46 +95,31 @@
   transition: width 0.1s linear;
 }
 
-.burnBar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 3px;
+.slotPct {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
-.burnLabel {
+.slotDone {
+  /* no extra animation, just green label */
+}
+
+.slotDoneLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 8px;
+  font-size: 12px;
+  color: #5cb85c;
   font-weight: 700;
-  color: #d94f4f;
-  white-space: nowrap;
-}
-
-.burnBg {
-  flex: 1;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 3px;
-  height: 5px;
-  overflow: hidden;
-}
-
-.burnFill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #e8943a, #d94f4f);
-  transition: width 0.1s linear;
-}
-
-.slotStatus {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .slotOnFire {
   animation: slotFireFlash 0.4s infinite alternate;
   border-radius: 4px;
-  padding: 3px;
+  padding: 3px 4px;
 }
 
 @keyframes slotFireFlash {
@@ -138,52 +127,26 @@
   to { background: rgba(80, 20, 10, 0.2); }
 }
 
-.fireSlotStatus {
+.slotFireLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
   color: #d94f4f;
-  margin-top: 2px;
-}
-
-.capacity {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: #9a8e82;
-  margin-left: 6px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 @media (max-width: 480px) {
   .station {
-    min-width: 140px;
+    min-width: 200px;
   }
 
   .slotUser {
-    font-size: 12px;
-    max-width: 70px;
+    width: 80px;
+    min-width: 80px;
   }
 
   .slotItem {
-    font-size: 12px;
-  }
-
-  .slotStatus {
-    font-size: 12px;
-  }
-
-  .capacity {
-    font-size: 12px;
-  }
-
-  .burnLabel {
-    font-size: 11px;
-  }
-
-  .progressBg {
-    height: 10px;
-  }
-
-  .burnBg {
-    height: 7px;
+    width: 64px;
+    min-width: 64px;
   }
 }

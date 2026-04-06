@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useState } from 'react'
+import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
 import { AudioSettings, GameOptions, LevelProgress, PlayerStats } from './state/types'
@@ -30,16 +30,20 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   cookingSpeed: 1,
   orderSpeed: 1,
   shiftDuration: 120000,
-  stationCapacity: { chopping: 3, cooking: 2, plating: 2 },
+  stationCapacity: { chopping: 3, cooking: 2 },
+  restrictSlots: false,
   enabledRecipes: Object.keys(RECIPES).filter(k => k !== 'mushroom_soup' && k !== 'fish_burger'),
   allowShortformCommands: true
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
+  masterVolume: 1,
   musicVolume: 0.5,
   sfxVolume: 0.5,
   musicMuted: false,
-  sfxMuted: false
+  sfxMuted: false,
+  darkMode: true,
+  trackEnabled: { menu: false, gameplay: true, gameover: true }
 }
 
 export default function App() {
@@ -61,6 +65,8 @@ export default function App() {
     }
   })
   const [finalStats, setFinalStats] = useState<{ money: number; served: number; lost: number; playerStats: Record<string, PlayerStats> }>({ money: 0, served: 0, lost: 0, playerStats: {} })
+  const stateRef = useRef(state)
+  stateRef.current = state
   const [currentLevel, setCurrentLevel] = useState<number | null>(null)
   const [levelProgress, setLevelProgress] = useState<LevelProgress>(() => {
     try {
@@ -76,7 +82,7 @@ export default function App() {
 
   const startFreePlay = useCallback(() => {
     setCurrentLevel(null)
-    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity, enabledRecipes: gameOptions.enabledRecipes })
+    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
     setScreen('countdown')
   }, [gameOptions])
 
@@ -149,9 +155,10 @@ export default function App() {
   }, [handleCommand])
 
   const handleGameOver = useCallback(() => {
-    setFinalStats({ money: state.money, served: state.served, lost: state.lost, playerStats: state.playerStats })
+    const s = stateRef.current
+    setFinalStats({ money: s.money, served: s.served, lost: s.lost, playerStats: s.playerStats })
     if (currentLevel != null) {
-      const stars = getStarRating(currentLevel, state.money)
+      const stars = getStarRating(currentLevel, s.money)
       if (stars > (levelProgress[currentLevel] || 0)) {
         const updated = { ...levelProgress, [currentLevel]: stars }
         setLevelProgress(updated)
@@ -159,14 +166,18 @@ export default function App() {
       }
     }
     setScreen('gameover')
-  }, [state.money, state.served, state.lost, state.playerStats, currentLevel, levelProgress])
+  }, [currentLevel, levelProgress])
 
   const startLevel = useCallback((level: number) => {
     const config = getLevelConfig(level)
     setCurrentLevel(level)
-    dispatch({ type: 'RESET', shiftDuration: config.shiftDuration, cookingSpeed: config.cookingSpeed, orderSpeed: config.orderSpeed, stationCapacity: gameOptions.stationCapacity, enabledRecipes: gameOptions.enabledRecipes })
+    dispatch({ type: 'RESET', shiftDuration: config.shiftDuration, cookingSpeed: config.cookingSpeed, orderSpeed: config.orderSpeed, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
     setScreen('countdown')
   }, [gameOptions.stationCapacity])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', audioSettings.darkMode ? 'dark' : 'light')
+  }, [audioSettings.darkMode])
 
   const handleAudioChange = useCallback((settings: AudioSettings) => {
     setAudioSettings(settings)

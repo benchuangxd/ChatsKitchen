@@ -35,16 +35,15 @@ export interface ChatMessage {
 export interface PlayerStats {
   cooked: number
   taken: number
-  plated: number
   served: number
   moneyEarned: number
   extinguished: number
+  firesCaused: number
 }
 
 export interface StationCapacity {
   chopping: number    // slots for cutting_board
   cooking: number     // slots per cooking station (grill, fryer, stove, oven)
-  plating: number     // slots for plating station
 }
 
 export interface GameOptions {
@@ -52,15 +51,19 @@ export interface GameOptions {
   orderSpeed: number
   shiftDuration: number
   stationCapacity: StationCapacity
+  restrictSlots: boolean
   enabledRecipes: string[]
   allowShortformCommands: boolean
 }
 
 export interface AudioSettings {
+  masterVolume: number
   musicVolume: number
   sfxVolume: number
   musicMuted: boolean
   sfxMuted: boolean
+  darkMode: boolean
+  trackEnabled: { menu: boolean; gameplay: boolean; gameover: boolean }
 }
 
 export interface LevelProgress {
@@ -75,6 +78,7 @@ export interface GameState {
   cookingSpeed: number
   orderSpeed: number
   stationCapacity: StationCapacity
+  restrictSlots: boolean
   enabledRecipes: string[]
   stations: Record<string, Station>
   orders: Order[]

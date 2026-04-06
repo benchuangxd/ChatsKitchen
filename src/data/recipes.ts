@@ -26,7 +26,7 @@ export interface StationDef {
 
 export const RECIPES: Record<string, Recipe> = {
   burger: {
-    name: 'Burger', emoji: '\u{1F354}', reward: 50, patience: 75000,
+    name: 'Burger', emoji: '\u{1F354}', reward: 60, patience: 80000,
     steps: [
       { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
       { action: 'grill', target: 'patty', station: 'grill', duration: 9000, burnAt: 25000, produces: 'grilled_patty' },
@@ -35,7 +35,7 @@ export const RECIPES: Record<string, Recipe> = {
     plate: ['chopped_lettuce', 'grilled_patty', 'toasted_bun']
   },
   fries: {
-    name: 'Fries', emoji: '\u{1F35F}', reward: 30, patience: 50000,
+    name: 'Fries', emoji: '\u{1F35F}', reward: 50, patience: 60000,
     steps: [
       { action: 'chop', target: 'potato', station: 'cutting_board', duration: 7000, produces: 'chopped_potato' },
       { action: 'fry', target: 'potato', station: 'fryer', duration: 9000, burnAt: 25000, produces: 'fried_potato', requires: 'chopped_potato' },
@@ -52,7 +52,7 @@ export const RECIPES: Record<string, Recipe> = {
     plate: ['boiled_pasta', 'chopped_tomato', 'grilled_cheese']
   },
   salad: {
-    name: 'Salad', emoji: '\u{1F957}', reward: 25, patience: 45000,
+    name: 'Salad', emoji: '\u{1F957}', reward: 20, patience: 45000,
     steps: [
       { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
       { action: 'chop', target: 'tomato', station: 'cutting_board', duration: 7000, produces: 'chopped_tomato' },
@@ -60,7 +60,7 @@ export const RECIPES: Record<string, Recipe> = {
     plate: ['chopped_lettuce', 'chopped_tomato']
   },
   mushroom_soup: {
-    name: 'Mushroom Soup', emoji: '\u{1F372}', reward: 35, patience: 50000,
+    name: 'Mushroom Soup', emoji: '\u{1F372}', reward: 50, patience: 60000,
     steps: [
       { action: 'chop', target: 'mushroom', station: 'cutting_board', duration: 7000, produces: 'chopped_mushroom' },
       { action: 'boil', target: 'mushroom', station: 'stove', duration: 10000, burnAt: 25000, produces: 'boiled_mushroom', requires: 'chopped_mushroom' },
@@ -68,7 +68,7 @@ export const RECIPES: Record<string, Recipe> = {
     plate: ['boiled_mushroom']
   },
   fish_burger: {
-    name: 'Fish Burger', emoji: '\u{1F354}', reward: 70, patience: 80000,
+    name: 'Fish Burger', emoji: '\u{1F354}', reward: 60, patience: 80000,
     steps: [
       { action: 'fry', target: 'fish', station: 'fryer', duration: 10000, burnAt: 25000, produces: 'fried_fish' },
       { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
@@ -84,7 +84,6 @@ export const STATION_DEFS: Record<string, StationDef> = {
   fryer:         { name: 'Fryer',         emoji: '\u{1FAD5}', color: '#e8943a', actions: ['fry'] },
   stove:         { name: 'Stove',         emoji: '\u{2668}\u{FE0F}',  color: '#d94f4f', actions: ['boil'] },
   oven:          { name: 'Oven',          emoji: '\u{1F9F1}', color: '#a07862', actions: ['toast'] },
-  plating:       { name: 'Plating',       emoji: '\u{1F37D}\u{FE0F}', color: '#b0a090', actions: ['plate'] },
 }
 
 export const INGREDIENT_EMOJI: Record<string, string> = {

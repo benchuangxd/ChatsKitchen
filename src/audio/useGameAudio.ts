@@ -10,36 +10,43 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
   const prevOrderCount = useRef(state.orders.length)
   const intenseFired = useRef(false)
 
-  // Music transitions based on screen
+  const { trackEnabled } = audioSettings
+
+  // Music transitions based on screen — also re-runs when track toggles change
   useEffect(() => {
     switch (screen) {
       case 'menu':
       case 'levelselect':
       case 'options':
       case 'twitch':
-        audio.stopMusic()
+        if (trackEnabled.menu) audio.playMusic('menu')
+        else audio.stopMusic()
         break
       case 'countdown':
         audio.stopMusic()
         break
       case 'playing':
-        audio.playMusic('gameplay')
+        if (trackEnabled.gameplay) audio.playMusic('gameplay')
+        else audio.stopMusic()
         intenseFired.current = false
         break
       case 'gameover':
+        audio.stopAllSfx()
         audio.stopMusic()
+        if (trackEnabled.gameover) audio.playMusic('gameover')
         audio.playSfx('round-over')
         break
     }
-  }, [screen, audio])
+  }, [screen, audio, trackEnabled.menu, trackEnabled.gameplay, trackEnabled.gameover])
 
   // Volume and mute sync
   useEffect(() => {
+    audio.setMasterVolume(audioSettings.masterVolume)
     audio.setMusicVolume(audioSettings.musicVolume)
     audio.setSfxVolume(audioSettings.sfxVolume)
     audio.setMusicMuted(audioSettings.musicMuted)
     audio.setSfxMuted(audioSettings.sfxMuted)
-  }, [audioSettings.musicVolume, audioSettings.sfxVolume, audioSettings.musicMuted, audioSettings.sfxMuted, audio])
+  }, [audioSettings.masterVolume, audioSettings.musicVolume, audioSettings.sfxVolume, audioSettings.musicMuted, audioSettings.sfxMuted, audio])
 
   // Intense music crossfade when time is low
   useEffect(() => {
@@ -75,11 +82,10 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
         } else if (text.includes('on fire')) {
           audio.playSfx('fire-alarm')
         } else if (text.includes('put out the fire')) {
+          audio.stopSfx('fire-alarm')
           audio.playSfx('fire-extinguished')
         } else if (text.includes('expired')) {
           audio.playSfx('order-expired')
-        } else if (text.includes('started plating')) {
-          audio.playSfx('plating')
         } else if (text.includes('took')) {
           audio.playSfx('take-item')
         } else if (text.includes('started') && (text.includes('chop') || text.includes('grill') || text.includes('fry') || text.includes('boil') || text.includes('toast'))) {

@@ -1,48 +1,48 @@
 .bar {
-  background: linear-gradient(180deg, #252220 0%, #1f1c1a 100%);
-  border-top: 2px solid #3d3632;
+  background: linear-gradient(180deg, var(--surface-3) 0%, var(--surface-4) 100%);
+  border-top: 2px solid var(--border);
 }
 
 .toggle {
   width: 100%;
   background: none;
   border: none;
-  padding: 8px 20px;
+  padding: 10px 24px;
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
-  color: #9a8e82;
+  color: var(--text-secondary);
   cursor: pointer;
   text-align: center;
   transition: color 0.15s;
 }
 
 .toggle:hover {
-  color: #f5efe6;
+  color: var(--text);
 }
 
 .content {
   display: flex;
   padding: 0 20px 12px;
   gap: 0;
-  max-height: 180px;
+  max-height: 220px;
   overflow-y: auto;
 }
 
 .section {
   flex: 1;
-  padding: 0 16px;
+  padding: 0 20px;
 }
 
 .divider {
   width: 1px;
-  background: #3d3632;
+  background: var(--border);
   flex-shrink: 0;
 }
 
 .sectionTitle {
   font-family: 'Fredoka', sans-serif;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   color: #b87333;
   margin-bottom: 6px;
@@ -53,14 +53,14 @@
   flex-wrap: wrap;
   gap: 6px 14px;
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: #d4cdc4;
+  font-size: 16px;
+  color: var(--text-dim);
 }
 
 .hint {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: #736860;
+  font-size: 15px;
+  color: var(--text-muted);
   margin-top: 6px;
 }
 
@@ -73,13 +73,13 @@
 .recipe {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 12px;
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
+  font-size: 16px;
 }
 
 .recipeName {
-  color: #f5efe6;
+  color: var(--text);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -91,18 +91,18 @@
 }
 
 .recipeSteps {
-  color: #9a8e82;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
 @media (max-width: 480px) {
   .toggle {
-    font-size: 13px;
+    font-size: 16px;
   }
 
   .content {
     flex-direction: column;
-    max-height: 260px;
+    max-height: 320px;
   }
 
   .section {
@@ -116,11 +116,11 @@
   }
 
   .commands {
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .recipe {
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .recipeSteps {
@@ -128,6 +128,6 @@
   }
 
   .hint {
-    font-size: 11px;
+    font-size: 15px;
   }
 }

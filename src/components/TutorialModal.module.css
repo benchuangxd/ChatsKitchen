@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(18, 14, 12, 0.84);
+  background: var(--overlay-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,7 +13,7 @@
   width: min(760px, 100%);
   max-height: min(88vh, 900px);
   overflow: hidden;
-  background: linear-gradient(180deg, #2c2724 0%, #1c1917 100%);
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--bg) 100%);
   border: 2px solid #b87333;
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
@@ -30,7 +30,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 24px 24px 16px;
-  background: linear-gradient(180deg, #2c2724 0%, #26211e 100%);
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
   border-bottom: 1px solid #ffffff18;
 }
 
@@ -51,7 +51,7 @@
   margin: 6px 0 0;
   font-family: 'Lilita One', cursive;
   font-size: 40px;
-  color: #f5efe6;
+  color: var(--text);
 }
 
 .closeBtn {
@@ -59,8 +59,8 @@
   border-radius: 10px;
   width: 40px;
   height: 40px;
-  background: #3d3632;
-  color: #f5efe6;
+  background: var(--border);
+  color: var(--text);
   font-size: 20px;
   cursor: pointer;
   flex-shrink: 0;
@@ -84,7 +84,7 @@
   font-family: 'Fredoka', sans-serif;
   font-size: 16px;
   line-height: 1.6;
-  color: #f5efe6;
+  color: var(--text);
 }
 
 .list {
@@ -92,7 +92,7 @@
   padding-left: 22px;
   display: grid;
   gap: 8px;
-  color: #f5efe6;
+  color: var(--text);
   font-family: 'Fredoka', sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -109,7 +109,7 @@
   display: block;
   border: 1px solid #ffffff18;
   border-radius: 10px;
-  background: #171412;
+  background: var(--bg-dark);
   padding: 10px 12px;
   font-family: 'Space Mono', monospace;
   font-size: 14px;

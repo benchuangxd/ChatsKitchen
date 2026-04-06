@@ -1,5 +1,5 @@
 .prep {
-  padding: 6px 20px 6px;
+  padding: 8px 24px 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -13,7 +13,7 @@
 
 .divider {
   font-family: 'Lilita One', cursive;
-  font-size: 16px;
+  font-size: 22px;
   color: #f0c850;
   padding: 0;
 }
@@ -24,7 +24,7 @@
   border-radius: 4px;
   padding: 2px 8px;
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 15px;
   color: #9a8e82;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
@@ -38,7 +38,7 @@
 .items {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
   justify-content: center;
 }
 
@@ -63,29 +63,29 @@
 }
 
 .emoji {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .count {
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
   color: #f0c850;
 }
 
 .name {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 15px;
   color: #9a8e82;
 }
 
 @media (max-width: 480px) {
   .divider {
-    font-size: 18px;
+    font-size: 22px;
   }
 
   .toggle {
-    font-size: 12px;
+    font-size: 15px;
     padding: 3px 10px;
   }
 
@@ -94,10 +94,10 @@
   }
 
   .count {
-    font-size: 13px;
+    font-size: 16px;
   }
 
   .name {
-    font-size: 12px;
+    font-size: 15px;
   }
 }

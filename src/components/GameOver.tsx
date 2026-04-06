@@ -21,7 +21,7 @@ interface Props {
 }
 
 export default function GameOver({ money, served, lost, playerStats, level, onPlayAgain, onNextLevel, onMenu }: Props) {
-  const totalActions = (s: PlayerStats) => s.cooked + s.taken + s.plated + s.served + s.extinguished
+  const totalActions = (s: PlayerStats) => s.cooked + s.taken + s.served + s.extinguished - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
 
@@ -72,9 +72,12 @@ export default function GameOver({ money, served, lost, playerStats, level, onPl
           <div className={styles.lbHeader}>
             <span className={styles.lbRank}>#</span>
             <span className={styles.lbName}>Player</span>
-            <span className={styles.lbDetail}>{'\u{1F373}'}</span>
-            <span className={styles.lbDetail}>{'\u{1F4E6}'}</span>
-            <span className={styles.lbDetail}>{'\u{1F37D}\u{FE0F}'}</span>
+            <span className={styles.lbDetail} title="Cooked">{'\u{1F373}'}</span>
+            <span className={styles.lbDetail} title="Taken">{'\u{270B}'}</span>
+            <span className={styles.lbDetail} title="Served">{'\u{2705}'}</span>
+            <span className={styles.lbDetail} title="Extinguished">{'\u{1F9EF}'}</span>
+            <span className={styles.lbDetail} title="Fires Caused">{'\u{1F525}'}</span>
+            <span className={styles.lbTotal}>Total</span>
           </div>
           {leaderboard.map(([name, stats], i) => {
             const color = NAME_COLORS[Math.abs(hashStr(name)) % NAME_COLORS.length]
@@ -84,8 +87,11 @@ export default function GameOver({ money, served, lost, playerStats, level, onPl
                 <span className={styles.lbRank}>{i + 1}</span>
                 <span className={styles.lbName} style={{ color }}>{name}</span>
                 <span className={styles.lbDetail}>{stats.cooked}</span>
-                <span className={styles.lbDetail}>{stats.plated}</span>
+                <span className={styles.lbDetail}>{stats.taken}</span>
                 <span className={styles.lbDetail}>{stats.served}</span>
+                <span className={styles.lbDetail}>{stats.extinguished}</span>
+                <span className={styles.lbDetail} style={{ color: '#d94f4f' }}>{stats.firesCaused}</span>
+                <span className={styles.lbTotal}>{totalActions(stats)}</span>
               </div>
             )
           })}

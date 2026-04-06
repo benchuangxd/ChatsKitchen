@@ -1,15 +1,19 @@
 import { useState } from 'react'
-import { INGREDIENT_EMOJI } from '../data/recipes'
+import { INGREDIENT_EMOJI, RECIPES } from '../data/recipes'
 import styles from './PreparedItems.module.css'
 
 interface Props {
   items: string[]
+  enabledRecipes: string[]
 }
 
-const ALL_INGREDIENTS = Object.keys(INGREDIENT_EMOJI)
-
-export default function PreparedItems({ items }: Props) {
+export default function PreparedItems({ items, enabledRecipes }: Props) {
   const [showNames, setShowNames] = useState(false)
+
+  const allowedIngredients = new Set(
+    enabledRecipes.flatMap(key => RECIPES[key]?.plate ?? [])
+  )
+  const visibleIngredients = Object.keys(INGREDIENT_EMOJI).filter(i => allowedIngredients.has(i))
 
   const counts: Record<string, number> = {}
   for (const item of items) {
@@ -25,7 +29,7 @@ export default function PreparedItems({ items }: Props) {
         </button>
       </div>
       <div className={styles.items}>
-        {ALL_INGREDIENTS.map((item) => {
+        {visibleIngredients.map((item) => {
           const count = counts[item] || 0
           const filled = count > 0
           return (

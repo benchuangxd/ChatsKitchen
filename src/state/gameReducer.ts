@@ -5,18 +5,18 @@ export type GameAction =
   | { type: 'TICK'; delta: number; now: number }
   | { type: 'COOK'; user: string; action: string; target: string; now: number }
   | { type: 'TAKE'; user: string; ingredient: string }
-  | { type: 'PLATE'; user: string; dishKey: string; now: number }
   | { type: 'SERVE'; user: string; orderId: number }
   | { type: 'EXTINGUISH'; user: string; stationId: string }
   | { type: 'SPAWN_ORDER'; now: number }
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
-  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; stationCapacity: StationCapacity; enabledRecipes: string[] }
+  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[] }
 
 export function createInitialState(
   shiftDuration = 120000,
   cookingSpeed = 1,
   orderSpeed = 1,
-  stationCapacity: StationCapacity = { chopping: 3, cooking: 2, plating: 2 },
+  stationCapacity: StationCapacity = { chopping: 3, cooking: 2 },
+  restrictSlots = false,
   enabledRecipes: string[] = Object.keys(RECIPES)
 ): GameState {
   const stations: Record<string, Station> = {}
@@ -32,6 +32,7 @@ export function createInitialState(
     cookingSpeed,
     orderSpeed,
     stationCapacity,
+    restrictSlots,
     enabledRecipes,
     stations,
     orders: [],
@@ -52,23 +53,23 @@ function addMsg(state: GameState, username: string, text: string, msgType: ChatM
   return { ...state, chatMessages: messages, nextMessageId: state.nextMessageId + 1 }
 }
 
-const EMPTY_STATS: PlayerStats = { cooked: 0, taken: 0, plated: 0, served: 0, moneyEarned: 0, extinguished: 0 }
+const EMPTY_STATS: PlayerStats = { cooked: 0, taken: 0, served: 0, moneyEarned: 0, extinguished: 0, firesCaused: 0 }
 
 function addStat(state: GameState, user: string, stat: keyof PlayerStats, amount: number): GameState {
   const prev = state.playerStats[user] || { ...EMPTY_STATS }
   return { ...state, playerStats: { ...state.playerStats, [user]: { ...prev, [stat]: prev[stat] + amount } } }
 }
 
-function getStationCapacity(stationId: string, capacity: StationCapacity): number {
+function getStationCapacity(stationId: string, capacity: StationCapacity, restricted: boolean): number {
+  if (!restricted) return Infinity
   if (stationId === 'cutting_board') return capacity.chopping
-  if (stationId === 'plating') return capacity.plating
   return capacity.cooking
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RESET':
-      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.stationCapacity, action.enabledRecipes)
+      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.stationCapacity, action.restrictSlots, action.enabledRecipes)
 
     case 'ADD_CHAT':
       return addMsg(state, action.username, action.text, action.msgType)
@@ -148,90 +149,32 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       )
     }
 
-    case 'PLATE': {
-      const { dishKey, user, now } = action
-      const recipe = RECIPES[dishKey]
-      if (!recipe) return addMsg(state, 'KITCHEN', `Unknown dish: ${dishKey}`, 'error')
-
-      // Cooldown check
-      if (state.userCooldowns[user] && now - state.userCooldowns[user] < 1500) return state
-      const withCooldown = { ...state, userCooldowns: { ...state.userCooldowns, [user]: now } }
-
-      // Per-user busy check
-      const alreadyBusy = withCooldown.activeUsers[user] || Object.values(withCooldown.stations).some(
-        s => s.slots.some(slot => slot.state === 'cooking' && slot.user === user)
-      )
-      if (alreadyBusy) {
-        return addMsg(withCooldown, 'KITCHEN', `${user} is already busy!`, 'error')
-      }
-
-      // Plating station capacity check
-      const platingStation = withCooldown.stations['plating']
-      const maxSlots = getStationCapacity('plating', state.stationCapacity)
-      if (platingStation.slots.length >= maxSlots) {
-        return addMsg(withCooldown, 'KITCHEN', 'Plating station is full! Try again later.', 'error')
-      }
-
-      // Check ingredients
-      const needed = [...recipe.plate]
-      const available = [...withCooldown.preparedItems]
-      for (const item of needed) {
-        const idx = available.indexOf(item)
-        if (idx === -1) return addMsg(withCooldown, 'KITCHEN', `Missing ${item.replace(/_/g, ' ')} for ${recipe.name}!`, 'error')
-        available.splice(idx, 1)
-      }
-
-      // Plating takes 3 seconds (scaled by speed multiplier)
-      const plateDuration = 3000 / state.cookingSpeed
-
-      const newSlot: StationSlot = {
-        id: `slot_${withCooldown.nextSlotId}`,
-        user,
-        target: dishKey,
-        produces: dishKey,
-        cookStart: now,
-        cookDuration: plateDuration,
-        burnAt: Infinity,
-        state: 'cooking',
-      }
-
-      const withStat = addStat(withCooldown, user, 'plated', 1)
-      return addMsg(
-        {
-          ...withStat,
-          preparedItems: available,
-          stations: {
-            ...withStat.stations,
-            plating: { ...platingStation, slots: [...platingStation.slots, newSlot] },
-          },
-          activeUsers: { ...withStat.activeUsers, [user]: 'plating' },
-          nextSlotId: withStat.nextSlotId + 1,
-        },
-        'KITCHEN', `${user} started plating ${recipe.emoji} ${recipe.name}!`, 'success'
-      )
-    }
-
     case 'SERVE': {
       const { user, orderId } = action
       const orderIdx = state.orders.findIndex(o => o.id === orderId && !o.served)
       if (orderIdx === -1) return addMsg(state, 'KITCHEN', `No pending order #${orderId}!`, 'error')
 
       const order = state.orders[orderIdx]
-      const platingStation = state.stations['plating']
-      const slotIdx = platingStation.slots.findIndex(s => s.state === 'done' && s.produces === order.dish)
-      if (slotIdx === -1) return addMsg(state, 'KITCHEN', `No plated ${RECIPES[order.dish].name} ready!`, 'error')
+      const recipe = RECIPES[order.dish]
 
-      const newPlatingSlots = platingStation.slots.filter((_, i) => i !== slotIdx)
-      const newStations = { ...state.stations, plating: { ...platingStation, slots: newPlatingSlots } }
+      // Check preparedItems has all required ingredients
+      const needed = [...recipe.plate]
+      const available = [...state.preparedItems]
+      for (const item of needed) {
+        const idx = available.indexOf(item)
+        if (idx === -1) return addMsg(state, 'KITCHEN', `Missing ${item.replace(/_/g, ' ')} for ${recipe.name}!`, 'error')
+        available.splice(idx, 1)
+      }
+
       const newOrders = state.orders.map((o, i) => i === orderIdx ? { ...o, served: true } : o)
       const timeBonus = Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30))
-      const reward = RECIPES[order.dish].reward + timeBonus
+      const reward = recipe.reward + timeBonus
 
       let withStats = addStat(state, user, 'served', 1)
       withStats = addStat(withStats, user, 'moneyEarned', reward)
       return addMsg(
-        { ...withStats, stations: newStations, orders: newOrders, money: withStats.money + reward, served: withStats.served + 1 },
-        'KITCHEN', `${user} served ${RECIPES[order.dish].emoji} ${RECIPES[order.dish].name}! +$${reward}`, 'success'
+        { ...withStats, preparedItems: available, orders: newOrders, money: withStats.money + reward, served: withStats.served + 1 },
+        'KITCHEN', `${user} served ${recipe.emoji} ${recipe.name}! +$${reward}`, 'success'
       )
     }
 
@@ -257,7 +200,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const station = withCooldown.stations[stationId]
 
       // Station capacity check
-      const maxSlots = getStationCapacity(stationId, state.stationCapacity)
+      const maxSlots = getStationCapacity(stationId, state.stationCapacity, state.restrictSlots)
       if (station.slots.length >= maxSlots) {
         return addMsg(withCooldown, 'KITCHEN', `The ${STATION_DEFS[stationId].name} is full! Try again later.`, 'error')
       }
@@ -349,6 +292,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newActiveUsers = { ...state.activeUsers }
       let messages = [...state.chatMessages]
       let nextMsgId = state.nextMessageId
+      const newPreparedItems = [...state.preparedItems]
+      let newPlayerStats = { ...state.playerStats }
       // Update all station slots
       for (const [id, station] of Object.entries(newStations)) {
         if (station.slots.length === 0) continue
@@ -363,13 +308,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             // Already burning — keep it until extinguished
             updatedSlots.push(slot)
           } else if (slot.state === 'cooking' && elapsed >= slot.cookDuration) {
-            if (id === 'plating') {
-              // Plating complete: keep slot on station as 'done' until served
-              updatedSlots.push({ ...slot, state: 'done' })
+            if (id === 'cutting_board') {
+              // Chopping done: auto-move to preparedItems, no !take needed
+              newPreparedItems.push(slot.produces)
               delete newActiveUsers[slot.user]
               slotsChanged = true
-              const recipe = RECIPES[slot.produces]
-              messages.push({ id: nextMsgId++, username: 'KITCHEN', text: `${slot.user} finished plating ${recipe?.emoji || ''} ${recipe?.name || slot.produces}!`, type: 'success' })
+              messages.push({ id: nextMsgId++, username: 'KITCHEN', text: `${slot.user} finished chopping ${slot.produces.replace(/_/g, ' ')}!`, type: 'success' })
+              // slot not pushed to updatedSlots → removed from station
             } else {
               updatedSlots.push({ ...slot, state: 'done' })
               delete newActiveUsers[slot.user]
@@ -381,6 +326,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             delete newActiveUsers[slot.user]
             slotsChanged = true
             messages.push({ id: nextMsgId++, username: 'KITCHEN', text: `🔥 ${slot.user}'s ${slot.target} is on fire! Type !extinguish ${id.replace(/_/g, ' ')}!`, type: 'system' })
+            const prev = newPlayerStats[slot.user] || { ...EMPTY_STATS }
+            newPlayerStats = { ...newPlayerStats, [slot.user]: { ...prev, firesCaused: prev.firesCaused + 1 } }
           } else {
             updatedSlots.push(slot)
           }
@@ -411,7 +358,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Timer countdown
       const timeLeft = Math.max(0, state.timeLeft - delta)
 
-      return { ...state, stations: newStations, activeUsers: newActiveUsers, orders, lost, timeLeft, chatMessages: messages.slice(-200), nextMessageId: nextMsgId }
+      return { ...state, stations: newStations, activeUsers: newActiveUsers, preparedItems: newPreparedItems, playerStats: newPlayerStats, orders, lost, timeLeft, chatMessages: messages.slice(-200), nextMessageId: nextMsgId }
     }
 
     default:

@@ -23,7 +23,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
           <div className={styles.content}>
             <section className={styles.section}>
               <h3>Goal</h3>
-              <p>Work with your chat to cook dishes, plate them correctly, and serve orders before time runs out.</p>
+              <p>Work with your chat to cook dishes and serve orders before time runs out.</p>
             </section>
 
             <section className={styles.section}>
@@ -31,7 +31,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
               <ul className={styles.list}>
                 <li>Orders appear on the top left with the order number, dish name, ingredients needed, and time remaining.</li>
                 <li>Players type commands in chat to prepare ingredients at the cooking stations.</li>
-                <li>Prepared ingredients must be plated into the matching dish, then served to the order number.</li>
+                <li>Once ingredients are prepared, serve the matching order number to complete it.</li>
               </ul>
             </section>
 
@@ -44,7 +44,6 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 <span><code>boil pasta</code></span>
                 <span><code>toast bun</code></span>
                 <span><code>take lettuce</code></span>
-                <span><code>plate burger</code></span>
                 <span><code>serve 1</code></span>
               </div>
               <p className={styles.note}>If something catches fire, use <code>extinguish [station]</code> fast.</p>
@@ -55,9 +54,8 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
               <ul className={styles.list}>
                 <li>Read the order ticket.</li>
                 <li>Cook or prep each ingredient needed for that dish.</li>
-                <li>Use `take` once an ingredients has been cooked or prepped.</li>
-                <li>Use `plate [dish]` when all required ingredients are ready.</li>
-                <li>Finish with `serve [order#]`.</li>
+                <li>Use `take` once an ingredient has been cooked or prepped (chopping auto-deposits).</li>
+                <li>Use `serve [order#]` when all required ingredients are in the prepared tray.</li>
               </ul>
             </section>
 

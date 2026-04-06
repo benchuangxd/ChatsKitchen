@@ -16,17 +16,13 @@ export default function OrderTicket({ order }: Props) {
   return (
     <div className={`${styles.ticket} ${urgencyClass}`}>
       <div className={styles.header} style={{ backgroundColor: barColor }}>
-        <span className={styles.orderNum}>#{order.id}</span>
+        #{order.id} {recipe.emoji} {recipe.name}
       </div>
       <div className={styles.body}>
-        <div className={styles.dishName}>{recipe.emoji} {recipe.name}</div>
         <div className={styles.divider} />
         <div className={styles.ingredients}>
           {recipe.plate.map((item, i) => (
-            <div key={i} className={styles.ingredientRow}>
-              <span className={styles.ingredientEmoji}>{INGREDIENT_EMOJI[item] || '?'}</span>
-              <span className={styles.ingredientName}>{item.replace(/_/g, ' ')}</span>
-            </div>
+            <span key={i} className={styles.ingredientEmoji}>{INGREDIENT_EMOJI[item] || '?'}</span>
           ))}
         </div>
         <div className={styles.patienceBg}>

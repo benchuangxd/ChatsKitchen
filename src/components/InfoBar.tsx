@@ -28,7 +28,6 @@ export default function InfoBar({ shortformEnabled = false }: Props) {
               <span>{cmd('boil', 'b')} [item]</span>
               <span>{cmd('toast', 't')} [item]</span>
               <span>{cmd('take', 'ta')} [ingredient]</span>
-              <span>{cmd('plate', 'p')} [dish]</span>
               <span>{cmd('serve', 's')} [order#]</span>
               <span>{cmd('extinguish', 'e')} [station]</span>
             </div>
@@ -49,7 +48,7 @@ export default function InfoBar({ shortformEnabled = false }: Props) {
                   <span className={styles.recipeReward}>${recipe.reward}</span>
                   <span className={styles.recipeSteps}>
                     {recipe.steps.map(s => `${s.action} ${s.target}`).join(' \u{2192} ')}
-                    {' \u{2192} '}plate {key.replace(/_/g, ' ')} {'\u{2192}'} serve #
+                    {' \u{2192} '}serve #
                   </span>
                 </div>
               ))}

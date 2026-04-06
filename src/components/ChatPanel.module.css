@@ -1,8 +1,8 @@
 .panel {
-  width: 280px;
+  width: 340px;
   max-height: 100%;
   overflow: hidden;
-  background: linear-gradient(180deg, #252220 0%, #1f1c1a 100%);
+  background: linear-gradient(180deg, var(--surface-3) 0%, var(--surface-4) 100%);
   border-left: 3px solid #c8841a;
   display: flex;
   flex-direction: column;
@@ -12,9 +12,9 @@
 
 .header {
   background: #c8841a;
-  padding: 8px 12px;
+  padding: 10px 14px;
   font-family: 'Lilita One', cursive;
-  font-size: 14px;
+  font-size: 20px;
   color: #fff;
   display: flex;
   align-items: center;
@@ -29,7 +29,7 @@
 }
 
 .dot {
-  width: 8px; height: 8px;
+  width: 10px; height: 10px;
   background: #5cb85c;
   border-radius: 50%;
   animation: pulse 1.5s infinite;
@@ -44,7 +44,7 @@
   background: none;
   border: none;
   color: #fff;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
@@ -59,11 +59,11 @@
 .messages {
   flex: 1;
   overflow-y: auto;
-  padding: 10px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 13px;
+  font-size: 18px;
   scrollbar-width: thin;
   scrollbar-color: #c8841a33 transparent;
 }
@@ -79,14 +79,14 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.username { font-weight: 700; margin-right: 4px; }
-.text { color: #d4cdc4; }
+.username { font-weight: 700; margin-right: 4px; color: var(--text); }
+.text { color: var(--text-dim); }
 .system .text { color: #f0c850; font-style: italic; }
 .error .text { color: #d94f4f; }
 .success .text { color: #5cb85c; }
 
 .inputArea {
-  padding: 10px;
+  padding: 12px;
   border-top: 1px solid #ffffff15;
   display: flex;
   gap: 8px;
@@ -94,13 +94,13 @@
 
 .input {
   flex: 1;
-  background: #171412;
+  background: var(--bg-dark);
   border: 2px solid #c8841a44;
   border-radius: 6px;
-  padding: 8px 12px;
-  color: #f5efe6;
+  padding: 10px 14px;
+  color: var(--text);
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -112,10 +112,10 @@
   border: none;
   border-radius: 6px;
   color: #fff;
-  padding: 8px 14px;
+  padding: 10px 16px;
   font-family: 'Fredoka', sans-serif;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -149,7 +149,7 @@
     background: none;
     border: none;
     color: #c8841a;
-    font-size: 16px;
+    font-size: 18px;
     cursor: pointer;
     padding: 0 8px;
     flex-shrink: 0;

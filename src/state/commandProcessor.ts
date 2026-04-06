@@ -9,7 +9,7 @@ const ALIASES: Record<string, string> = {
 
 const COMMAND_ALIASES: Record<string, string> = {
   c: 'chop', g: 'grill', f: 'fry', b: 'boil', t: 'toast',
-  ta: 'take', p: 'plate', s: 'serve', e: 'extinguish',
+  ta: 'take', s: 'serve', e: 'extinguish',
 }
 
 function expand(value: string): string {
@@ -31,8 +31,6 @@ export function parseCommand(user: string, text: string, shortformEnabled = fals
       return target ? { type: 'EXTINGUISH', user, stationId: expand(target) } : null
     case 'take':
       return target ? { type: 'TAKE', user, ingredient: target } : null
-    case 'plate':
-      return target ? { type: 'PLATE', user, dishKey: expand(target), now: Date.now() } : null
     case 'serve': {
       const match = target.match(/(\d+)/)
       return match ? { type: 'SERVE', user, orderId: parseInt(match[1]) } : null

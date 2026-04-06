@@ -6,6 +6,7 @@ class AudioManager {
   private sfxSounds: Record<string, Howl> = {}
   private currentMusicName: string | null = null
   private intenseMixActive = false
+  private masterVolume = 1
   private musicVolume = 0.5
   private sfxVolume = 0.5
   private _sfxMuted = false
@@ -50,7 +51,7 @@ class AudioManager {
     this.intenseMixActive = false
 
     // Fade in new track
-    const targetVol = MUSIC_TRACKS[track].volume * this.musicVolume
+    const targetVol = MUSIC_TRACKS[track].volume * this.musicVolume * this.masterVolume
     next.volume(0)
     next.play()
     next.fade(0, targetVol, 1000)
@@ -75,7 +76,7 @@ class AudioManager {
     if (!gameplay || !intense) return
 
     this.intenseMixActive = true
-    const intenseVol = MUSIC_TRACKS['intense'].volume * this.musicVolume
+    const intenseVol = MUSIC_TRACKS['intense'].volume * this.musicVolume * this.masterVolume
 
     // Start intense track
     intense.volume(0)
@@ -85,6 +86,17 @@ class AudioManager {
     // Fade gameplay down to a bed
     const gpVol = gameplay.volume() as number
     gameplay.fade(gpVol, 0.15 * this.musicVolume, 2000)
+  }
+
+  stopSfx(name: string) {
+    const sound = this.sfxSounds[name]
+    if (sound) sound.stop()
+  }
+
+  stopAllSfx() {
+    for (const howl of Object.values(this.sfxSounds)) {
+      howl.stop()
+    }
   }
 
   playSfx(name: string) {
@@ -98,22 +110,29 @@ class AudioManager {
     if (this.sfxThrottles[name] && now - this.sfxThrottles[name] < 500) return
     this.sfxThrottles[name] = now
 
-    sound.volume(SFX[name].volume * this.sfxVolume)
+    sound.volume(SFX[name].volume * this.sfxVolume * this.masterVolume)
     sound.play()
+  }
+
+  setMasterVolume(v: number) {
+    this.masterVolume = v
+    this.setMusicVolume(this.musicVolume)
+    this.setSfxVolume(this.sfxVolume)
   }
 
   setMusicVolume(v: number) {
     this.musicVolume = v
+    const effective = v * this.masterVolume
     // Update currently playing music
     if (this.intenseMixActive) {
       const gameplay = this.musicTracks['gameplay']
       const intense = this.musicTracks['intense']
-      if (gameplay?.playing()) gameplay.volume(0.15 * v)
-      if (intense?.playing()) intense.volume(MUSIC_TRACKS['intense'].volume * v)
+      if (gameplay?.playing()) gameplay.volume(0.15 * effective)
+      if (intense?.playing()) intense.volume(MUSIC_TRACKS['intense'].volume * effective)
     } else if (this.currentMusicName) {
       const current = this.musicTracks[this.currentMusicName]
       if (current?.playing()) {
-        current.volume(MUSIC_TRACKS[this.currentMusicName].volume * v)
+        current.volume(MUSIC_TRACKS[this.currentMusicName].volume * effective)
       }
     }
   }

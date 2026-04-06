@@ -6,7 +6,7 @@
 
 .stat {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -14,7 +14,7 @@
 
 .primary {
   font-family: 'Space Mono', monospace;
-  font-size: 22px;
+  font-size: 30px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -26,13 +26,13 @@
 
 .primaryLabel {
   color: #9a8e82;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .primaryValue {
   font-weight: 700;
-  font-size: 22px;
+  font-size: 30px;
 }
 
 @media (max-width: 480px) {
@@ -41,15 +41,15 @@
   }
 
   .stat {
-    font-size: 12px;
+    font-size: 16px;
     gap: 4px;
   }
 
   .primary {
-    font-size: 18px;
+    font-size: 24px;
   }
 
   .primaryValue {
-    font-size: 18px;
+    font-size: 24px;
   }
 }

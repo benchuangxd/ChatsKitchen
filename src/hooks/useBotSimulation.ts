@@ -16,37 +16,26 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
     if (station.slots.some(s => s.state === 'onFire')) return { name, command: `extinguish ${id}` }
   }
 
-  // Done slots — take bot's own first, then any done slot (skip plating — auto-completes)
+  // Done slots — take bot's own first, then any done slot
   for (const [id, station] of Object.entries(state.stations)) {
-    if (id === 'plating') continue
     const doneSlot = station.slots.find(s => s.state === 'done' && s.user === name)
       || station.slots.find(s => s.state === 'done')
     if (doneSlot) return { name, command: `take ${doneSlot.target}` }
+    void id
   }
 
-  // Serve — check plating station for done slots
-  const plating = state.stations['plating']
+  // Serve — check if preparedItems has all ingredients for an active order
   for (const order of state.orders) {
     if (order.served) continue
-    if (plating.slots.some(s => s.state === 'done' && s.produces === order.dish)) return { name, command: `serve ${order.id}` }
-  }
-
-  // Plate — check plating station capacity
-  const platingStation = state.stations['plating']
-  const platingCapacity = state.stationCapacity.plating
-  if (platingStation && platingStation.slots.length < platingCapacity) {
-    for (const order of state.orders) {
-      if (order.served) continue
-      const recipe = RECIPES[order.dish]
-      const available = [...state.preparedItems]
-      let canPlate = true
-      for (const item of recipe.plate) {
-        const idx = available.indexOf(item)
-        if (idx === -1) { canPlate = false; break }
-        available.splice(idx, 1)
-      }
-      if (canPlate) return { name, command: `plate ${order.dish}` }
+    const recipe = RECIPES[order.dish]
+    const available = [...state.preparedItems]
+    let canServe = true
+    for (const item of recipe.plate) {
+      const idx = available.indexOf(item)
+      if (idx === -1) { canServe = false; break }
+      available.splice(idx, 1)
     }
+    if (canServe) return { name, command: `serve ${order.id}` }
   }
 
   // Cook something needed — check station capacity

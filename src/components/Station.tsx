@@ -2,7 +2,6 @@ import { Station as StationType, StationSlot } from '../state/types'
 import { STATION_DEFS, NAME_COLORS } from '../data/recipes'
 import styles from './Station.module.css'
 
-
 function hashStr(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
@@ -13,51 +12,42 @@ function SlotRow({ slot, stationId }: { slot: StationSlot; stationId: string }) 
   const now = Date.now()
   const elapsed = now - slot.cookStart
   const progress = slot.cookDuration > 0 ? Math.min(1, elapsed / slot.cookDuration) : 0
-
-  const burnWindow = slot.burnAt - slot.cookDuration
-  const burnElapsed = elapsed - slot.cookDuration
-  const burnProgress = slot.state === 'done' && burnWindow > 0
-    ? Math.min(1, Math.max(0, burnElapsed / burnWindow)) : 0
+  const burnRatio = slot.burnAt > 0 && slot.burnAt < Infinity ? elapsed / slot.burnAt : 0
 
   const nameColor = NAME_COLORS[Math.abs(hashStr(slot.user)) % NAME_COLORS.length]
 
   if (slot.state === 'onFire') {
     return (
       <div className={`${styles.slot} ${styles.slotOnFire}`}>
-        <div className={styles.slotHeader}>
-          <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
-          <span className={styles.slotItem}>{slot.target}</span>
-        </div>
-        <div className={styles.fireSlotStatus}>🔥 ON FIRE! !extinguish {stationId.replace(/_/g, ' ')}</div>
+        <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
+        <span className={styles.slotItem}>{slot.target.replace(/_/g, ' ')}</span>
+        <span className={styles.slotFireLabel}>🔥 !extinguish {stationId.replace(/_/g, ' ')}</span>
       </div>
     )
   }
 
+  if (slot.state === 'done') {
+    return (
+      <div className={`${styles.slot} ${styles.slotDone}`}>
+        <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
+        <span className={styles.slotItem}>{slot.target.replace(/_/g, ' ')}</span>
+        <span className={styles.slotDoneLabel}>DONE — !take</span>
+      </div>
+    )
+  }
+
+  // cooking slot — color bar based on burn proximity
+  const barColor = burnRatio > 0.85 ? '#d94f4f' : burnRatio > 0.65 ? '#e8943a' : '#5cb85c'
+
   return (
     <div className={styles.slot}>
-      <div className={styles.slotHeader}>
-        <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
-        <span className={styles.slotItem}>{slot.target}</span>
-      </div>
+      <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
+      <span className={styles.slotItem}>{slot.target.replace(/_/g, ' ')}</span>
       <div className={styles.progressBg}>
         <div
           className={styles.progressFill}
-          style={{
-            width: slot.state === 'cooking' ? `${progress * 100}%` : '100%',
-            backgroundColor: slot.state === 'done' ? '#5cb85c' : '#5aad5e',
-          }}
+          style={{ width: `${Math.floor(progress * 100)}%`, background: barColor }}
         />
-      </div>
-      {slot.state === 'done' && slot.burnAt > 0 && slot.burnAt < Infinity && (
-        <div className={styles.burnBar}>
-          <div className={styles.burnLabel}>BURN</div>
-          <div className={styles.burnBg}>
-            <div className={styles.burnFill} style={{ width: `${burnProgress * 100}%` }} />
-          </div>
-        </div>
-      )}
-      <div className={styles.slotStatus} style={{ color: slot.state === 'done' ? '#5cb85c' : '#e8943a' }}>
-        {slot.state === 'cooking' ? `${stationId === 'plating' ? 'plating' : 'cooking'} ${Math.floor(progress * 100)}%` : `DONE! take ${slot.target}`}
       </div>
     </div>
   )
@@ -77,7 +67,12 @@ export default function Station({ station, capacity }: Props) {
 
   return (
     <div className={`${styles.station} ${hasActiveFire ? styles.fire : ''}`} style={{ borderColor }}>
-      <div className={styles.label}>{def.emoji} {def.name} <span className={styles.capacity}>{station.slots.length}/{capacity}</span></div>
+      <div className={styles.label}>
+        {def.emoji} {def.name}
+        <span className={styles.capacity}>
+          {capacity === Infinity ? station.slots.length : `${station.slots.length}/${capacity}`}
+        </span>
+      </div>
       {station.slots.length === 0 ? (
         <div className={styles.idleStatus}>idle</div>
       ) : (
