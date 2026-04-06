@@ -53,6 +53,7 @@ export interface GameOptions {
   shiftDuration: number
   stationCapacity: StationCapacity
   enabledRecipes: string[]
+  allowShortformCommands: boolean
 }
 
 export interface AudioSettings {

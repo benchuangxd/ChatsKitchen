@@ -2,8 +2,15 @@ import { useState } from 'react'
 import { RECIPES } from '../data/recipes'
 import styles from './InfoBar.module.css'
 
-export default function InfoBar() {
+interface Props {
+  shortformEnabled?: boolean
+}
+
+export default function InfoBar({ shortformEnabled = false }: Props) {
   const [open, setOpen] = useState(false)
+
+  const cmd = (full: string, short: string) =>
+    shortformEnabled ? `${full}/${short}` : full
 
   return (
     <div className={styles.bar}>
@@ -15,15 +22,15 @@ export default function InfoBar() {
           <div className={styles.section}>
             <div className={styles.sectionTitle}>Commands</div>
             <div className={styles.commands}>
-              <span>chop [item]</span>
-              <span>grill [item]</span>
-              <span>fry [item]</span>
-              <span>boil [item]</span>
-              <span>toast [item]</span>
-              <span>take [ingredient]</span>
-              <span>plate [dish]</span>
-              <span>serve [order#]</span>
-              <span>extinguish [station]</span>
+              <span>{cmd('chop', 'c')} [item]</span>
+              <span>{cmd('grill', 'g')} [item]</span>
+              <span>{cmd('fry', 'f')} [item]</span>
+              <span>{cmd('boil', 'b')} [item]</span>
+              <span>{cmd('toast', 't')} [item]</span>
+              <span>{cmd('take', 'ta')} [ingredient]</span>
+              <span>{cmd('plate', 'p')} [dish]</span>
+              <span>{cmd('serve', 's')} [order#]</span>
+              <span>{cmd('extinguish', 'e')} [station]</span>
             </div>
             <div className={styles.hint}>
               Items: lettuce(lett), tomato, patty, bun, potato, pasta, cheese, fish

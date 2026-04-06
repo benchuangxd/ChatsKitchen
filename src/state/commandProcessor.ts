@@ -7,11 +7,16 @@ const ALIASES: Record<string, string> = {
   msoup: 'mushroom_soup',
 }
 
+const COMMAND_ALIASES: Record<string, string> = {
+  c: 'chop', g: 'grill', f: 'fry', b: 'boil', t: 'toast',
+  ta: 'take', p: 'plate', s: 'serve', e: 'extinguish',
+}
+
 function expand(value: string): string {
   return ALIASES[value] || value
 }
 
-export function parseCommand(user: string, text: string): GameAction | null {
+export function parseCommand(user: string, text: string, shortformEnabled = false): GameAction | null {
   const trimmed = text.startsWith('!') ? text.slice(1) : text
   const parts = trimmed.toLowerCase().split(/\s+/)
   if (parts.length === 0) return null
@@ -19,7 +24,9 @@ export function parseCommand(user: string, text: string): GameAction | null {
   const rawTarget = parts.slice(1).join('_') || ''
   const target = expand(rawTarget)
 
-  switch (action) {
+  const resolvedAction = shortformEnabled ? (COMMAND_ALIASES[action] ?? action) : action
+
+  switch (resolvedAction) {
     case 'extinguish':
       return target ? { type: 'EXTINGUISH', user, stationId: expand(target) } : null
     case 'take':
@@ -35,7 +42,7 @@ export function parseCommand(user: string, text: string): GameAction | null {
     case 'fry':
     case 'boil':
     case 'toast':
-      return target ? { type: 'COOK', user, action, target, now: Date.now() } : null
+      return target ? { type: 'COOK', user, action: resolvedAction, target, now: Date.now() } : null
     default:
       return null
   }

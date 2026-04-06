@@ -163,6 +163,20 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
           </div>
 
           <div className={styles.section}>
+            <div className={styles.label}>Short Commands</div>
+            <div className={styles.capacityRow}>
+              <span className={styles.capacityLabel}>c, g, f, b, t, ta, p, s, e</span>
+              <button
+                className={`${styles.muteBtn} ${options.allowShortformCommands ? styles.muteBtnActive : ''}`}
+                onClick={() => onChange({ ...options, allowShortformCommands: !options.allowShortformCommands })}
+              >
+                {options.allowShortformCommands ? 'ON' : 'OFF'}
+              </button>
+            </div>
+            <div className={styles.hint}>Allow single-letter aliases for all commands</div>
+          </div>
+
+          <div className={styles.section}>
             <div className={styles.label}>Audio</div>
             <div className={styles.sliderGrid}>
               <div className={styles.sliderRow}>
