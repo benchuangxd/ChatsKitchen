@@ -58,7 +58,13 @@ export default function App() {
   )
   const [botsEnabled, setBotsEnabled] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
-  const [twitchChannel, setTwitchChannel] = useState<string | null>(null)
+  const [twitchChannel, setTwitchChannel] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('chatsKitchen_twitchChannel')
+    } catch {
+      return null
+    }
+  })
   const [audioSettings, setAudioSettings] = useState<AudioSettings>(() => {
     try {
       const saved = localStorage.getItem('audioSettings')
@@ -185,11 +191,19 @@ export default function App() {
     localStorage.setItem('chatsKitchen_gameOptions', JSON.stringify(options))
   }, [])
 
+  const handleTwitchChannelChange = useCallback((ch: string | null) => {
+    setTwitchChannel(ch)
+    try {
+      if (ch) localStorage.setItem('chatsKitchen_twitchChannel', ch)
+      else localStorage.removeItem('chatsKitchen_twitchChannel')
+    } catch {}
+  }, [])
+
   const handleResetAll = useCallback(() => {
     setGameOptions(DEFAULT_GAME_OPTIONS)
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
     setLevelProgress({})
-    setTwitchChannel(null)
+    handleTwitchChannelChange(null)
     setHideTutorialPrompt(false)
     setShowTutorialPrompt(false)
     setTutorialDestination('menu')
@@ -202,7 +216,7 @@ export default function App() {
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
-  }, [])
+  }, [handleTwitchChannelChange])
 
   const isPlaying = screen === 'playing'
   useGameLoop(state, dispatch, isPlaying ? handleGameOver : undefined)
@@ -243,8 +257,8 @@ export default function App() {
         channel={twitchChannel}
         status={twitchChat.status}
         error={twitchChat.error}
-        onConnect={(ch) => setTwitchChannel(ch)}
-        onDisconnect={() => setTwitchChannel(null)}
+        onConnect={(ch) => handleTwitchChannelChange(ch)}
+        onDisconnect={() => handleTwitchChannelChange(null)}
         onBack={() => setScreen('menu')}
       />
     )
