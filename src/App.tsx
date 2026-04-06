@@ -49,14 +49,33 @@ const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
   const [tutorialOpen, setTutorialOpen] = useState(false)
-  const [gameOptions, setGameOptions] = useState<GameOptions>(DEFAULT_GAME_OPTIONS)
+  const [gameOptions, setGameOptions] = useState<GameOptions>(() => {
+    try {
+      const saved = localStorage.getItem('chatsKitchen_gameOptions')
+      if (!saved) return DEFAULT_GAME_OPTIONS
+      const parsed = JSON.parse(saved) as Partial<GameOptions>
+      return {
+        ...DEFAULT_GAME_OPTIONS,
+        ...parsed,
+        stationCapacity: { ...DEFAULT_GAME_OPTIONS.stationCapacity, ...(parsed.stationCapacity ?? {}) }
+      }
+    } catch {
+      return DEFAULT_GAME_OPTIONS
+    }
+  })
   const [state, dispatch] = useReducer(gameReducer, undefined, () =>
     createInitialState(gameOptions.shiftDuration, gameOptions.cookingSpeed, gameOptions.orderSpeed, gameOptions.orderSpawnRate, gameOptions.stationCapacity)
   )
   const [botsEnabled, setBotsEnabled] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [twitchChannel, setTwitchChannel] = useState<string | null>(null)
+  const [twitchChannel, setTwitchChannel] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('chatsKitchen_twitchChannel')
+    } catch {
+      return null
+    }
+  })
   const [audioSettings, setAudioSettings] = useState<AudioSettings>(() => {
     try {
       const saved = localStorage.getItem('audioSettings')
@@ -87,7 +106,13 @@ export default function App() {
       return {}
     }
   })
-  const [hideTutorialPrompt, setHideTutorialPrompt] = useState(false)
+  const [hideTutorialPrompt, setHideTutorialPrompt] = useState(() => {
+    try {
+      return localStorage.getItem('chatsKitchen_hideTutorialPrompt') === 'true'
+    } catch {
+      return false
+    }
+  })
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false)
   const [tutorialDestination, setTutorialDestination] = useState<TutorialDestination>('menu')
 
@@ -124,6 +149,11 @@ export default function App() {
 
   const disableTutorialPrompt = useCallback(() => {
     setHideTutorialPrompt(true)
+    try {
+      localStorage.setItem('chatsKitchen_hideTutorialPrompt', 'true')
+    } catch {
+      // Ignore storage failures; in-memory flag is already set above.
+    }
     setShowTutorialPrompt(false)
     continueFromTutorial(tutorialDestination)
   }, [continueFromTutorial, tutorialDestination])
@@ -211,6 +241,25 @@ export default function App() {
     localStorage.setItem('audioSettings', JSON.stringify(settings))
   }, [])
 
+  const handleGameOptionsChange = useCallback((options: GameOptions) => {
+    setGameOptions(options)
+    try {
+      localStorage.setItem('chatsKitchen_gameOptions', JSON.stringify(options))
+    } catch {
+      // Ignore storage failures; in-memory state is already updated above.
+    }
+  }, [])
+
+  const handleTwitchChannelChange = useCallback((ch: string | null) => {
+    setTwitchChannel(ch)
+    try {
+      if (ch) localStorage.setItem('chatsKitchen_twitchChannel', ch)
+      else localStorage.removeItem('chatsKitchen_twitchChannel')
+    } catch {
+      // Ignore storage failures; in-memory state is already updated above.
+    }
+  }, [])
+
   const handleResetAll = useCallback(() => {
     setGameOptions(DEFAULT_GAME_OPTIONS)
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
@@ -218,7 +267,7 @@ export default function App() {
     setFreePlayHighScore(0)
     setIsNewHighScore(false)
     setFreePlayHistory([])
-    setTwitchChannel(null)
+    handleTwitchChannelChange(null)
     setHideTutorialPrompt(false)
     setShowTutorialPrompt(false)
     setTutorialDestination('menu')
@@ -229,10 +278,12 @@ export default function App() {
       localStorage.removeItem('chatsKitchen_levelProgress')
       localStorage.removeItem('chatsKitchen_freePlayHighScore')
       localStorage.removeItem('chatsKitchen_freePlayHistory')
+      localStorage.removeItem('chatsKitchen_gameOptions')
+      localStorage.removeItem('chatsKitchen_hideTutorialPrompt')
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
-  }, [])
+  }, [handleTwitchChannelChange])
 
   const isPlaying = screen === 'playing'
   useGameLoop(state, dispatch, isPlaying ? handleGameOver : undefined)
@@ -266,15 +317,15 @@ export default function App() {
       />
     )
   } else if (screen === 'options') {
-    content = <OptionsScreen options={gameOptions} onChange={setGameOptions} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
+    content = <OptionsScreen options={gameOptions} onChange={handleGameOptionsChange} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
   } else if (screen === 'twitch') {
     content = (
       <TwitchConnect
         channel={twitchChannel}
         status={twitchChat.status}
         error={twitchChat.error}
-        onConnect={(ch) => setTwitchChannel(ch)}
-        onDisconnect={() => setTwitchChannel(null)}
+        onConnect={(ch) => handleTwitchChannelChange(ch)}
+        onDisconnect={() => handleTwitchChannelChange(null)}
         onBack={() => setScreen('menu')}
       />
     )
