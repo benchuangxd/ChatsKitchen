@@ -195,7 +195,11 @@ export default function App() {
 
   const handleGameOptionsChange = useCallback((options: GameOptions) => {
     setGameOptions(options)
-    localStorage.setItem('chatsKitchen_gameOptions', JSON.stringify(options))
+    try {
+      localStorage.setItem('chatsKitchen_gameOptions', JSON.stringify(options))
+    } catch {
+      // Ignore storage failures and keep the in-memory state change.
+    }
   }, [])
 
   const handleTwitchChannelChange = useCallback((ch: string | null) => {
@@ -221,6 +225,7 @@ export default function App() {
     try {
       localStorage.setItem('audioSettings', JSON.stringify(DEFAULT_AUDIO_SETTINGS))
       localStorage.removeItem('chatsKitchen_levelProgress')
+      // Removing keys lets lazy initialisers fall back to defaults on next load.
       localStorage.removeItem('chatsKitchen_gameOptions')
       localStorage.removeItem('chatsKitchen_hideTutorialPrompt')
     } catch {
