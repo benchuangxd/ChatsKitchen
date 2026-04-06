@@ -45,7 +45,14 @@ const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
   const [tutorialOpen, setTutorialOpen] = useState(false)
-  const [gameOptions, setGameOptions] = useState<GameOptions>(DEFAULT_GAME_OPTIONS)
+  const [gameOptions, setGameOptions] = useState<GameOptions>(() => {
+    try {
+      const saved = localStorage.getItem('chatsKitchen_gameOptions')
+      return saved ? { ...DEFAULT_GAME_OPTIONS, ...JSON.parse(saved) } : DEFAULT_GAME_OPTIONS
+    } catch {
+      return DEFAULT_GAME_OPTIONS
+    }
+  })
   const [state, dispatch] = useReducer(gameReducer, undefined, () =>
     createInitialState(gameOptions.shiftDuration, gameOptions.cookingSpeed, gameOptions.orderSpeed, gameOptions.stationCapacity)
   )
@@ -173,6 +180,11 @@ export default function App() {
     localStorage.setItem('audioSettings', JSON.stringify(settings))
   }, [])
 
+  const handleGameOptionsChange = useCallback((options: GameOptions) => {
+    setGameOptions(options)
+    localStorage.setItem('chatsKitchen_gameOptions', JSON.stringify(options))
+  }, [])
+
   const handleResetAll = useCallback(() => {
     setGameOptions(DEFAULT_GAME_OPTIONS)
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
@@ -186,6 +198,7 @@ export default function App() {
     try {
       localStorage.setItem('audioSettings', JSON.stringify(DEFAULT_AUDIO_SETTINGS))
       localStorage.removeItem('chatsKitchen_levelProgress')
+      localStorage.removeItem('chatsKitchen_gameOptions')
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
@@ -223,7 +236,7 @@ export default function App() {
       />
     )
   } else if (screen === 'options') {
-    content = <OptionsScreen options={gameOptions} onChange={setGameOptions} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
+    content = <OptionsScreen options={gameOptions} onChange={handleGameOptionsChange} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
   } else if (screen === 'twitch') {
     content = (
       <TwitchConnect
