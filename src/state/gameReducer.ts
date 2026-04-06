@@ -9,12 +9,13 @@ export type GameAction =
   | { type: 'EXTINGUISH'; user: string; stationId: string }
   | { type: 'SPAWN_ORDER'; now: number }
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
-  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[] }
+  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; orderSpawnRate: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[] }
 
 export function createInitialState(
   shiftDuration = 120000,
   cookingSpeed = 1,
   orderSpeed = 1,
+  orderSpawnRate = 1,
   stationCapacity: StationCapacity = { chopping: 3, cooking: 2 },
   restrictSlots = false,
   enabledRecipes: string[] = Object.keys(RECIPES)
@@ -31,6 +32,7 @@ export function createInitialState(
     timeLeft: shiftDuration,
     cookingSpeed,
     orderSpeed,
+    orderSpawnRate,
     stationCapacity,
     restrictSlots,
     enabledRecipes,
@@ -69,7 +71,7 @@ function getStationCapacity(stationId: string, capacity: StationCapacity, restri
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RESET':
-      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.stationCapacity, action.restrictSlots, action.enabledRecipes)
+      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.orderSpawnRate, action.stationCapacity, action.restrictSlots, action.enabledRecipes)
 
     case 'ADD_CHAT':
       return addMsg(state, action.username, action.text, action.msgType)

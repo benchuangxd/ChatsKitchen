@@ -16,7 +16,6 @@ import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
 import { getLevelConfig, getStarRating } from './data/levels'
 import { RECIPES } from './data/recipes'
-import StatsBar from './components/StatsBar'
 import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
 import ChatPanel from './components/ChatPanel'
@@ -29,6 +28,7 @@ type TutorialDestination = 'menu' | 'freeplay' | 'levelselect'
 const DEFAULT_GAME_OPTIONS: GameOptions = {
   cookingSpeed: 1,
   orderSpeed: 1,
+  orderSpawnRate: 1,
   shiftDuration: 120000,
   stationCapacity: { chopping: 3, cooking: 2 },
   restrictSlots: false,
@@ -51,10 +51,11 @@ export default function App() {
   const [tutorialOpen, setTutorialOpen] = useState(false)
   const [gameOptions, setGameOptions] = useState<GameOptions>(DEFAULT_GAME_OPTIONS)
   const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    createInitialState(gameOptions.shiftDuration, gameOptions.cookingSpeed, gameOptions.orderSpeed, gameOptions.stationCapacity)
+    createInitialState(gameOptions.shiftDuration, gameOptions.cookingSpeed, gameOptions.orderSpeed, gameOptions.orderSpawnRate, gameOptions.stationCapacity)
   )
   const [botsEnabled, setBotsEnabled] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [twitchChannel, setTwitchChannel] = useState<string | null>(null)
   const [audioSettings, setAudioSettings] = useState<AudioSettings>(() => {
     try {
@@ -65,6 +66,16 @@ export default function App() {
     }
   })
   const [finalStats, setFinalStats] = useState<{ money: number; served: number; lost: number; playerStats: Record<string, PlayerStats> }>({ money: 0, served: 0, lost: 0, playerStats: {} })
+  const [freePlayHighScore, setFreePlayHighScore] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem('chatsKitchen_freePlayHighScore') || '0', 10) } catch { return 0 }
+  })
+  const [isNewHighScore, setIsNewHighScore] = useState(false)
+  const [freePlayHistory, setFreePlayHistory] = useState<{ money: number; served: number; lost: number }[]>(() => {
+    try {
+      const saved = localStorage.getItem('chatsKitchen_freePlayHistory')
+      return saved ? JSON.parse(saved) : []
+    } catch { return [] }
+  })
   const stateRef = useRef(state)
   stateRef.current = state
   const [currentLevel, setCurrentLevel] = useState<number | null>(null)
@@ -82,7 +93,7 @@ export default function App() {
 
   const startFreePlay = useCallback(() => {
     setCurrentLevel(null)
-    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
+    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, orderSpawnRate: gameOptions.orderSpawnRate, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
     setScreen('countdown')
   }, [gameOptions])
 
@@ -164,6 +175,22 @@ export default function App() {
         setLevelProgress(updated)
         localStorage.setItem('chatsKitchen_levelProgress', JSON.stringify(updated))
       }
+      setIsNewHighScore(false)
+    } else {
+      setFreePlayHighScore(prev => {
+        if (s.money > prev) {
+          try { localStorage.setItem('chatsKitchen_freePlayHighScore', String(s.money)) } catch { /* ignore */ }
+          setIsNewHighScore(true)
+          return s.money
+        }
+        setIsNewHighScore(false)
+        return prev
+      })
+      setFreePlayHistory(prev => {
+        const updated = [{ money: s.money, served: s.served, lost: s.lost }, ...prev].slice(0, 5)
+        try { localStorage.setItem('chatsKitchen_freePlayHistory', JSON.stringify(updated)) } catch { /* ignore */ }
+        return updated
+      })
     }
     setScreen('gameover')
   }, [currentLevel, levelProgress])
@@ -171,7 +198,7 @@ export default function App() {
   const startLevel = useCallback((level: number) => {
     const config = getLevelConfig(level)
     setCurrentLevel(level)
-    dispatch({ type: 'RESET', shiftDuration: config.shiftDuration, cookingSpeed: config.cookingSpeed, orderSpeed: config.orderSpeed, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
+    dispatch({ type: 'RESET', shiftDuration: config.shiftDuration, cookingSpeed: config.cookingSpeed, orderSpeed: config.orderSpeed, orderSpawnRate: gameOptions.orderSpawnRate, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
     setScreen('countdown')
   }, [gameOptions.stationCapacity])
 
@@ -188,6 +215,9 @@ export default function App() {
     setGameOptions(DEFAULT_GAME_OPTIONS)
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
     setLevelProgress({})
+    setFreePlayHighScore(0)
+    setIsNewHighScore(false)
+    setFreePlayHistory([])
     setTwitchChannel(null)
     setHideTutorialPrompt(false)
     setShowTutorialPrompt(false)
@@ -197,6 +227,8 @@ export default function App() {
     try {
       localStorage.setItem('audioSettings', JSON.stringify(DEFAULT_AUDIO_SETTINGS))
       localStorage.removeItem('chatsKitchen_levelProgress')
+      localStorage.removeItem('chatsKitchen_freePlayHighScore')
+      localStorage.removeItem('chatsKitchen_freePlayHistory')
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
@@ -256,6 +288,9 @@ export default function App() {
         lost={finalStats.lost}
         playerStats={finalStats.playerStats}
         level={currentLevel}
+        highScore={currentLevel == null ? freePlayHighScore : undefined}
+        isNewHighScore={currentLevel == null ? isNewHighScore : false}
+        roundHistory={currentLevel == null ? freePlayHistory : undefined}
         onPlayAgain={currentLevel != null ? () => startLevel(currentLevel) : startFreePlay}
         onNextLevel={currentLevel != null && currentLevel < 10 ? () => startLevel(currentLevel + 1) : undefined}
         onMenu={() => setScreen('menu')}
@@ -264,53 +299,6 @@ export default function App() {
   } else {
     content = (
       <div className={styles.layout}>
-        <header className={styles.header}>
-          <div className={styles.headerBrand}>
-            <h1>🧑‍🍳 Let Chat Cook</h1>
-            <span className={styles.levelIndicator}>{gameplayModeLabel}</span>
-          </div>
-          <StatsBar
-            money={state.money}
-            served={state.served}
-            lost={state.lost}
-            timeLeft={state.timeLeft}
-          />
-          <div className={styles.headerButtons}>
-            {twitchChannel && twitchChat.status === 'connected' && (
-              <span className={styles.twitchIndicator}>
-                <span className={styles.twitchDot} />
-                {twitchChannel}
-              </span>
-            )}
-            <button
-              className={`${styles.muteToggle} ${audioSettings.musicMuted ? styles.muteToggleMuted : ''}`}
-              onClick={() => handleAudioChange({ ...audioSettings, musicMuted: !audioSettings.musicMuted })}
-            >
-              {audioSettings.musicMuted ? 'Music: OFF' : 'Music: ON'}
-            </button>
-            <button
-              className={`${styles.muteToggle} ${audioSettings.sfxMuted ? styles.muteToggleMuted : ''}`}
-              onClick={() => handleAudioChange({ ...audioSettings, sfxMuted: !audioSettings.sfxMuted })}
-            >
-              {audioSettings.sfxMuted ? 'SFX: OFF' : 'SFX: ON'}
-            </button>
-            <button
-              className={`${styles.chatToggle} ${chatOpen ? styles.chatToggleOn : ''}`}
-              onClick={() => setChatOpen(o => !o)}
-            >
-              Chat
-            </button>
-            <button
-              className={`${styles.botToggle} ${botsEnabled ? styles.botToggleOn : styles.botToggleOff}`}
-              onClick={() => setBotsEnabled(b => !b)}
-            >
-              {botsEnabled ? 'Bots: ON' : 'Bots: OFF'}
-            </button>
-            <button className={styles.exitBtn} onClick={() => setScreen('menu')}>
-              Exit
-            </button>
-          </div>
-        </header>
         <div className={styles.body}>
           <main className={styles.main}>
             <OrdersBar state={state} />
@@ -325,6 +313,55 @@ export default function App() {
           )}
         </div>
         <InfoBar shortformEnabled={gameOptions.allowShortformCommands} />
+        <div className={styles.settingsWrapper}>
+          <button className={styles.settingsBtn} onClick={() => setSettingsOpen(o => !o)}>⚙️</button>
+          {settingsOpen && (
+            <>
+              <div className={styles.settingsBackdrop} onClick={() => setSettingsOpen(false)} />
+              <div className={styles.settingsDropdown}>
+                <div className={styles.settingsHeader}>
+                  <div className={styles.settingsBrand}>
+                    <span className={styles.settingsLogo}>🧑‍🍳 Let Chat Cook</span>
+                    <span className={styles.settingsLevel}>{gameplayModeLabel}</span>
+                  </div>
+                  <button className={styles.settingsClose} onClick={() => setSettingsOpen(false)}>✕</button>
+                </div>
+                <div className={styles.settingsDivider} />
+                {twitchChannel && twitchChat.status === 'connected' && (
+                  <div className={styles.settingsTwitch}>
+                    <span className={styles.twitchDot} />{twitchChannel}
+                  </div>
+                )}
+                <button
+                  className={`${styles.settingsItem} ${audioSettings.musicMuted ? styles.settingsItemOff : styles.settingsItemOn}`}
+                  onClick={() => handleAudioChange({ ...audioSettings, musicMuted: !audioSettings.musicMuted })}
+                >
+                  Music: {audioSettings.musicMuted ? 'OFF' : 'ON'}
+                </button>
+                <button
+                  className={`${styles.settingsItem} ${audioSettings.sfxMuted ? styles.settingsItemOff : styles.settingsItemOn}`}
+                  onClick={() => handleAudioChange({ ...audioSettings, sfxMuted: !audioSettings.sfxMuted })}
+                >
+                  SFX: {audioSettings.sfxMuted ? 'OFF' : 'ON'}
+                </button>
+                <button
+                  className={`${styles.settingsItem} ${chatOpen ? styles.settingsItemOn : ''}`}
+                  onClick={() => setChatOpen(o => !o)}
+                >
+                  Chat: {chatOpen ? 'ON' : 'OFF'}
+                </button>
+                <button
+                  className={`${styles.settingsItem} ${botsEnabled ? styles.settingsItemOn : ''}`}
+                  onClick={() => setBotsEnabled(b => !b)}
+                >
+                  Bots: {botsEnabled ? 'ON' : 'OFF'}
+                </button>
+                <div className={styles.settingsDivider} />
+                <button className={styles.settingsExit} onClick={() => setScreen('menu')}>Exit</button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     )
   }

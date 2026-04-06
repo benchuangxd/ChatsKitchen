@@ -1,3 +1,4 @@
+import { RECIPES } from '../data/recipes'
 import styles from './TutorialModal.module.css'
 
 interface Props {
@@ -29,7 +30,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
             <section className={styles.section}>
               <h3>How A Round Works</h3>
               <ul className={styles.list}>
-                <li>Orders appear on the top left with the order number, dish name, ingredients needed, and time remaining.</li>
+                <li>Orders appear at the top with the order number, dish name, ingredients needed, and time remaining.</li>
                 <li>Players type commands in chat to prepare ingredients at the cooking stations.</li>
                 <li>Once ingredients are prepared, serve the matching order number to complete it.</li>
               </ul>
@@ -44,18 +45,41 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 <span><code>boil pasta</code></span>
                 <span><code>toast bun</code></span>
                 <span><code>take lettuce</code></span>
-                <span><code>serve 1</code></span>
+                <span><code>serve [order#]</code></span>
+                <span><code>extinguish [station]</code></span>
               </div>
-              <p className={styles.note}>If something catches fire, use <code>extinguish [station]</code> fast.</p>
+              <p className={styles.note}>Chopping auto-deposits. For all other stations, use <code>take</code> once done.</p>
+            </section>
+
+            <section className={styles.section}>
+              <h3>Recipes</h3>
+              <div className={styles.recipeCardGrid}>
+                {Object.values(RECIPES).map(recipe => (
+                  <div key={recipe.name} className={styles.recipeCard}>
+                    <div className={styles.recipeCardHeader}>
+                      <span className={styles.recipeCardName}>{recipe.emoji} {recipe.name}</span>
+                      <span className={styles.recipeCardReward}>${recipe.reward}</span>
+                    </div>
+                    <div className={styles.recipeCardSteps}>
+                      {recipe.steps.map((step, i) => (
+                        <span key={i} className={styles.recipeStep}>
+                          <code>{step.action} {step.target}</code>
+                          {i < recipe.steps.length - 1 && <span className={styles.recipeArrow}>→</span>}
+                        </span>
+                      ))}
+                    </div>
+                    <div className={styles.recipeCardServe}>then <code>serve [#]</code></div>
+                  </div>
+                ))}
+              </div>
             </section>
 
             <section className={styles.section}>
               <h3>Simple Flow</h3>
               <ul className={styles.list}>
-                <li>Read the order ticket.</li>
-                <li>Cook or prep each ingredient needed for that dish.</li>
-                <li>Use `take` once an ingredient has been cooked or prepped (chopping auto-deposits).</li>
-                <li>Use `serve [order#]` when all required ingredients are in the prepared tray.</li>
+                <li>Read the order ticket — it shows which ingredients are needed.</li>
+                <li>Cook or prep each ingredient. Chopping auto-deposits; other stations need <code>take</code>.</li>
+                <li>Use <code>serve [order#]</code> when all required ingredients are in the prepared tray.</li>
               </ul>
             </section>
 
@@ -63,8 +87,9 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
               <h3>Helpful Tips</h3>
               <ul className={styles.list}>
                 <li>Connect to Twitch before playing if you want to play with your community.</li>
-                <li>Open the in-game `Commands & Recipes` panel anytime for a quick reference.</li>
+                <li>Open the in-game <code>Commands &amp; Recipes</code> panel anytime for a quick reference.</li>
                 <li>Free Play uses your Options settings, while Levels use fixed parameters.</li>
+                <li>If something catches 🔥 fire, type <code>extinguish [station]</code> fast!</li>
               </ul>
             </section>
           </div>

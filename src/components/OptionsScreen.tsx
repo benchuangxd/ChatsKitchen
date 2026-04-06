@@ -213,6 +213,22 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
             </div>
 
             <div className={styles.section}>
+              <div className={styles.label}>Order Frequency</div>
+              <div className={styles.presets}>
+                {SPEED_PRESETS.map(speed => (
+                  <button
+                    key={speed}
+                    className={`${styles.preset} ${options.orderSpawnRate === speed ? styles.active : ''}`}
+                    onClick={() => onChange({ ...options, orderSpawnRate: speed })}
+                  >
+                    {speed}x
+                  </button>
+                ))}
+              </div>
+              <div className={styles.hint}>Higher = orders arrive more frequently</div>
+            </div>
+
+            <div className={styles.section}>
               <div className={styles.label}>Round Duration</div>
               <div className={styles.presets}>
                 {DURATION_PRESETS.map(({ label, value }) => (

@@ -80,14 +80,155 @@
   margin-top: 4px;
 }
 
+.highScoreNew {
+  font-family: 'Lilita One', cursive;
+  font-size: 28px;
+  color: #f0c850;
+  text-shadow: 0 0 20px rgba(240, 200, 80, 0.5);
+  animation: highScorePulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes highScorePulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+
+.panels {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Round history panel */
+.historyPanel {
+  background: var(--station-bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.panelTitle {
+  font-family: 'Lilita One', cursive;
+  font-size: 18px;
+  color: var(--text-warm);
+  text-align: center;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.historyBest {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #f0c850;
+  font-weight: 700;
+}
+
+.historyEmpty {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 8px 0;
+  font-style: italic;
+}
+
+.historyHeader {
+  display: flex;
+  gap: 4px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.historyHeader span {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.historyRow {
+  display: flex;
+  gap: 4px;
+  padding: 5px 6px;
+  border-radius: 4px;
+}
+
+.historyRow:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.historyRowBest {
+  background: rgba(240, 200, 80, 0.08) !important;
+  border: 1px solid rgba(240, 200, 80, 0.25);
+}
+
+.historyRound {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.historyMoney {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #f0c850;
+  font-weight: 700;
+  flex: 1;
+}
+
+.historyServed {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #5cb85c;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.historyLost {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #d94f4f;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Player leaderboard */
 .leaderboard {
   background: var(--station-bg);
   border: 2px solid var(--border);
   border-radius: 10px;
   padding: 16px;
-  width: 680px;
+  flex: 1;
   max-height: 320px;
   overflow-y: auto;
+  min-width: 0;
+}
+
+.lbEmpty {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 0;
+  font-style: italic;
+}
+
+.lbStickyHead {
+  position: sticky;
+  top: 0;
+  background: var(--station-bg);
+  z-index: 1;
 }
 
 .lbTitle {
@@ -95,7 +236,8 @@
   font-size: 18px;
   color: var(--text-warm);
   text-align: center;
-  margin-bottom: 10px;
+  padding-bottom: 8px;
+  padding-top: 2px;
 }
 
 .lbHeader {

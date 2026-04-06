@@ -49,6 +49,7 @@ export interface StationCapacity {
 export interface GameOptions {
   cookingSpeed: number
   orderSpeed: number
+  orderSpawnRate: number
   shiftDuration: number
   stationCapacity: StationCapacity
   restrictSlots: boolean
@@ -77,6 +78,7 @@ export interface GameState {
   timeLeft: number
   cookingSpeed: number
   orderSpeed: number
+  orderSpawnRate: number
   stationCapacity: StationCapacity
   restrictSlots: boolean
   enabledRecipes: string[]

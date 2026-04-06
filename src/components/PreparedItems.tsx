@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function PreparedItems({ items, enabledRecipes }: Props) {
-  const [showNames, setShowNames] = useState(false)
+  const [showNames, setShowNames] = useState(true)
 
   const allowedIngredients = new Set(
     enabledRecipes.flatMap(key => RECIPES[key]?.plate ?? [])

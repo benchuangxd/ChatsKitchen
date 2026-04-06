@@ -120,6 +120,82 @@
   color: #d8b07c;
 }
 
+.recipeCardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.recipeCard {
+  background: var(--bg-dark);
+  border: 1px solid #ffffff18;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recipeCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recipeCardName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.recipeCardReward {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0c850;
+}
+
+.recipeCardSteps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.recipeStep {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.recipeStep code {
+  font-size: 12px;
+  color: #f0c850;
+  background: rgba(240, 200, 80, 0.1);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.recipeArrow {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.recipeCardServe {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.recipeCardServe code {
+  font-size: 12px;
+  color: #5cb85c;
+  background: rgba(92, 184, 92, 0.1);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
 .footer {
   padding: 20px 24px 24px;
   display: flex;
@@ -156,6 +232,10 @@
   }
 
   .commandGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .recipeCardGrid {
     grid-template-columns: 1fr;
   }
 
