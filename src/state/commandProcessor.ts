@@ -8,8 +8,8 @@ const ALIASES: Record<string, string> = {
 }
 
 const COMMAND_ALIASES: Record<string, string> = {
-  c: 'chop', g: 'grill', f: 'fry', b: 'boil', t: 'toast',
-  ta: 'take', s: 'serve', e: 'extinguish',
+  c: 'chop', g: 'grill', f: 'fry', b: 'boil', t: 'toast', r: 'roast',
+  ta: 'take', s: 'serve',
 }
 
 function expand(value: string): string {
@@ -40,6 +40,7 @@ export function parseCommand(user: string, text: string, shortformEnabled = fals
     case 'fry':
     case 'boil':
     case 'toast':
+    case 'roast':
       return target ? { type: 'COOK', user, action: resolvedAction, target, now: Date.now() } : null
     default:
       return null

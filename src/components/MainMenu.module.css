@@ -83,9 +83,87 @@
   color: #fff;
 }
 
-.btnTwitch {
+.twitchForm {
+  display: flex;
+  gap: 8px;
+}
+
+.twitchInput {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid #9146ff;
+  background: var(--bg-card, #2a1f3d);
+  color: #fff;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.twitchInput::placeholder {
+  color: #7a6a9a;
+}
+
+.twitchInput:focus {
+  border-color: #bf94ff;
+}
+
+.twitchInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.twitchConnectBtn {
   background: #9146ff;
   color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+  white-space: nowrap;
+}
+
+.twitchConnectBtn:hover:not(:disabled) {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+}
+
+.twitchConnectBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.twitchConnectBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.twitchDisconnectBtn {
+  background: #3d2e55;
+  color: #bf94ff;
+  border: 2px solid #9146ff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+  white-space: nowrap;
+}
+
+.twitchDisconnectBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+}
+
+.twitchDisconnectBtn:active {
+  transform: scale(0.98);
 }
 
 .twitchStatus {

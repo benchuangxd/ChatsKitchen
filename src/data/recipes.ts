@@ -30,9 +30,9 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
       { action: 'grill', target: 'patty', station: 'grill', duration: 9000, burnAt: 25000, produces: 'grilled_patty' },
-      { action: 'toast', target: 'bun', station: 'oven', duration: 8000, burnAt: 25000, produces: 'toasted_bun' },
+      { action: 'grill', target: 'bun', station: 'grill', duration: 8000, burnAt: 25000, produces: 'grilled_bun' },
     ],
-    plate: ['chopped_lettuce', 'grilled_patty', 'toasted_bun']
+    plate: ['chopped_lettuce', 'grilled_patty', 'grilled_bun']
   },
   fries: {
     name: 'Fries', emoji: '\u{1F35F}', reward: 50, patience: 60000,
@@ -72,9 +72,19 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'fry', target: 'fish', station: 'fryer', duration: 10000, burnAt: 25000, produces: 'fried_fish' },
       { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
-      { action: 'toast', target: 'bun', station: 'oven', duration: 7000, burnAt: 25000, produces: 'toasted_bun' },
+      { action: 'grill', target: 'bun', station: 'grill', duration: 7000, burnAt: 25000, produces: 'grilled_bun' },
     ],
-    plate: ['fried_fish', 'chopped_lettuce', 'toasted_bun']
+    plate: ['fried_fish', 'chopped_lettuce', 'grilled_bun']
+  },
+  roasted_veggies: {
+    name: 'Roasted Veggies', emoji: '\u{1FAD1}', reward: 70, patience: 90000,
+    steps: [
+      { action: 'chop', target: 'tomato', station: 'cutting_board', duration: 7000, produces: 'chopped_tomato' },
+      { action: 'chop', target: 'pepper', station: 'cutting_board', duration: 7000, produces: 'chopped_pepper' },
+      { action: 'roast', target: 'tomato', station: 'oven', duration: 10000, burnAt: 28000, produces: 'roasted_tomato' },
+      { action: 'roast', target: 'pepper', station: 'oven', duration: 10000, burnAt: 28000, produces: 'roasted_pepper' },
+    ],
+    plate: ['chopped_tomato', 'chopped_pepper', 'roasted_tomato', 'roasted_pepper']
   }
 }
 
@@ -83,13 +93,26 @@ export const STATION_DEFS: Record<string, StationDef> = {
   grill:         { name: 'Grill',         emoji: '\u{1F525}', color: '#e06840', actions: ['grill'] },
   fryer:         { name: 'Fryer',         emoji: '\u{1FAD5}', color: '#e8943a', actions: ['fry'] },
   stove:         { name: 'Stove',         emoji: '\u{2668}\u{FE0F}',  color: '#d94f4f', actions: ['boil'] },
-  oven:          { name: 'Oven',          emoji: '\u{1F9F1}', color: '#a07862', actions: ['toast'] },
+  oven:          { name: 'Oven',          emoji: '\u{1F9F1}', color: '#a07862', actions: ['toast', 'roast'] },
+}
+
+export function getEnabledStations(enabledRecipes: string[]): string[] {
+  const needed = new Set<string>()
+  for (const key of enabledRecipes) {
+    const recipe = RECIPES[key]
+    if (recipe) {
+      for (const step of recipe.steps) {
+        needed.add(step.station)
+      }
+    }
+  }
+  return Object.keys(STATION_DEFS).filter(id => needed.has(id))
 }
 
 export const INGREDIENT_EMOJI: Record<string, string> = {
   chopped_lettuce: '\u{1F96C}',
   grilled_patty: '\u{1F969}',
-  toasted_bun: '\u{1F35E}',
+  grilled_bun: '\u{1F35E}',
   chopped_potato: '\u{1F954}',
   fried_potato: '\u{1F35F}',
   boiled_pasta: '\u{1F35D}',
@@ -98,6 +121,9 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
   fried_fish: '\u{1F41F}',
   chopped_mushroom: '\u{1F344}',
   boiled_mushroom: '\u{1F372}',
+  chopped_pepper: '\u{1FAD1}',
+  roasted_tomato: '\u{1F345}',
+  roasted_pepper: '\u{1F336}\u{FE0F}',
 }
 
 export const BOT_NAMES = [

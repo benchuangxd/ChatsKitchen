@@ -7,8 +7,14 @@ type Screen = 'menu' | 'levelselect' | 'options' | 'twitch' | 'countdown' | 'pla
 export function useGameAudio(screen: Screen, state: GameState, audioSettings: AudioSettings) {
   const audio = getAudioManager()
   const prevMsgCount = useRef(state.chatMessages.length)
-  const prevOrderCount = useRef(state.orders.length)
+  const prevOrderCount = useRef(state.orders.filter(o => !o.served).length)
+  const prevServed = useRef(state.served)
+  const prevLost = useRef(state.lost)
+  const prevFireCount = useRef(0)
+  const prevCookingCount = useRef(0)
+  const prevPreparedCount = useRef(state.preparedItems.length)
   const intenseFired = useRef(false)
+  const frenziedFired = useRef(false)
 
   const { trackEnabled } = audioSettings
 
@@ -29,6 +35,14 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
         if (trackEnabled.gameplay) audio.playMusic('gameplay')
         else audio.stopMusic()
         intenseFired.current = false
+        frenziedFired.current = false
+        prevServed.current = state.served
+        prevLost.current = state.lost
+        prevFireCount.current = 0
+        prevCookingCount.current = 0
+        prevPreparedCount.current = state.preparedItems.length
+        prevOrderCount.current = state.orders.filter(o => !o.served).length
+        prevMsgCount.current = state.chatMessages.length
         break
       case 'gameover':
         audio.stopAllSfx()
@@ -54,44 +68,47 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
       intenseFired.current = true
       audio.crossfadeToIntense()
     }
+    if (screen === 'playing' && state.timeLeft <= 10000 && state.timeLeft > 0 && !frenziedFired.current) {
+      frenziedFired.current = true
+      audio.setIntenseRate(2.0)
+    }
   }, [screen, state.timeLeft, audio])
 
   // SFX triggers from state changes
   useEffect(() => {
     if (screen !== 'playing') return
 
-    const msgCount = state.chatMessages.length
     const orderCount = state.orders.filter(o => !o.served).length
+    const fireCount = Object.values(state.stations)
+      .reduce((n, s) => n + s.slots.filter(sl => sl.state === 'onFire').length, 0)
+    const cookingCount = Object.values(state.stations)
+      .reduce((n, s) => n + s.slots.filter(sl => sl.state === 'cooking').length, 0)
 
-    // New order spawned
-    if (orderCount > prevOrderCount.current) {
-      audio.playSfx('order-spawn')
+    if (orderCount > prevOrderCount.current)                          audio.playSfx('order-spawn')
+    if (state.served > prevServed.current)                            audio.playSfx('serve-success')
+    if (state.lost > prevLost.current)                                audio.playSfx('order-expired')
+    if (cookingCount > prevCookingCount.current)                      audio.playSfx('cook-start')
+    if (state.preparedItems.length > prevPreparedCount.current)       audio.playSfx('take-item')
+    if (fireCount > prevFireCount.current)                            audio.playSfx('fire-alarm')
+    if (fireCount < prevFireCount.current) {
+      audio.stopSfx('fire-alarm')
     }
-    prevOrderCount.current = orderCount
 
-    // Check new chat messages for event-based SFX
+    prevOrderCount.current    = orderCount
+    prevServed.current        = state.served
+    prevLost.current          = state.lost
+    prevFireCount.current     = fireCount
+    prevCookingCount.current  = cookingCount
+    prevPreparedCount.current = state.preparedItems.length
+  })
+
+  // Error buzzer — type-based check, no text parsing
+  useEffect(() => {
+    if (screen !== 'playing') return
+    const msgCount = state.chatMessages.length
     if (msgCount > prevMsgCount.current) {
       const newMessages = state.chatMessages.slice(prevMsgCount.current)
-      for (const msg of newMessages) {
-        const text = msg.text.toLowerCase()
-
-        if (msg.type === 'error') {
-          audio.playSfx('error-buzzer')
-        } else if (text.includes('served')) {
-          audio.playSfx('serve-success')
-        } else if (text.includes('on fire')) {
-          audio.playSfx('fire-alarm')
-        } else if (text.includes('put out the fire')) {
-          audio.stopSfx('fire-alarm')
-          audio.playSfx('fire-extinguished')
-        } else if (text.includes('expired')) {
-          audio.playSfx('order-expired')
-        } else if (text.includes('took')) {
-          audio.playSfx('take-item')
-        } else if (text.includes('started') && (text.includes('chop') || text.includes('grill') || text.includes('fry') || text.includes('boil') || text.includes('toast'))) {
-          audio.playSfx('cook-start')
-        }
-      }
+      if (newMessages.some(m => m.type === 'error')) audio.playSfx('error-buzzer')
     }
     prevMsgCount.current = msgCount
   })

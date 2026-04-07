@@ -27,12 +27,38 @@
   min-width: 0;
 }
 
+/* Last-10-seconds countdown overlay */
+@keyframes countdownPop {
+  0%   { opacity: 0.35; transform: translate(-50%, -50%) scale(1.2); }
+  20%  { opacity: 0.18; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0;    transform: translate(-50%, -50%) scale(0.9); }
+}
+
+.countdownOverlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Fredoka', sans-serif;
+  font-size: 260px;
+  font-weight: 700;
+  color: #fff;
+  pointer-events: none;
+  z-index: 100;
+  animation: countdownPop 1s ease-out forwards;
+  line-height: 1;
+}
+
 /* Floating settings button */
 .settingsWrapper {
   position: fixed;
   top: 10px;
   right: 14px;
   z-index: 200;
+}
+
+.settingsWrapperChatOpen {
+  right: 354px;
 }
 
 .settingsBtn {

@@ -78,7 +78,8 @@ class AudioManager {
     this.intenseMixActive = true
     const intenseVol = MUSIC_TRACKS['intense'].volume * this.musicVolume * this.masterVolume
 
-    // Start intense track
+    // Start intense track at 1.5× speed (raises BPM ~50%)
+    intense.rate(1.5)
     intense.volume(0)
     intense.play()
     intense.fade(0, intenseVol, 2000)
@@ -86,6 +87,11 @@ class AudioManager {
     // Fade gameplay down to a bed
     const gpVol = gameplay.volume() as number
     gameplay.fade(gpVol, 0.15 * this.musicVolume, 2000)
+  }
+
+  setIntenseRate(rate: number) {
+    const intense = this.musicTracks['intense']
+    if (intense?.playing()) intense.rate(rate)
   }
 
   stopSfx(name: string) {

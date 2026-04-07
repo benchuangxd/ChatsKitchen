@@ -168,7 +168,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         available.splice(idx, 1)
       }
 
-      const newOrders = state.orders.map((o, i) => i === orderIdx ? { ...o, served: true } : o)
+      const newOrders = state.orders.map((o, i) =>
+        i === orderIdx ? { ...o, served: true, outcome: 'served' as const, completedAt: Date.now() } : o
+      )
       const timeBonus = Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30))
       const reward = recipe.reward + timeBonus
 
@@ -240,7 +242,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state: 'cooking',
       }
 
-      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted' }
+      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted' }
 
       if (matchedStep.duration === 0) {
         const withStat = addStat(afterRequire, user, 'cooked', 1)
@@ -349,13 +351,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         if (newPatience <= 0) {
           lost++
           messages.push({ id: nextMsgId++, username: 'CUSTOMER', text: `Order #${order.id} expired! Lost a ${RECIPES[order.dish].emoji}!`, type: 'error' })
-          return { ...order, served: true, patienceLeft: 0 }
+          return { ...order, served: true, patienceLeft: 0, outcome: 'lost' as const, completedAt: now }
         }
         return { ...order, patienceLeft: newPatience }
       })
 
       // Clean up old served orders
-      orders = orders.filter(o => !o.served || (now - o.spawnTime < 2000))
+      orders = orders.filter(o => !o.served || (o.completedAt !== undefined && now - o.completedAt < 1500))
 
       // Timer countdown
       const timeLeft = Math.max(0, state.timeLeft - delta)

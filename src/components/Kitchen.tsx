@@ -1,5 +1,5 @@
 import { GameState } from '../state/types'
-import { STATION_DEFS } from '../data/recipes'
+import { getEnabledStations } from '../data/recipes'
 import Station from './Station'
 import PreparedItems from './PreparedItems'
 import styles from './Kitchen.module.css'
@@ -15,7 +15,7 @@ function getStationCapacity(stationId: string, cap: GameState['stationCapacity']
 }
 
 export default function Kitchen({ state }: Props) {
-  const stationIds = Object.keys(STATION_DEFS)
+  const stationIds = getEnabledStations(state.enabledRecipes)
 
   return (
     <div className={styles.kitchen}>

@@ -27,12 +27,13 @@ export default function InfoBar({ shortformEnabled = false }: Props) {
               <span>{cmd('fry', 'f')} [item]</span>
               <span>{cmd('boil', 'b')} [item]</span>
               <span>{cmd('toast', 't')} [item]</span>
+              <span>{cmd('roast', 'r')} [item]</span>
               <span>{cmd('take', 'ta')} [ingredient]</span>
               <span>{cmd('serve', 's')} [order#]</span>
-              <span>{cmd('extinguish', 'e')} [station]</span>
+              <span>extinguish [station]</span>
             </div>
             <div className={styles.hint}>
-              Items: lettuce(lett), tomato, patty, bun, potato, pasta, cheese, fish
+              Items: lettuce(lett), tomato, patty, bun, potato, pasta, cheese, fish, pepper
             </div>
             <div className={styles.hint}>
               Shortforms: cboard=cutting board, fburger=fish burger, msoup=mushroom soup

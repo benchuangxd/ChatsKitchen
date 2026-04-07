@@ -23,6 +23,8 @@ export interface Order {
   patienceMax: number
   patienceLeft: number
   spawnTime: number
+  outcome?: 'served' | 'lost'
+  completedAt?: number
 }
 
 export interface ChatMessage {

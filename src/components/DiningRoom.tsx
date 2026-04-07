@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function OrdersBar({ state }: Props) {
-  const activeOrders = state.orders.filter(o => !o.served)
+  const activeOrders = state.orders.filter(o => !o.served || o.outcome !== undefined)
 
   const totalSec = Math.max(0, Math.ceil(state.timeLeft / 1000))
   const min = Math.floor(totalSec / 60)

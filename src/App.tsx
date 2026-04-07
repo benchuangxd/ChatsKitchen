@@ -8,21 +8,19 @@ import { useTwitchChat } from './hooks/useTwitchChat'
 import { useGameAudio } from './audio/useGameAudio'
 import MainMenu from './components/MainMenu'
 import OptionsScreen from './components/OptionsScreen'
-import TwitchConnect from './components/TwitchConnect'
 import Countdown from './components/Countdown'
 import GameOver from './components/GameOver'
 import LevelSelect from './components/LevelSelect'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
 import { getLevelConfig, getStarRating } from './data/levels'
-import { RECIPES } from './data/recipes'
 import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
 import ChatPanel from './components/ChatPanel'
 import InfoBar from './components/InfoBar'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'levelselect' | 'options' | 'twitch' | 'countdown' | 'playing' | 'gameover'
+type Screen = 'menu' | 'levelselect' | 'options' | 'countdown' | 'playing' | 'gameover'
 type TutorialDestination = 'menu' | 'freeplay' | 'levelselect'
 
 const DEFAULT_GAME_OPTIONS: GameOptions = {
@@ -32,7 +30,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   shiftDuration: 120000,
   stationCapacity: { chopping: 3, cooking: 2 },
   restrictSlots: false,
-  enabledRecipes: Object.keys(RECIPES).filter(k => k !== 'mushroom_soup' && k !== 'fish_burger'),
+  enabledRecipes: ['burger', 'fries', 'pasta', 'mushroom_soup'],
   allowShortformCommands: true
 }
 
@@ -301,9 +299,11 @@ export default function App() {
         onLevels={() => handleMenuPlay('levelselect')}
         onOptions={() => setScreen('options')}
         onTutorial={handleMenuTutorial}
-        onTwitch={() => setScreen('twitch')}
         twitchChannel={twitchChannel}
-        twitchConnected={twitchChat.status === 'connected'}
+        twitchStatus={twitchChat.status}
+        twitchError={twitchChat.error}
+        onTwitchConnect={(ch) => setTwitchChannel(ch)}
+        onTwitchDisconnect={() => setTwitchChannel(null)}
       />
     )
   } else if (screen === 'levelselect') {
@@ -318,17 +318,6 @@ export default function App() {
     )
   } else if (screen === 'options') {
     content = <OptionsScreen options={gameOptions} onChange={handleGameOptionsChange} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
-  } else if (screen === 'twitch') {
-    content = (
-      <TwitchConnect
-        channel={twitchChannel}
-        status={twitchChat.status}
-        error={twitchChat.error}
-        onConnect={(ch) => handleTwitchChannelChange(ch)}
-        onDisconnect={() => handleTwitchChannelChange(null)}
-        onBack={() => setScreen('menu')}
-      />
-    )
   } else if (screen === 'countdown') {
     content = <Countdown onDone={() => setScreen('playing')} />
   } else if (screen === 'gameover') {
@@ -350,6 +339,11 @@ export default function App() {
   } else {
     content = (
       <div className={styles.layout}>
+        {state.timeLeft <= 10000 && state.timeLeft > 0 && (
+          <div key={Math.ceil(state.timeLeft / 1000)} className={styles.countdownOverlay}>
+            {Math.ceil(state.timeLeft / 1000)}
+          </div>
+        )}
         <div className={styles.body}>
           <main className={styles.main}>
             <OrdersBar state={state} />
@@ -364,7 +358,7 @@ export default function App() {
           )}
         </div>
         <InfoBar shortformEnabled={gameOptions.allowShortformCommands} />
-        <div className={styles.settingsWrapper}>
+        <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
           <button className={styles.settingsBtn} onClick={() => setSettingsOpen(o => !o)}>⚙️</button>
           {settingsOpen && (
             <>
