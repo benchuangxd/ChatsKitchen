@@ -8,7 +8,7 @@ A browser-based real-time kitchen game where Twitch chat collectively runs a res
 
 - **Twitch integration** — connect any channel and chat commands become gameplay actions
 - **Cooperative chaos** — 7 recipes, 5 stations, one shared kitchen
-- **Fire mechanic** — leave food too long and the station burns; team must `!extinguish`
+- **Fire mechanic** — leave food too long and the station burns; team must `extinguish`
 - **Level mode** — 10 fixed-difficulty levels with 1/2/3-star ratings
 - **Bot simulation** — optional AI players fill in when chat is quiet
 - **Configurable** — tune cooking speed, order speed, station capacity, and more in Options
@@ -38,21 +38,21 @@ npm run lint       # ESLint on all .ts/.tsx files
 
 ## How to Play
 
-Commands are typed in chat prefixed with `!`. Spaces in ingredient names can be written as spaces or underscores.
+Type commands by name in chat. Spaces in ingredient names can be written as spaces or underscores. The `!` prefix is also accepted (e.g. `!chop lettuce`).
 
 ### Commands
 
 | Command | Syntax | Station |
 |---------|--------|---------|
-| Chop | `!chop <item>` | Chopping Board |
-| Grill | `!grill <item>` | Grill |
-| Fry | `!fry <item>` | Fryer |
-| Boil | `!boil <item>` | Stove |
-| Toast | `!toast <item>` | Oven |
-| Roast | `!roast <item>` | Oven |
-| Take | `!take <ingredient>` | (any station) |
-| Serve | `!serve <order#>` | — |
-| Extinguish | `!extinguish <station>` | — |
+| Chop | `chop <item>` | Chopping Board |
+| Grill | `grill <item>` | Grill |
+| Fry | `fry <item>` | Fryer |
+| Boil | `boil <item>` | Stove |
+| Toast | `toast <item>` | Oven |
+| Roast | `roast <item>` | Oven |
+| Take | `take <ingredient>` | (any station) |
+| Serve | `serve <order#>` | — |
+| Extinguish | `extinguish <station>` | — |
 
 **Shortform aliases** (enable in Options): `c g f b t r ta s` map to the cooking commands in order above.
 
@@ -62,8 +62,8 @@ Commands are typed in chat prefixed with `!`. Spaces in ingredient names can be 
 
 1. An order appears with a dish name and patience timer.
 2. Cook the required ingredients at the appropriate stations.
-3. Chopping board items finish automatically. All other stations require `!take <ingredient>` to move the item to the shared pool.
-4. Once all required ingredients are in the pool, type `!serve <order#>`.
+3. Chopping board items finish automatically. All other stations require `take <ingredient>` to move the item to the shared pool.
+4. Once all required ingredients are in the pool, type `serve <order#>`.
 
 Each player can only work one station at a time and has a 1.5-second command cooldown.
 
@@ -71,13 +71,13 @@ Each player can only work one station at a time and has a 1.5-second command coo
 
 | Dish | Steps | Reward |
 |------|-------|--------|
-| 🍔 Burger | `!chop lettuce` + `!grill patty` + `!grill bun` | $60 |
-| 🍟 Fries | `!chop potato` → `!fry potato`* | $50 |
-| 🍝 Pasta | `!boil pasta` + `!chop tomato` + `!grill cheese` | $60 |
-| 🥗 Salad | `!chop lettuce` + `!chop tomato` | $20 |
-| 🍲 Mushroom Soup | `!chop mushroom` → `!boil mushroom`* | $50 |
-| 🍔 Fish Burger | `!fry fish` + `!chop lettuce` + `!grill bun` | $60 |
-| 🥬 Roasted Veggies | `!chop tomato` + `!chop pepper` + `!roast tomato` + `!roast pepper` | $70 |
+| 🍔 Burger | `chop lettuce` + `grill patty` + `grill bun` | $60 |
+| 🍟 Fries | `chop potato` → `fry potato`* | $50 |
+| 🍝 Pasta | `boil pasta` + `chop tomato` + `grill cheese` | $60 |
+| 🥗 Salad | `chop lettuce` + `chop tomato` | $20 |
+| 🍲 Mushroom Soup | `chop mushroom` → `boil mushroom`* | $50 |
+| 🍔 Fish Burger | `fry fish` + `chop lettuce` + `grill bun` | $60 |
+| 🥬 Roasted Veggies | `chop tomato` + `chop pepper` + `roast tomato` + `roast pepper` | $70 |
 
 \* Steps marked `→` require the prior ingredient in the pool before they can start.
 
@@ -85,7 +85,7 @@ Each dish also earns a time bonus of up to +$30 based on how much patience the o
 
 ### Fire
 
-Cooking stations (grill, fryer, stove, oven) will catch fire if an item is left too long (~25–28 seconds). Fire blocks the station. Any player can type `!extinguish <station>` to clear it and lose the burning ingredient.
+Cooking stations (grill, fryer, stove, oven) will catch fire if an item is left too long (~25–28 seconds). Fire blocks the station. Any player can type `extinguish <station>` to clear it and lose the burning ingredient.
 
 The chopping board never burns — items complete automatically.
 
