@@ -56,8 +56,6 @@ Type commands by name in chat. Spaces in ingredient names can be written as spac
 
 **Shortform aliases** (enable in Options): `c g f b t r ta s` map to the cooking commands in order above.
 
-**Ingredient shortcuts** (always active): `lett` → `lettuce`, `cboard` → `cutting_board`, `fburger` → `fish_burger`, `msoup` → `mushroom_soup`.
-
 ### Gameplay flow
 
 1. An order appears with a dish name and patience timer.

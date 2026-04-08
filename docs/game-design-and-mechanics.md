@@ -146,8 +146,6 @@ When shortform commands are enabled in Options, single-letter aliases can be use
 | `ta` | `take` |
 | `s` | `serve` |
 
-Ingredient name shortcuts are always active: `lett` → `lettuce`, `cboard` → `cutting_board`, `fburger` → `fish_burger`, `msoup` → `mushroom_soup`.
-
 ### Command flow
 
 The intended flow is:

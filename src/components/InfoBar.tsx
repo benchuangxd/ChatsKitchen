@@ -33,10 +33,7 @@ export default function InfoBar({ shortformEnabled = false }: Props) {
               <span>extinguish [station]</span>
             </div>
             <div className={styles.hint}>
-              Items: lettuce(lett), tomato, patty, bun, potato, pasta, cheese, fish, pepper
-            </div>
-            <div className={styles.hint}>
-              Shortforms: cboard=cutting board, fburger=fish burger, msoup=mushroom soup
+              Items: lettuce, tomato, patty, bun, potato, pasta, cheese, fish, pepper, mushroom
             </div>
           </div>
           <div className={styles.divider} />
