@@ -34,7 +34,7 @@ Each round follows the same basic loop:
 1. Orders spawn over time.
 2. Players read the requested dish and identify the needed ingredients.
 3. Players type cooking commands in chat to process those ingredients at the correct stations.
-4. Finished ingredients move into the prepared-items pool (automatically for the chopping board; via `!take` for all other stations).
+4. Finished ingredients move into the prepared-items pool (automatically for the chopping board; via `take` for all other stations).
 5. A player serves the dish to the correct order number once all required ingredients are ready.
 6. The team earns money based on the dish value and how quickly it was delivered.
 
@@ -117,19 +117,19 @@ In Free Play, capacity can be adjusted in Options. In gameplay terms, capacity s
 
 ## Command System
 
-The command system is the main input method for chat participation. The currently supported commands are:
+The command system is the main input method for chat participation. Commands are entered by name — no prefix required. The `!` prefix is also accepted (e.g. `!chop lettuce`), making it natural for Twitch chat users. The currently supported commands are:
 
 | Command | Syntax | Description |
 |---------|--------|-------------|
-| `chop` | `!chop <item>` | Chop an ingredient at the chopping board |
-| `grill` | `!grill <item>` | Grill an ingredient |
-| `fry` | `!fry <item>` | Fry an ingredient |
-| `boil` | `!boil <item>` | Boil an ingredient on the stove |
-| `toast` | `!toast <item>` | Toast an item in the oven |
-| `roast` | `!roast <item>` | Roast an item in the oven |
-| `take` | `!take <ingredient>` | Move a finished ingredient to the prepared-items pool |
-| `serve` | `!serve <order#>` | Serve a completed dish to an order |
-| `extinguish` | `!extinguish <station>` | Put out a fire at a station |
+| `chop` | `chop <item>` | Chop an ingredient at the chopping board |
+| `grill` | `grill <item>` | Grill an ingredient |
+| `fry` | `fry <item>` | Fry an ingredient |
+| `boil` | `boil <item>` | Boil an ingredient on the stove |
+| `toast` | `toast <item>` | Toast an item in the oven |
+| `roast` | `roast <item>` | Roast an item in the oven |
+| `take` | `take <ingredient>` | Move a finished ingredient to the prepared-items pool |
+| `serve` | `serve <order#>` | Serve a completed dish to an order |
+| `extinguish` | `extinguish <station>` | Put out a fire at a station |
 
 ### Shortform aliases
 
@@ -154,8 +154,8 @@ The intended flow is:
 
 1. Start preparation with a cooking command.
 2. Wait for the ingredient to finish.
-3. Use `!take` to move the completed ingredient into the prepared-items pool. (Chopping board items complete automatically — no `!take` needed.)
-4. Use `!serve <order#>` once all required ingredients for that order are in the pool.
+3. Use `take` to move the completed ingredient into the prepared-items pool. (Chopping board items complete automatically — no `take` needed.)
+4. Use `serve <order#>` once all required ingredients for that order are in the pool.
 
 ## Player Constraints And Team Dynamics
 
@@ -276,13 +276,13 @@ There is also a full reset flow in Options that restores the game to a clean def
 
 | Dish | Ingredients & Steps | Reward | Patience |
 |------|---------------------|--------|---------|
-| 🍔 Burger | `!chop lettuce` + `!grill patty` + `!grill bun` | $60 | 80s |
-| 🍟 Fries | `!chop potato` → `!fry potato` (needs chopped potato) | $50 | 60s |
-| 🍝 Pasta | `!boil pasta` + `!chop tomato` + `!grill cheese` | $60 | 90s |
-| 🥗 Salad | `!chop lettuce` + `!chop tomato` | $20 | 45s |
-| 🍲 Mushroom Soup | `!chop mushroom` → `!boil mushroom` (needs chopped mushroom) | $50 | 60s |
-| 🍔 Fish Burger | `!fry fish` + `!chop lettuce` + `!grill bun` | $60 | 80s |
-| 🥬 Roasted Veggies | `!chop tomato` + `!chop pepper` + `!roast tomato` + `!roast pepper` | $70 | 90s |
+| 🍔 Burger | `chop lettuce` + `grill patty` + `grill bun` | $60 | 80s |
+| 🍟 Fries | `chop potato` → `fry potato` (needs chopped potato) | $50 | 60s |
+| 🍝 Pasta | `boil pasta` + `chop tomato` + `grill cheese` | $60 | 90s |
+| 🥗 Salad | `chop lettuce` + `chop tomato` | $20 | 45s |
+| 🍲 Mushroom Soup | `chop mushroom` → `boil mushroom` (needs chopped mushroom) | $50 | 60s |
+| 🍔 Fish Burger | `fry fish` + `chop lettuce` + `grill bun` | $60 | 80s |
+| 🥬 Roasted Veggies | `chop tomato` + `chop pepper` + `roast tomato` + `roast pepper` | $70 | 90s |
 
 Prerequisites: steps marked with `→` require the prior ingredient to already be in the prepared-items pool before they can start.
 
@@ -290,11 +290,11 @@ Prerequisites: steps marked with `→` require the prior ingredient to already b
 
 | Station | Command(s) | Burns after | Default slots |
 |---------|-----------|-------------|---------------|
-| 🔪 Chopping Board | `!chop` | never (auto-completes) | 3 |
-| 🔥 Grill | `!grill` | 25 seconds | 2 |
-| 🍳 Fryer | `!fry` | 25 seconds | 2 |
-| 🌡️ Stove | `!boil` | 25 seconds | 2 |
-| 🔲 Oven | `!toast` / `!roast` | 28 seconds | 2 |
+| 🔪 Chopping Board | `chop` | never (auto-completes) | 3 |
+| 🔥 Grill | `grill` | 25 seconds | 2 |
+| 🍳 Fryer | `fry` | 25 seconds | 2 |
+| 🌡️ Stove | `boil` | 25 seconds | 2 |
+| 🔲 Oven | `toast` / `roast` | 28 seconds | 2 |
 
 Slot limits apply separately to the chopping board and to each cooking station. In Free Play, both limits are configurable in Options.
 
