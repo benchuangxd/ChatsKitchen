@@ -30,25 +30,27 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
             <section className={styles.section}>
               <h3>How A Round Works</h3>
               <ul className={styles.list}>
-                <li>Orders appear at the top with the order number, dish name, ingredients needed, and time remaining.</li>
+                <li>Orders appear at the top with the order number, dish name, ingredients needed, and a patience timer.</li>
                 <li>Players type commands in chat to prepare ingredients at the cooking stations.</li>
-                <li>Once ingredients are prepared, serve the matching order number to complete it.</li>
+                <li>Once all required ingredients are ready, serve the matching order number to complete it.</li>
+                <li>Orders expire if their patience runs out — a lost order counts against your team's score.</li>
               </ul>
             </section>
 
             <section className={styles.section}>
-              <h3>Core Commands</h3>
+              <h3>Commands</h3>
               <div className={styles.commandGrid}>
                 <span><code>chop lettuce</code></span>
                 <span><code>grill patty</code></span>
                 <span><code>fry fish</code></span>
                 <span><code>boil pasta</code></span>
                 <span><code>toast bun</code></span>
+                <span><code>roast pepper</code></span>
                 <span><code>take lettuce</code></span>
                 <span><code>serve [order#]</code></span>
                 <span><code>extinguish [station]</code></span>
               </div>
-              <p className={styles.note}>Chopping auto-deposits. For all other stations, use <code>take</code> once done.</p>
+              <p className={styles.note}>Chopping auto-deposits into the prepared tray. For all other stations, use <code>take</code> once done. Each player can only work one station at a time. You can also prefix any command with <code>!</code> (e.g. <code>!chop lettuce</code>).</p>
             </section>
 
             <section className={styles.section}>
@@ -64,7 +66,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                       {recipe.steps.map((step, i) => (
                         <span key={i} className={styles.recipeStep}>
                           <code>{step.action} {step.target}</code>
-                          {i < recipe.steps.length - 1 && <span className={styles.recipeArrow}>→</span>}
+                          {i < recipe.steps.length - 1 && <span className={styles.recipeArrow}>{recipe.steps[i + 1].requires ? '→' : '+'}</span>}
                         </span>
                       ))}
                     </div>
@@ -72,24 +74,17 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                   </div>
                 ))}
               </div>
-            </section>
-
-            <section className={styles.section}>
-              <h3>Simple Flow</h3>
-              <ul className={styles.list}>
-                <li>Read the order ticket — it shows which ingredients are needed.</li>
-                <li>Cook or prep each ingredient. Chopping auto-deposits; other stations need <code>take</code>.</li>
-                <li>Use <code>serve [order#]</code> when all required ingredients are in the prepared tray.</li>
-              </ul>
+              <p className={styles.note}><code>+</code> steps can be done in any order. <code>→</code> steps need the prior ingredient in the tray first (e.g. chop potato before frying it).</p>
             </section>
 
             <section className={styles.section}>
               <h3>Helpful Tips</h3>
               <ul className={styles.list}>
-                <li>Connect to Twitch before playing if you want to play with your community.</li>
-                <li>Open the in-game <code>Commands &amp; Recipes</code> panel anytime for a quick reference.</li>
-                <li>Free Play uses your Options settings, while Levels use fixed parameters.</li>
-                <li>If something catches 🔥 fire, type <code>extinguish [station]</code> fast!</li>
+                <li>Serve orders quickly — you earn a time bonus of up to +$30 based on how much patience was left.</li>
+                <li>If something catches 🔥 fire, type <code>extinguish [station]</code> fast — it blocks the whole station!</li>
+                <li>Connect to Twitch before playing if you want your community to join in.</li>
+                <li>Enable <strong>Shortform Commands</strong> in Options to use <code>c</code>, <code>g</code>, <code>f</code>, etc. instead of full names.</li>
+                <li>Open the in-game <strong>Commands &amp; Recipes</strong> panel anytime for a quick reference.</li>
               </ul>
             </section>
           </div>
