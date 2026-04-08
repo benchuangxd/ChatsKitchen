@@ -10,7 +10,7 @@ The game is built around short, high-energy rounds where players type commands t
 
 ### 1. Make chat participation immediate
 
-Players should be able to join by typing a short command without learning a deep control scheme. The game uses simple text verbs such as `chop`, `grill`, `take`, `plate`, and `serve`.
+Players should be able to join by typing a short command without learning a deep control scheme. The game uses simple text verbs such as `chop`, `grill`, `take`, and `serve`.
 
 ### 2. Encourage cooperation
 
@@ -34,10 +34,9 @@ Each round follows the same basic loop:
 1. Orders spawn over time.
 2. Players read the requested dish and identify the needed ingredients.
 3. Players type cooking commands in chat to process those ingredients at the correct stations.
-4. Finished ingredients are taken into the prepared-items pool.
-5. A player plates the final dish.
-6. A player serves the dish to the correct order number.
-7. The team earns money based on the dish value and how quickly it was delivered.
+4. Finished ingredients move into the prepared-items pool (automatically for the chopping board; via `!take` for all other stations).
+5. A player serves the dish to the correct order number once all required ingredients are ready.
+6. The team earns money based on the dish value and how quickly it was delivered.
 
 This loop repeats until the round timer expires.
 
@@ -96,22 +95,21 @@ Recipes are built from step-based ingredient preparation. Each dish defines:
 
 Examples:
 
-- `Burger`: chop lettuce, grill patty, toast bun, then plate and serve
-- `Fries`: chop potato, fry potato, then plate and serve
-- `Pasta`: boil pasta, chop tomato, grill cheese, then plate and serve
+- `Burger`: chop lettuce, grill patty, grill bun, then serve
+- `Fries`: chop potato, fry potato (requires chopped potato), then serve
+- `Pasta`: boil pasta, chop tomato, grill cheese, then serve
 
 Some steps require a previously prepared ingredient. For example, fries require chopped potato before frying, and mushroom soup requires chopped mushroom before boiling.
 
 ## Stations
 
-The kitchen is divided into stations, each tied to specific actions:
+The kitchen is divided into five stations, each tied to specific actions:
 
 - `Chopping Board` for `chop`
 - `Grill` for `grill`
 - `Fryer` for `fry`
 - `Stove` for `boil`
-- `Oven` for `toast`
-- `Plating` for `plate`
+- `Oven` for `toast` and `roast`
 
 Each station has a slot limit. If a station is full, new actions at that station are rejected until space opens up.
 
@@ -121,17 +119,34 @@ In Free Play, capacity can be adjusted in Options. In gameplay terms, capacity s
 
 The command system is the main input method for chat participation. The currently supported commands are:
 
-- `chop [item]`
-- `grill [item]`
-- `fry [item]`
-- `boil [item]`
-- `toast [item]`
-- `take [ingredient]`
-- `plate [dish]`
-- `serve [order#]`
-- `extinguish [station]`
+| Command | Syntax | Description |
+|---------|--------|-------------|
+| `chop` | `!chop <item>` | Chop an ingredient at the chopping board |
+| `grill` | `!grill <item>` | Grill an ingredient |
+| `fry` | `!fry <item>` | Fry an ingredient |
+| `boil` | `!boil <item>` | Boil an ingredient on the stove |
+| `toast` | `!toast <item>` | Toast an item in the oven |
+| `roast` | `!roast <item>` | Roast an item in the oven |
+| `take` | `!take <ingredient>` | Move a finished ingredient to the prepared-items pool |
+| `serve` | `!serve <order#>` | Serve a completed dish to an order |
+| `extinguish` | `!extinguish <station>` | Put out a fire at a station |
 
-The parser also supports a few aliases and shorthand names to make chat input faster.
+### Shortform aliases
+
+When shortform commands are enabled in Options, single-letter aliases can be used:
+
+| Alias | Expands to |
+|-------|-----------|
+| `c` | `chop` |
+| `g` | `grill` |
+| `f` | `fry` |
+| `b` | `boil` |
+| `t` | `toast` |
+| `r` | `roast` |
+| `ta` | `take` |
+| `s` | `serve` |
+
+Ingredient name shortcuts are always active: `lett` → `lettuce`, `cboard` → `cutting_board`, `fburger` → `fish_burger`, `msoup` → `mushroom_soup`.
 
 ### Command flow
 
@@ -139,9 +154,8 @@ The intended flow is:
 
 1. Start preparation with a cooking command.
 2. Wait for the ingredient to finish.
-3. Use `take` to move the completed ingredient into the prepared-items pool.
-4. Use `plate` when all required ingredients are ready.
-5. Use `serve` on the correct order number.
+3. Use `!take` to move the completed ingredient into the prepared-items pool. (Chopping board items complete automatically — no `!take` needed.)
+4. Use `!serve <order#>` once all required ingredients for that order are in the pool.
 
 ## Player Constraints And Team Dynamics
 
@@ -157,7 +171,7 @@ There is a short per-user command cooldown to reduce spam and accidental repeate
 
 ### Shared kitchen state
 
-Prepared ingredients, active stations, plated dishes, and orders all exist in a shared state. This is what makes the game collaborative: everyone is acting on the same kitchen.
+Prepared ingredients, active stations, and orders all exist in a shared state. This is what makes the game collaborative: everyone is acting on the same kitchen.
 
 ## Fire And Failure Pressure
 
@@ -257,6 +271,64 @@ Session-level or resettable state includes:
 - Twitch connection state
 
 There is also a full reset flow in Options that restores the game to a clean default state.
+
+## Recipe Reference
+
+| Dish | Ingredients & Steps | Reward | Patience |
+|------|---------------------|--------|---------|
+| 🍔 Burger | `!chop lettuce` + `!grill patty` + `!grill bun` | $60 | 80s |
+| 🍟 Fries | `!chop potato` → `!fry potato` (needs chopped potato) | $50 | 60s |
+| 🍝 Pasta | `!boil pasta` + `!chop tomato` + `!grill cheese` | $60 | 90s |
+| 🥗 Salad | `!chop lettuce` + `!chop tomato` | $20 | 45s |
+| 🍲 Mushroom Soup | `!chop mushroom` → `!boil mushroom` (needs chopped mushroom) | $50 | 60s |
+| 🍔 Fish Burger | `!fry fish` + `!chop lettuce` + `!grill bun` | $60 | 80s |
+| 🥬 Roasted Veggies | `!chop tomato` + `!chop pepper` + `!roast tomato` + `!roast pepper` | $70 | 90s |
+
+Prerequisites: steps marked with `→` require the prior ingredient to already be in the prepared-items pool before they can start.
+
+## Station Reference
+
+| Station | Command(s) | Burns after | Default slots |
+|---------|-----------|-------------|---------------|
+| 🔪 Chopping Board | `!chop` | never (auto-completes) | 3 |
+| 🔥 Grill | `!grill` | 25 seconds | 2 |
+| 🍳 Fryer | `!fry` | 25 seconds | 2 |
+| 🌡️ Stove | `!boil` | 25 seconds | 2 |
+| 🔲 Oven | `!toast` / `!roast` | 28 seconds | 2 |
+
+Slot limits apply separately to the chopping board and to each cooking station. In Free Play, both limits are configurable in Options.
+
+## Level Reference
+
+There are 10 levels, each with fixed cooking speed, order speed, and a 120-second shift. Difficulty scales with level number.
+
+| Level | Cooking speed | Order speed | ⭐ | ⭐⭐ | ⭐⭐⭐ |
+|-------|--------------|-------------|-----|------|-------|
+| 1 | 1.00× | 1.0× | $100 | $200 | $350 |
+| 2 | 1.05× | 1.1× | $125 | $250 | $438 |
+| 3 | 1.10× | 1.2× | $150 | $300 | $525 |
+| 4 | 1.15× | 1.3× | $175 | $350 | $613 |
+| 5 | 1.20× | 1.4× | $200 | $400 | $700 |
+| 6 | 1.25× | 1.5× | $225 | $450 | $788 |
+| 7 | 1.30× | 1.6× | $250 | $500 | $875 |
+| 8 | 1.35× | 1.7× | $275 | $550 | $963 |
+| 9 | 1.40× | 1.8× | $300 | $600 | $1050 |
+| 10 | 1.45× | 1.9× | $325 | $650 | $1138 |
+
+Star progress is saved to the browser and persists between sessions.
+
+## Player Stats
+
+The game tracks per-player statistics during each round:
+
+| Stat | Description |
+|------|-------------|
+| `cooked` | Number of cooking actions started |
+| `taken` | Number of ingredients taken from stations |
+| `served` | Number of orders served |
+| `moneyEarned` | Total money earned from serves |
+| `extinguished` | Number of fires put out |
+| `firesCaused` | Number of slots that burned on this player's watch |
 
 ## Why The Game Works
 
