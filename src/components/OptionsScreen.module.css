@@ -10,38 +10,6 @@
   box-sizing: border-box;
 }
 
-.tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 2px solid var(--border);
-  width: 100%;
-  max-width: 700px;
-  flex-shrink: 0;
-}
-
-.tab {
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  background: transparent;
-  padding: 10px 24px;
-  font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.tab:hover {
-  color: var(--text-subtitle);
-}
-
-.tabActive {
-  color: #b87333;
-  border-bottom-color: #b87333;
-}
-
 .columns {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -67,11 +67,11 @@ export default function MainMenu({ onPlay, onLevels, onOptions, onTutorial, twit
           </div>
         )}
         <div className={styles.sectionHeader}>Play</div>
-        <button className={`${styles.btn} ${styles.btnLevels}`} onClick={onLevels}>
-          Play Levels
-        </button>
         <button className={`${styles.btn} ${styles.btnFreePlay}`} onClick={onPlay}>
           Free Play
+        </button>
+        <button className={`${styles.btn} ${styles.btnLevels}`} onClick={onLevels}>
+          Play Levels
         </button>
         <button className={`${styles.btn} ${styles.btnTutorial}`} onClick={onTutorial}>
           Tutorial

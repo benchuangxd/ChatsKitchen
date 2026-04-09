@@ -73,14 +73,24 @@
   margin-bottom: -6px;
 }
 
-.btnLevels {
+.btnFreePlay {
   background: #b87333;
   color: #fff;
+  font-size: 22px;
+  padding: 18px 24px;
+  box-shadow: 0 4px 0 #8b5a2b;
 }
 
-.btnFreePlay {
-  background: #a0662e;
-  color: #fff;
+.btnFreePlay:active {
+  box-shadow: none;
+  transform: translateY(4px) scale(0.98);
+}
+
+.btnLevels {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border: 2px solid var(--border);
+  font-size: 16px;
 }
 
 .twitchForm {
