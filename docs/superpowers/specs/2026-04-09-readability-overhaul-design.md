@@ -26,7 +26,7 @@ Two components only:
 
 No changes to stations, chat panel, stats bar, game logic, or `DiningRoom` (its ticket row uses `flex-wrap: nowrap; overflow-x: auto` which absorbs the small width increase without changes).
 
-> **Note:** The codebase has **7 recipes** (not 5 as the CLAUDE.md table suggests — that table is out of date). The worst-case ingredient row is `roasted_veggies` with 4 items: `chopped_tomato`, `chopped_pepper`, `roasted_tomato`, `roasted_pepper`. All layout decisions must accommodate this 4-tile row without wrapping.
+> **Note:** The codebase has **7 recipes** (not 5 as the CLAUDE.md table suggests — that table is out of date). The worst-case ingredient row is **3 items** (Burger: lettuce + patty + bun; Pasta: pasta + tomato + cheese; Fish Burger: fish + lettuce + bun). Roasted Veggies has only 2 final plated ingredients (roasted tomato + roasted pepper). All layout decisions must accommodate a 3-tile row without wrapping.
 
 ---
 
@@ -118,7 +118,7 @@ No changes to stations, chat panel, stats bar, game logic, or `DiningRoom` (its 
 ## Verification
 
 1. Run `npm run dev` and start a game
-2. Check order tickets: ingredients stay in one row even for 4-ingredient dishes (Roasted Veggies)
+2. Check order tickets: ingredients stay in one row for 3-ingredient dishes (Burger, Pasta, Fish Burger) — this is the worst case
 3. Check prep pills: all ingredient names visible and readable at 10px; counts prominent in gold
 4. Toggle the names button — name labels should hide/show correctly
 5. Trigger urgency states (let orders age) — green/orange/red header gradients apply correctly

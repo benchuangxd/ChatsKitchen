@@ -37,7 +37,7 @@ export default function PreparedItems({ items, enabledRecipes }: Props) {
               <span className={styles.emoji}>{INGREDIENT_EMOJI[item]}</span>
               <div className={styles.prepText}>
                 <span className={styles.count}>×{count}</span>
-                {showNames && <span className={styles.name}>{item}</span>}
+                {showNames && <span className={styles.name}>{item.replace(/_/g, ' ')}</span>}
               </div>
             </div>
           )

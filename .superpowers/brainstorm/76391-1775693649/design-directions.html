@@ -1,0 +1,295 @@
+<style>
+  body { background: #1a1410; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lilita+One&family=Space+Mono:wght@400;700&display=swap');
+
+  h2 { color: #f0c850; font-family: 'Lilita One', cursive; font-size: 28px; margin: 0 0 8px; }
+  .subtitle { color: #9a8e82; font-size: 15px; margin-bottom: 28px; }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .design-block {
+    background: #221e18;
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .design-block:hover { border-color: #f0c850; }
+  .design-block.selected { border-color: #f0c850; }
+  .design-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9a8e82;
+    margin-bottom: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+  .design-title {
+    font-family: 'Lilita One', cursive;
+    color: #f0c850;
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .design-desc { color: #9a8e82; font-size: 13px; line-height: 1.5; margin-bottom: 16px; }
+
+  /* ============ DESIGN A - Current (small) ============ */
+  .ticket-a {
+    width: 155px;
+    background: #2a2218;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  .ticket-a-header {
+    background: #5aad5e;
+    padding: 7px 10px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 17px;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+  }
+  .ticket-a-body { padding: 7px 10px; }
+  .ticket-a-ingredients { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+  .ticket-a-emoji { font-size: 19px; }
+  .ticket-a-bar { height: 9px; background: #5aad5e; border-radius: 4px; margin-top: 8px; }
+  .ticket-a-bar-bg { height: 9px; background: rgba(255,255,255,0.08); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+
+  .prep-a { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .prep-a-pill {
+    background: rgba(240,200,80,0.1);
+    border: 1px solid rgba(240,200,80,0.3);
+    border-radius: 20px;
+    padding: 3px 9px;
+    display: flex; align-items: center; gap: 4px;
+    font-family: 'Space Mono', monospace;
+  }
+  .prep-a-emoji { font-size: 19px; }
+  .prep-a-count { font-size: 15px; color: #f0c850; font-weight: 700; }
+  .prep-a-name { font-size: 14px; color: #9a8e82; }
+
+  /* ============ DESIGN B - Bold Stream ============ */
+  .ticket-b {
+    width: 175px;
+    background: #1c1812;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+    overflow: hidden;
+    border: 2px solid rgba(90,173,94,0.4);
+    margin: 0 auto;
+  }
+  .ticket-b-header {
+    background: #5aad5e;
+    padding: 10px 12px;
+    font-family: 'Lilita One', cursive;
+    font-size: 22px;
+    color: white;
+    text-shadow: 0 2px 3px rgba(0,0,0,0.4);
+    letter-spacing: 0.02em;
+  }
+  .ticket-b-body { padding: 10px 12px 10px; }
+  .ticket-b-ingredients { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .ticket-b-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 5px 7px;
+  }
+  .ticket-b-emoji { font-size: 26px; }
+  .ticket-b-ingname { font-size: 10px; font-family: 'Space Mono', monospace; color: #c0b8a8; letter-spacing: 0.03em; text-transform: uppercase; }
+  .ticket-b-bar-bg { height: 10px; background: rgba(255,255,255,0.08); border-radius: 5px; margin-top: 10px; overflow: hidden; }
+  .ticket-b-bar { height: 10px; background: #5aad5e; border-radius: 5px; width: 75%; }
+
+  .prep-b { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .prep-b-pill {
+    background: rgba(240,200,80,0.12);
+    border: 2px solid rgba(240,200,80,0.5);
+    border-radius: 14px;
+    padding: 5px 12px;
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+  .prep-b-emoji { font-size: 26px; }
+  .prep-b-count { font-size: 18px; color: #f0c850; font-weight: 700; }
+  .prep-b-name { font-size: 13px; color: #c0b8a8; }
+
+  /* ============ DESIGN C - Broadcast Overlay ============ */
+  .ticket-c {
+    width: 190px;
+    background: rgba(15,12,8,0.92);
+    border-radius: 14px;
+    border: 3px solid #5aad5e;
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(90,173,94,0.25), inset 0 0 20px rgba(90,173,94,0.04);
+  }
+  .ticket-c-header {
+    background: linear-gradient(135deg, #4a9d54 0%, #2d7a38 100%);
+    padding: 11px 14px;
+    font-family: 'Lilita One', cursive;
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ticket-c-body { padding: 12px 14px 12px; }
+  .ticket-c-ingredients { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .ticket-c-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 3px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 7px 9px;
+  }
+  .ticket-c-emoji { font-size: 30px; }
+  .ticket-c-ingname {
+    font-size: 11px; font-family: 'Space Mono', monospace;
+    color: #d8d0c0; letter-spacing: 0.04em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .ticket-c-bar-bg { height: 12px; background: rgba(255,255,255,0.07); border-radius: 6px; margin-top: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+  .ticket-c-bar { height: 12px; background: linear-gradient(90deg, #4a9d54, #5aad5e); border-radius: 6px; width: 75%; box-shadow: 0 0 8px rgba(90,173,94,0.5); }
+
+  .prep-c { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .prep-c-pill {
+    background: rgba(240,200,80,0.1);
+    border: 2px solid #f0c850;
+    border-radius: 12px;
+    padding: 7px 14px;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 0 10px rgba(240,200,80,0.15);
+  }
+  .prep-c-emoji { font-size: 30px; }
+  .prep-c-count {
+    font-size: 22px; color: #f0c850; font-family: 'Lilita One', cursive;
+    text-shadow: 0 0 8px rgba(240,200,80,0.5);
+  }
+  .prep-c-name { font-size: 14px; color: #d8d0c0; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #6a6050; font-family: 'Space Mono', monospace; margin: 14px 0 6px;
+  }
+
+  .options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .option {
+    background: #221e18;
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid #3a3328;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .option:hover { border-color: rgba(240,200,80,0.5); transform: translateY(-2px); }
+  .option.selected { border-color: #f0c850; background: #2a2418; box-shadow: 0 0 20px rgba(240,200,80,0.1); }
+  .option .letter {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #f0c850; color: #1a1410;
+    font-family: 'Lilita One', cursive; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .option .content h3 { color: #f0c850; font-family: 'Lilita One', cursive; font-size: 18px; margin: 0 0 6px; }
+  .option .content p { color: #9a8e82; font-size: 13px; line-height: 1.5; margin: 0; }
+  .option .preview { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+</style>
+
+<h2>Readability Design Directions</h2>
+<p class="subtitle">Order ticket + prepped ingredients — pick the direction that feels right for a Twitch stream overlay</p>
+
+<div class="options" data-multiselect>
+
+  <!-- Option A: Current -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Current (Baseline)</h3>
+      <p>Small compact tickets. 19–20px emojis, 17px header. Good for desktop, hard to read on stream.</p>
+    </div>
+    <div class="preview">
+      <div class="section-label">Order Ticket</div>
+      <div class="ticket-a">
+        <div class="ticket-a-header">🍔 Burger</div>
+        <div class="ticket-a-body">
+          <div class="ticket-a-ingredients">
+            <span class="ticket-a-emoji">🥬</span>
+            <span class="ticket-a-emoji">🥩</span>
+            <span class="ticket-a-emoji">🍞</span>
+          </div>
+          <div class="ticket-a-bar-bg"><div class="ticket-a-bar"></div></div>
+        </div>
+      </div>
+      <div class="section-label">Prepped Ingredients</div>
+      <div class="prep-a">
+        <div class="prep-a-pill"><span class="prep-a-emoji">🥬</span><span class="prep-a-count">×2</span><span class="prep-a-name">lettuce</span></div>
+        <div class="prep-a-pill"><span class="prep-a-emoji">🍟</span><span class="prep-a-count">×1</span><span class="prep-a-name">fries</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Bold Stream -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Bold Stream</h3>
+      <p>Inspired by Words on Stream: chunky emoji tiles, bold ingredient labels, larger everything. Readable at a glance on broadcast.</p>
+    </div>
+    <div class="preview">
+      <div class="section-label">Order Ticket</div>
+      <div class="ticket-b">
+        <div class="ticket-b-header">🍔 Burger</div>
+        <div class="ticket-b-body">
+          <div class="ticket-b-ingredients">
+            <div class="ticket-b-item"><span class="ticket-b-emoji">🥬</span><span class="ticket-b-ingname">lettuce</span></div>
+            <div class="ticket-b-item"><span class="ticket-b-emoji">🥩</span><span class="ticket-b-ingname">patty</span></div>
+            <div class="ticket-b-item"><span class="ticket-b-emoji">🍞</span><span class="ticket-b-ingname">bun</span></div>
+          </div>
+          <div class="ticket-b-bar-bg"><div class="ticket-b-bar"></div></div>
+        </div>
+      </div>
+      <div class="section-label">Prepped Ingredients</div>
+      <div class="prep-b">
+        <div class="prep-b-pill"><span class="prep-b-emoji">🥬</span><span class="prep-b-count">×2</span><span class="prep-b-name">lettuce</span></div>
+        <div class="prep-b-pill"><span class="prep-b-emoji">🍟</span><span class="prep-b-count">×1</span><span class="prep-b-name">fries</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C: Broadcast Overlay -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Broadcast Overlay</h3>
+      <p>Max legibility: 30px emojis in card tiles, glowing borders, high contrast. Built for viewers watching a compressed stream.</p>
+    </div>
+    <div class="preview">
+      <div class="section-label">Order Ticket</div>
+      <div class="ticket-c">
+        <div class="ticket-c-header">🍔 Burger</div>
+        <div class="ticket-c-body">
+          <div class="ticket-c-ingredients">
+            <div class="ticket-c-item"><span class="ticket-c-emoji">🥬</span><span class="ticket-c-ingname">lettuce</span></div>
+            <div class="ticket-c-item"><span class="ticket-c-emoji">🥩</span><span class="ticket-c-ingname">patty</span></div>
+            <div class="ticket-c-item"><span class="ticket-c-emoji">🍞</span><span class="ticket-c-ingname">bun</span></div>
+          </div>
+          <div class="ticket-c-bar-bg"><div class="ticket-c-bar"></div></div>
+        </div>
+      </div>
+      <div class="section-label">Prepped Ingredients</div>
+      <div class="prep-c">
+        <div class="prep-c-pill"><span class="prep-c-emoji">🥬</span><span class="prep-c-count">×2</span><span class="prep-c-name">LETTUCE</span></div>
+        <div class="prep-c-pill"><span class="prep-c-emoji">🍟</span><span class="prep-c-count">×1</span><span class="prep-c-name">FRIES</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>

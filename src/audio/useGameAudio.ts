@@ -44,13 +44,12 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
         prevMsgCount.current = state.chatMessages.length
         break
       case 'shiftend':
-        // no audio change — gameplay music continues through the door animation
+        audio.stopMusic()
+        audio.playSfx('round-over')
         break
       case 'gameover':
         audio.stopAllSfx()
-        audio.stopMusic()
         if (trackEnabled.gameover) audio.playMusic('gameover')
-        audio.playSfx('round-over')
         break
     }
   }, [screen, audio, trackEnabled.menu, trackEnabled.gameplay, trackEnabled.gameover])
