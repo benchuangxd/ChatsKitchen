@@ -9,6 +9,7 @@ import { useGameAudio } from './audio/useGameAudio'
 import MainMenu from './components/MainMenu'
 import OptionsScreen from './components/OptionsScreen'
 import Countdown from './components/Countdown'
+import ShiftEnd from './components/ShiftEnd'
 import GameOver from './components/GameOver'
 import LevelSelect from './components/LevelSelect'
 import TutorialModal from './components/TutorialModal'
@@ -20,7 +21,7 @@ import ChatPanel from './components/ChatPanel'
 import InfoBar from './components/InfoBar'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'levelselect' | 'options' | 'countdown' | 'playing' | 'gameover'
+type Screen = 'menu' | 'levelselect' | 'options' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
 type TutorialDestination = 'menu' | 'freeplay' | 'levelselect'
 
 const DEFAULT_GAME_OPTIONS: GameOptions = {
@@ -220,8 +221,10 @@ export default function App() {
         return updated
       })
     }
-    setScreen('gameover')
+    setScreen('shiftend')
   }, [currentLevel, levelProgress])
+
+  const handleShiftEndDone = useCallback(() => setScreen('gameover'), [])
 
   const startLevel = useCallback((level: number) => {
     const config = getLevelConfig(level)
@@ -320,6 +323,15 @@ export default function App() {
     content = <OptionsScreen options={gameOptions} onChange={handleGameOptionsChange} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
   } else if (screen === 'countdown') {
     content = <Countdown onDone={() => setScreen('playing')} />
+  } else if (screen === 'shiftend') {
+    content = (
+      <ShiftEnd
+        money={finalStats.money}
+        served={finalStats.served}
+        lost={finalStats.lost}
+        onDone={handleShiftEndDone}
+      />
+    )
   } else if (screen === 'gameover') {
     content = (
       <GameOver
