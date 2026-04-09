@@ -23,10 +23,10 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
 
   return (
     <div className={styles.screen}>
-      <button className={styles.backBtn} onClick={onBack}>{'\u{2190}'} Back</button>
-      <h1 className={styles.title}>Customize Your Shift</h1>
+      <div className={styles.leftCol}>
+        <button className={styles.backBtn} onClick={onBack}>{'\u{2190}'} Back</button>
+        <h1 className={styles.title}>Customize Your Shift</h1>
 
-      <div className={styles.content}>
         <div className={styles.card}>
           <div className={styles.cardLabel}>⏱ Duration</div>
           <div className={styles.presets}>
@@ -40,34 +40,6 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
               </button>
             ))}
           </div>
-        </div>
-
-        <div className={styles.card}>
-          <div className={styles.cardLabel}>🍽️ Recipes</div>
-          <div className={styles.recipeGrid}>
-            {Object.entries(RECIPES).map(([key, recipe]) => {
-              const isEnabled = options.enabledRecipes.includes(key)
-              const isLast = options.enabledRecipes.length === 1 && isEnabled
-              return (
-                <button
-                  key={key}
-                  className={`${styles.recipeBtn} ${isEnabled ? styles.active : ''}`}
-                  disabled={isLast}
-                  onClick={() => {
-                    const next = isEnabled
-                      ? options.enabledRecipes.filter(r => r !== key)
-                      : [...options.enabledRecipes, key]
-                    onChange({ ...options, enabledRecipes: next })
-                  }}
-                >
-                  <span className={styles.recipeEmoji}>{recipe.emoji}</span>
-                  <span className={styles.recipeName}>{recipe.name}</span>
-                  <span className={styles.recipeReward}>${recipe.reward}</span>
-                </button>
-              )
-            })}
-          </div>
-          <div className={styles.hint}>Only selected recipes will appear as orders</div>
         </div>
 
         <button
@@ -175,10 +147,40 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
         )}
       </div>
 
-      <div className={styles.footer}>
-        <button className={styles.startBtn} onClick={onStart}>
-          ▶ Start Shift!
-        </button>
+      <div className={styles.rightCol}>
+        <div className={styles.card}>
+          <div className={styles.cardLabel}>🍽️ Recipes</div>
+          <div className={styles.recipeGrid}>
+            {Object.entries(RECIPES).map(([key, recipe]) => {
+              const isEnabled = options.enabledRecipes.includes(key)
+              const isLast = options.enabledRecipes.length === 1 && isEnabled
+              return (
+                <button
+                  key={key}
+                  className={`${styles.recipeBtn} ${isEnabled ? styles.active : ''}`}
+                  disabled={isLast}
+                  onClick={() => {
+                    const next = isEnabled
+                      ? options.enabledRecipes.filter(r => r !== key)
+                      : [...options.enabledRecipes, key]
+                    onChange({ ...options, enabledRecipes: next })
+                  }}
+                >
+                  <span className={styles.recipeEmoji}>{recipe.emoji}</span>
+                  <span className={styles.recipeName}>{recipe.name}</span>
+                  <span className={styles.recipeReward}>${recipe.reward}</span>
+                </button>
+              )
+            })}
+          </div>
+          <div className={styles.hint}>Only selected recipes will appear as orders</div>
+        </div>
+
+        <div className={styles.footer}>
+          <button className={styles.startBtn} onClick={onStart}>
+            ▶ Start Shift!
+          </button>
+        </div>
       </div>
     </div>
   )
