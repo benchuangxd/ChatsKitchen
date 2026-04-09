@@ -6,6 +6,8 @@ interface Props {
   order: Order
 }
 
+const STRIP_PREFIX = /^(chopped|grilled|fried|boiled|roasted)_/
+
 export default function OrderTicket({ order }: Props) {
   const recipe = RECIPES[order.dish]
   const urgency = order.patienceLeft / order.patienceMax
@@ -20,18 +22,25 @@ export default function OrderTicket({ order }: Props) {
   return (
     <div className={styles.ticketWrapper}>
       <div className={`${styles.ticket} ${urgencyClass} ${outcomeClass}`}>
-        <div className={styles.header} style={{ backgroundColor: barColor }}>
+        <div className={styles.header}>
           #{order.id} {recipe.emoji} {recipe.name}
         </div>
         <div className={styles.body}>
-          <div className={styles.divider} />
           <div className={styles.ingredients}>
             {recipe.plate.map((item, i) => (
-              <span key={i} className={styles.ingredientEmoji}>{INGREDIENT_EMOJI[item] || '?'}</span>
+              <div key={i} className={styles.ingredientTile}>
+                <span className={styles.ingredientEmoji}>{INGREDIENT_EMOJI[item] || '?'}</span>
+                <span className={styles.ingredientName}>
+                  {item.replace(STRIP_PREFIX, '')}
+                </span>
+              </div>
             ))}
           </div>
           <div className={styles.patienceBg}>
-            <div className={styles.patienceFill} style={{ width: `${urgency * 100}%`, backgroundColor: barColor }} />
+            <div
+              className={styles.patienceFill}
+              style={{ width: `${urgency * 100}%`, backgroundColor: barColor }}
+            />
           </div>
         </div>
         {isLost && <div className={styles.fireOverlay} />}

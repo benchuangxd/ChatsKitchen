@@ -1,83 +1,132 @@
-.ticket {
-  width: 160px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
-}
-
-/* Torn bottom edge */
-.ticket::after {
-  content: '';
-  display: block;
-  height: 6px;
-  background: linear-gradient(135deg, #f5f0e8 33.33%, transparent 33.33%) -4px 0,
-              linear-gradient(225deg, #f5f0e8 33.33%, transparent 33.33%) -4px 0;
-  background-size: 8px 6px;
-  background-color: transparent;
-}
-
-.normal {}
-
-.critical .body {
-  background: #f5e8e8;
-}
-
-.warning .body {
-  background: #f5f0e0;
-}
-
-.header {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-  padding: 8px 10px;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.body {
-  background: #f5f0e8;
-  padding: 8px 10px 8px;
-}
-
-.divider {
-  border-top: 1px dashed #c0b8a8;
-  margin: 4px 0;
-}
-
-.ingredients {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px;
-  margin-bottom: 8px;
-}
-
-.ingredientEmoji {
-  font-size: 20px;
-}
-
-.patienceBg {
-  background: #d8d0c4;
-  border-radius: 2px;
-  height: 10px;
-  overflow: hidden;
-}
-
-.patienceFill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.1s linear;
-}
-
-/* ---- Outcome animation wrapper ---- */
+/* ── Wrapper (unchanged) ───────────────────── */
 .ticketWrapper {
   position: relative;
   display: inline-block;
 }
 
-/* ---- Served: ticket fades out + scales up ---- */
+/* ── Ticket shell ──────────────────────────── */
+.ticket {
+  width: 172px;
+  position: relative;          /* required for ::before punch hole */
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: #f5f0e8;
+  /* NOTE: no overflow: hidden — removed so ::before is not clipped */
+}
+
+/* Punch hole at top centre */
+.ticket::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13px;
+  height: 13px;
+  background: var(--bg-dark);  /* matches page background; adapts to light/dark theme */
+  border-radius: 50%;
+  z-index: 3;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Perforated tear strip at bottom (replaces old zigzag ::after entirely) */
+.ticket::after {
+  content: '';
+  display: block;
+  height: 11px;
+  background-color: #f5f0e8;
+  background-image: radial-gradient(circle, var(--bg-dark) 3.5px, transparent 3.5px);
+  background-size: 16px 11px;
+  background-position: 4px center;
+  border-top: 1px dashed rgba(0, 0, 0, 0.13);
+}
+
+/* ── Urgency states ─────────────────────────── */
+/* Header gradient — driven by urgency CSS class on .ticket */
+.normal   .header { background: linear-gradient(160deg, #4ea854, #3a8a40); }
+.warning  .header { background: linear-gradient(160deg, #e06840, #c85030); }
+.critical .header { background: linear-gradient(160deg, #d94f4f, #b83030); }
+
+/* Body tint on urgency */
+.critical .body { background: #f5e8e8; }
+.warning  .body { background: #f5f0e0; }
+.normal   .body { background: #f5f0e8; }
+
+/* ── Header ─────────────────────────────────── */
+.header {
+  border-radius: 10px 10px 0 0;
+  padding: 17px 10px 8px;          /* extra top padding clears the punch hole */
+  font-family: 'Lilita One', cursive;
+  font-size: 20px;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ── Body ───────────────────────────────────── */
+.body {
+  background: #f5f0e8;
+  padding: 7px 9px 8px;
+}
+
+/* ── Ingredient row ─────────────────────────── */
+/* flex-wrap: nowrap keeps all tiles on one line (max 3 ingredients across all recipes) */
+.ingredients {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 4px;
+}
+
+.ingredientTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 7px;
+  padding: 4px 5px;
+  flex: 1;
+  min-width: 0;          /* allows tiles to shrink below their content width */
+}
+
+.ingredientEmoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.ingredientName {
+  font-size: 8.5px;
+  font-family: 'Space Mono', monospace;
+  color: #5a5040;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+}
+
+/* ── Patience bar ───────────────────────────── */
+.patienceBg {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  height: 9px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.patienceFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.1s linear;
+}
+
+/* ── Outcome animations (copied verbatim from original) ─────────── */
+
 @keyframes ticketServedOut {
   0%   { opacity: 1; transform: scale(1); }
   30%  { opacity: 0.7; transform: scale(1.06); }
@@ -88,7 +137,6 @@
   pointer-events: none;
 }
 
-/* ---- Served: money floats upward ---- */
 @keyframes moneyFloatUp {
   0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   20%  { opacity: 1; transform: translate(-50%, calc(-50% - 12px)) scale(1.1); }
@@ -110,7 +158,6 @@
   animation: moneyFloatUp 1s ease-out forwards;
 }
 
-/* ---- Lost: ticket shakes and darkens ---- */
 @keyframes ticketLostShake {
   0%   { transform: translateX(0);    filter: brightness(1); }
   10%  { transform: translateX(-4px); filter: brightness(0.85); }
@@ -126,7 +173,6 @@
   pointer-events: none;
 }
 
-/* ---- Lost: fire overlay sweeps up from bottom ---- */
 @keyframes fireSweepUp {
   0%   { clip-path: inset(100% 0 0 0); opacity: 0.9; }
   15%  { clip-path: inset(85% 0 0 0);  opacity: 1; }
@@ -156,6 +202,7 @@
     fireFlicker  0.25s ease-in-out infinite;
 }
 
+/* ── Responsive ──────────────────────────────── */
 @media (max-width: 480px) {
   .ticket {
     width: auto;
@@ -163,10 +210,6 @@
   }
 
   .header {
-    font-size: 16px;
-  }
-
-  .ingredientName {
-    font-size: 13px;
+    font-size: 18px;
   }
 }
