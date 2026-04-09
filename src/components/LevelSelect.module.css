@@ -1,30 +1,42 @@
 .screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 320px 1fr;
   height: 100%;
   background: var(--bg);
-  gap: 24px;
-  overflow-y: auto;
-  padding: 32px 24px;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px 24px 40px 48px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 48px;
+  overflow-y: auto;
+}
+
 .backBtn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
+  align-self: flex-start;
   border: none;
   border-radius: 10px;
-  padding: 12px 28px;
+  padding: 8px 20px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   background: #b87333;
   color: #fff;
   cursor: pointer;
   transition: transform 0.1s, filter 0.1s;
-  z-index: 10;
 }
 
 .backBtn:hover {
@@ -41,26 +53,21 @@
 
 .subtitle {
   font-family: 'Space Mono', monospace;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-subtitle);
-  margin: -12px 0 0;
-  max-width: 640px;
-  text-align: center;
+  margin: 0;
   line-height: 1.5;
 }
 
 .twitchStatus {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
   font-family: 'Fredoka', sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
-  text-align: center;
-  margin: -8px 0 -8px;
 }
 
 .twitchDot {
@@ -87,8 +94,8 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 16px;
-  max-width: 700px;
   width: 100%;
+  max-width: 800px;
 }
 
 .card {
