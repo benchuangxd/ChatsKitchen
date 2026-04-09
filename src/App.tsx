@@ -6,6 +6,7 @@ import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
 import { useGameAudio } from './audio/useGameAudio'
+import { useViewportScale } from './hooks/useViewportScale'
 import MainMenu from './components/MainMenu'
 import FreePlaySetup from './components/FreePlaySetup'
 import OptionsScreen from './components/OptionsScreen'
@@ -291,6 +292,7 @@ export default function App() {
   useGameLoop(state, dispatch, isPlaying ? handleGameOver : undefined)
   useBotSimulation(state, dispatch, handleCommand, isPlaying && botsEnabled)
   useGameAudio(screen, state, audioSettings)
+  useViewportScale()
 
   const gameplayModeLabel = currentLevel != null ? `Level ${currentLevel}` : 'Free Play'
 

@@ -20,8 +20,8 @@
 /* --- Door panels --- */
 
 .door {
-  width: 50vw;
-  height: 100vh;
+  width: 50%;
+  height: 100%;
   position: relative;
   backface-visibility: hidden;
 }
