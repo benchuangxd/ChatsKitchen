@@ -1,0 +1,351 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: var(--bg);
+  box-sizing: border-box;
+  padding: 24px 24px 0;
+}
+
+.backBtn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: #b87333;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+  z-index: 10;
+}
+
+.backBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.2);
+}
+
+.title {
+  font-family: 'Lilita One', cursive;
+  font-size: 36px;
+  color: #b87333;
+  margin: 0 0 20px;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 16px;
+  min-height: 0;
+}
+
+/* ── Cards ── */
+
+.card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.cardLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+/* ── Preset buttons ── */
+
+.presets {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.preset {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-family: 'Space Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.preset:hover {
+  border-color: #b87333;
+  color: var(--text);
+}
+
+.active {
+  border-color: #b87333;
+  background: #b87333;
+  color: #fff;
+}
+
+/* ── Recipes ── */
+
+.recipeGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recipeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.recipeBtn:hover:not(:disabled) {
+  border-color: #b87333;
+  color: var(--text);
+}
+
+.recipeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.recipeBtn.active {
+  border-color: #b87333;
+  background: #b87333;
+  color: #fff;
+}
+
+.recipeEmoji {
+  font-size: 18px;
+}
+
+.recipeName {
+  font-size: 15px;
+}
+
+.recipeReward {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+/* ── More Options ── */
+
+.moreToggle {
+  align-self: center;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.moreToggle:hover {
+  border-color: #b87333;
+  color: var(--text);
+}
+
+.moreSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.moreRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.moreRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.moreLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── Station Slots ── */
+
+.slotsRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.slotsLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.toggleBtn {
+  border: 2px solid var(--text-secondary);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  min-width: 48px;
+}
+
+.toggleBtn:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.toggleBtnOn {
+  border-color: #5cb85c;
+  background: #5cb85c;
+  color: #fff;
+}
+
+.toggleBtnOn:hover {
+  background: #4da64d;
+  border-color: #4da64d;
+}
+
+.capacityGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dimmed {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.capacityRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.capacityLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 110px;
+}
+
+.capacityControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.capacityBtn {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.capacityBtn:hover {
+  border-color: #b87333;
+  background: var(--border);
+}
+
+.capacityValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #b87333;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* ── Footer / CTA ── */
+
+.footer {
+  width: 100%;
+  max-width: 560px;
+  padding: 16px 0 24px;
+  flex-shrink: 0;
+}
+
+.startBtn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 18px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  background: #b87333;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+  letter-spacing: 0.5px;
+}
+
+.startBtn:hover {
+  transform: scale(1.02);
+  filter: brightness(1.12);
+}
+
+.startBtn:active {
+  transform: scale(0.98);
+}

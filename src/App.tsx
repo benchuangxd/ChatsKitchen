@@ -7,6 +7,7 @@ import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
 import { useGameAudio } from './audio/useGameAudio'
 import MainMenu from './components/MainMenu'
+import FreePlaySetup from './components/FreePlaySetup'
 import OptionsScreen from './components/OptionsScreen'
 import Countdown from './components/Countdown'
 import ShiftEnd from './components/ShiftEnd'
@@ -21,8 +22,8 @@ import ChatPanel from './components/ChatPanel'
 import InfoBar from './components/InfoBar'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'levelselect' | 'options' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
-type TutorialDestination = 'menu' | 'freeplay' | 'levelselect'
+type Screen = 'menu' | 'levelselect' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
+type TutorialDestination = 'menu' | 'freeplaysetup' | 'levelselect'
 
 const DEFAULT_GAME_OPTIONS: GameOptions = {
   cookingSpeed: 1,
@@ -122,8 +123,8 @@ export default function App() {
   }, [gameOptions])
 
   const continueFromTutorial = useCallback((destination: TutorialDestination) => {
-    if (destination === 'freeplay') {
-      startFreePlay()
+    if (destination === 'freeplaysetup') {
+      setScreen('freeplaysetup')
       return
     }
 
@@ -133,7 +134,7 @@ export default function App() {
     }
 
     setScreen('menu')
-  }, [startFreePlay])
+  }, [])
 
   const openTutorial = useCallback((destination: TutorialDestination) => {
     setShowTutorialPrompt(false)
@@ -298,7 +299,7 @@ export default function App() {
   if (screen === 'menu') {
     content = (
       <MainMenu
-        onPlay={() => handleMenuPlay('freeplay')}
+        onPlay={() => handleMenuPlay('freeplaysetup')}
         onLevels={() => handleMenuPlay('levelselect')}
         onOptions={() => setScreen('options')}
         onTutorial={handleMenuTutorial}
@@ -321,6 +322,8 @@ export default function App() {
     )
   } else if (screen === 'options') {
     content = <OptionsScreen options={gameOptions} onChange={handleGameOptionsChange} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
+  } else if (screen === 'freeplaysetup') {
+    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen('menu')} />
   } else if (screen === 'countdown') {
     content = <Countdown onDone={() => setScreen('playing')} />
   } else if (screen === 'shiftend') {
