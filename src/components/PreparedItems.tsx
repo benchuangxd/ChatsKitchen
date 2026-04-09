@@ -35,8 +35,10 @@ export default function PreparedItems({ items, enabledRecipes }: Props) {
           return (
             <div key={item} className={`${styles.tray} ${filled ? styles.trayFilled : styles.trayEmpty}`}>
               <span className={styles.emoji}>{INGREDIENT_EMOJI[item]}</span>
-              {filled && <span className={styles.count}>{count > 1 ? `\u{00D7}${count}` : ''}</span>}
-              {showNames && <span className={styles.name}>{item.replace(/_/g, ' ')}</span>}
+              <div className={styles.prepText}>
+                <span className={styles.count}>×{count}</span>
+                {showNames && <span className={styles.name}>{item.replace(/_/g, ' ')}</span>}
+              </div>
             </div>
           )
         })}

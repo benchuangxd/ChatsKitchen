@@ -294,7 +294,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const { delta, now } = action
       const newStations = { ...state.stations }
       const newActiveUsers = { ...state.activeUsers }
-      let messages = [...state.chatMessages]
+      const messages = [...state.chatMessages]
       let nextMsgId = state.nextMessageId
       const newPreparedItems = [...state.preparedItems]
       let newPlayerStats = { ...state.playerStats }

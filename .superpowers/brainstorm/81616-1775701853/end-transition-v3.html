@@ -1,0 +1,147 @@
+<h2>End Transition — Revised sequence</h2>
+<p class="subtitle">4-beat sequence: "Time's Up!" as doors close → text fades out → score card → doors open onto plain stats screen.</p>
+
+<style>
+@keyframes fadeInScale  { from{opacity:0;transform:scale(0.82)} to{opacity:1;transform:scale(1)} }
+@keyframes fadeOut      { from{opacity:1} to{opacity:0} }
+@keyframes slideUp      { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes countPop     { 0%{opacity:0;transform:scale(1.25)} 70%{transform:scale(0.96)} 100%{opacity:1;transform:scale(1)} }
+
+.scene {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  background: #171412;
+  border-radius: 10px;
+  overflow: hidden;
+  perspective: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.scene-label { font-family:monospace; font-size:11px; color:#888; margin-bottom:5px; letter-spacing:0.04em; }
+
+.stage { position:absolute; inset:0; display:flex; z-index:1; }
+
+.door { width:50%; height:100%; position:relative; backface-visibility:hidden; }
+.door-inner { position:absolute; inset:14px; border:2px solid rgba(255,255,255,0.06); border-radius:4px; pointer-events:none; }
+.door-l { background:linear-gradient(135deg,#b85a1f 0%,#8b4513 40%,#6d3410 100%); transform-origin:left center; border-right:3px solid #5a2d0e; box-shadow:inset -10px 0 30px rgba(0,0,0,0.3); }
+.door-r { background:linear-gradient(225deg,#b85a1f 0%,#8b4513 40%,#6d3410 100%); transform-origin:right center; border-left:3px solid #5a2d0e; box-shadow:inset 10px 0 30px rgba(0,0,0,0.3); }
+.door-window { position:absolute; top:22%; width:76px; height:76px; border-radius:50%; background:radial-gradient(circle,rgba(28,25,23,0.6) 0%,rgba(28,25,23,0.85) 100%); border:4px solid #a0522d; box-shadow:inset 0 0 16px rgba(0,0,0,0.5),0 0 8px rgba(0,0,0,0.3); }
+.door-l .door-window { right:26px; }
+.door-r .door-window { left:26px; }
+.door-handle { position:absolute; top:50%; transform:translateY(-50%); width:12px; height:52px; border-radius:6px; background:linear-gradient(180deg,#d4a04a,#b8860b); box-shadow:2px 2px 5px rgba(0,0,0,0.4); }
+.door-l .door-handle { right:14px; }
+.door-r .door-handle { left:14px; }
+
+/* centre text overlay */
+.centre {
+  position:absolute; z-index:10; pointer-events:none;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+
+/* Time's Up! */
+.times-up {
+  font-family:'Fredoka',Georgia,serif;
+  font-size:52px; font-weight:700; text-transform:uppercase;
+  color:#fff;
+  -webkit-text-stroke: 2px #b87333;
+  text-shadow: 3px 3px 0 #8b5a2b, 6px 6px 0 rgba(0,0,0,0.35);
+  white-space: nowrap;
+}
+
+/* Score card */
+.score-card {
+  background:#1c1814; border:2px solid #f0c850; border-radius:14px;
+  padding:16px 28px 14px;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  text-align:center;
+  box-shadow:0 0 32px rgba(0,0,0,0.75), 0 0 16px rgba(240,200,80,0.12);
+}
+.shift-label { font-family:monospace; font-size:11px; letter-spacing:0.14em; color:#b0a080; text-transform:uppercase; }
+.money-val   { font-family:'Georgia',serif; font-size:50px; font-weight:700; color:#f0c850; line-height:1; text-shadow:0 0 20px rgba(240,200,80,0.4); }
+.served-row  { display:flex; gap:10px; }
+.stat-pill   { font-family:monospace; font-size:13px; font-weight:700; padding:3px 11px; border-radius:6px; }
+.s-served { background:rgba(92,184,92,0.18); color:#5cb85c; border:1px solid rgba(92,184,92,0.35); }
+.s-lost   { background:rgba(217,79,79,0.18); color:#d94f4f; border:1px solid rgba(217,79,79,0.35); }
+
+/* timing animations per frame */
+.f1-text  { animation: fadeInScale 0.35s ease-out both; }
+.f2-text  { opacity: 0.25; }  /* fading out */
+.f3-card  { animation: fadeInScale 0.4s ease-out both; }
+.f3-money { animation: countPop 0.5s cubic-bezier(0.34,1.3,0.64,1) 0.15s both; }
+.f3-row   { animation: slideUp 0.4s ease-out 0.35s both; }
+</style>
+
+<!-- FRAME 1: Doors closing + "Time's Up!" visible -->
+<div class="scene-label">① Timer hits 0 — "Time's Up!" fades in as doors swing shut (0–0.6s)</div>
+<div class="scene">
+  <div class="stage">
+    <div class="door door-l" style="transform:rotateY(-45deg)">
+      <div class="door-inner"></div><div class="door-window"></div><div class="door-handle"></div>
+    </div>
+    <div class="door door-r" style="transform:rotateY(45deg)">
+      <div class="door-inner"></div><div class="door-window"></div><div class="door-handle"></div>
+    </div>
+  </div>
+  <div class="centre">
+    <div class="times-up f1-text">Time's Up!</div>
+  </div>
+</div>
+
+<!-- FRAME 2: Doors closed, "Time's Up!" fading out -->
+<div class="scene-label">② Doors fully closed — "Time's Up!" fades out (0.6–0.9s)</div>
+<div class="scene">
+  <div class="stage">
+    <div class="door door-l" style="transform:rotateY(0deg)">
+      <div class="door-inner"></div><div class="door-window"></div><div class="door-handle"></div>
+    </div>
+    <div class="door door-r" style="transform:rotateY(0deg)">
+      <div class="door-inner"></div><div class="door-window"></div><div class="door-handle"></div>
+    </div>
+  </div>
+  <div class="centre">
+    <div class="times-up f2-text">Time's Up!</div>
+  </div>
+</div>
+
+<!-- FRAME 3: Score card fades in -->
+<div class="scene-label">③ Score card animates in — hold ~1.5s (0.9–2.4s)</div>
+<div class="scene">
+  <div class="stage">
+    <div class="door door-l" style="transform:rotateY(0deg)">
+      <div class="door-inner"></div><div class="door-window"></div><div class="door-handle"></div>
+    </div>
+    <div class="door door-r" style="transform:rotateY(0deg)">
+      <div class="door-inner"></div><div class="door-window"></div><div class="door-handle"></div>
+    </div>
+  </div>
+  <div class="centre f3-card">
+    <div class="score-card">
+      <div class="shift-label">Shift earnings</div>
+      <div class="money-val f3-money">$420</div>
+      <div class="served-row f3-row">
+        <span class="stat-pill s-served">✓ 12 served</span>
+        <span class="stat-pill s-lost">✗ 2 lost</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FRAME 4: Doors opening onto plain stats screen -->
+<div class="scene-label">④ Doors swing open — plain GameOver stats screen (2.4–3.0s)</div>
+<div class="scene" style="margin-bottom:0;">
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;z-index:0;">
+    <div style="font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#f0c850;">Time's Up!</div>
+    <div style="font-family:monospace;font-size:11px;color:#666;">[ full GameOver stats screen ]</div>
+  </div>
+  <div class="stage">
+    <div class="door door-l" style="transform:rotateY(-80deg);opacity:0.85;">
+      <div class="door-inner"></div><div class="door-window"></div><div class="door-handle"></div>
+    </div>
+    <div class="door door-r" style="transform:rotateY(80deg);opacity:0.85;">
+      <div class="door-inner"></div><div class="door-window"></div><div class="door-handle"></div>
+    </div>
+  </div>
+</div>

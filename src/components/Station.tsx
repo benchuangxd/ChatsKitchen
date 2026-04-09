@@ -16,56 +16,71 @@ function SlotRow({ slot, stationId }: { slot: StationSlot; stationId: string }) 
 
   const nameColor = NAME_COLORS[Math.abs(hashStr(slot.user)) % NAME_COLORS.length]
 
+  // ── On fire ──────────────────────────────────────────────────────────────
   if (slot.state === 'onFire') {
     return (
-      <div className={`${styles.slot} ${styles.slotOnFire}`}>
-        <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
-        <span className={styles.slotItem}>{slot.target.replace(/_/g, ' ')}</span>
-        <span className={styles.slotFireLabel}>🔥 !extinguish {stationId.replace(/_/g, ' ')}</span>
+      <div className={styles.slot}>
+        <div className={styles.fireBar}>
+          <div className={styles.barText}>
+            <span className={styles.barUser} style={{ color: nameColor }}>{slot.user}</span>
+            <span className={styles.barItem}>🔥 !extinguish {stationId.replace(/_/g, ' ')}</span>
+          </div>
+        </div>
       </div>
     )
   }
 
+  // ── Done (take it!) ───────────────────────────────────────────────────────
   if (slot.state === 'done') {
     const burnWindow = slot.burnAt - slot.cookDuration
     const burnElapsed = Math.max(0, elapsed - slot.cookDuration)
-    const burnProgress = slot.burnAt > 0 && slot.burnAt < Infinity && burnWindow > 0
+    const burnProgress = slot.burnAt < Infinity && burnWindow > 0
       ? Math.min(1, burnElapsed / burnWindow)
       : 0
-    const burnBarColor = burnProgress > 0.75 ? '#d94f4f' : burnProgress > 0.4 ? '#e8943a' : '#f0c850'
+    const isDanger = burnProgress >= 0.5
 
     return (
-      <div className={`${styles.slot} ${styles.slotDone}`}>
-        <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
-        <span className={styles.slotItem}>{slot.target.replace(/_/g, ' ')}</span>
-        <span className={styles.slotDoneLabel}>DONE</span>
-        {burnProgress > 0 && (
-          <>
-            <span className={styles.burnLabel}>BURN</span>
-            <div className={styles.progressBg}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${Math.floor(burnProgress * 100)}%`, background: burnBarColor }}
-              />
-            </div>
-          </>
-        )}
+      <div className={`${styles.slot} ${isDanger ? styles.slotDanger : styles.slotDone}`}>
+        <div className={styles.slotBar}>
+          <div className={styles.barBg} />
+          <div
+            className={styles.barFill}
+            style={{ width: '100%', background: isDanger ? 'rgba(217,79,79,0.55)' : 'rgba(240,200,80,0.38)' }}
+          />
+          <div className={styles.barText}>
+            <span className={styles.barUser} style={{ color: nameColor }}>{slot.user}</span>
+            <span className={styles.barItem}>{slot.target.replace(/_/g, ' ')}</span>
+            <span className={styles.barRight} style={{ color: isDanger ? '#ff8080' : '#f0c850' }}>
+              {isDanger ? '⚠ TAKE IT!' : '✓ DONE'}
+            </span>
+          </div>
+        </div>
       </div>
     )
   }
 
-  // cooking slot — color bar based on burn proximity
-  const barColor = burnRatio > 0.85 ? '#d94f4f' : burnRatio > 0.65 ? '#e8943a' : '#5cb85c'
+  // ── Cooking ───────────────────────────────────────────────────────────────
+  const barColor = burnRatio > 0.85
+    ? 'rgba(217,79,79,0.55)'
+    : burnRatio > 0.65
+      ? 'rgba(232,148,58,0.55)'
+      : 'rgba(92,184,92,0.42)'
 
   return (
     <div className={styles.slot}>
-      <span className={styles.slotUser} style={{ color: nameColor }}>{slot.user}</span>
-      <span className={styles.slotItem}>{slot.target.replace(/_/g, ' ')}</span>
-      <div className={styles.progressBg}>
+      <div className={styles.slotBar}>
+        <div className={styles.barBg} />
         <div
-          className={styles.progressFill}
+          className={styles.barFill}
           style={{ width: `${Math.floor(progress * 100)}%`, background: barColor }}
         />
+        <div className={styles.barText}>
+          <span className={styles.barUser} style={{ color: nameColor }}>{slot.user}</span>
+          <span className={styles.barItem}>{slot.target.replace(/_/g, ' ')}</span>
+          <span className={styles.barRight} style={{ color: 'rgba(255,255,255,0.55)' }}>
+            {Math.floor(progress * 100)}%
+          </span>
+        </div>
       </div>
     </div>
   )

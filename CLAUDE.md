@@ -268,3 +268,4 @@ When implementing a new feature of similar scope, create a plan document in this
 ## Workflow
 
 1. Always create a new git branch, do not work on main directly.
+2. Every time we plan, use the superpowers skill.

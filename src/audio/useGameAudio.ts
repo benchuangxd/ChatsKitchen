@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { GameState, AudioSettings } from '../state/types'
 import { getAudioManager } from './AudioManager'
 
-type Screen = 'menu' | 'levelselect' | 'options' | 'twitch' | 'countdown' | 'playing' | 'gameover'
+type Screen = 'menu' | 'levelselect' | 'options' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
 
 export function useGameAudio(screen: Screen, state: GameState, audioSettings: AudioSettings) {
   const audio = getAudioManager()
@@ -24,7 +24,6 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
       case 'menu':
       case 'levelselect':
       case 'options':
-      case 'twitch':
         if (trackEnabled.menu) audio.playMusic('menu')
         else audio.stopMusic()
         break
@@ -44,11 +43,13 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
         prevOrderCount.current = state.orders.filter(o => !o.served).length
         prevMsgCount.current = state.chatMessages.length
         break
+      case 'shiftend':
+        audio.stopMusic()
+        audio.playSfx('round-over')
+        break
       case 'gameover':
         audio.stopAllSfx()
-        audio.stopMusic()
         if (trackEnabled.gameover) audio.playMusic('gameover')
-        audio.playSfx('round-over')
         break
     }
   }, [screen, audio, trackEnabled.menu, trackEnabled.gameplay, trackEnabled.gameover])

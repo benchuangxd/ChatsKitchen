@@ -1,0 +1,332 @@
+<h2>Station Slot States — All three in Option C style</h2>
+<p class="subtitle">One station showing cooking → done+burn timer → on fire. How should each state look?</p>
+
+<style>
+  @keyframes fireFlash {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.65; }
+  }
+  @keyframes burnPulse {
+    0%,100% { box-shadow: 0 0 0px rgba(240,200,80,0); }
+    50%      { box-shadow: 0 0 10px rgba(240,200,80,0.55); }
+  }
+  @keyframes firePulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.7; }
+  }
+
+  .station-mock {
+    background: #1e1a17;
+    border-radius: 10px;
+    padding: 12px 14px;
+    width: 320px;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .station-label {
+    font-family: 'Georgia', serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .station-label .cap { font-size: 12px; color: #888; font-family: monospace; font-weight: normal; }
+
+  /* ── Shared slot shell ── */
+  .slot-c {
+    margin-bottom: 6px;
+    border-radius: 7px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ─── STATE 1: COOKING ─── */
+  .slot-cooking .bar-bg {
+    height: 28px;
+    background: rgba(0,0,0,0.45);
+    position: relative;
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .slot-cooking .bar-fill {
+    height: 100%;
+    position: absolute;
+    left: 0; top: 0;
+    border-radius: 7px;
+  }
+  .slot-cooking .bar-text {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    display: flex; align-items: center;
+    padding: 0 10px; gap: 8px; z-index: 2;
+  }
+  .user-label {
+    font-family: monospace; font-size: 13px; font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 95px; flex-shrink: 0;
+  }
+  .item-label {
+    font-family: monospace; font-size: 12px; color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: 0.9;
+  }
+  .pct-label {
+    font-family: monospace; font-size: 11px;
+    color: rgba(255,255,255,0.75);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    flex-shrink: 0;
+  }
+
+  /* ─── STATE 2: DONE + BURN TIMER ─── */
+  .slot-done .outer-bar {
+    border-radius: 7px;
+    background: rgba(0,0,0,0.45);
+    overflow: hidden;
+    animation: burnPulse 1.4s ease-in-out infinite;
+  }
+  /* Top row: DONE banner */
+  .slot-done .done-row {
+    height: 18px;
+    background: rgba(92, 184, 92, 0.25);
+    display: flex; align-items: center;
+    padding: 0 10px; gap: 8px;
+  }
+  .slot-done .done-tag {
+    font-family: monospace; font-size: 10px; font-weight: 700;
+    color: #5cb85c; letter-spacing: 0.08em; flex-shrink: 0;
+    text-shadow: 0 0 6px rgba(92,184,92,0.6);
+  }
+  .slot-done .done-user {
+    font-family: monospace; font-size: 11px; font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex-shrink: 0; max-width: 90px;
+  }
+  .slot-done .done-item {
+    font-family: monospace; font-size: 11px; color: #f0c850;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* Bottom row: burn countdown bar */
+  .slot-done .burn-row {
+    height: 12px;
+    background: rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .slot-done .burn-fill {
+    height: 100%;
+    position: absolute; left: 0; top: 0;
+  }
+  .slot-done .burn-text {
+    position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 6px; z-index: 2;
+    font-family: monospace; font-size: 9px; font-weight: 700;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── STATE 3: ON FIRE ─── */
+  .slot-fire .fire-bar {
+    height: 28px;
+    background: linear-gradient(90deg,
+      rgba(217,79,79,0.9) 0%,
+      rgba(232,148,58,0.85) 50%,
+      rgba(217,79,79,0.9) 100%);
+    background-size: 200% 100%;
+    border-radius: 7px;
+    position: relative;
+    overflow: hidden;
+    animation: firePulse 0.5s ease-in-out infinite;
+  }
+  .slot-fire .fire-text {
+    position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+    display: flex; align-items: center;
+    padding: 0 10px; gap: 8px; z-index: 2;
+  }
+  .slot-fire .fire-user {
+    font-family: monospace; font-size: 13px; font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 90px; flex-shrink: 0;
+  }
+  .slot-fire .fire-cmd {
+    font-family: monospace; font-size: 12px;
+    color: #fff; font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* section headers */
+  .state-header {
+    font-family: monospace; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; color: #888; text-transform: uppercase;
+    margin: 14px 0 5px; padding-bottom: 3px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .state-header:first-child { margin-top: 0; }
+</style>
+
+<div style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center; align-items:flex-start;">
+
+  <!-- Left: full station showing all states mixed in -->
+  <div>
+    <div class="label" style="margin-bottom:10px; text-align:center;">Full station — all 3 states together</div>
+    <div class="station-mock" style="border: 2px solid #e06840;">
+      <div class="station-label">🔥 Grill <span class="cap">6 / ∞</span></div>
+
+      <!-- Cooking slots -->
+      <div class="slot-c slot-cooking">
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:72%;background:rgba(92,184,92,0.38)"></div>
+          <div class="bar-text">
+            <span class="user-label" style="color:#e07050">StreamerKing</span>
+            <span class="item-label">grilled patty</span>
+            <span class="pct-label">72%</span>
+          </div>
+        </div>
+      </div>
+      <div class="slot-c slot-cooking">
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:38%;background:rgba(92,184,92,0.38)"></div>
+          <div class="bar-text">
+            <span class="user-label" style="color:#5a9ab0">NightOwlTV</span>
+            <span class="item-label">grilled cheese</span>
+            <span class="pct-label">38%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Done + burn timer slots -->
+      <div class="slot-c slot-done">
+        <div class="outer-bar">
+          <div class="done-row">
+            <span class="done-tag">✓ DONE</span>
+            <span class="done-user" style="color:#d4a840">CookMaster99</span>
+            <span class="done-item">grilled patty</span>
+          </div>
+          <div class="burn-row">
+            <div class="burn-fill" style="width:68%;background:rgba(240,200,80,0.55)"></div>
+            <div class="burn-text">BURNS IN 8s</div>
+          </div>
+        </div>
+      </div>
+      <div class="slot-c slot-done">
+        <div class="outer-bar">
+          <div class="done-row">
+            <span class="done-tag">✓ DONE</span>
+            <span class="done-user" style="color:#c86080">PixelChef</span>
+            <span class="done-item">grilled cheese</span>
+          </div>
+          <div class="burn-row">
+            <div class="burn-fill" style="width:22%;background:rgba(217,79,79,0.65)"></div>
+            <div class="burn-text" style="color:#ff9090">BURNS IN 2s</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- On fire slots -->
+      <div class="slot-c slot-fire">
+        <div class="fire-bar">
+          <div class="fire-text">
+            <span class="fire-user" style="color:#ffddaa">VodkaSoda</span>
+            <span class="fire-cmd">🔥 !extinguish grill</span>
+          </div>
+        </div>
+      </div>
+      <div class="slot-c slot-fire">
+        <div class="fire-bar">
+          <div class="fire-text">
+            <span class="fire-user" style="color:#ffddaa">TacoLord</span>
+            <span class="fire-cmd">🔥 !extinguish grill</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: close-up of each state with annotations -->
+  <div style="min-width:280px;">
+    <div class="label" style="margin-bottom:10px; text-align:center;">State close-ups</div>
+    <div class="station-mock">
+
+      <div class="state-header">① Cooking — progress fills green → orange → red</div>
+      <div class="slot-c slot-cooking">
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:55%;background:rgba(92,184,92,0.38)"></div>
+          <div class="bar-text">
+            <span class="user-label" style="color:#e07050">StreamerKing</span>
+            <span class="item-label">grilled patty</span>
+            <span class="pct-label">55%</span>
+          </div>
+        </div>
+      </div>
+      <div class="slot-c slot-cooking">
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:88%;background:rgba(232,148,58,0.55)"></div>
+          <div class="bar-text">
+            <span class="user-label" style="color:#5a9ab0">NightOwlTV</span>
+            <span class="item-label">grilled cheese</span>
+            <span class="pct-label">88%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="state-header">② Done — take it! Burn bar drains below</div>
+      <div class="slot-c slot-done">
+        <div class="outer-bar">
+          <div class="done-row">
+            <span class="done-tag">✓ DONE</span>
+            <span class="done-user" style="color:#d4a840">CookMaster99</span>
+            <span class="done-item">grilled patty</span>
+          </div>
+          <div class="burn-row">
+            <div class="burn-fill" style="width:68%;background:rgba(240,200,80,0.55)"></div>
+            <div class="burn-text">BURNS IN 8s</div>
+          </div>
+        </div>
+      </div>
+      <div class="slot-c slot-done">
+        <div class="outer-bar">
+          <div class="done-row">
+            <span class="done-tag">✓ DONE</span>
+            <span class="done-user" style="color:#c86080">PixelChef</span>
+            <span class="done-item">grilled cheese</span>
+          </div>
+          <div class="burn-row">
+            <div class="burn-fill" style="width:20%;background:rgba(217,79,79,0.7)"></div>
+            <div class="burn-text" style="color:#ff9090">BURNS IN 2s</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="state-header">③ On Fire — pulsing red, shows !extinguish cmd</div>
+      <div class="slot-c slot-fire">
+        <div class="fire-bar">
+          <div class="fire-text">
+            <span class="fire-user" style="color:#ffddaa">VodkaSoda</span>
+            <span class="fire-cmd">🔥 !extinguish grill</span>
+          </div>
+        </div>
+      </div>
+      <div class="slot-c slot-fire">
+        <div class="fire-bar">
+          <div class="fire-text">
+            <span class="fire-user" style="color:#ffddaa">TacoLord</span>
+            <span class="fire-cmd">🔥 !extinguish grill</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
