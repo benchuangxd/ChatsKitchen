@@ -11,7 +11,7 @@
 
 .modal {
   width: min(760px, 100%);
-  max-height: min(88vh, 900px);
+  max-height: calc(100% - 48px);
   overflow: hidden;
   background: linear-gradient(180deg, var(--surface-2) 0%, var(--bg) 100%);
   border: 2px solid #b87333;

@@ -1,28 +1,42 @@
 .screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 520px 1fr;
   height: 100%;
   background: var(--bg);
+  overflow: hidden;
   box-sizing: border-box;
-  padding: 24px 24px 0;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px 24px 24px 48px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px 48px 24px 16px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .backBtn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
+  align-self: flex-start;
   border: none;
   border-radius: 10px;
-  padding: 12px 28px;
+  padding: 8px 20px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   background: #b87333;
   color: #fff;
   cursor: pointer;
   transition: transform 0.1s, filter 0.1s;
-  z-index: 10;
 }
 
 .backBtn:hover {
@@ -34,19 +48,12 @@
   font-family: 'Lilita One', cursive;
   font-size: 36px;
   color: #b87333;
-  margin: 0 0 20px;
+  margin: 0;
 }
 
+/* legacy — kept for compatibility but no longer used as scroll container */
 .content {
-  flex: 1;
-  overflow-y: auto;
-  width: 100%;
-  max-width: 560px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding-bottom: 16px;
-  min-height: 0;
+  display: contents;
 }
 
 /* ── Cards ── */
@@ -320,10 +327,9 @@
 /* ── Footer / CTA ── */
 
 .footer {
+  margin-top: auto;
   width: 100%;
-  max-width: 560px;
-  padding: 16px 0 24px;
-  flex-shrink: 0;
+  padding-top: 8px;
 }
 
 .startBtn {
