@@ -173,6 +173,84 @@
   margin-top: 10px;
 }
 
+/* ── Slider Field ── */
+
+.sliderField {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.slider {
+  flex: 1;
+  max-width: 180px;
+  min-width: 80px;
+  height: 6px;
+  accent-color: #b87333;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--border);
+  border-radius: 3px;
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #b87333;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #b87333;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.numInput {
+  width: 72px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.numInput:focus {
+  border-color: #b87333;
+}
+
+.inputSuffix {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  min-width: 20px;
+}
+
 /* ── More Options ── */
 
 .moreToggle {
@@ -218,7 +296,7 @@
 .setSectionHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   margin-bottom: 10px;
 }
 

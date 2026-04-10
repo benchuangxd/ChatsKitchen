@@ -30,7 +30,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   cookingSpeed: 1,
   orderSpeed: 1,
   orderSpawnRate: 1,
-  shiftDuration: 120000,
+  shiftDuration: 180000,
   stationCapacity: { chopping: 3, cooking: 2 },
   restrictSlots: false,
   enabledRecipes: ['burger', 'fish_burger', 'mushroom_soup', 'roasted_veggies'],

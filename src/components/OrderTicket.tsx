@@ -7,7 +7,7 @@ interface Props {
   orderNumber: number
 }
 
-const STRIP_PREFIX = /^(chopped|grilled|fried|boiled|roasted)_/
+const STRIP_PREFIX = /^(chopped|grilled|fried|boiled|roasted|toasted|sliced|steamed|wok|simmered|cooked|stir_fried)_/
 
 export default function OrderTicket({ order, orderNumber }: Props) {
   const recipe = RECIPES[order.dish]
@@ -34,7 +34,7 @@ export default function OrderTicket({ order, orderNumber }: Props) {
               <div key={i} className={styles.ingredientTile}>
                 <span className={styles.ingredientEmoji}>{INGREDIENT_EMOJI[item] || '?'}</span>
                 <span className={styles.ingredientName}>
-                  {item.replace(STRIP_PREFIX, '')}
+                  {item.replace(STRIP_PREFIX, '').replace(/_/g, ' ')}
                 </span>
               </div>
             ))}
