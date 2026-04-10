@@ -15,7 +15,7 @@ export default function LevelSelect({ progress, onSelectLevel, onBack, twitchCha
     <div className={styles.screen}>
       <div className={styles.leftCol}>
         <button className={styles.backBtn} onClick={onBack}>{'\u{2190}'} Back</button>
-        <h1 className={styles.title}>Select Level</h1>
+        <h1 className={styles.title}>Adventures</h1>
         <div className={styles.subtitle}>PROGRESS will disappear / be deleted, take a screenshot to flex your achievements if you would like :D</div>
         {twitchConnected && twitchChannel && (
           <div className={styles.twitchStatus}>
