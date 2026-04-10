@@ -242,7 +242,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state: 'cooking',
       }
 
-      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted' }
+      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted', stir: 'stir-fried', steam: 'steamed', simmer: 'simmered', cook: 'cooked' }
 
       if (matchedStep.duration === 0) {
         const withStat = addStat(afterRequire, user, 'cooked', 1)

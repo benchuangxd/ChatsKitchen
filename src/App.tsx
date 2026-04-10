@@ -33,7 +33,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   shiftDuration: 120000,
   stationCapacity: { chopping: 3, cooking: 2 },
   restrictSlots: false,
-  enabledRecipes: ['burger', 'fries', 'pasta', 'mushroom_soup'],
+  enabledRecipes: ['burger', 'fish_burger', 'mushroom_soup', 'roasted_veggies'],
   allowShortformCommands: true
 }
 

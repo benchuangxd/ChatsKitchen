@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { GameOptions } from '../state/types'
-import { RECIPES } from '../data/recipes'
+import { RECIPES, RECIPE_SETS } from '../data/recipes'
 import styles from './FreePlaySetup.module.css'
 
 interface Props {
@@ -20,6 +20,7 @@ const DURATION_PRESETS = [
 
 export default function FreePlaySetup({ options, onChange, onStart, onBack }: Props) {
   const [moreOpen, setMoreOpen] = useState(false)
+  const [startWarning, setStartWarning] = useState(false)
 
   return (
     <div className={styles.screen}>
@@ -148,36 +149,96 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
       </div>
 
       <div className={styles.rightCol}>
-        <div className={styles.card}>
-          <div className={styles.cardLabel}>🍽️ Recipes</div>
-          <div className={styles.recipeGrid}>
-            {Object.entries(RECIPES).map(([key, recipe]) => {
-              const isEnabled = options.enabledRecipes.includes(key)
-              const isLast = options.enabledRecipes.length === 1 && isEnabled
-              return (
-                <button
-                  key={key}
-                  className={`${styles.recipeBtn} ${isEnabled ? styles.active : ''}`}
-                  disabled={isLast}
-                  onClick={() => {
-                    const next = isEnabled
-                      ? options.enabledRecipes.filter(r => r !== key)
-                      : [...options.enabledRecipes, key]
-                    onChange({ ...options, enabledRecipes: next })
-                  }}
-                >
-                  <span className={styles.recipeEmoji}>{recipe.emoji}</span>
-                  <span className={styles.recipeName}>{recipe.name}</span>
-                  <span className={styles.recipeReward}>${recipe.reward}</span>
-                </button>
-              )
-            })}
-          </div>
-          <div className={styles.hint}>Only selected recipes will appear as orders</div>
+        <div className={styles.cardLabel}>🍽️ Recipes</div>
+
+        <div className={styles.recipeScroll}>
+        {(() => {
+          const allSetKeys = new Set(RECIPE_SETS.flatMap(s => s.recipeKeys))
+          const orphanKeys = Object.keys(RECIPES).filter(k => !allSetKeys.has(k))
+
+          const renderRecipeBtn = (key: string) => {
+            const recipe = RECIPES[key]
+            if (!recipe) return null
+            const isEnabled = options.enabledRecipes.includes(key)
+            return (
+              <button
+                key={key}
+                className={`${styles.recipeBtn} ${isEnabled ? styles.active : ''}`}
+                onClick={() => {
+                  const next = isEnabled
+                    ? options.enabledRecipes.filter(r => r !== key)
+                    : [...options.enabledRecipes, key]
+                  onChange({ ...options, enabledRecipes: next })
+                }}
+              >
+                <span className={styles.recipeEmoji}>{recipe.emoji}</span>
+                <span className={styles.recipeName}>{recipe.name}</span>
+                <span className={styles.recipeReward}>${recipe.reward}</span>
+              </button>
+            )
+          }
+
+          const renderSection = (label: string, flag: string | null, keys: string[]) => {
+            const validKeys = keys.filter(k => RECIPES[k])
+            if (validKeys.length === 0) return null
+            const enabledCount = validKeys.filter(k => options.enabledRecipes.includes(k)).length
+            const allOn = enabledCount === validKeys.length
+            const toggleAll = () => {
+              if (allOn) {
+                const next = options.enabledRecipes.filter(k => !validKeys.includes(k))
+                onChange({ ...options, enabledRecipes: next })
+              } else {
+                const next = [...new Set([...options.enabledRecipes, ...validKeys])]
+                onChange({ ...options, enabledRecipes: next })
+              }
+            }
+            return (
+              <div key={label} className={styles.setSection}>
+                <div className={styles.setSectionHeader}>
+                  <span className={styles.setSectionLabel}>
+                    {flag && <span className={styles.setSectionFlag}>{flag}</span>}
+                    {label}
+                  </span>
+                  <button
+                    className={`${styles.setSectionToggle} ${allOn ? styles.setSectionToggleOn : ''}`}
+                    onClick={toggleAll}
+                  >
+                    {allOn ? '✓ All' : `${enabledCount}/${validKeys.length}`}
+                  </button>
+                </div>
+                <div className={styles.recipeGrid}>
+                  {validKeys.map(renderRecipeBtn)}
+                </div>
+              </div>
+            )
+          }
+
+          return (
+            <>
+              {RECIPE_SETS.map(set => renderSection(set.name, set.flag, set.recipeKeys))}
+              {renderSection('Others', null, orphanKeys)}
+            </>
+          )
+        })()}
+
+        <div className={styles.hint}>Only selected recipes will appear as orders</div>
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.startBtn} onClick={onStart}>
+          <div className={styles.startWarning} style={{ visibility: startWarning ? 'visible' : 'hidden' }}>
+            Select at least one recipe to start.
+          </div>
+          <button
+            className={styles.startBtn}
+            onClick={() => {
+              if (options.enabledRecipes.length === 0) {
+                setStartWarning(true)
+              } else {
+                setStartWarning(false)
+                onStart()
+              }
+            }}
+          >
             ▶ Start Shift!
           </button>
         </div>

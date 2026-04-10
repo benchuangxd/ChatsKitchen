@@ -24,68 +24,187 @@ export interface StationDef {
   actions: string[]
 }
 
+import { RecipeSet } from '../state/types'
+
 export const RECIPES: Record<string, Recipe> = {
   burger: {
-    name: 'Burger', emoji: '\u{1F354}', reward: 60, patience: 80000,
+    name: 'Burger', emoji: '\u{1F354}', reward: 65, patience: 80000,
     steps: [
-      { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
-      { action: 'grill', target: 'patty', station: 'grill', duration: 9000, burnAt: 25000, produces: 'grilled_patty' },
-      { action: 'grill', target: 'bun', station: 'grill', duration: 8000, burnAt: 25000, produces: 'grilled_bun' },
+      { action: 'chop',  target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
+      { action: 'grill', target: 'patty',   station: 'grill',         duration: 9000, burnAt: 25000, produces: 'grilled_patty' },
+      { action: 'toast', target: 'bun',     station: 'oven',          duration: 7000, burnAt: 22000, produces: 'toasted_bun' },
     ],
-    plate: ['chopped_lettuce', 'grilled_patty', 'grilled_bun']
+    plate: ['chopped_lettuce', 'grilled_patty', 'toasted_bun']
   },
   fries: {
-    name: 'Fries', emoji: '\u{1F35F}', reward: 50, patience: 60000,
+    name: 'Fries', emoji: '\u{1F35F}', reward: 40, patience: 55000,
     steps: [
       { action: 'chop', target: 'potato', station: 'cutting_board', duration: 7000, produces: 'chopped_potato' },
-      { action: 'fry', target: 'potato', station: 'fryer', duration: 9000, burnAt: 25000, produces: 'fried_potato', requires: 'chopped_potato' },
+      { action: 'fry',  target: 'potato', station: 'fryer',         duration: 9000, burnAt: 25000, produces: 'fried_potato', requires: 'chopped_potato' },
     ],
     plate: ['fried_potato']
   },
   pasta: {
-    name: 'Pasta', emoji: '\u{1F35D}', reward: 60, patience: 90000,
+    name: 'Hot Dog', emoji: '\u{1F32D}', reward: 45, patience: 55000,
     steps: [
-      { action: 'boil', target: 'pasta', station: 'stove', duration: 10000, burnAt: 25000, produces: 'boiled_pasta' },
-      { action: 'chop', target: 'tomato', station: 'cutting_board', duration: 7000, produces: 'chopped_tomato' },
-      { action: 'grill', target: 'cheese', station: 'grill', duration: 7000, burnAt: 25000, produces: 'grilled_cheese' },
+      { action: 'grill', target: 'sausage', station: 'grill',         duration: 8000, burnAt: 23000, produces: 'grilled_sausage' },
+      { action: 'chop',  target: 'onion',   station: 'cutting_board', duration: 6000, produces: 'chopped_onion' },
+      { action: 'toast', target: 'bun',     station: 'oven',          duration: 7000, burnAt: 22000, produces: 'toasted_bun' },
     ],
-    plate: ['boiled_pasta', 'chopped_tomato', 'grilled_cheese']
+    plate: ['grilled_sausage', 'chopped_onion', 'toasted_bun']
   },
   salad: {
-    name: 'Salad', emoji: '\u{1F957}', reward: 20, patience: 45000,
+    name: 'Caesar Salad', emoji: '\u{1F957}', reward: 35, patience: 50000,
     steps: [
-      { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
-      { action: 'chop', target: 'tomato', station: 'cutting_board', duration: 7000, produces: 'chopped_tomato' },
+      { action: 'chop',  target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
+      { action: 'chop',  target: 'tomato',  station: 'cutting_board', duration: 7000, produces: 'chopped_tomato' },
+      { action: 'toast', target: 'crouton', station: 'oven',          duration: 6000, burnAt: 20000, produces: 'toasted_crouton' },
     ],
-    plate: ['chopped_lettuce', 'chopped_tomato']
+    plate: ['chopped_lettuce', 'chopped_tomato', 'toasted_crouton']
   },
   mushroom_soup: {
-    name: 'Mushroom Soup', emoji: '\u{1F372}', reward: 50, patience: 60000,
+    name: 'Grilled Cheese', emoji: '\u{1F9C0}', reward: 40, patience: 55000,
     steps: [
-      { action: 'chop', target: 'mushroom', station: 'cutting_board', duration: 7000, produces: 'chopped_mushroom' },
-      { action: 'boil', target: 'mushroom', station: 'stove', duration: 10000, burnAt: 25000, produces: 'boiled_mushroom', requires: 'chopped_mushroom' },
+      { action: 'grill', target: 'cheese', station: 'grill', duration: 7000, burnAt: 22000, produces: 'grilled_cheese' },
+      { action: 'toast', target: 'bread',  station: 'oven',  duration: 6000, burnAt: 20000, produces: 'toasted_bread' },
     ],
-    plate: ['boiled_mushroom']
+    plate: ['grilled_cheese', 'toasted_bread']
   },
   fish_burger: {
-    name: 'Fish Burger', emoji: '\u{1F354}', reward: 60, patience: 80000,
+    name: 'Fish & Chips', emoji: '\u{1F41F}', reward: 60, patience: 75000,
     steps: [
-      { action: 'fry', target: 'fish', station: 'fryer', duration: 10000, burnAt: 25000, produces: 'fried_fish' },
-      { action: 'chop', target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
-      { action: 'grill', target: 'bun', station: 'grill', duration: 7000, burnAt: 25000, produces: 'grilled_bun' },
+      { action: 'fry',  target: 'fish',   station: 'fryer',         duration: 10000, burnAt: 25000, produces: 'fried_fish' },
+      { action: 'chop', target: 'potato', station: 'cutting_board', duration: 7000,  produces: 'chopped_potato' },
+      { action: 'fry',  target: 'potato', station: 'fryer',         duration: 9000,  burnAt: 25000, produces: 'fried_potato', requires: 'chopped_potato' },
     ],
-    plate: ['fried_fish', 'chopped_lettuce', 'grilled_bun']
+    plate: ['fried_fish', 'fried_potato']
   },
   roasted_veggies: {
-    name: 'Roasted Veggies', emoji: '\u{1FAD1}', reward: 70, patience: 90000,
+    name: 'Roasted Veggies', emoji: '\u{1FAD1}', reward: 55, patience: 75000,
     steps: [
-      { action: 'chop', target: 'tomato', station: 'cutting_board', duration: 7000, produces: 'chopped_tomato' },
-      { action: 'chop', target: 'pepper', station: 'cutting_board', duration: 7000, produces: 'chopped_pepper' },
-      { action: 'roast', target: 'tomato', station: 'oven', duration: 10000, burnAt: 28000, produces: 'roasted_tomato', requires: 'chopped_tomato' },
-      { action: 'roast', target: 'pepper', station: 'oven', duration: 10000, burnAt: 28000, produces: 'roasted_pepper', requires: 'chopped_pepper' },
+      { action: 'chop',  target: 'tomato', station: 'cutting_board', duration: 7000,  produces: 'chopped_tomato' },
+      { action: 'chop',  target: 'pepper', station: 'cutting_board', duration: 7000,  produces: 'chopped_pepper' },
+      { action: 'roast', target: 'pepper', station: 'oven',          duration: 10000, burnAt: 28000, produces: 'roasted_pepper', requires: 'chopped_pepper' },
     ],
-    plate: ['roasted_tomato', 'roasted_pepper']
-  }
+    plate: ['roasted_pepper', 'chopped_tomato']
+  },
+
+  // ── Chinese Kitchen ───────────────────────────────────────────────────────
+
+  fried_rice: {
+    name: 'Fried Rice', emoji: '\u{1F373}', reward: 55, patience: 75000,
+    steps: [
+      { action: 'cook',  target: 'rice',         station: 'rice_pot',      duration: 10000, burnAt: 28000, produces: 'cooked_rice' },
+      { action: 'chop',  target: 'spring_onion',  station: 'cutting_board', duration: 6000,  produces: 'sliced_spring_onion' },
+      { action: 'stir',  target: 'rice',          station: 'wok',           duration: 8000,  burnAt: 22000, produces: 'stir_fried_rice', requires: 'cooked_rice' },
+    ],
+    plate: ['stir_fried_rice', 'sliced_spring_onion']
+  },
+  stir_fried_pork: {
+    name: 'Stir-Fried Pork', emoji: '\u{1F962}', reward: 65, patience: 80000,
+    steps: [
+      { action: 'chop', target: 'pork',    station: 'cutting_board', duration: 7000, produces: 'sliced_pork' },
+      { action: 'chop', target: 'cabbage', station: 'cutting_board', duration: 6000, produces: 'sliced_cabbage' },
+      { action: 'stir', target: 'pork',    station: 'wok',           duration: 9000, burnAt: 24000, produces: 'wok_pork', requires: 'sliced_pork' },
+    ],
+    plate: ['wok_pork', 'sliced_cabbage']
+  },
+  steamed_tofu: {
+    name: 'Steamed Tofu', emoji: '\u{1FAD9}', reward: 45, patience: 65000,
+    steps: [
+      { action: 'chop',  target: 'tofu',        station: 'cutting_board', duration: 6000, produces: 'sliced_tofu' },
+      { action: 'chop',  target: 'spring_onion', station: 'cutting_board', duration: 6000, produces: 'sliced_spring_onion' },
+      { action: 'steam', target: 'tofu',         station: 'steamer',       duration: 9000, burnAt: 30000, produces: 'steamed_tofu_block', requires: 'sliced_tofu' },
+    ],
+    plate: ['steamed_tofu_block', 'sliced_spring_onion']
+  },
+  steamed_buns: {
+    name: 'Steamed Buns', emoji: '\u{1F95F}', reward: 55, patience: 70000,
+    steps: [
+      { action: 'chop',  target: 'pork', station: 'cutting_board', duration: 7000,  produces: 'sliced_pork' },
+      { action: 'stir',  target: 'pork', station: 'wok',           duration: 8000,  burnAt: 22000, produces: 'wok_pork', requires: 'sliced_pork' },
+      { action: 'steam', target: 'bun',  station: 'steamer',       duration: 11000, burnAt: 32000, produces: 'steamed_bun' },
+    ],
+    plate: ['steamed_bun', 'wok_pork']
+  },
+
+  // ── Korean Kitchen ────────────────────────────────────────────────────────
+
+  bulgogi: {
+    name: 'Bulgogi', emoji: '\u{1F969}', reward: 70, patience: 85000,
+    steps: [
+      { action: 'chop',  target: 'beef',        station: 'cutting_board', duration: 7000,  produces: 'sliced_beef' },
+      { action: 'chop',  target: 'spring_onion', station: 'cutting_board', duration: 6000,  produces: 'sliced_spring_onion' },
+      { action: 'grill', target: 'beef',         station: 'grill',         duration: 10000, burnAt: 26000, produces: 'grilled_beef', requires: 'sliced_beef' },
+    ],
+    plate: ['grilled_beef', 'sliced_spring_onion']
+  },
+  kimchi_jjigae: {
+    name: 'Kimchi Jjigae', emoji: '\u{1F32D}', reward: 65, patience: 80000,
+    steps: [
+      { action: 'chop',   target: 'kimchi', station: 'cutting_board', duration: 6000,  produces: 'sliced_kimchi' },
+      { action: 'chop',   target: 'tofu',   station: 'cutting_board', duration: 6000,  produces: 'sliced_tofu' },
+      { action: 'simmer', target: 'kimchi', station: 'stone_pot',     duration: 11000, burnAt: 30000, produces: 'simmered_kimchi', requires: 'sliced_kimchi' },
+    ],
+    plate: ['simmered_kimchi', 'sliced_tofu']
+  },
+  doenjang_jjigae: {
+    name: 'Doenjang Jjigae', emoji: '\u{1F375}', reward: 60, patience: 75000,
+    steps: [
+      { action: 'chop',   target: 'zucchini', station: 'cutting_board', duration: 6000,  produces: 'sliced_zucchini' },
+      { action: 'chop',   target: 'tofu',     station: 'cutting_board', duration: 6000,  produces: 'sliced_tofu' },
+      { action: 'simmer', target: 'zucchini', station: 'stone_pot',     duration: 10000, burnAt: 28000, produces: 'simmered_zucchini', requires: 'sliced_zucchini' },
+    ],
+    plate: ['simmered_zucchini', 'sliced_tofu']
+  },
+  bibimbap: {
+    name: 'Bibimbap', emoji: '\u{1F371}', reward: 75, patience: 90000,
+    steps: [
+      { action: 'cook',   target: 'rice', station: 'rice_pot',      duration: 10000, burnAt: 28000, produces: 'cooked_rice' },
+      { action: 'chop',   target: 'beef', station: 'cutting_board', duration: 7000,  produces: 'sliced_beef' },
+      { action: 'simmer', target: 'beef', station: 'stone_pot',     duration: 9000,  burnAt: 25000, produces: 'simmered_beef', requires: 'sliced_beef' },
+    ],
+    plate: ['cooked_rice', 'simmered_beef']
+  },
+
+  // ── Japanese Kitchen ──────────────────────────────────────────────────────
+
+  sushi_roll: {
+    name: 'Sushi Roll', emoji: '\u{1F363}', reward: 70, patience: 85000,
+    steps: [
+      { action: 'cook', target: 'rice',   station: 'rice_pot',      duration: 10000, burnAt: 28000, produces: 'cooked_rice' },
+      { action: 'chop', target: 'tuna',   station: 'cutting_board', duration: 7000,  produces: 'sliced_tuna' },
+      { action: 'chop', target: 'nori',   station: 'cutting_board', duration: 5000,  produces: 'sliced_nori' },
+    ],
+    plate: ['cooked_rice', 'sliced_tuna', 'sliced_nori']
+  },
+  tempura: {
+    name: 'Tempura', emoji: '\u{1F364}', reward: 65, patience: 80000,
+    steps: [
+      { action: 'chop', target: 'shrimp',   station: 'cutting_board', duration: 6000, produces: 'sliced_shrimp' },
+      { action: 'fry',  target: 'shrimp',   station: 'fryer',         duration: 9000, burnAt: 24000, produces: 'fried_shrimp', requires: 'sliced_shrimp' },
+      { action: 'chop', target: 'zucchini', station: 'cutting_board', duration: 6000, produces: 'sliced_zucchini' },
+    ],
+    plate: ['fried_shrimp', 'sliced_zucchini']
+  },
+  chawanmushi: {
+    name: 'Chawanmushi', emoji: '\u{1F95A}', reward: 55, patience: 70000,
+    steps: [
+      { action: 'chop',  target: 'egg',    station: 'cutting_board', duration: 5000,  produces: 'sliced_egg' },
+      { action: 'steam', target: 'egg',    station: 'steamer',       duration: 10000, burnAt: 30000, produces: 'steamed_egg', requires: 'sliced_egg' },
+      { action: 'chop',  target: 'shrimp', station: 'cutting_board', duration: 6000,  produces: 'sliced_shrimp' },
+    ],
+    plate: ['steamed_egg', 'sliced_shrimp']
+  },
+  salmon_donburi: {
+    name: 'Salmon Donburi', emoji: '\u{1F371}', reward: 75, patience: 90000,
+    steps: [
+      { action: 'cook', target: 'rice',   station: 'rice_pot',      duration: 10000, burnAt: 28000, produces: 'cooked_rice' },
+      { action: 'chop', target: 'salmon', station: 'cutting_board', duration: 7000,  produces: 'sliced_salmon' },
+      { action: 'chop', target: 'nori',   station: 'cutting_board', duration: 5000,  produces: 'sliced_nori' },
+    ],
+    plate: ['cooked_rice', 'sliced_salmon', 'sliced_nori']
+  },
 }
 
 export const STATION_DEFS: Record<string, StationDef> = {
@@ -94,6 +213,10 @@ export const STATION_DEFS: Record<string, StationDef> = {
   fryer:         { name: 'Fryer',         emoji: '\u{1FAD5}', color: '#e8943a', actions: ['fry'] },
   stove:         { name: 'Stove',         emoji: '\u{2668}\u{FE0F}',  color: '#d94f4f', actions: ['boil'] },
   oven:          { name: 'Oven',          emoji: '\u{1F9F1}', color: '#a07862', actions: ['toast', 'roast'] },
+  wok:           { name: 'Wok',           emoji: '\u{1F958}', color: '#c85a20', actions: ['stir'] },
+  steamer:       { name: 'Steamer',       emoji: '\u{1FAD5}', color: '#5a9ab0', actions: ['steam'] },
+  stone_pot:     { name: 'Stone Pot',     emoji: '\u{1F372}', color: '#7a5a3a', actions: ['simmer'] },
+  rice_pot:      { name: 'Rice Pot',      emoji: '\u{1F35A}', color: '#a08060', actions: ['cook'] },
 }
 
 export function getEnabledStations(enabledRecipes: string[]): string[] {
@@ -110,21 +233,92 @@ export function getEnabledStations(enabledRecipes: string[]): string[] {
 }
 
 export const INGREDIENT_EMOJI: Record<string, string> = {
-  chopped_lettuce: '\u{1F96C}',
-  grilled_patty: '\u{1F969}',
-  grilled_bun: '\u{1F35E}',
-  chopped_potato: '\u{1F954}',
-  fried_potato: '\u{1F35F}',
-  boiled_pasta: '\u{1F35D}',
-  chopped_tomato: '\u{1F345}',
-  grilled_cheese: '\u{1F9C0}',
-  fried_fish: '\u{1F41F}',
-  chopped_mushroom: '\u{1F344}',
-  boiled_mushroom: '\u{1F372}',
-  chopped_pepper: '\u{1FAD1}',
-  roasted_tomato: '\u{1F345}',
-  roasted_pepper: '\u{1F336}\u{FE0F}',
+  // Western Classics
+  chopped_lettuce:     '\u{1F96C}',
+  grilled_patty:       '\u{1F969}',
+  toasted_bun:         '\u{1F35E}',
+  chopped_potato:      '\u{1F954}',
+  fried_potato:        '\u{1F35F}',
+  grilled_sausage:     '\u{1F32D}',
+  chopped_onion:       '\u{1F9C5}',
+  chopped_tomato:      '\u{1F345}',
+  toasted_crouton:     '\u{1FAD3}',
+  grilled_cheese:      '\u{1F9C0}',
+  toasted_bread:       '\u{1F35E}',
+  fried_fish:          '\u{1F41F}',
+  chopped_pepper:      '\u{1FAD1}',
+  roasted_pepper:      '\u{1F336}\u{FE0F}',
+
+  // Shared across cuisines
+  cooked_rice:         '\u{1F35A}',
+  sliced_spring_onion: '\u{1F33F}',
+  sliced_tofu:         '\u{1FAD9}',
+  sliced_zucchini:     '\u{1FAD1}',
+  sliced_beef:         '\u{1F969}',
+  sliced_shrimp:       '\u{1F990}',
+
+  // Chinese
+  stir_fried_rice:     '\u{1F373}',
+  sliced_pork:         '\u{1F969}',
+  sliced_cabbage:      '\u{1F96C}',
+  wok_pork:            '\u{1F969}',
+  steamed_tofu_block:  '\u{1FAD9}',
+  steamed_bun:         '\u{1F95F}',
+
+  // Korean
+  grilled_beef:        '\u{1F969}',
+  sliced_kimchi:       '\u{1F336}\u{FE0F}',
+  simmered_kimchi:     '\u{1F372}',
+  simmered_zucchini:   '\u{1FAD1}',
+  simmered_beef:       '\u{1F969}',
+
+  // Japanese
+  sliced_tuna:         '\u{1F41F}',
+  sliced_salmon:       '\u{1F421}',
+  sliced_nori:         '\u{1F33F}',
+  fried_shrimp:        '\u{1F364}',
+  sliced_egg:          '\u{1F95A}',
+  steamed_egg:         '\u{1F95A}',
 }
+
+export const RECIPE_SETS: RecipeSet[] = [
+  {
+    id: 'western_classics',
+    name: 'Western Classics',
+    emoji: '\u{1F354}',
+    flag: '\u{1F1FA}\u{1F1F8}',
+    description: 'Burgers, fries, pasta and grilled favourites',
+    cuisine: 'Western',
+    recipeKeys: ['burger', 'fish_burger', 'mushroom_soup', 'roasted_veggies'],
+  },
+  {
+    id: 'chinese',
+    name: 'Chinese Kitchen',
+    emoji: '\u{1F962}',
+    flag: '\u{1F1E8}\u{1F1F3}',
+    description: 'Wok-fired dishes, steamed delicacies and fragrant rice',
+    cuisine: 'Chinese',
+    recipeKeys: ['fried_rice', 'stir_fried_pork', 'steamed_tofu', 'steamed_buns'],
+  },
+  {
+    id: 'korean',
+    name: 'Korean Kitchen',
+    emoji: '\u{1F372}',
+    flag: '\u{1F1F0}\u{1F1F7}',
+    description: 'Grilled meats, spicy stews and hearty rice bowls',
+    cuisine: 'Korean',
+    recipeKeys: ['bulgogi', 'kimchi_jjigae', 'doenjang_jjigae', 'bibimbap'],
+  },
+  {
+    id: 'japanese',
+    name: 'Japanese Kitchen',
+    emoji: '\u{1F363}',
+    flag: '\u{1F1EF}\u{1F1F5}',
+    description: 'Fresh sushi, crispy tempura and delicate steamed dishes',
+    cuisine: 'Japanese',
+    recipeKeys: ['sushi_roll', 'tempura', 'chawanmushi', 'salmon_donburi'],
+  },
+]
 
 export const BOT_NAMES = [
   'ChefChat42', 'SoupLord', 'BurgerBoss', 'PastaKing99', 'FryQueen',

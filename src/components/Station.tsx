@@ -98,6 +98,10 @@ const STATION_ACCENT: Record<string, string> = {
   fryer:         '#7a6000',
   stove:         '#1a3a6a',
   oven:          '#5a3a10',
+  wok:           '#6a2e00',
+  steamer:       '#2a5a6a',
+  stone_pot:     '#4a3020',
+  rice_pot:      '#6a5030',
 }
 
 export default function Station({ station, capacity }: Props) {
