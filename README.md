@@ -7,7 +7,7 @@ A browser-based real-time kitchen game where Twitch chat collectively runs a res
 ## Features
 
 - **Twitch integration** — connect any channel and chat commands become gameplay actions
-- **Cooperative chaos** — 7 recipes, 5 stations, one shared kitchen
+- **Cooperative chaos** — 19 recipes across 4 cuisine sets, 9 station types, one shared kitchen
 - **Fire mechanic** — leave food too long and the station burns; team must `extinguish`
 - **Level mode** — 10 fixed-difficulty levels with 1/2/3-star ratings
 - **Bot simulation** — optional AI players fill in when chat is quiet
@@ -50,40 +50,77 @@ Type commands by name in chat. Spaces in ingredient names can be written as spac
 | Boil | `boil <item>` | Stove |
 | Toast | `toast <item>` | Oven |
 | Roast | `roast <item>` | Oven |
-| Take | `take <ingredient>` | (any station) |
+| Stir | `stir <item>` | Wok |
+| Steam | `steam <item>` | Steamer |
+| Simmer | `simmer <item>` | Stone Pot |
+| Cook | `cook <item>` | Rice Pot |
 | Serve | `serve <order#>` | — |
 | Extinguish | `extinguish <station>` | — |
 
-**Shortform aliases** (enable in Options): `c g f b t r ta s` map to the cooking commands in order above.
+**Shortform aliases** (enable in Options): `c g f b t r s` map to chop, grill, fry, boil, toast, roast, serve.
 
 ### Gameplay flow
 
 1. An order appears with a dish name and patience timer.
 2. Cook the required ingredients at the appropriate stations.
-3. Chopping board items finish automatically. All other stations require `take <ingredient>` to move the item to the shared pool.
+3. Finished ingredients are automatically deposited into the shared prepared-items pool.
 4. Once all required ingredients are in the pool, type `serve <order#>`.
 
 Each player can only work one station at a time and has a 1.5-second command cooldown.
 
 ### Recipes
 
+Steps marked `→` require the prior ingredient in the pool first. Steps joined by `+` can be done in any order.
+
+**Western Classics 🇺🇸**
+
 | Dish | Steps | Reward |
 |------|-------|--------|
-| 🍔 Burger | `chop lettuce` + `grill patty` + `grill bun` | $60 |
-| 🍟 Fries | `chop potato` → `fry potato`* | $50 |
-| 🍝 Pasta | `boil pasta` + `chop tomato` + `grill cheese` | $60 |
-| 🥗 Salad | `chop lettuce` + `chop tomato` | $20 |
-| 🍲 Mushroom Soup | `chop mushroom` → `boil mushroom`* | $50 |
-| 🍔 Fish Burger | `fry fish` + `chop lettuce` + `grill bun` | $60 |
-| 🥬 Roasted Veggies | `chop tomato` + `chop pepper` + `roast tomato` + `roast pepper` | $70 |
+| 🍔 Burger | `chop lettuce` + `grill patty` + `toast bun` | $65 |
+| 🐟 Fish & Chips | `chop potato` → `fry potato` + `fry fish` | $60 |
+| 🧀 Grilled Cheese | `grill cheese` + `toast bread` | $40 |
+| 🫑 Roasted Veggies | `chop tomato` + `chop pepper` → `roast pepper` | $55 |
 
-\* Steps marked `→` require the prior ingredient in the pool before they can start.
+**Chinese Kitchen 🇨🇳**
+
+| Dish | Steps | Reward |
+|------|-------|--------|
+| 🍳 Fried Rice | `cook rice` → `stir rice` + `chop spring_onion` | $55 |
+| 🥢 Stir-Fried Pork | `chop pork` → `stir pork` + `chop cabbage` | $65 |
+| 🧈 Steamed Tofu | `chop tofu` → `steam tofu` + `chop spring_onion` | $45 |
+| 🥟 Steamed Buns | `chop pork` → `stir pork` + `steam bun` | $55 |
+
+**Korean Kitchen 🇰🇷**
+
+| Dish | Steps | Reward |
+|------|-------|--------|
+| 🥩 Bulgogi | `chop beef` → `grill beef` + `chop spring_onion` | $70 |
+| Kimchi Jjigae | `chop kimchi` → `simmer kimchi` + `chop tofu` | $65 |
+| Doenjang Jjigae | `chop zucchini` → `simmer zucchini` + `chop tofu` | $60 |
+| 🍱 Bibimbap | `cook rice` + `chop beef` → `simmer beef` | $75 |
+
+**Japanese Kitchen 🇯🇵**
+
+| Dish | Steps | Reward |
+|------|-------|--------|
+| 🍣 Sushi Roll | `cook rice` + `chop tuna` + `chop nori` | $70 |
+| 🍤 Tempura | `chop shrimp` → `fry shrimp` + `chop zucchini` | $65 |
+| 🥚 Chawanmushi | `chop egg` → `steam egg` + `chop shrimp` | $55 |
+| 🍱 Salmon Donburi | `cook rice` + `chop salmon` + `chop nori` | $75 |
+
+**Others**
+
+| Dish | Steps | Reward |
+|------|-------|--------|
+| 🍟 Fries | `chop potato` → `fry potato` | $40 |
+| 🌭 Hot Dog | `grill sausage` + `chop onion` + `toast bun` | $45 |
+| 🥗 Caesar Salad | `chop lettuce` + `chop tomato` + `toast crouton` | $35 |
 
 Each dish also earns a time bonus of up to +$30 based on how much patience the order had remaining when served.
 
 ### Fire
 
-Cooking stations (grill, fryer, stove, oven) will catch fire if an item is left too long (~25–28 seconds). Fire blocks the station. Any player can type `extinguish <station>` to clear it and lose the burning ingredient.
+Cooking stations (grill, fryer, stove, oven, wok, steamer, stone pot, rice pot) will catch fire if an item is left too long (~22–32 seconds depending on the station). Fire blocks the station. Any player can type `extinguish <station>` to clear it and lose the burning ingredient.
 
 The chopping board never burns — items complete automatically.
 
@@ -93,7 +130,7 @@ The chopping board never burns — items complete automatically.
 
 ### Free Play
 
-Sandbox mode. Tune cooking speed, order speed, round duration, station capacity, and which recipes can appear — all in Options. Good for practice and casual streaming.
+Sandbox mode. Configure duration (1–9 min, default 3 min), cooking speed, order urgency, order frequency (all 0.25×–3.0×), station slot capacity, and which recipes can appear — all via sliders and inputs directly in the Free Play setup screen. Good for practice and casual streaming.
 
 ### Levels
 
@@ -109,7 +146,7 @@ Ten fixed-difficulty challenges. Cooking and order speed scale up each level. Ea
 
 ## Twitch Integration
 
-From the Main Menu, go to **Twitch** and enter a channel name. Once connected:
+From the Main Menu, enter a channel name in the **Twitch Connect** card on the right panel and click **Connect**. Once connected:
 
 - Live chat messages appear in the game's chat panel.
 - Any message starting with `!` is parsed as a game command.
