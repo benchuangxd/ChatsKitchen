@@ -10,13 +10,68 @@ interface Props {
   onBack: () => void
 }
 
-const SPEED_PRESETS = [0.5, 0.75, 1, 1.5, 2]
-const DURATION_PRESETS = [
-  { label: '1 min', value: 60000 },
-  { label: '2 min', value: 120000 },
-  { label: '3 min', value: 180000 },
-  { label: '5 min', value: 300000 },
-]
+const DURATION_MIN = 60000
+const DURATION_MAX = 540000  // 9 min = 3× the 3 min default
+
+const SPEED_MIN = 0.25
+const SPEED_MAX = 3
+const SPEED_STEP = 0.25
+
+const formatSpeed = (v: number) => parseFloat(v.toFixed(2)).toString()
+const parseSpeed = (s: string) => { const n = parseFloat(s); return isNaN(n) ? null : n }
+
+interface SliderFieldProps {
+  value: number
+  min: number
+  max: number
+  step: number
+  format: (v: number) => string
+  parse: (s: string) => number | null
+  onChange: (v: number) => void
+  suffix?: string
+}
+
+function SliderField({ value, min, max, step, format, parse, onChange, suffix }: SliderFieldProps) {
+  const [draft, setDraft] = useState<string | null>(null)
+
+  const commit = (raw: string) => {
+    const parsed = parse(raw)
+    if (parsed !== null && parsed >= min && parsed <= max) {
+      onChange(parsed)
+    }
+    setDraft(null)
+  }
+
+  return (
+    <div className={styles.sliderField}>
+      <input
+        type="range"
+        className={styles.slider}
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={e => {
+          setDraft(null)
+          onChange(Number(e.target.value))
+        }}
+      />
+      <div className={styles.inputWrap}>
+        <input
+          type="text"
+          className={styles.numInput}
+          value={draft !== null ? draft : format(value)}
+          onChange={e => setDraft(e.target.value)}
+          onBlur={e => commit(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') commit((e.target as HTMLInputElement).value)
+          }}
+        />
+        {suffix && <span className={styles.inputSuffix}>{suffix}</span>}
+      </div>
+    </div>
+  )
+}
 
 export default function FreePlaySetup({ options, onChange, onStart, onBack }: Props) {
   const [moreOpen, setMoreOpen] = useState(false)
@@ -30,17 +85,16 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
 
         <div className={styles.card}>
           <div className={styles.cardLabel}>⏱ Duration</div>
-          <div className={styles.presets}>
-            {DURATION_PRESETS.map(({ label, value }) => (
-              <button
-                key={value}
-                className={`${styles.preset} ${options.shiftDuration === value ? styles.active : ''}`}
-                onClick={() => onChange({ ...options, shiftDuration: value })}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <SliderField
+            value={options.shiftDuration}
+            min={DURATION_MIN}
+            max={DURATION_MAX}
+            step={DURATION_MIN}
+            format={v => String(v / 60000)}
+            parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n * 60000 }}
+            onChange={v => onChange({ ...options, shiftDuration: v })}
+            suffix="min"
+          />
         </div>
 
         <button
@@ -54,49 +108,46 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
           <div className={styles.moreSection}>
             <div className={styles.moreRow}>
               <div className={styles.moreLabel}>⚡ Cooking Speed</div>
-              <div className={styles.presets}>
-                {SPEED_PRESETS.map(speed => (
-                  <button
-                    key={speed}
-                    className={`${styles.preset} ${options.cookingSpeed === speed ? styles.active : ''}`}
-                    onClick={() => onChange({ ...options, cookingSpeed: speed })}
-                  >
-                    {speed}x
-                  </button>
-                ))}
-              </div>
+              <SliderField
+                value={options.cookingSpeed}
+                min={SPEED_MIN}
+                max={SPEED_MAX}
+                step={SPEED_STEP}
+                format={formatSpeed}
+                parse={parseSpeed}
+                onChange={v => onChange({ ...options, cookingSpeed: v })}
+                suffix="x"
+              />
               <div className={styles.hint}>Higher = faster cooking</div>
             </div>
 
             <div className={styles.moreRow}>
               <div className={styles.moreLabel}>📋 Order Urgency</div>
-              <div className={styles.presets}>
-                {SPEED_PRESETS.map(speed => (
-                  <button
-                    key={speed}
-                    className={`${styles.preset} ${options.orderSpeed === speed ? styles.active : ''}`}
-                    onClick={() => onChange({ ...options, orderSpeed: speed })}
-                  >
-                    {speed}x
-                  </button>
-                ))}
-              </div>
+              <SliderField
+                value={options.orderSpeed}
+                min={SPEED_MIN}
+                max={SPEED_MAX}
+                step={SPEED_STEP}
+                format={formatSpeed}
+                parse={parseSpeed}
+                onChange={v => onChange({ ...options, orderSpeed: v })}
+                suffix="x"
+              />
               <div className={styles.hint}>Higher = less time to fulfill orders</div>
             </div>
 
             <div className={styles.moreRow}>
               <div className={styles.moreLabel}>🌊 Order Frequency</div>
-              <div className={styles.presets}>
-                {SPEED_PRESETS.map(speed => (
-                  <button
-                    key={speed}
-                    className={`${styles.preset} ${options.orderSpawnRate === speed ? styles.active : ''}`}
-                    onClick={() => onChange({ ...options, orderSpawnRate: speed })}
-                  >
-                    {speed}x
-                  </button>
-                ))}
-              </div>
+              <SliderField
+                value={options.orderSpawnRate}
+                min={SPEED_MIN}
+                max={SPEED_MAX}
+                step={SPEED_STEP}
+                format={formatSpeed}
+                parse={parseSpeed}
+                onChange={v => onChange({ ...options, orderSpawnRate: v })}
+                suffix="x"
+              />
               <div className={styles.hint}>Higher = orders arrive more frequently</div>
             </div>
 

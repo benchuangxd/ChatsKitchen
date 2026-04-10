@@ -110,7 +110,7 @@ export const RECIPES: Record<string, Recipe> = {
     plate: ['wok_pork', 'sliced_cabbage']
   },
   steamed_tofu: {
-    name: 'Steamed Tofu', emoji: '\u{1FAD9}', reward: 45, patience: 65000,
+    name: 'Steamed Tofu', emoji: '\u{1F9C8}', reward: 45, patience: 65000,
     steps: [
       { action: 'chop',  target: 'tofu',        station: 'cutting_board', duration: 6000, produces: 'sliced_tofu' },
       { action: 'chop',  target: 'spring_onion', station: 'cutting_board', duration: 6000, produces: 'sliced_spring_onion' },
@@ -252,7 +252,7 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
   // Shared across cuisines
   cooked_rice:         '\u{1F35A}',
   sliced_spring_onion: '\u{1F33F}',
-  sliced_tofu:         '\u{1FAD9}',
+  sliced_tofu:         '\u{1F9C8}',
   sliced_zucchini:     '\u{1FAD1}',
   sliced_beef:         '\u{1F969}',
   sliced_shrimp:       '\u{1F990}',
@@ -262,7 +262,7 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
   sliced_pork:         '\u{1F969}',
   sliced_cabbage:      '\u{1F96C}',
   wok_pork:            '\u{1F969}',
-  steamed_tofu_block:  '\u{1FAD9}',
+  steamed_tofu_block:  '\u{1F9C8}',
   steamed_bun:         '\u{1F95F}',
 
   // Korean

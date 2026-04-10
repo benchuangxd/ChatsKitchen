@@ -40,17 +40,15 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
             <section className={styles.section}>
               <h3>Commands</h3>
               <div className={styles.commandGrid}>
-                <span><code>chop lettuce</code></span>
-                <span><code>grill patty</code></span>
-                <span><code>fry fish</code></span>
-                <span><code>boil pasta</code></span>
-                <span><code>toast bun</code></span>
-                <span><code>roast pepper</code></span>
-                <span><code>take lettuce</code></span>
-                <span><code>serve [order#]</code></span>
-                <span><code>extinguish [station]</code></span>
+                <span><code>!chop [ingredient]</code></span>
+                <span><code>!grill [ingredient]</code></span>
+                <span><code>!fry [ingredient]</code></span>
+                <span><code>!boil [ingredient]</code></span>
+                <span><code>!toast [ingredient]</code></span>
+                <span><code>!extinguish [station]</code></span>
+                <span><code>!serve [order#]</code></span>
               </div>
-              <p className={styles.note}>Chopping auto-deposits into the prepared tray. For all other stations, use <code>take</code> once done. Each player can only work one station at a time. You can also prefix any command with <code>!</code> (e.g. <code>!chop lettuce</code>).</p>
+              <p className={styles.note}>Each player can only work one station at a time. The <code>!</code> prefix is optional.</p>
             </section>
 
             <section className={styles.section}>
