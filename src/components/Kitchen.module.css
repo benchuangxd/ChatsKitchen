@@ -1,36 +1,23 @@
 .kitchen {
   flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-  padding: 4px 0 12px;
-}
-
-.divider {
-  font-family: 'Lilita One', cursive;
-  font-size: 22px;
-  color: var(--text-warm);
-  text-align: center;
-  padding: 6px 0 4px;
-  margin-bottom: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.stations {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 6px;
-  padding: 0 20px;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
 }
 
-@media (max-width: 480px) {
-  .divider {
-    font-size: 22px;
-  }
+.stationsSection {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 10px 6px;
+  min-height: 0;
+}
 
-  .stations {
-    gap: 8px;
-    padding: 0 12px;
-  }
+.stationsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  align-content: start;
 }

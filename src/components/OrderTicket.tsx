@@ -4,11 +4,12 @@ import styles from './OrderTicket.module.css'
 
 interface Props {
   order: Order
+  orderNumber: number
 }
 
 const STRIP_PREFIX = /^(chopped|grilled|fried|boiled|roasted)_/
 
-export default function OrderTicket({ order }: Props) {
+export default function OrderTicket({ order, orderNumber }: Props) {
   const recipe = RECIPES[order.dish]
   const urgency = order.patienceLeft / order.patienceMax
   const barColor = urgency < 0.25 ? '#d94f4f' : urgency < 0.5 ? '#e8943a' : '#5aad5e'
@@ -23,7 +24,9 @@ export default function OrderTicket({ order }: Props) {
     <div className={styles.ticketWrapper}>
       <div className={`${styles.ticket} ${urgencyClass} ${outcomeClass}`}>
         <div className={styles.header}>
-          #{order.id} {recipe.emoji} {recipe.name}
+          <span className={styles.orderNum}>#{orderNumber}</span>
+          <span className={styles.dishEmoji}>{recipe.emoji}</span>
+          <span className={styles.dishName}>{recipe.name}</span>
         </div>
         <div className={styles.body}>
           <div className={styles.ingredients}>

@@ -20,7 +20,7 @@ import { getLevelConfig, getStarRating } from './data/levels'
 import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
 import ChatPanel from './components/ChatPanel'
-import InfoBar from './components/InfoBar'
+import BottomBar from './components/BottomBar'
 import styles from './App.module.css'
 
 type Screen = 'menu' | 'levelselect' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
@@ -362,10 +362,8 @@ export default function App() {
           </div>
         )}
         <div className={styles.body}>
-          <main className={styles.main}>
-            <OrdersBar state={state} />
-            <Kitchen state={state} />
-          </main>
+          <OrdersBar state={state} />
+          <Kitchen state={state} />
           {chatOpen && (
             <ChatPanel
               messages={state.chatMessages}
@@ -374,7 +372,7 @@ export default function App() {
             />
           )}
         </div>
-        <InfoBar shortformEnabled={gameOptions.allowShortformCommands} />
+        <BottomBar money={state.money} served={state.served} lost={state.lost} />
         <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
           <button className={styles.settingsBtn} onClick={() => setSettingsOpen(o => !o)}>⚙️</button>
           {settingsOpen && (

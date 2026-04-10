@@ -1,17 +1,16 @@
-/* ── Wrapper (unchanged) ───────────────────── */
+/* ── Wrapper ────────────────────────────────── */
 .ticketWrapper {
   position: relative;
-  display: inline-block;
+  width: 100%;
 }
 
 /* ── Ticket shell ──────────────────────────── */
 .ticket {
-  width: 172px;
-  position: relative;          /* required for ::before punch hole */
-  border-radius: 10px 10px 0 0;
+  width: 100%;
+  position: relative;
+  border-radius: 8px 8px 0 0;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.06);
   background: #f5f0e8;
-  /* NOTE: no overflow: hidden — removed so ::before is not clipped */
 }
 
 /* Punch hole at top centre */
@@ -23,45 +22,69 @@
   transform: translateX(-50%);
   width: 13px;
   height: 13px;
-  background: var(--bg-dark);  /* matches page background; adapts to light/dark theme */
+  background: var(--bg-dark, #131313);
   border-radius: 50%;
   z-index: 3;
   border: 2px solid rgba(0, 0, 0, 0.12);
 }
 
-/* Perforated tear strip at bottom (replaces old zigzag ::after entirely) */
+/* Perforated tear strip at bottom */
 .ticket::after {
   content: '';
   display: block;
   height: 11px;
   background-color: #f5f0e8;
-  background-image: radial-gradient(circle, var(--bg-dark) 3.5px, transparent 3.5px);
+  background-image: radial-gradient(circle, var(--bg-dark, #131313) 3.5px, transparent 3.5px);
   background-size: 16px 11px;
   background-position: 4px center;
   border-top: 1px dashed rgba(0, 0, 0, 0.13);
 }
 
 /* ── Urgency states ─────────────────────────── */
-/* Header gradient — driven by urgency CSS class on .ticket */
 .normal   .header { background: linear-gradient(160deg, #4ea854, #3a8a40); }
 .warning  .header { background: linear-gradient(160deg, #e06840, #c85030); }
 .critical .header { background: linear-gradient(160deg, #d94f4f, #b83030); }
 
-/* Body tint on urgency */
 .critical .body { background: #f5e8e8; }
 .warning  .body { background: #f5f0e0; }
 .normal   .body { background: #f5f0e8; }
 
 /* ── Header ─────────────────────────────────── */
 .header {
-  border-radius: 10px 10px 0 0;
-  padding: 17px 10px 8px;          /* extra top padding clears the punch hole */
-  font-family: 'Lilita One', cursive;
+  border-radius: 8px 8px 0 0;
+  padding: 14px 10px 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.orderNum {
+  font-family: 'Space Mono', monospace;
   font-size: 20px;
+  font-weight: 700;
   color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  text-align: center;
-  line-height: 1.2;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dishEmoji {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dishName {
+  font-family: 'Lilita One', cursive;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* ── Body ───────────────────────────────────── */
@@ -71,7 +94,6 @@
 }
 
 /* ── Ingredient row ─────────────────────────── */
-/* flex-wrap: nowrap keeps all tiles on one line (max 3 ingredients across all recipes) */
 .ingredients {
   display: flex;
   flex-wrap: nowrap;
@@ -86,18 +108,18 @@
   gap: 2px;
   background: rgba(0, 0, 0, 0.06);
   border-radius: 7px;
-  padding: 4px 5px;
+  padding: 5px 6px;
   flex: 1;
-  min-width: 0;          /* allows tiles to shrink below their content width */
+  min-width: 0;
 }
 
 .ingredientEmoji {
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1;
 }
 
 .ingredientName {
-  font-size: 8.5px;
+  font-size: 9px;
   font-family: 'Space Mono', monospace;
   color: #5a5040;
   text-transform: uppercase;
@@ -125,8 +147,7 @@
   transition: width 0.1s linear;
 }
 
-/* ── Outcome animations (copied verbatim from original) ─────────── */
-
+/* ── Outcome animations ─────────────────────── */
 @keyframes ticketServedOut {
   0%   { opacity: 1; transform: scale(1); }
   30%  { opacity: 0.7; transform: scale(1.06); }
@@ -200,16 +221,4 @@
   animation:
     fireSweepUp  1s ease-in        forwards,
     fireFlicker  0.25s ease-in-out infinite;
-}
-
-/* ── Responsive ──────────────────────────────── */
-@media (max-width: 480px) {
-  .ticket {
-    width: auto;
-    min-width: 140px;
-  }
-
-  .header {
-    font-size: 18px;
-  }
 }
