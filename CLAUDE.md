@@ -32,7 +32,7 @@ npm run preview   # Preview production build locally
 ```
 ChatsKitchen/
 ├── src/
-│   ├── components/         # 14 React UI components (PascalCase)
+│   ├── components/         # 18 React UI components (PascalCase)
 │   ├── state/
 │   │   ├── gameReducer.ts  # All game logic (Redux-style reducer)
 │   │   ├── commandProcessor.ts  # Parses !command input → GameAction
@@ -140,17 +140,55 @@ State is **transient** — reset on each new game. Nothing is persisted.
 
 ## Game Content
 
-### Recipes (5 dishes)
+### Recipes (19 dishes across 4 cuisine sets + 3 ungrouped)
 
-| Dish | Steps | Value |
-|------|-------|-------|
-| Burger 🍔 | `!chop lettuce` + `!grill patty` + `!toast bun` → `!plate` | $50 |
-| Fries 🍟 | `!chop potato` → `!fry` | $30 |
-| Pasta 🍝 | `!boil pasta` + `!chop tomato` + `!grill cheese` → `!plate` | $60 |
-| Salad 🥗 | `!chop lettuce` + `!chop tomato` → `!plate` | $25 |
-| Fish Burger 🐟 | `!fry fish` + `!chop lettuce` + `!toast bun` → `!plate` | $70 |
+**Western Classics 🇺🇸** (`burger`, `fish_burger`, `mushroom_soup`, `roasted_veggies`)
 
-### Stations (6 types)
+| Dish | Key steps | Value |
+|------|-----------|-------|
+| Burger 🍔 | `chop lettuce` + `grill patty` + `toast bun` | $65 |
+| Fish & Chips 🐟 | `chop potato` → `fry potato` + `fry fish` | $60 |
+| Grilled Cheese 🧀 | `grill cheese` + `toast bread` | $40 |
+| Roasted Veggies 🫑 | `chop tomato` + `chop pepper` → `roast pepper` | $55 |
+
+**Chinese Kitchen 🇨🇳** (`fried_rice`, `stir_fried_pork`, `steamed_tofu`, `steamed_buns`)
+
+| Dish | Key steps | Value |
+|------|-----------|-------|
+| Fried Rice 🍳 | `cook rice` → `stir rice` + `chop spring_onion` | $55 |
+| Stir-Fried Pork 🥢 | `chop pork` → `stir pork` + `chop cabbage` | $65 |
+| Steamed Tofu 🧈 | `chop tofu` → `steam tofu` + `chop spring_onion` | $45 |
+| Steamed Buns 🥟 | `chop pork` → `stir pork` + `steam bun` | $55 |
+
+**Korean Kitchen 🇰🇷** (`bulgogi`, `kimchi_jjigae`, `doenjang_jjigae`, `bibimbap`)
+
+| Dish | Key steps | Value |
+|------|-----------|-------|
+| Bulgogi 🥩 | `chop beef` → `grill beef` + `chop spring_onion` | $70 |
+| Kimchi Jjigae | `chop kimchi` → `simmer kimchi` + `chop tofu` | $65 |
+| Doenjang Jjigae | `chop zucchini` → `simmer zucchini` + `chop tofu` | $60 |
+| Bibimbap 🍱 | `cook rice` + `chop beef` → `simmer beef` | $75 |
+
+**Japanese Kitchen 🇯🇵** (`sushi_roll`, `tempura`, `chawanmushi`, `salmon_donburi`)
+
+| Dish | Key steps | Value |
+|------|-----------|-------|
+| Sushi Roll 🍣 | `cook rice` + `chop tuna` + `chop nori` | $70 |
+| Tempura 🍤 | `chop shrimp` → `fry shrimp` + `chop zucchini` | $65 |
+| Chawanmushi 🥚 | `chop egg` → `steam egg` + `chop shrimp` | $55 |
+| Salmon Donburi 🍱 | `cook rice` + `chop salmon` + `chop nori` | $75 |
+
+**Ungrouped** (`fries`, `pasta`/Hot Dog, `salad`/Caesar Salad — not in any cuisine set)
+
+| Dish | Key steps | Value |
+|------|-----------|-------|
+| Fries 🍟 | `chop potato` → `fry potato` | $40 |
+| Hot Dog 🌭 | `grill sausage` + `chop onion` + `toast bun` | $45 |
+| Caesar Salad 🥗 | `chop lettuce` + `chop tomato` + `toast crouton` | $35 |
+
+Steps marked `→` require the prior ingredient in `preparedItems` before starting.
+
+### Stations (9 types)
 
 | Station | Command | Default Capacity |
 |---------|---------|-----------------|
@@ -158,10 +196,13 @@ State is **transient** — reset on each new game. Nothing is persisted.
 | Grill 🔥 | `!grill <ingredient>` | 2 slots |
 | Fryer 🫕 | `!fry <ingredient>` | 2 slots |
 | Stove ♨️ | `!boil <ingredient>` | 2 slots |
-| Oven 🧱 | `!toast <ingredient>` | 2 slots |
-| Plating 🍽️ | `!plate <dish>` | 2 slots (timed, ~3s) |
+| Oven 🧱 | `!toast` / `!roast <ingredient>` | 2 slots |
+| Wok 🥘 | `!stir <ingredient>` | 2 slots |
+| Steamer 🫕 | `!steam <ingredient>` | 2 slots |
+| Stone Pot 🍲 | `!simmer <ingredient>` | 2 slots |
+| Rice Pot 🍚 | `!cook <ingredient>` | 2 slots |
 
-All station capacities are configurable in the OptionsScreen.
+Only stations needed by the currently enabled recipes are rendered. Station capacities are configurable in Free Play via the More Options panel.
 
 ### Fire Mechanic
 
@@ -250,9 +291,17 @@ The Twitch channel name is entered by the user in the UI at runtime.
 `docs/superpowers/plans/` contains Markdown planning documents for significant features:
 
 - `2026-03-24-react-conversion.md` — Notes on the initial React migration
-- `2026-03-24-station-capacity-and-plating-rework.md` — Completed 10-task plan for configurable station capacity limits and timed plating mechanics
+- `2026-03-24-station-capacity-and-plating-rework.md` — Configurable station capacity limits and timed plating mechanics
+- `2026-04-05-level-system-with-stars.md` — 10-level system with star thresholds
+- `2026-04-06-persist-user-preferences.md` — Browser storage for audio, level progress, and options
+- `2026-04-09-readability-overhaul.md` — Gameplay UI visual polish pass
+- `2026-04-09-shift-end-transition.md` — Shift end / game-over transition screen
+- `2026-04-09-station-readability.md` — Station component readability improvements
+- `2026-04-10-main-menu-redesign.md` — 2-column Hero Split MainMenu with cheatsheet
 
-When implementing a new feature of similar scope, create a plan document in this directory first.
+`docs/superpowers/specs/` holds design specs that precede the plans above.
+
+When implementing a new feature of similar scope, create a spec + plan document in these directories first.
 
 ---
 

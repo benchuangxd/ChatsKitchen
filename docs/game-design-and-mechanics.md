@@ -44,12 +44,16 @@ This loop repeats until the round timer expires.
 
 ## Free Play
 
-Free Play is the flexible mode. It uses the current Options settings for:
+Free Play is the flexible mode. Parameters are configured directly in the Free Play setup screen via sliders and editable inputs:
 
-- cooking speed
-- order speed
-- round duration
-- station slot capacity
+| Parameter | Default | Range | Step |
+|-----------|---------|-------|------|
+| Duration | 3 min | 1–9 min | 1 min |
+| Cooking Speed | 1.0× | 0.25×–3.0× | 0.25× |
+| Order Urgency | 1.0× | 0.25×–3.0× | 0.25× |
+| Order Frequency | 1.0× | 0.25×–3.0× | 0.25× |
+
+Station slot capacity can also be toggled and adjusted per station type (chopping: 1–8, cooking: 1–8).
 
 It is the best mode for experimenting, practicing, or playing casually with chat.
 
@@ -95,25 +99,32 @@ Recipes are built from step-based ingredient preparation. Each dish defines:
 
 Examples:
 
-- `Burger`: chop lettuce, grill patty, grill bun, then serve
-- `Fries`: chop potato, fry potato (requires chopped potato), then serve
-- `Pasta`: boil pasta, chop tomato, grill cheese, then serve
+- `Burger`: chop lettuce, grill patty, toast bun, then serve
+- `Fries`: chop potato → fry potato (requires chopped potato), then serve
+- `Bulgogi`: chop beef → grill beef, chop spring onion, then serve
+- `Fried Rice`: cook rice → stir rice, chop spring onion, then serve
 
-Some steps require a previously prepared ingredient. For example, fries require chopped potato before frying, and mushroom soup requires chopped mushroom before boiling.
+Some steps require a previously prepared ingredient. For example, fries require chopped potato before frying, and bulgogi requires sliced beef before grilling. These are marked with `→` in the recipe reference.
 
 ## Stations
 
-The kitchen is divided into five stations, each tied to specific actions:
+The kitchen is divided into nine station types, each tied to specific commands:
 
 - `Chopping Board` for `chop`
 - `Grill` for `grill`
 - `Fryer` for `fry`
 - `Stove` for `boil`
 - `Oven` for `toast` and `roast`
+- `Wok` for `stir`
+- `Steamer` for `steam`
+- `Stone Pot` for `simmer`
+- `Rice Pot` for `cook`
+
+Only stations required by the currently enabled recipes are rendered — unused stations do not appear in the kitchen.
 
 Each station has a slot limit. If a station is full, new actions at that station are rejected until space opens up.
 
-In Free Play, capacity can be adjusted in Options. In gameplay terms, capacity strongly affects how crowded or forgiving the kitchen feels.
+In Free Play, slot capacity can be adjusted in the More Options panel. In gameplay terms, capacity strongly affects how crowded or forgiving the kitchen feels.
 
 ## Command System
 
@@ -127,7 +138,10 @@ The command system is the main input method for chat participation. Commands are
 | `boil` | `boil <item>` | Boil an ingredient on the stove |
 | `toast` | `toast <item>` | Toast an item in the oven |
 | `roast` | `roast <item>` | Roast an item in the oven |
-| `take` | `take <ingredient>` | Move a finished ingredient to the prepared-items pool |
+| `stir` | `stir <item>` | Stir-fry an ingredient in the wok |
+| `steam` | `steam <item>` | Steam an ingredient |
+| `simmer` | `simmer <item>` | Simmer an ingredient in the stone pot |
+| `cook` | `cook <item>` | Cook rice in the rice pot |
 | `serve` | `serve <order#>` | Serve a completed dish to an order |
 | `extinguish` | `extinguish <station>` | Put out a fire at a station |
 
@@ -143,7 +157,6 @@ When shortform commands are enabled in Options, single-letter aliases can be use
 | `b` | `boil` |
 | `t` | `toast` |
 | `r` | `roast` |
-| `ta` | `take` |
 | `s` | `serve` |
 
 ### Command flow
@@ -151,9 +164,8 @@ When shortform commands are enabled in Options, single-letter aliases can be use
 The intended flow is:
 
 1. Start preparation with a cooking command.
-2. Wait for the ingredient to finish.
-3. Use `take` to move the completed ingredient into the prepared-items pool. (Chopping board items complete automatically — no `take` needed.)
-4. Use `serve <order#>` once all required ingredients for that order are in the pool.
+2. Wait for the ingredient to finish — completed ingredients are automatically deposited into the prepared-items pool.
+3. Use `serve <order#>` once all required ingredients for that order are in the pool.
 
 ## Player Constraints And Team Dynamics
 
@@ -272,17 +284,51 @@ There is also a full reset flow in Options that restores the game to a clean def
 
 ## Recipe Reference
 
-| Dish | Ingredients & Steps | Reward | Patience |
-|------|---------------------|--------|---------|
-| 🍔 Burger | `chop lettuce` + `grill patty` + `grill bun` | $60 | 80s |
-| 🍟 Fries | `chop potato` → `fry potato` (needs chopped potato) | $50 | 60s |
-| 🍝 Pasta | `boil pasta` + `chop tomato` + `grill cheese` | $60 | 90s |
-| 🥗 Salad | `chop lettuce` + `chop tomato` | $20 | 45s |
-| 🍲 Mushroom Soup | `chop mushroom` → `boil mushroom` (needs chopped mushroom) | $50 | 60s |
-| 🍔 Fish Burger | `fry fish` + `chop lettuce` + `grill bun` | $60 | 80s |
-| 🥬 Roasted Veggies | `chop tomato` + `chop pepper` + `roast tomato` + `roast pepper` | $70 | 90s |
+Steps marked `→` require the prior ingredient in the prepared-items pool before they can start. Steps joined by `+` can be done in any order.
 
-Prerequisites: steps marked with `→` require the prior ingredient to already be in the prepared-items pool before they can start.
+### Western Classics 🇺🇸
+
+| Dish | Steps | Reward | Patience |
+|------|-------|--------|---------|
+| 🍔 Burger | `chop lettuce` + `grill patty` + `toast bun` | $65 | 80s |
+| 🐟 Fish & Chips | `chop potato` → `fry potato` + `fry fish` | $60 | 75s |
+| 🧀 Grilled Cheese | `grill cheese` + `toast bread` | $40 | 55s |
+| 🫑 Roasted Veggies | `chop tomato` + `chop pepper` → `roast pepper` | $55 | 75s |
+
+### Chinese Kitchen 🇨🇳
+
+| Dish | Steps | Reward | Patience |
+|------|-------|--------|---------|
+| 🍳 Fried Rice | `cook rice` → `stir rice` + `chop spring_onion` | $55 | 75s |
+| 🥢 Stir-Fried Pork | `chop pork` → `stir pork` + `chop cabbage` | $65 | 80s |
+| 🧈 Steamed Tofu | `chop tofu` → `steam tofu` + `chop spring_onion` | $45 | 65s |
+| 🥟 Steamed Buns | `chop pork` → `stir pork` + `steam bun` | $55 | 70s |
+
+### Korean Kitchen 🇰🇷
+
+| Dish | Steps | Reward | Patience |
+|------|-------|--------|---------|
+| 🥩 Bulgogi | `chop beef` → `grill beef` + `chop spring_onion` | $70 | 85s |
+| Kimchi Jjigae | `chop kimchi` → `simmer kimchi` + `chop tofu` | $65 | 80s |
+| Doenjang Jjigae | `chop zucchini` → `simmer zucchini` + `chop tofu` | $60 | 75s |
+| 🍱 Bibimbap | `cook rice` + `chop beef` → `simmer beef` | $75 | 90s |
+
+### Japanese Kitchen 🇯🇵
+
+| Dish | Steps | Reward | Patience |
+|------|-------|--------|---------|
+| 🍣 Sushi Roll | `cook rice` + `chop tuna` + `chop nori` | $70 | 85s |
+| 🍤 Tempura | `chop shrimp` → `fry shrimp` + `chop zucchini` | $65 | 80s |
+| 🥚 Chawanmushi | `chop egg` → `steam egg` + `chop shrimp` | $55 | 70s |
+| 🍱 Salmon Donburi | `cook rice` + `chop salmon` + `chop nori` | $75 | 90s |
+
+### Others (ungrouped)
+
+| Dish | Steps | Reward | Patience |
+|------|-------|--------|---------|
+| 🍟 Fries | `chop potato` → `fry potato` | $40 | 55s |
+| 🌭 Hot Dog | `grill sausage` + `chop onion` + `toast bun` | $45 | 55s |
+| 🥗 Caesar Salad | `chop lettuce` + `chop tomato` + `toast crouton` | $35 | 50s |
 
 ## Station Reference
 
@@ -290,11 +336,15 @@ Prerequisites: steps marked with `→` require the prior ingredient to already b
 |---------|-----------|-------------|---------------|
 | 🔪 Chopping Board | `chop` | never (auto-completes) | 3 |
 | 🔥 Grill | `grill` | 25 seconds | 2 |
-| 🍳 Fryer | `fry` | 25 seconds | 2 |
-| 🌡️ Stove | `boil` | 25 seconds | 2 |
-| 🔲 Oven | `toast` / `roast` | 28 seconds | 2 |
+| 🫕 Fryer | `fry` | 25 seconds | 2 |
+| ♨️ Stove | `boil` | 25 seconds | 2 |
+| 🧱 Oven | `toast` / `roast` | 28 seconds | 2 |
+| 🥘 Wok | `stir` | 22–24 seconds | 2 |
+| 🫕 Steamer | `steam` | 30–32 seconds | 2 |
+| 🍲 Stone Pot | `simmer` | 25–30 seconds | 2 |
+| 🍚 Rice Pot | `cook` | 28 seconds | 2 |
 
-Slot limits apply separately to the chopping board and to each cooking station. In Free Play, both limits are configurable in Options.
+Slot limits apply separately to the chopping board and to each cooking station type. In Free Play, both limits are configurable in the More Options panel (chopping: 1–8 slots, cooking: 1–8 slots per station type).
 
 ## Level Reference
 
