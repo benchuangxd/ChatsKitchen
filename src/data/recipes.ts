@@ -140,7 +140,7 @@ export const RECIPES: Record<string, Recipe> = {
     plate: ['grilled_beef', 'sliced_spring_onion']
   },
   kimchi_jjigae: {
-    name: 'Kimchi Jjigae', emoji: '\u{1F32D}', reward: 65, patience: 80000,
+    name: 'Kimchi Jjigae', emoji: '🥘', reward: 65, patience: 80000,
     steps: [
       { action: 'chop',   target: 'kimchi', station: 'cutting_board', duration: 6000,  produces: 'sliced_kimchi' },
       { action: 'chop',   target: 'tofu',   station: 'cutting_board', duration: 6000,  produces: 'sliced_tofu' },
@@ -213,7 +213,7 @@ export const STATION_DEFS: Record<string, StationDef> = {
   fryer:         { name: 'Fryer',         emoji: '\u{1FAD5}', color: '#e8943a', actions: ['fry'] },
   stove:         { name: 'Stove',         emoji: '\u{2668}\u{FE0F}',  color: '#d94f4f', actions: ['boil'] },
   oven:          { name: 'Oven',          emoji: '\u{1F9F1}', color: '#a07862', actions: ['toast', 'roast'] },
-  wok:           { name: 'Wok',           emoji: '\u{1F958}', color: '#c85a20', actions: ['stir'] },
+  wok:           { name: 'Wok',           emoji: '🍳', color: '#c85a20', actions: ['stir'] },
   steamer:       { name: 'Steamer',       emoji: '\u{1FAD5}', color: '#5a9ab0', actions: ['steam'] },
   stone_pot:     { name: 'Stone Pot',     emoji: '\u{1F372}', color: '#7a5a3a', actions: ['simmer'] },
   rice_pot:      { name: 'Rice Pot',      emoji: '\u{1F35A}', color: '#a08060', actions: ['cook'] },
