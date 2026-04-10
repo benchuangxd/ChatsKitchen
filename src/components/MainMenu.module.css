@@ -1,96 +1,193 @@
-.menu {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* ── Layout ── */
+
+.screen {
+  display: grid;
+  grid-template-columns: 560px 1fr;
   height: 100%;
-  overflow: hidden;
   background: var(--bg);
-  gap: 12px;
-  padding: 32px 16px 16px;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
-.title {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 60px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #fff;
-  -webkit-text-stroke: 2px #b87333;
-  text-shadow: 3px 3px 0 #8b5a2b, 6px 6px 0 rgba(0, 0, 0, 0.3);
-  margin: 0;
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 40px 48px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  min-height: 0;
 }
 
-.subtitle {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.disclaimer {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin: 0 0 32px;
-}
-
-.buttons {
+.rightCol {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  width: 280px;
+  padding: 36px 48px 36px 36px;
+  overflow: hidden;
+  min-height: 0;
 }
 
-.btn {
-  border: none;
-  border-radius: 10px;
-  padding: 14px 24px;
+/* ── Left panel — title ── */
+
+.title {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: 54px;
   font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.1s, filter 0.1s;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -1px;
+  text-shadow:
+    0 4px 0 #8b5a2b,
+    -2px -2px 0 #b87333,
+     2px -2px 0 #b87333,
+    -2px  2px 0 #b87333,
+     2px  2px 0 #b87333;
 }
 
-.btn:hover {
-  transform: scale(1.03);
-  filter: brightness(1.1);
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-.sectionHeader {
-  font-family: 'Fredoka', sans-serif;
+.subtitle {
+  font-family: 'Space Mono', monospace;
   font-size: 14px;
-  font-weight: 700;
-  color: #b87333;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: -6px;
+  color: var(--text-secondary);
+  margin-top: 8px;
 }
 
-.btnFreePlay {
+.divider {
+  height: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ── Left panel — How to play ── */
+
+.sectionLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.stepNum {
   background: #b87333;
   color: #fff;
-  font-size: 22px;
-  padding: 18px 24px;
-  box-shadow: 0 4px 0 #8b5a2b;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
-.btnFreePlay:active {
-  box-shadow: none;
-  transform: translateY(4px) scale(0.98);
+.stepContent {
+  flex: 1;
 }
 
-.btnLevels {
-  background: var(--surface);
-  color: var(--text-secondary);
-  border: 2px solid var(--border);
+.stepTitle {
+  font-family: 'Fredoka', sans-serif;
   font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stepDesc {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* ── Cheatsheet ── */
+
+.cheatsheet {
+  background: #0d0c0b;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 16px;
+  align-items: baseline;
+}
+
+.csSection {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+}
+
+.csCmd {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0c850;
+}
+
+.csDesc {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.csDivider {
+  height: 1px;
+  background: #2a2624;
+  grid-column: 1 / -1;
+  margin: 4px 0;
+}
+
+/* ── Left panel — footer ── */
+
+.leftFooter {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: auto;
+}
+
+/* ── Twitch card ── */
+
+.twitchCard {
+  background: #1a1128;
+  border: 1.5px solid #9146ff;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.twitchLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9146ff;
+  letter-spacing: 0.5px;
 }
 
 .twitchForm {
@@ -100,20 +197,14 @@
 
 .twitchInput {
   flex: 1;
-  min-width: 0;
+  background: #2a1f3d;
+  border: 1.5px solid #9146ff;
+  border-radius: 8px;
   padding: 10px 14px;
-  border-radius: 10px;
-  border: 2px solid #9146ff;
-  background: var(--bg-card, #2a1f3d);
   color: #fff;
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
-  transition: border-color 0.15s;
-}
-
-.twitchInput::placeholder {
-  color: #7a6a9a;
 }
 
 .twitchInput:focus {
@@ -122,71 +213,56 @@
 
 .twitchInput:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .twitchConnectBtn {
   background: #9146ff;
-  color: #fff;
   border: none;
-  border-radius: 10px;
-  padding: 10px 18px;
+  border-radius: 8px;
+  padding: 10px 22px;
+  color: #fff;
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.1s, filter 0.1s;
+  transition: filter 0.15s;
   white-space: nowrap;
 }
 
 .twitchConnectBtn:hover:not(:disabled) {
-  transform: scale(1.03);
-  filter: brightness(1.1);
-}
-
-.twitchConnectBtn:active:not(:disabled) {
-  transform: scale(0.98);
+  filter: brightness(1.15);
 }
 
 .twitchConnectBtn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .twitchDisconnectBtn {
   background: #3d2e55;
+  border: 1.5px solid #9146ff;
+  border-radius: 8px;
+  padding: 10px 18px;
   color: #bf94ff;
-  border: 2px solid #9146ff;
-  border-radius: 10px;
-  padding: 10px 14px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.1s, filter 0.1s;
+  transition: filter 0.15s;
   white-space: nowrap;
 }
 
 .twitchDisconnectBtn:hover {
-  transform: scale(1.03);
-  filter: brightness(1.1);
-}
-
-.twitchDisconnectBtn:active {
-  transform: scale(0.98);
+  filter: brightness(1.15);
 }
 
 .twitchStatus {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 6px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
   color: var(--text-secondary);
-  text-align: center;
-  margin-top: -6px;
 }
 
 .twitchStatusWarning {
@@ -196,9 +272,14 @@
 .twitchDot {
   width: 8px;
   height: 8px;
-  background: #5cb85c;
   border-radius: 50%;
+  background: #5cb85c;
   flex-shrink: 0;
+  animation: twitchPulse 1.5s infinite;
+}
+
+.twitchDotWarning {
+  background: #d94f4f;
   animation: twitchPulse 1.5s infinite;
 }
 
@@ -207,34 +288,162 @@
   50% { opacity: 0.4; }
 }
 
-.twitchDotWarning {
-  width: 8px;
-  height: 8px;
-  background: #d94f4f;
-  border-radius: 50%;
-  flex-shrink: 0;
-  animation: twitchPulse 1.5s infinite;
-}
-
 .twitchChannel {
   color: #9146ff;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
 }
 
-.btnOptions {
-  background: var(--border);
-  color: var(--text);
+/* ── Game modes ── */
+
+.modes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
 }
 
-.btnTutorial {
+/* Free Play — featured */
+.modeFreePlay {
+  background: #b87333;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s, box-shadow 0.1s;
+  flex: 1.6;
+  min-height: 0;
+  box-shadow: 0 4px 0 #8b5a2b;
+  text-align: left;
+}
+
+.modeFreePlay:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.modeFreePlay:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #8b5a2b;
+}
+
+.fpName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.fpDesc {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 6px;
+}
+
+.fpArrow {
+  font-size: 36px;
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+}
+
+/* Adventures */
+.modeAdventures {
+  background: #2c5f8a;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s, box-shadow 0.1s;
+  flex: 1;
+  min-height: 0;
+  box-shadow: 0 4px 0 #1e4366;
+  text-align: left;
+}
+
+.modeAdventures:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.modeAdventures:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1e4366;
+}
+
+.lvName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.lvDesc {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
+}
+
+.lvArrow {
+  font-size: 28px;
+  color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+/* Tutorial + Options row */
+.modeBottomRow {
+  display: flex;
+  gap: 10px;
+  flex: 0 0 64px;
+}
+
+.modeTutorial {
   background: #f0c850;
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 1;
+  transition: filter 0.15s;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
   color: #3d2c11;
 }
 
-.footer {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: var(--text-faint);
-  margin: 4px 0 0;
+.modeTutorial:hover {
+  filter: brightness(1.07);
+}
+
+.modeOptions {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 1;
+  transition: border-color 0.15s;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.modeOptions:hover {
+  border-color: #5a5248;
 }
