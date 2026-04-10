@@ -2,6 +2,7 @@ import { GameState } from '../state/types'
 import { getEnabledStations } from '../data/recipes'
 import Station from './Station'
 import PreparedItems from './PreparedItems'
+import CommandsStrip from './CommandsStrip'
 import styles from './Kitchen.module.css'
 
 interface Props {
@@ -20,16 +21,18 @@ export default function Kitchen({ state }: Props) {
   return (
     <div className={styles.kitchen}>
       <PreparedItems items={state.preparedItems} enabledRecipes={state.enabledRecipes} />
-      <div className={styles.divider}>🔥 STATIONS</div>
-      <div className={styles.stations}>
-        {stationIds.map(id => (
-          <Station
-            key={id}
-            station={state.stations[id]}
-            capacity={getStationCapacity(id, state.stationCapacity, state.restrictSlots)}
-          />
-        ))}
+      <div className={styles.stationsSection}>
+        <div className={styles.stationsGrid}>
+          {stationIds.map(id => (
+            <Station
+              key={id}
+              station={state.stations[id]}
+              capacity={getStationCapacity(id, state.stationCapacity, state.restrictSlots)}
+            />
+          ))}
+        </div>
       </div>
+      <CommandsStrip stationIds={stationIds} enabledRecipes={state.enabledRecipes} />
     </div>
   )
 }

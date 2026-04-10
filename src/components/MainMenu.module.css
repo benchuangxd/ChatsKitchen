@@ -62,7 +62,7 @@
 
 .sectionLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -85,14 +85,14 @@
   background: #b87333;
   color: #fff;
   border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  min-width: 26px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Fredoka', sans-serif;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   margin-top: 2px;
   flex-shrink: 0;
@@ -104,14 +104,14 @@
 
 .stepTitle {
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text);
 }
 
 .stepDesc {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   margin-top: 3px;
 }
@@ -132,7 +132,7 @@
 
 .csSection {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-faint);
@@ -142,14 +142,14 @@
 
 .csCmd {
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: #f0c850;
 }
 
 .csDesc {
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-muted);
 }
 
@@ -164,7 +164,7 @@
 
 .leftFooter {
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-faint);
   margin-top: auto;
 }

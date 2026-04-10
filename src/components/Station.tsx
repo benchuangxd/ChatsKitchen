@@ -30,7 +30,7 @@ function SlotRow({ slot, stationId }: { slot: StationSlot; stationId: string }) 
     )
   }
 
-  // ── Done (take it!) ───────────────────────────────────────────────────────
+  // ── Done ─────────────────────────────────────────────────────────────────
   if (slot.state === 'done') {
     const burnWindow = slot.burnAt - slot.cookDuration
     const burnElapsed = Math.max(0, elapsed - slot.cookDuration)
@@ -91,17 +91,27 @@ interface Props {
   capacity: number
 }
 
+// Per-station accent border colours (fire overrides these)
+const STATION_ACCENT: Record<string, string> = {
+  cutting_board: '#2a5a3a',
+  grill:         '#7a3500',
+  fryer:         '#7a6000',
+  stove:         '#1a3a6a',
+  oven:          '#5a3a10',
+}
+
 export default function Station({ station, capacity }: Props) {
   const def = STATION_DEFS[station.id]
   if (!def) return null
 
   const hasActiveFire = station.slots.some(s => s.state === 'onFire')
-  const borderColor = hasActiveFire ? '#d94f4f' : def.color
+  const borderColor = hasActiveFire ? '#cc2200' : (STATION_ACCENT[station.id] ?? def.color)
 
   return (
     <div className={`${styles.station} ${hasActiveFire ? styles.fire : ''}`} style={{ borderColor }}>
       <div className={styles.label}>
-        {def.emoji} {def.name}
+        <span className={styles.stationEmoji}>{def.emoji}</span>
+        <span className={styles.stationName}>{def.name}</span>
         <span className={styles.capacity}>
           {capacity === Infinity ? station.slots.length : `${station.slots.length}/${capacity}`}
         </span>

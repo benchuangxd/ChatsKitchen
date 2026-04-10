@@ -60,7 +60,7 @@ export default function MainMenu({ onPlay, onLevels, onOptions, onTutorial, twit
                 <div className={styles.csCmd}>!fry [ingredient]</div><div className={styles.csDesc}>fryer</div>
                 <div className={styles.csCmd}>!boil [ingredient]</div><div className={styles.csDesc}>stove</div>
                 <div className={styles.csCmd}>!toast [ingredient]</div><div className={styles.csDesc}>oven</div>
-                <div className={styles.csCmd}>!extinguish</div><div className={styles.csDesc}>put out a fire</div>
+                <div className={styles.csCmd}>!extinguish [station]</div><div className={styles.csDesc}>put out a fire</div>
                 <div className={styles.csDivider} />
                 <div className={styles.csSection}>Deliver</div>
                 <div className={styles.csCmd}>!serve [order#]</div><div className={styles.csDesc}>deliver to a table</div>
