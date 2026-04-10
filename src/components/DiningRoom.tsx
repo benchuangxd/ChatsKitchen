@@ -27,11 +27,11 @@ export default function OrdersBar({ state }: Props) {
         <span className={styles.ordersCount}>{pendingCount}</span>
       </div>
       <div className={styles.ordersList}>
-        {activeOrders.map((order, idx) => (
+        {activeOrders.map((order) => (
           <OrderTicket
             key={order.id}
             order={order}
-            orderNumber={idx + 1}
+            orderNumber={order.id}
           />
         ))}
         {activeOrders.length === 0 && (
