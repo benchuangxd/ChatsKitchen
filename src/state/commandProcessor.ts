@@ -2,6 +2,7 @@ import { GameAction } from './gameReducer'
 
 const COMMAND_ALIASES: Record<string, string> = {
   c: 'chop', g: 'grill', f: 'fry', b: 'boil', t: 'toast', r: 'roast',
+  st: 'stir', sm: 'steam', si: 'simmer', ck: 'cook',
   ta: 'take', s: 'serve',
 }
 
@@ -29,6 +30,10 @@ export function parseCommand(user: string, text: string, shortformEnabled = fals
     case 'boil':
     case 'toast':
     case 'roast':
+    case 'stir':
+    case 'steam':
+    case 'simmer':
+    case 'cook':
       return target ? { type: 'COOK', user, action: resolvedAction, target, now: Date.now() } : null
     default:
       return null

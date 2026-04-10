@@ -73,6 +73,16 @@ export interface LevelProgress {
   [level: number]: number // level → best stars (0-3)
 }
 
+export interface RecipeSet {
+  id: string
+  name: string
+  emoji: string
+  flag: string
+  description: string
+  cuisine: string
+  recipeKeys: string[]
+}
+
 export interface GameState {
   money: number
   served: number
