@@ -60,7 +60,7 @@ ChatsKitchen/
 
 `App.tsx` owns top-level screen state as a union type:
 ```
-'menu' | 'options' | 'twitch' | 'countdown' | 'playing' | 'gameover'
+'menu' | 'levelselect' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
 ```
 No router library — screens are conditionally rendered components.
 
@@ -82,12 +82,28 @@ App.tsx
 
 ```
 Twitch Chat (or local ChatPanel)
-  → handleTwitchMessage (App.tsx)
-  → parseCommand (commandProcessor.ts)   // returns GameAction or null
+  → handleTwitchMessage (App.tsx)       // receives (user, text, isMod)
+  → handleMetaCommand (App.tsx)         // handles mod-only shell commands; returns early if consumed
+  → parseCommand (commandProcessor.ts)  // returns GameAction or null
   → dispatch(action)
   → gameReducer (returns new GameState)
   → React re-render
 ```
+
+### Mod / Broadcaster Commands
+
+These commands bypass the game reducer and are handled directly in `App.tsx` (`handleMetaCommand`). They only execute for Twitch moderators, the broadcaster, or the local chat input (always treated as broadcaster).
+
+| Command | Valid Screen(s) | Effect |
+|---------|----------------|--------|
+| `!start` | `gameover` (Free Play only) | Immediately starts a new round |
+| `!onAutoRestart` | `playing`, `gameover` | Enables auto-restart in `gameOptions` |
+| `!offAutoRestart` | `playing`, `gameover` | Disables auto-restart, cancels active countdown |
+| `!exit` | `playing` | Ends the round via normal shift-end → game-over flow |
+
+A brief toast notification is shown on screen when any mod command fires. System messages are also added to the chat log.
+
+Mod detection uses `tags.mod` and `tags.badges.broadcaster` from tmi.js. The local "You" user is always granted mod access.
 
 ### Game Loop (100ms ticks)
 
@@ -135,6 +151,23 @@ interface GameState {
 ```
 
 State is **transient** — reset on each new game. Nothing is persisted.
+
+`GameOptions` is separate from `GameState` and lives in `App.tsx`. It is persisted to `localStorage` (`chatsKitchen_gameOptions`):
+
+```typescript
+interface GameOptions {
+  cookingSpeed: number
+  orderSpeed: number
+  orderSpawnRate: number
+  shiftDuration: number
+  stationCapacity: StationCapacity
+  restrictSlots: boolean
+  enabledRecipes: string[]
+  allowShortformCommands: boolean
+  autoRestart: boolean        // Free Play only — auto-restart after game over
+  autoRestartDelay: number    // seconds to count down before restarting (default 60)
+}
+```
 
 ---
 
@@ -251,7 +284,8 @@ Math.max(5000, 14000 - shift * 1000) ms
 | `src/state/commandProcessor.ts` | `parseCommand()` — maps chat text to `GameAction` |
 | `src/data/recipes.ts` | `RECIPES`, `STATION_DEFS`, `BOT_NAMES`, color palette |
 | `src/hooks/useGameLoop.ts` | 100ms TICK dispatching, order spawning, game-over detection |
-| `src/hooks/useTwitchChat.ts` | tmi.js client lifecycle, connect/disconnect |
+| `src/hooks/useTwitchChat.ts` | tmi.js client lifecycle, connect/disconnect; passes `isMod` (mod/broadcaster) to message handler |
+| `src/components/Toast.tsx` | Brief fixed-position toast notification for mod command feedback |
 | `src/hooks/useBotSimulation.ts` | AI player logic, action priority, cooldown awareness |
 
 ---
@@ -298,6 +332,7 @@ The Twitch channel name is entered by the user in the UI at runtime.
 - `2026-04-09-shift-end-transition.md` — Shift end / game-over transition screen
 - `2026-04-09-station-readability.md` — Station component readability improvements
 - `2026-04-10-main-menu-redesign.md` — 2-column Hero Split MainMenu with cheatsheet
+- `2026-04-11-auto-restart-and-mod-commands.md` — Auto-restart toggle for Free Play and mod/broadcaster chat commands
 
 `docs/superpowers/specs/` holds design specs that precede the plans above.
 

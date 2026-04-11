@@ -57,6 +57,8 @@ export interface GameOptions {
   restrictSlots: boolean
   enabledRecipes: string[]
   allowShortformCommands: boolean
+  autoRestart: boolean
+  autoRestartDelay: number  // seconds
 }
 
 export interface AudioSettings {

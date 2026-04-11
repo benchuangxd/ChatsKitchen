@@ -17,6 +17,7 @@ import LevelSelect from './components/LevelSelect'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
 import PauseModal from './components/PauseModal'
+import Toast from './components/Toast'
 import { getLevelConfig, getStarRating } from './data/levels'
 import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
@@ -35,7 +36,9 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   stationCapacity: { chopping: 3, cooking: 2 },
   restrictSlots: false,
   enabledRecipes: ['burger', 'fish_burger', 'mushroom_soup', 'roasted_veggies'],
-  allowShortformCommands: true
+  allowShortformCommands: true,
+  autoRestart: false,
+  autoRestartDelay: 60,
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -99,6 +102,11 @@ export default function App() {
   })
   const stateRef = useRef(state)
   stateRef.current = state
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const screenRef = useRef<Screen>('menu')
+  const gameOptionsRef = useRef(gameOptions)
+  const currentLevelRef = useRef<number | null>(null)
   const [currentLevel, setCurrentLevel] = useState<number | null>(null)
   const [levelProgress, setLevelProgress] = useState<LevelProgress>(() => {
     try {
@@ -117,6 +125,17 @@ export default function App() {
   })
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false)
   const [tutorialDestination, setTutorialDestination] = useState<TutorialDestination>('menu')
+
+  // Keep refs in sync so stable callbacks can read current values
+  screenRef.current = screen
+  gameOptionsRef.current = gameOptions
+  currentLevelRef.current = currentLevel
+
+  const showToast = useCallback((message: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    setToast(message)
+    toastTimerRef.current = setTimeout(() => setToast(null), 2500)
+  }, [])
 
   const startFreePlay = useCallback(() => {
     setCurrentLevel(null)
@@ -186,16 +205,14 @@ export default function App() {
     if (action) dispatch(action)
   }, [gameOptions.allowShortformCommands])
 
-  const handleTwitchMessage = useCallback((user: string, text: string) => {
-    dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
-    handleCommand(user, text)
-  }, [handleCommand])
-
-  const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
-  const handleChatSend = useCallback((text: string) => {
-    dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
-    handleCommand('You', text)
-  }, [handleCommand])
+  const handleGameOptionsChange = useCallback((options: GameOptions) => {
+    setGameOptions(options)
+    try {
+      localStorage.setItem('chatsKitchen_gameOptions', JSON.stringify(options))
+    } catch {
+      // Ignore storage failures; in-memory state is already updated above.
+    }
+  }, [])
 
   const handleGameOver = useCallback(() => {
     const s = stateRef.current
@@ -227,6 +244,45 @@ export default function App() {
     setScreen('shiftend')
   }, [currentLevel, levelProgress])
 
+  const handleMetaCommand = useCallback((user: string, text: string, isMod: boolean) => {
+    if (!isMod) return
+    const cmd = text.trim().toLowerCase()
+    const s = screenRef.current
+
+    if (cmd === '!start' && s === 'gameover' && currentLevelRef.current == null) {
+      startFreePlay()
+      showToast(`▶ Starting now (${user})`)
+      return
+    }
+    if (cmd === '!onautorestart' && (s === 'gameover' || s === 'playing')) {
+      handleGameOptionsChange({ ...gameOptionsRef.current, autoRestart: true })
+      showToast(`🔄 Auto-restart ON (${user})`)
+      return
+    }
+    if (cmd === '!offautorestart' && (s === 'gameover' || s === 'playing')) {
+      handleGameOptionsChange({ ...gameOptionsRef.current, autoRestart: false })
+      showToast(`🔄 Auto-restart OFF (${user})`)
+      return
+    }
+    if (cmd === '!exit' && s === 'playing') {
+      handleGameOver()
+      showToast(`🚪 Round ended by ${user}`)
+    }
+  }, [startFreePlay, handleGameOptionsChange, handleGameOver, showToast])
+
+  const handleTwitchMessage = useCallback((user: string, text: string, isMod: boolean) => {
+    dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
+    handleMetaCommand(user, text, isMod)
+    handleCommand(user, text)
+  }, [handleCommand, handleMetaCommand])
+
+  const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
+  const handleChatSend = useCallback((text: string) => {
+    dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
+    handleMetaCommand('You', text, true)
+    handleCommand('You', text)
+  }, [handleCommand, handleMetaCommand])
+
   const handleShiftEndDone = useCallback(() => setScreen('gameover'), [])
 
   const startLevel = useCallback((level: number) => {
@@ -243,15 +299,6 @@ export default function App() {
   const handleAudioChange = useCallback((settings: AudioSettings) => {
     setAudioSettings(settings)
     localStorage.setItem('audioSettings', JSON.stringify(settings))
-  }, [])
-
-  const handleGameOptionsChange = useCallback((options: GameOptions) => {
-    setGameOptions(options)
-    try {
-      localStorage.setItem('chatsKitchen_gameOptions', JSON.stringify(options))
-    } catch {
-      // Ignore storage failures; in-memory state is already updated above.
-    }
   }, [])
 
   const handleTwitchChannelChange = useCallback((ch: string | null) => {
@@ -347,6 +394,8 @@ export default function App() {
         highScore={currentLevel == null ? freePlayHighScore : undefined}
         isNewHighScore={currentLevel == null ? isNewHighScore : false}
         roundHistory={currentLevel == null ? freePlayHistory : undefined}
+        autoRestart={currentLevel == null && gameOptions.autoRestart}
+        autoRestartDelay={gameOptions.autoRestartDelay}
         onPlayAgain={currentLevel != null ? () => startLevel(currentLevel) : startFreePlay}
         onNextLevel={currentLevel != null && currentLevel < 10 ? () => startLevel(currentLevel + 1) : undefined}
         onMenu={() => setScreen('menu')}
@@ -395,6 +444,7 @@ export default function App() {
   return (
     <>
       {content}
+      {toast && <Toast message={toast} />}
       {showTutorialPrompt && screen === 'menu' && !tutorialOpen && (
         <TutorialPrompt
           onYes={() => openTutorial(tutorialDestination)}

@@ -160,6 +160,26 @@
   margin: 4px 0;
 }
 
+/* ── Left panel — Streamer section ── */
+
+.streamerSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.streamerDesc {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.streamerDesc strong {
+  color: var(--text-secondary);
+}
+
 /* ── Left panel — footer ── */
 
 .leftFooter {

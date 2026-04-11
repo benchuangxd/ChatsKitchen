@@ -89,6 +89,25 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 <li>Open the in-game <strong>Commands &amp; Recipes</strong> panel anytime for a quick reference.</li>
               </ul>
             </section>
+
+            <section className={styles.section}>
+              <h3>Streamer Controls</h3>
+              <p className={styles.note}>
+                In <strong>Free Play</strong>, enable <strong>Auto-Restart</strong> under More Options to automatically loop rounds — set the countdown delay (10–300 s) and the game over screen will start a new round on its own.
+              </p>
+              <p className={styles.note} style={{ marginTop: 8 }}>
+                Moderators and the broadcaster can also control the session from chat at any time:
+              </p>
+              <div className={styles.commandGrid}>
+                <span><code>!start</code></span>
+                <span><code>!exit</code></span>
+                <span><code>!onAutoRestart</code></span>
+                <span><code>!offAutoRestart</code></span>
+              </div>
+              <p className={styles.note}>
+                <code>!start</code> skips the countdown and begins the next round immediately. <code>!exit</code> ends the current round and goes to the results screen. The <code>!onAutoRestart</code> / <code>!offAutoRestart</code> commands work both mid-game and on the game over screen.
+              </p>
+            </section>
           </div>
 
           <div className={styles.footer}>

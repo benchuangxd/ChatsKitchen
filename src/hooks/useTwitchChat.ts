@@ -10,7 +10,7 @@ interface UseTwitchChatResult {
 
 export function useTwitchChat(
   channel: string | null,
-  onMessage: (user: string, text: string) => void
+  onMessage: (user: string, text: string, isMod: boolean) => void
 ): UseTwitchChatResult {
   const [status, setStatus] = useState<TwitchStatus>('disconnected')
   const [error, setError] = useState<string>()
@@ -50,7 +50,8 @@ export function useTwitchChat(
     client.on('message', (_channel, tags, message, self) => {
       if (self) return
       const username = tags['display-name'] || tags.username || 'anonymous'
-      onMessageRef.current(username, message)
+      const isMod = !!tags.mod || tags.badges?.broadcaster === '1'
+      onMessageRef.current(username, message, isMod)
     })
 
     client.connect()
