@@ -7,7 +7,7 @@ interface Props {
   orderNumber: number
 }
 
-const STRIP_PREFIX = /^(chopped|grilled|fried|boiled|roasted|toasted|sliced|steamed|wok|simmered|cooked|stir_fried)_/
+const STRIP_PREFIX = /^(chopped|grilled|fried|boiled|roasted|toasted|sliced|steamed|wok|simmered|cooked)_/
 
 export default function OrderTicket({ order, orderNumber }: Props) {
   const recipe = RECIPES[order.dish]

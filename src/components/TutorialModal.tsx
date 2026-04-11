@@ -43,8 +43,12 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 <span><code>!chop [ingredient]</code></span>
                 <span><code>!grill [ingredient]</code></span>
                 <span><code>!fry [ingredient]</code></span>
-                <span><code>!boil [ingredient]</code></span>
+                <span><code>!stir [ingredient]</code></span>
+                <span><code>!steam [ingredient]</code></span>
+                <span><code>!simmer [ingredient]</code></span>
+                <span><code>!cook [ingredient]</code></span>
                 <span><code>!toast [ingredient]</code></span>
+                <span><code>!roast [ingredient]</code></span>
                 <span><code>!extinguish [station]</code></span>
                 <span><code>!serve [order#]</code></span>
               </div>
