@@ -16,6 +16,7 @@ import GameOver from './components/GameOver'
 import LevelSelect from './components/LevelSelect'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
+import PauseModal from './components/PauseModal'
 import { getLevelConfig, getStarRating } from './data/levels'
 import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
@@ -69,7 +70,7 @@ export default function App() {
   )
   const [botsEnabled, setBotsEnabled] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [paused, setPaused] = useState(false)
   const [twitchChannel, setTwitchChannel] = useState<string | null>(() => {
     try {
       return localStorage.getItem('chatsKitchen_twitchChannel')
@@ -289,12 +290,10 @@ export default function App() {
   }, [handleTwitchChannelChange])
 
   const isPlaying = screen === 'playing'
-  useGameLoop(state, dispatch, isPlaying ? handleGameOver : undefined)
+  useGameLoop(state, dispatch, isPlaying ? handleGameOver : undefined, paused)
   useBotSimulation(state, dispatch, handleCommand, isPlaying && botsEnabled)
   useGameAudio(screen, state, audioSettings)
   useViewportScale()
-
-  const gameplayModeLabel = currentLevel != null ? `Level ${currentLevel}` : 'Free Play'
 
   let content
 
@@ -374,54 +373,21 @@ export default function App() {
         </div>
         <BottomBar money={state.money} served={state.served} lost={state.lost} />
         <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
-          <button className={styles.settingsBtn} onClick={() => setSettingsOpen(o => !o)}>⚙️</button>
-          {settingsOpen && (
-            <>
-              <div className={styles.settingsBackdrop} onClick={() => setSettingsOpen(false)} />
-              <div className={styles.settingsDropdown}>
-                <div className={styles.settingsHeader}>
-                  <div className={styles.settingsBrand}>
-                    <span className={styles.settingsLogo}>🧑‍🍳 Let Chat Cook</span>
-                    <span className={styles.settingsLevel}>{gameplayModeLabel}</span>
-                  </div>
-                  <button className={styles.settingsClose} onClick={() => setSettingsOpen(false)}>✕</button>
-                </div>
-                <div className={styles.settingsDivider} />
-                {twitchChannel && twitchChat.status === 'connected' && (
-                  <div className={styles.settingsTwitch}>
-                    <span className={styles.twitchDot} />{twitchChannel}
-                  </div>
-                )}
-                <button
-                  className={`${styles.settingsItem} ${audioSettings.musicMuted ? styles.settingsItemOff : styles.settingsItemOn}`}
-                  onClick={() => handleAudioChange({ ...audioSettings, musicMuted: !audioSettings.musicMuted })}
-                >
-                  Music: {audioSettings.musicMuted ? 'OFF' : 'ON'}
-                </button>
-                <button
-                  className={`${styles.settingsItem} ${audioSettings.sfxMuted ? styles.settingsItemOff : styles.settingsItemOn}`}
-                  onClick={() => handleAudioChange({ ...audioSettings, sfxMuted: !audioSettings.sfxMuted })}
-                >
-                  SFX: {audioSettings.sfxMuted ? 'OFF' : 'ON'}
-                </button>
-                <button
-                  className={`${styles.settingsItem} ${chatOpen ? styles.settingsItemOn : ''}`}
-                  onClick={() => setChatOpen(o => !o)}
-                >
-                  Chat: {chatOpen ? 'ON' : 'OFF'}
-                </button>
-                <button
-                  className={`${styles.settingsItem} ${botsEnabled ? styles.settingsItemOn : ''}`}
-                  onClick={() => setBotsEnabled(b => !b)}
-                >
-                  Bots: {botsEnabled ? 'ON' : 'OFF'}
-                </button>
-                <div className={styles.settingsDivider} />
-                <button className={styles.settingsExit} onClick={() => setScreen('menu')}>Exit</button>
-              </div>
-            </>
-          )}
+          <button className={styles.settingsBtn} onClick={() => setPaused(true)}>⚙️</button>
         </div>
+        {paused && (
+          <PauseModal
+            gameOptions={gameOptions}
+            audioSettings={audioSettings}
+            onAudioChange={handleAudioChange}
+            chatOpen={chatOpen}
+            onChatToggle={() => setChatOpen(o => !o)}
+            botsEnabled={botsEnabled}
+            onBotsToggle={() => setBotsEnabled(b => !b)}
+            onResume={() => setPaused(false)}
+            onExit={() => { setPaused(false); setScreen('menu') }}
+          />
+        )}
       </div>
     )
   }
