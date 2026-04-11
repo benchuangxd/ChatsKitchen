@@ -40,7 +40,7 @@
 
 .eyebrow {
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -82,7 +82,7 @@
 .section p {
   margin: 0;
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.6;
   color: var(--text);
 }
@@ -94,7 +94,7 @@
   gap: 8px;
   color: var(--text);
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.5;
 }
 
@@ -112,7 +112,7 @@
   background: var(--bg-dark);
   padding: 10px 12px;
   font-family: 'Space Mono', monospace;
-  font-size: 14px;
+  font-size: 18px;
   color: #f0c850;
 }
 
@@ -144,14 +144,14 @@
 
 .recipeCardName {
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text);
 }
 
 .recipeCardReward {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   color: #f0c850;
 }
@@ -170,7 +170,7 @@
 }
 
 .recipeStep code {
-  font-size: 12px;
+  font-size: 18px;
   color: #f0c850;
   background: rgba(240, 200, 80, 0.1);
   border-radius: 4px;
@@ -178,18 +178,18 @@
 }
 
 .recipeArrow {
-  font-size: 11px;
+  font-size: 18px;
   color: var(--text-secondary);
 }
 
 .recipeCardServe {
   font-family: 'Fredoka', sans-serif;
-  font-size: 13px;
+  font-size: 18px;
   color: var(--text-secondary);
 }
 
 .recipeCardServe code {
-  font-size: 12px;
+  font-size: 18px;
   color: #5cb85c;
   background: rgba(92, 184, 92, 0.1);
   border-radius: 4px;
@@ -245,7 +245,7 @@
 
   .section p,
   .list {
-    font-size: 15px;
+    font-size: 18px;
   }
 
   .footer {

@@ -24,7 +24,7 @@
 
 .label {
   font-family: 'Space Mono', monospace;
-  font-size: 9px;
+  font-size: 18px;
   color: #6a6258;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -40,6 +40,6 @@
 .hint {
   margin-left: auto;
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
+  font-size: 18px;
   color: #3a3530;
 }
