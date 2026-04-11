@@ -195,6 +195,36 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                   : 'Slot restrictions are off — stations have unlimited slots'}
               </div>
             </div>
+
+            <div className={styles.moreRow}>
+              <div className={styles.moreLabel}>🔄 Auto-Restart</div>
+              <div className={styles.slotsRow}>
+                <span className={styles.slotsLabel}>Restart after round ends</span>
+                <button
+                  className={`${styles.toggleBtn} ${options.autoRestart ? styles.toggleBtnOn : ''}`}
+                  onClick={() => onChange({ ...options, autoRestart: !options.autoRestart })}
+                >
+                  {options.autoRestart ? 'ON' : 'OFF'}
+                </button>
+              </div>
+              {options.autoRestart && (
+                <SliderField
+                  value={options.autoRestartDelay}
+                  min={10}
+                  max={300}
+                  step={10}
+                  format={v => String(v)}
+                  parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                  onChange={v => onChange({ ...options, autoRestartDelay: v })}
+                  suffix="s"
+                />
+              )}
+              <div className={styles.hint}>
+                {options.autoRestart
+                  ? 'Automatically starts a new round after the countdown on the game over screen'
+                  : 'Game over screen will wait for manual input'}
+              </div>
+            </div>
           </div>
         )}
       </div>

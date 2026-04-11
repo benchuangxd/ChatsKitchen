@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { PlayerStats } from '../state/types'
 import { NAME_COLORS } from '../data/recipes'
 import { getLevelConfig, getStarRating } from '../data/levels'
@@ -24,15 +25,39 @@ interface Props {
   highScore?: number
   isNewHighScore?: boolean
   roundHistory?: RoundRecord[]
+  autoRestart?: boolean
+  autoRestartDelay?: number
   onPlayAgain: () => void
   onNextLevel?: () => void
   onMenu: () => void
 }
 
-export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, onPlayAgain, onNextLevel, onMenu }: Props) {
+export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, onPlayAgain, onNextLevel, onMenu }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.taken + s.served + s.extinguished - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
+
+  const [countdown, setCountdown] = useState<number | null>(null)
+
+  // Sync countdown when the autoRestart prop changes (e.g. via mod commands)
+  useEffect(() => {
+    if (autoRestart) {
+      setCountdown(autoRestartDelay ?? 60)
+    } else {
+      setCountdown(null)
+    }
+  }, [autoRestart, autoRestartDelay])
+
+  // Tick the countdown down and fire onPlayAgain at zero
+  useEffect(() => {
+    if (countdown === null) return
+    if (countdown <= 0) {
+      onPlayAgain()
+      return
+    }
+    const id = setTimeout(() => setCountdown(c => (c ?? 1) - 1), 1000)
+    return () => clearTimeout(id)
+  }, [countdown, onPlayAgain])
 
   const stars = level != null ? getStarRating(level, money) : null
   const config = level != null ? getLevelConfig(level) : null
@@ -97,6 +122,31 @@ export default function GameOver({ money, served, lost, playerStats, level, high
             Main Menu
           </button>
         </div>
+
+        {level === null && (
+          <div className={styles.autoRestartBar}>
+            {countdown !== null ? (
+              <>
+                <div className={styles.autoRestartText}>
+                  Auto-restarting in <span className={styles.countdownNum}>{countdown}</span>s…
+                </div>
+                <div className={styles.autoRestartHint}>
+                  <span>!start</span> to begin now · <span>!offAutoRestart</span> to cancel
+                </div>
+                <button className={styles.cancelBtn} onClick={() => setCountdown(null)}>
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <div className={styles.autoRestartText}>Auto-restart is OFF</div>
+                <div className={styles.autoRestartHint}>
+                  <span>!start</span> to begin now · <span>!onAutoRestart</span> to enable
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <div className={styles.rightCol}>

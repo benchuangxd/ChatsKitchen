@@ -67,6 +67,26 @@ export default function MainMenu({ onPlay, onLevels, onOptions, onTutorial, twit
 
         <div className={styles.divider} />
 
+        <div className={styles.streamerSection}>
+          <div className={styles.sectionLabel}>Streamer Mode</div>
+          <p className={styles.streamerDesc}>
+            Enable <strong>Auto-Restart</strong> in Free Play to loop rounds automatically.
+            Mods and broadcasters can control the session live from chat:
+          </p>
+          <div className={styles.cheatsheet}>
+            <span className={styles.csCmd}>!start</span>
+            <span className={styles.csDesc}>begin next round immediately</span>
+            <span className={styles.csCmd}>!exit</span>
+            <span className={styles.csDesc}>end the current round</span>
+            <span className={styles.csCmd}>!onAutoRestart</span>
+            <span className={styles.csDesc}>enable auto-restart</span>
+            <span className={styles.csCmd}>!offAutoRestart</span>
+            <span className={styles.csDesc}>disable auto-restart</span>
+          </div>
+        </div>
+
+        <div className={styles.divider} />
+
         <div className={styles.leftFooter}>
           created by THIANzeren &nbsp;·&nbsp; work in progress — progress may reset
         </div>

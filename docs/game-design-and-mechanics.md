@@ -52,8 +52,12 @@ Free Play is the flexible mode. Parameters are configured directly in the Free P
 | Cooking Speed | 1.0× | 0.25×–3.0× | 0.25× |
 | Order Urgency | 1.0× | 0.25×–3.0× | 0.25× |
 | Order Frequency | 1.0× | 0.25×–3.0× | 0.25× |
+| Auto-Restart | OFF | ON / OFF | — |
+| Restart Delay | 60 s | 10–300 s | 10 s |
 
 Station slot capacity can also be toggled and adjusted per station type (chopping: 1–8, cooking: 1–8).
+
+Auto-Restart and Restart Delay are found in the More Options panel. When Auto-Restart is on, the game over screen displays a countdown and automatically begins a new round when it reaches zero. Moderators and the broadcaster can also control this live from chat (see Mod Commands below).
 
 It is the best mode for experimenting, practicing, or playing casually with chat.
 
@@ -144,6 +148,19 @@ The command system is the main input method for chat participation. Commands are
 | `cook` | `cook <item>` | Cook rice in the rice pot |
 | `serve` | `serve <order#>` | Serve a completed dish to an order |
 | `extinguish` | `extinguish <station>` | Put out a fire at a station |
+
+### Mod / Broadcaster Commands
+
+Certain commands are reserved for Twitch moderators and the broadcaster (or the local chat input, which is always granted broadcaster-level access). These commands control the game session rather than the kitchen, and are processed before normal cooking commands.
+
+| Command | Valid during | Effect |
+|---------|-------------|--------|
+| `!start` | Game over screen (Free Play) | Immediately starts a new round, skipping any remaining countdown |
+| `!onAutoRestart` | Playing, Game over | Enables auto-restart |
+| `!offAutoRestart` | Playing, Game over | Disables auto-restart and cancels any active countdown |
+| `!exit` | Playing | Ends the round and triggers the normal shift-end → game-over flow |
+
+When a mod command fires, a brief toast notification appears on screen for the streamer and viewers to see. The game over screen also always shows the available commands as a reference, regardless of whether auto-restart is on or off.
 
 ### Shortform aliases
 
@@ -246,11 +263,13 @@ When connected:
 - live Twitch chat messages are read into the game
 - commands from chat become gameplay actions
 - the UI shows connected-channel status
+- moderators and the broadcaster have access to session-control commands (`!start`, `!exit`, `!onAutoRestart`, `!offAutoRestart`)
 
 When disconnected:
 
 - the game can still be played locally
 - the UI warns that Twitch should be connected before playing with a community
+- the local chat input is always treated as broadcaster-level for mod commands
 
 ## Audio And Feedback
 
@@ -274,6 +293,7 @@ Persisted data includes:
 
 - audio settings
 - level progress
+- Free Play game options (duration, speeds, recipes, station slots, auto-restart settings)
 
 Session-level or resettable state includes:
 

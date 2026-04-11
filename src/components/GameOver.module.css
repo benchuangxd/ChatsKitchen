@@ -382,3 +382,54 @@
   transform: scale(1.03);
   filter: brightness(1.2);
 }
+
+.autoRestartBar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.autoRestartText {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1.1;
+}
+
+.autoRestartHint {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.autoRestartHint span {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.countdownNum {
+  font-family: 'Lilita One', cursive;
+  font-size: 48px;
+  color: #ffffff;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.cancelBtn {
+  align-self: flex-start;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.cancelBtn:hover {
+  border-color: #d94f4f;
+  color: #d94f4f;
+}
