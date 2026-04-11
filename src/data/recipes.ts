@@ -63,7 +63,7 @@ export const RECIPES: Record<string, Recipe> = {
     plate: ['chopped_lettuce', 'chopped_tomato', 'toasted_crouton']
   },
   mushroom_soup: {
-    name: 'Grilled Cheese', emoji: '\u{1F9C0}', reward: 40, patience: 55000,
+    name: 'Grilled Cheese Sandwich', emoji: '🥪', reward: 40, patience: 55000,
     steps: [
       { action: 'grill', target: 'cheese', station: 'grill', duration: 7000, burnAt: 22000, produces: 'grilled_cheese' },
       { action: 'toast', target: 'bread',  station: 'oven',  duration: 6000, burnAt: 20000, produces: 'toasted_bread' },
@@ -105,9 +105,9 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop', target: 'pork',    station: 'cutting_board', duration: 7000, produces: 'sliced_pork' },
       { action: 'chop', target: 'cabbage', station: 'cutting_board', duration: 6000, produces: 'sliced_cabbage' },
-      { action: 'stir', target: 'pork',    station: 'wok',           duration: 9000, burnAt: 24000, produces: 'wok_pork', requires: 'sliced_pork' },
+      { action: 'stir', target: 'pork',    station: 'wok',           duration: 9000, burnAt: 24000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
     ],
-    plate: ['wok_pork', 'sliced_cabbage']
+    plate: ['stir_fried_pork', 'sliced_cabbage']
   },
   steamed_tofu: {
     name: 'Steamed Tofu', emoji: '\u{1F9C8}', reward: 45, patience: 65000,
@@ -122,10 +122,10 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Steamed Buns', emoji: '\u{1F95F}', reward: 55, patience: 70000,
     steps: [
       { action: 'chop',  target: 'pork', station: 'cutting_board', duration: 7000,  produces: 'sliced_pork' },
-      { action: 'stir',  target: 'pork', station: 'wok',           duration: 8000,  burnAt: 22000, produces: 'wok_pork', requires: 'sliced_pork' },
+      { action: 'stir',  target: 'pork', station: 'wok',           duration: 8000,  burnAt: 22000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
       { action: 'steam', target: 'bun',  station: 'steamer',       duration: 11000, burnAt: 32000, produces: 'steamed_bun' },
     ],
-    plate: ['steamed_bun', 'wok_pork']
+    plate: ['steamed_bun', 'stir_fried_pork']
   },
 
   // ── Korean Kitchen ────────────────────────────────────────────────────────
@@ -261,7 +261,7 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
   stir_fried_rice:     '\u{1F373}',
   sliced_pork:         '\u{1F969}',
   sliced_cabbage:      '\u{1F96C}',
-  wok_pork:            '\u{1F969}',
+  stir_fried_pork:            '🍖',
   steamed_tofu_block:  '\u{1F9C8}',
   steamed_bun:         '\u{1F95F}',
 
