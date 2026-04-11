@@ -37,6 +37,7 @@ export default function PauseModal({
   return (
     <div className={styles.backdrop}>
       <div className={styles.modal}>
+        <button className={styles.closeBtn} onClick={onResume}>✕</button>
         {/* LEFT COLUMN */}
         <div className={styles.left}>
           <div className={styles.pausedHeader}>⏸ PAUSED</div>
