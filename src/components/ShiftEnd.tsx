@@ -8,9 +8,11 @@ interface Props {
   served: number
   lost: number
   onDone: () => void
+  goalMoney?: number     // adventure mode: the money goal for this shift
+  shiftNumber?: number   // adventure mode: displayed as "Shift N" label
 }
 
-export default function ShiftEnd({ money, served, lost, onDone }: Props) {
+export default function ShiftEnd({ money, served, lost, onDone, goalMoney, shiftNumber }: Props) {
   const [phase, setPhase] = useState<Phase>('closing')
 
   useEffect(() => {
@@ -51,6 +53,20 @@ export default function ShiftEnd({ money, served, lost, onDone }: Props) {
           <div className={styles.scoreCard}>
             <div className={styles.shiftLabel}>Shift earnings</div>
             <div className={styles.moneyVal}>${money}</div>
+            {goalMoney != null && (
+              <>
+                <div className={styles.shiftLabel} style={{ fontSize: '16px' }}>
+                  {shiftNumber != null ? `Shift ${shiftNumber}` : 'Goal'}: ${goalMoney}
+                </div>
+                <div className={styles.servedRow}>
+                  <span
+                    className={`${styles.statPill} ${money >= goalMoney ? styles.statServed : styles.statLost}`}
+                  >
+                    {money >= goalMoney ? '✓ PASSED' : '✗ FAILED'}
+                  </span>
+                </div>
+              </>
+            )}
             <div className={styles.servedRow}>
               <span className={`${styles.statPill} ${styles.statServed}`}>✓ {served} served</span>
               <span className={`${styles.statPill} ${styles.statLost}`}>✗ {lost} lost</span>

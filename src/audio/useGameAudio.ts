@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { GameState, AudioSettings } from '../state/types'
 import { getAudioManager } from './AudioManager'
 
-type Screen = 'menu' | 'levelselect' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
+type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventurerunend'
 
 export function useGameAudio(screen: Screen, state: GameState, audioSettings: AudioSettings) {
   const audio = getAudioManager()
@@ -22,7 +22,8 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
   useEffect(() => {
     switch (screen) {
       case 'menu':
-      case 'levelselect':
+      case 'adventurebriefing':
+      case 'adventurerunend':
       case 'options':
         if (trackEnabled.menu) audio.playMusic('menu')
         else audio.stopMusic()

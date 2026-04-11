@@ -4,7 +4,7 @@ import styles from './MainMenu.module.css'
 
 interface Props {
   onPlay: () => void
-  onLevels: () => void
+  onAdventure: () => void
   onOptions: () => void
   onTutorial: () => void
   twitchChannel: string | null
@@ -14,7 +14,7 @@ interface Props {
   onTwitchDisconnect: () => void
 }
 
-export default function MainMenu({ onPlay, onLevels, onOptions, onTutorial, twitchChannel, twitchStatus, twitchError, onTwitchConnect, onTwitchDisconnect }: Props) {
+export default function MainMenu({ onPlay, onAdventure, onOptions, onTutorial, twitchChannel, twitchStatus, twitchError, onTwitchConnect, onTwitchDisconnect }: Props) {
   const [twitchInput, setTwitchInput] = useState(twitchChannel || '')
   const isConnected = twitchStatus === 'connected'
   const isConnecting = twitchStatus === 'connecting'
@@ -147,10 +147,10 @@ export default function MainMenu({ onPlay, onLevels, onOptions, onTutorial, twit
             <div className={styles.fpArrow}>▶</div>
           </button>
 
-          <button className={styles.modeAdventures} onClick={onLevels}>
+          <button className={styles.modeAdventures} onClick={onAdventure}>
             <div>
               <div className={styles.lvName}>Adventures</div>
-              <div className={styles.lvDesc}>10 escalating challenges — earn stars on each</div>
+              <div className={styles.lvDesc}>Roguelike runs — how many shifts can you survive?</div>
             </div>
             <div className={styles.lvArrow}>→</div>
           </button>

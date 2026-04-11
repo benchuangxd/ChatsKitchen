@@ -1,0 +1,152 @@
+.screen {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  height: 100%;
+  padding: 40px 32px 40px 48px;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  padding: 40px 48px 40px 16px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.shiftTitle {
+  font-family: 'Lilita One', cursive;
+  font-size: 48px;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+}
+
+.goalLine {
+  font-family: 'Lilita One', cursive;
+  font-size: 36px;
+  color: #f0c850;
+}
+
+.prevResult {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.bestChip {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 240px;
+  margin-top: 8px;
+}
+
+.startBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: #b87333;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.startBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+}
+
+.menuBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.menuBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.2);
+}
+
+/* ── Recipe panel ── */
+
+.menuPanel {
+  background: var(--station-bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelTitle {
+  font-family: 'Lilita One', cursive;
+  font-size: 18px;
+  color: var(--text-warm);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.recipeCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.recipeCardBorder {
+  border-top: 1px solid var(--border);
+}
+
+.recipeEmoji {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.recipeName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.recipeReward {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: #f0c850;
+  margin-left: auto;
+  flex-shrink: 0;
+}
