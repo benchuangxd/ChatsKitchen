@@ -27,13 +27,13 @@
 
 .cmd {
   font-family: 'Space Mono', monospace;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: #f0c850;
 }
 
 .args {
   font-family: 'Space Mono', monospace;
-  font-size: 14px;
+  font-size: 18px;
   color: #6a6258;
 }

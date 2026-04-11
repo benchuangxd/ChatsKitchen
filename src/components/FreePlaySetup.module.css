@@ -38,7 +38,7 @@
   border-radius: 10px;
   padding: 8px 20px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   background: #b87333;
   color: #fff;
@@ -93,7 +93,7 @@
   border-radius: 8px;
   padding: 10px 18px;
   font-family: 'Space Mono', monospace;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-secondary);
   background: var(--bg);
@@ -128,7 +128,7 @@
   border-radius: 10px;
   padding: 10px 14px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-secondary);
   background: var(--bg);
@@ -157,18 +157,18 @@
 }
 
 .recipeName {
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .recipeReward {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 18px;
   opacity: 0.75;
 }
 
 .hint {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 18px;
   color: var(--text-muted);
   margin-top: 10px;
 }
@@ -232,7 +232,7 @@
   border-radius: 8px;
   padding: 7px 8px;
   font-family: 'Space Mono', monospace;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text);
   text-align: center;
@@ -246,7 +246,7 @@
 
 .inputSuffix {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 18px;
   color: var(--text-muted);
   min-width: 20px;
 }
@@ -259,7 +259,7 @@
   border-radius: 8px;
   padding: 10px 24px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-secondary);
   background: transparent;
@@ -320,7 +320,7 @@
   border-radius: 8px;
   padding: 4px 12px;
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-secondary);
   background: transparent;
@@ -358,7 +358,7 @@
 
 .moreLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text);
 }
@@ -373,7 +373,7 @@
 
 .slotsLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--text);
 }
@@ -383,7 +383,7 @@
   border-radius: 6px;
   padding: 6px 14px;
   font-family: 'Space Mono', monospace;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-secondary);
   background: transparent;
@@ -427,7 +427,7 @@
 
 .capacityLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--text);
   min-width: 110px;
@@ -447,7 +447,7 @@
   background: var(--bg);
   color: var(--text);
   font-family: 'Space Mono', monospace;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -479,7 +479,7 @@
 
 .startWarning {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 18px;
   color: #d94f4f;
   margin-bottom: 8px;
   text-align: center;
