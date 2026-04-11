@@ -6,6 +6,7 @@ export function useGameLoop(
   state: GameState,
   dispatch: React.Dispatch<GameAction>,
   onGameOver?: () => void,
+  paused?: boolean,
 ) {
   const lastTimeRef = useRef(Date.now())
   const gameTimeRef = useRef(0)
@@ -14,6 +15,8 @@ export function useGameLoop(
   const gameOverFired = useRef(false)
   const stateRef = useRef(state)
   stateRef.current = state
+  const pausedRef = useRef(paused)
+  pausedRef.current = paused
 
   // Reset refs when a new game starts (timeLeft is full and no orders served yet)
   useEffect(() => {
@@ -43,6 +46,8 @@ export function useGameLoop(
         onGameOver()
         return
       }
+
+      if (pausedRef.current) return
 
       // Tick game state
       dispatch({ type: 'TICK', delta, now })
