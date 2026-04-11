@@ -1,0 +1,105 @@
+import { useEffect } from 'react'
+import { AudioSettings, GameOptions } from '../state/types'
+import { RECIPES } from '../data/recipes'
+import styles from './PauseModal.module.css'
+
+interface PauseModalProps {
+  gameOptions: GameOptions
+  audioSettings: AudioSettings
+  onAudioChange: (s: AudioSettings) => void
+  chatOpen: boolean
+  onChatToggle: () => void
+  botsEnabled: boolean
+  onBotsToggle: () => void
+  onResume: () => void
+  onExit: () => void
+}
+
+export default function PauseModal({
+  gameOptions,
+  audioSettings,
+  onAudioChange,
+  chatOpen,
+  onChatToggle,
+  botsEnabled,
+  onBotsToggle,
+  onResume,
+  onExit,
+}: PauseModalProps) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onResume()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onResume])
+
+  return (
+    <div className={styles.backdrop}>
+      <div className={styles.modal}>
+        {/* LEFT COLUMN */}
+        <div className={styles.left}>
+          <div className={styles.pausedHeader}>⏸ PAUSED</div>
+
+          <button
+            className={`${styles.toggle} ${!audioSettings.musicMuted ? styles.toggleOn : styles.toggleOff}`}
+            onClick={() => onAudioChange({ ...audioSettings, musicMuted: !audioSettings.musicMuted })}
+          >
+            🎵 Music &nbsp; {audioSettings.musicMuted ? 'OFF' : 'ON'}
+          </button>
+          <button
+            className={`${styles.toggle} ${!audioSettings.sfxMuted ? styles.toggleOn : styles.toggleOff}`}
+            onClick={() => onAudioChange({ ...audioSettings, sfxMuted: !audioSettings.sfxMuted })}
+          >
+            🔊 SFX &nbsp; {audioSettings.sfxMuted ? 'OFF' : 'ON'}
+          </button>
+          <button
+            className={`${styles.toggle} ${chatOpen ? styles.toggleOn : styles.toggleOff}`}
+            onClick={onChatToggle}
+          >
+            💬 Chat &nbsp; {chatOpen ? 'ON' : 'OFF'}
+          </button>
+          <button
+            className={`${styles.toggle} ${botsEnabled ? styles.toggleOn : styles.toggleOff}`}
+            onClick={onBotsToggle}
+          >
+            🤖 Bots &nbsp; {botsEnabled ? 'ON' : 'OFF'}
+          </button>
+
+          <div className={styles.divider} />
+
+          <button className={styles.exitBtn} onClick={onExit}>
+            Exit to Menu
+          </button>
+          <button className={styles.resumeBtn} onClick={onResume}>
+            ▶ Resume Game
+          </button>
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className={styles.right}>
+          <div className={styles.recipeLabel}>Active Recipes</div>
+          {gameOptions.enabledRecipes.map(key => {
+            const recipe = RECIPES[key]
+            if (!recipe) return null
+            return (
+              <div key={key} className={styles.recipeCard}>
+                <div className={styles.recipeName}>{recipe.emoji} {recipe.name}</div>
+                <div className={styles.recipeSteps}>
+                  {recipe.steps.map((step, i) => (
+                    <span key={i}>
+                      {step.action} {step.target}
+                      {i < recipe.steps.length - 1
+                        ? (recipe.steps[i + 1].requires ? ' → ' : ' + ')
+                        : ''}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
