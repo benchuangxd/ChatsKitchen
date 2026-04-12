@@ -64,8 +64,6 @@
   flex-direction: column;
   gap: 4px;
   font-size: 18px;
-  scrollbar-width: thin;
-  scrollbar-color: #c8841a33 transparent;
 }
 
 .msg {
