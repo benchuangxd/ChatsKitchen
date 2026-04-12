@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { GameState, AudioSettings } from '../state/types'
 import { getAudioManager } from './AudioManager'
 
-type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventurerunend'
+type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend'
 
 export function useGameAudio(screen: Screen, state: GameState, audioSettings: AudioSettings) {
   const audio = getAudioManager()
@@ -48,11 +48,16 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
         audio.stopMusic()
         audio.playSfx('round-over')
         break
+      case 'adventureshiftpassed':
       case 'gameover':
         audio.stopAllSfx()
         if (trackEnabled.gameover) audio.playMusic('gameover')
         break
     }
+  // State values (served, lost, etc.) are intentionally omitted — this effect must only
+  // fire on screen transitions to snapshot initial ref baselines. Re-running on every
+  // game-tick state change would reset those refs and break intensity escalation logic.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, audio, trackEnabled.menu, trackEnabled.gameplay, trackEnabled.gameover])
 
   // Volume and mute sync

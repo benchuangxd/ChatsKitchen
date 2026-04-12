@@ -64,7 +64,14 @@ export default function AdventureRunEnd({ run, bestRun, isNewBestRun, onPlayAgai
           </div>
         )}
 
-        {/* Shift history */}
+        <div className={styles.buttons}>
+          <button className={styles.playAgainBtn} onClick={onPlayAgain}>Play Again</button>
+          <button className={styles.menuBtn} onClick={onMenu}>Main Menu</button>
+        </div>
+      </div>
+
+      {/* ── RIGHT ── */}
+      <div className={styles.rightCol}>
         <div className={styles.historyPanel}>
           <div className={styles.panelTitle}>Shift History</div>
           <div className={styles.historyHeader}>
@@ -92,14 +99,6 @@ export default function AdventureRunEnd({ run, bestRun, isNewBestRun, onPlayAgai
           ))}
         </div>
 
-        <div className={styles.buttons}>
-          <button className={styles.playAgainBtn} onClick={onPlayAgain}>Play Again</button>
-          <button className={styles.menuBtn} onClick={onMenu}>Main Menu</button>
-        </div>
-      </div>
-
-      {/* ── RIGHT ── */}
-      <div className={styles.rightCol}>
         <div className={styles.leaderboard}>
           <div className={styles.lbStickyHead}>
             <div className={styles.lbTitle}>Leaderboard</div>

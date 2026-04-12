@@ -15,6 +15,7 @@ import ShiftEnd from './components/ShiftEnd'
 import GameOver from './components/GameOver'
 import AdventureBriefing from './components/AdventureBriefing'
 import AdventureRunEnd from './components/AdventureRunEnd'
+import AdventureShiftPassed from './components/AdventureShiftPassed'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
 import PauseModal from './components/PauseModal'
@@ -28,7 +29,7 @@ import ChatPanel from './components/ChatPanel'
 import BottomBar from './components/BottomBar'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventurerunend'
+type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend'
 type TutorialDestination = 'menu' | 'freeplaysetup'
 
 const DEFAULT_GAME_OPTIONS: GameOptions = {
@@ -323,23 +324,8 @@ export default function App() {
     }
 
     if (passed) {
-      const nextShift   = run.currentShift + 1
-      const nextRecipes = pickAdventureRecipes()
-      setAdventureRun({
-        ...updatedRun,
-        currentShift:   nextShift,
-        currentRecipes: nextRecipes,
-        currentGoal:    getAdventureGoal(nextShift),
-      })
-      dispatch({
-        type: 'RESET',
-        shiftDuration: ADVENTURE_SHIFT_DURATION,
-        cookingSpeed: 1, orderSpeed: 1, orderSpawnRate: 1,
-        stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
-        restrictSlots: false,
-        enabledRecipes: nextRecipes,
-      })
-      setScreen('adventurebriefing')
+      setAdventureRun(updatedRun)
+      setScreen('adventureshiftpassed')
     } else {
       setAdventureRun(updatedRun)
       const totalMoney = updatedRun.shiftResults.reduce((sum, r) => sum + r.moneyEarned, 0)
@@ -349,7 +335,7 @@ export default function App() {
           || (updatedRun.currentShift === prev.furthestShift && totalMoney > prev.totalMoney)
         if (isNew) {
           const best: AdventureBestRun = { furthestShift: updatedRun.currentShift, totalMoney }
-          try { localStorage.setItem('chatsKitchen_adventureBestRun', JSON.stringify(best)) } catch {}
+          try { localStorage.setItem('chatsKitchen_adventureBestRun', JSON.stringify(best)) } catch { /* ignore */ }
           setIsNewBestAdventureRun(true)
           return best
         }
@@ -359,7 +345,29 @@ export default function App() {
     }
   }, [finalStats])
 
-useEffect(() => {
+  const handleShiftPassedNext = useCallback(() => {
+    const run = adventureRunRef.current
+    if (!run) return
+    const nextShift   = run.currentShift + 1
+    const nextRecipes = pickAdventureRecipes()
+    setAdventureRun({
+      ...run,
+      currentShift:   nextShift,
+      currentRecipes: nextRecipes,
+      currentGoal:    getAdventureGoal(nextShift),
+    })
+    dispatch({
+      type: 'RESET',
+      shiftDuration: ADVENTURE_SHIFT_DURATION,
+      cookingSpeed: 1, orderSpeed: 1, orderSpawnRate: 1,
+      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
+      restrictSlots: false,
+      enabledRecipes: nextRecipes,
+    })
+    setScreen('adventurebriefing')
+  }, [])
+
+  useEffect(() => {
     document.documentElement.setAttribute('data-theme', audioSettings.darkMode ? 'dark' : 'light')
   }, [audioSettings.darkMode])
 
@@ -468,6 +476,19 @@ useEffect(() => {
         onPlayAgain={startFreePlay}
         onNextLevel={undefined}
         onMenu={() => setScreen('menu')}
+      />
+    )
+  } else if (screen === 'adventureshiftpassed') {
+    content = (
+      <AdventureShiftPassed
+        shiftNumber={adventureRun!.currentShift}
+        money={finalStats.money}
+        goalMoney={adventureRun!.currentGoal}
+        served={finalStats.served}
+        lost={finalStats.lost}
+        playerStats={finalStats.playerStats}
+        onNext={handleShiftPassedNext}
+        onMenu={() => { setAdventureRun(null); setScreen('menu') }}
       />
     )
   } else if (screen === 'adventurerunend') {

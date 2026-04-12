@@ -1,6 +1,11 @@
+import { Fragment, useState } from 'react'
 import { AdventureRun, AdventureBestRun } from '../state/types'
 import { RECIPES } from '../data/recipes'
+import { ADVENTURE_SHIFT_DURATION } from '../data/adventureMode'
+import AdventureExitConfirm from './AdventureExitConfirm'
 import styles from './AdventureBriefing.module.css'
+
+const SHIFT_MINUTES = Math.round(ADVENTURE_SHIFT_DURATION / 60_000)
 
 interface Props {
   run: AdventureRun
@@ -10,9 +15,12 @@ interface Props {
 }
 
 export default function AdventureBriefing({ run, bestRun, onStart, onMenu }: Props) {
+  const [confirmExit, setConfirmExit] = useState(false)
+
   const lastResult = run.shiftResults.length > 0
     ? run.shiftResults[run.shiftResults.length - 1]
     : null
+  const isFirstShift = run.currentShift === 1
 
   return (
     <div className={styles.screen}>
@@ -20,6 +28,13 @@ export default function AdventureBriefing({ run, bestRun, onStart, onMenu }: Pro
       <div className={styles.leftCol}>
         <h1 className={styles.shiftTitle}>Shift {run.currentShift}</h1>
         <div className={styles.goalLine}>Goal: ${run.currentGoal}</div>
+
+        {isFirstShift && (
+          <p className={styles.description}>
+            Cook 3 random dishes each shift and hit the money goal to survive.
+            Miss it, and the run ends. How far can you go?
+          </p>
+        )}
 
         {lastResult && (
           <div className={styles.prevResult}>
@@ -37,7 +52,7 @@ export default function AdventureBriefing({ run, bestRun, onStart, onMenu }: Pro
 
         <div className={styles.buttons}>
           <button className={styles.startBtn} onClick={onStart}>START</button>
-          <button className={styles.menuBtn} onClick={onMenu}>Main Menu</button>
+          <button className={styles.menuBtn} onClick={() => setConfirmExit(true)}>Main Menu</button>
         </div>
       </div>
 
@@ -50,14 +65,55 @@ export default function AdventureBriefing({ run, bestRun, onStart, onMenu }: Pro
             if (!recipe) return null
             return (
               <div key={key} className={`${styles.recipeCard} ${i > 0 ? styles.recipeCardBorder : ''}`}>
-                <span className={styles.recipeEmoji}>{recipe.emoji}</span>
-                <span className={styles.recipeName}>{recipe.name}</span>
-                <span className={styles.recipeReward}>${recipe.reward}</span>
+                <div className={styles.recipeHeader}>
+                  <span className={styles.recipeEmoji}>{recipe.emoji}</span>
+                  <span className={styles.recipeName}>{recipe.name}</span>
+                  <span className={styles.recipeReward}>${recipe.reward}</span>
+                </div>
+                <div className={styles.recipeSteps}>
+                  {recipe.steps.map((step, si) => (
+                    <Fragment key={si}>
+                      {si > 0 && (
+                        <span className={step.requires ? styles.stepArrow : styles.stepSeparator}>
+                          {step.requires ? '→' : '·'}
+                        </span>
+                      )}
+                      <code className={styles.stepCmd}>!{step.action} {step.target}</code>
+                    </Fragment>
+                  ))}
+                </div>
               </div>
             )
           })}
         </div>
+
+        <div className={styles.paramsPanel}>
+          <div className={styles.panelTitle}>Parameters</div>
+          <div className={styles.paramRow}>
+            <span className={styles.paramLabel}>Duration</span>
+            <span className={styles.paramValue}>{SHIFT_MINUTES} min</span>
+          </div>
+          <div className={styles.paramRow}>
+            <span className={styles.paramLabel}>Cooking Speed</span>
+            <span className={styles.paramValue}>1×</span>
+          </div>
+          <div className={styles.paramRow}>
+            <span className={styles.paramLabel}>Order Speed</span>
+            <span className={styles.paramValue}>1×</span>
+          </div>
+          <div className={styles.paramRow}>
+            <span className={styles.paramLabel}>Order Spawn Rate</span>
+            <span className={styles.paramValue}>1×</span>
+          </div>
+        </div>
       </div>
+
+      {confirmExit && (
+        <AdventureExitConfirm
+          onConfirm={onMenu}
+          onCancel={() => setConfirmExit(false)}
+        />
+      )}
     </div>
   )
 }

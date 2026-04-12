@@ -98,8 +98,8 @@
 
 .historyHeader {
   display: flex;
-  gap: 4px;
-  padding: 4px 6px;
+  gap: 12px;
+  padding: 4px 8px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 4px;
 }
@@ -113,8 +113,8 @@
 
 .historyRow {
   display: flex;
-  gap: 4px;
-  padding: 5px 6px;
+  gap: 12px;
+  padding: 6px 8px;
   border-radius: 4px;
 }
 
@@ -131,7 +131,7 @@
   font-family: 'Space Mono', monospace;
   font-size: 18px;
   color: var(--text-secondary);
-  width: 28px;
+  width: 32px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -150,7 +150,7 @@
   font-family: 'Space Mono', monospace;
   font-size: 18px;
   color: var(--text-muted);
-  width: 52px;
+  width: 76px;
   text-align: right;
   flex-shrink: 0;
 }
@@ -160,7 +160,7 @@
   font-size: 18px;
   color: #f0c850;
   font-weight: 700;
-  width: 60px;
+  width: 76px;
   text-align: right;
   flex-shrink: 0;
 }
@@ -169,7 +169,7 @@
   font-family: 'Space Mono', monospace;
   font-size: 18px;
   font-weight: 700;
-  width: 40px;
+  width: 52px;
   text-align: right;
   flex-shrink: 0;
 }
@@ -179,7 +179,7 @@
   font-family: 'Space Mono', monospace;
   font-size: 18px;
   font-weight: 700;
-  width: 40px;
+  width: 52px;
   text-align: right;
   flex-shrink: 0;
 }
@@ -189,7 +189,7 @@
   font-family: 'Space Mono', monospace;
   font-size: 18px;
   font-weight: 700;
-  width: 40px;
+  width: 52px;
   text-align: right;
   flex-shrink: 0;
 }
@@ -334,7 +334,7 @@
   font-family: 'Space Mono', monospace;
   font-size: 18px;
   color: var(--text-secondary);
-  width: 36px;
+  width: 40px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -344,7 +344,7 @@
   font-size: 18px;
   font-weight: 700;
   color: #f0c850;
-  width: 52px;
+  width: 60px;
   text-align: right;
   flex-shrink: 0;
 }
