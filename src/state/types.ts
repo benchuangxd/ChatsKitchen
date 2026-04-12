@@ -71,10 +71,6 @@ export interface AudioSettings {
   trackEnabled: { menu: boolean; gameplay: boolean; gameover: boolean }
 }
 
-export interface LevelProgress {
-  [level: number]: number // level → best stars (0-3)
-}
-
 export interface RecipeSet {
   id: string
   name: string
@@ -83,6 +79,29 @@ export interface RecipeSet {
   description: string
   cuisine: string
   recipeKeys: string[]
+}
+
+export interface ShiftResult {
+  shiftNumber: number
+  recipes: string[]       // 3 recipe keys for this shift
+  goalMoney: number
+  moneyEarned: number
+  served: number
+  lost: number
+  passed: boolean
+}
+
+export interface AdventureRun {
+  currentShift: number                              // 1-based; shift being set up or played
+  shiftResults: ShiftResult[]                       // completed shifts (appended after shiftend)
+  currentRecipes: string[]                          // 3 recipe keys for the current shift
+  currentGoal: number                               // money goal for the current shift
+  accumulatedPlayerStats: Record<string, PlayerStats>
+}
+
+export interface AdventureBestRun {
+  furthestShift: number   // shift number of the last (failed) shift
+  totalMoney: number      // sum of moneyEarned across all shifts
 }
 
 export interface GameState {

@@ -1,7 +1,7 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, LevelProgress, PlayerStats } from './state/types'
+import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult } from './state/types'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
@@ -13,20 +13,24 @@ import OptionsScreen from './components/OptionsScreen'
 import Countdown from './components/Countdown'
 import ShiftEnd from './components/ShiftEnd'
 import GameOver from './components/GameOver'
-import LevelSelect from './components/LevelSelect'
+import AdventureBriefing from './components/AdventureBriefing'
+import AdventureRunEnd from './components/AdventureRunEnd'
+import AdventureShiftPassed from './components/AdventureShiftPassed'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
 import PauseModal from './components/PauseModal'
 import Toast from './components/Toast'
-import { getLevelConfig, getStarRating } from './data/levels'
+import {
+  ADVENTURE_SHIFT_DURATION, getAdventureGoal, pickAdventureRecipes, mergePlayerStats,
+} from './data/adventureMode'
 import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
 import ChatPanel from './components/ChatPanel'
 import BottomBar from './components/BottomBar'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'levelselect' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
-type TutorialDestination = 'menu' | 'freeplaysetup' | 'levelselect'
+type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend'
+type TutorialDestination = 'menu' | 'freeplaysetup'
 
 const DEFAULT_GAME_OPTIONS: GameOptions = {
   cookingSpeed: 1,
@@ -107,16 +111,15 @@ export default function App() {
   const [autoRestartSignal, setAutoRestartSignal] = useState(0)
   const screenRef = useRef<Screen>('menu')
   const gameOptionsRef = useRef(gameOptions)
-  const currentLevelRef = useRef<number | null>(null)
-  const [currentLevel, setCurrentLevel] = useState<number | null>(null)
-  const [levelProgress, setLevelProgress] = useState<LevelProgress>(() => {
+  const [adventureRun, setAdventureRun]   = useState<AdventureRun | null>(null)
+  const adventureRunRef                   = useRef<AdventureRun | null>(null)
+  const [adventureBestRun, setAdventureBestRun] = useState<AdventureBestRun | null>(() => {
     try {
-      const saved = localStorage.getItem('chatsKitchen_levelProgress')
-      return saved ? JSON.parse(saved) : {}
-    } catch {
-      return {}
-    }
+      const saved = localStorage.getItem('chatsKitchen_adventureBestRun')
+      return saved ? JSON.parse(saved) : null
+    } catch { return null }
   })
+  const [isNewBestAdventureRun, setIsNewBestAdventureRun] = useState(false)
   const [hideTutorialPrompt, setHideTutorialPrompt] = useState(() => {
     try {
       return localStorage.getItem('chatsKitchen_hideTutorialPrompt') === 'true'
@@ -130,7 +133,7 @@ export default function App() {
   // Keep refs in sync so stable callbacks can read current values
   screenRef.current = screen
   gameOptionsRef.current = gameOptions
-  currentLevelRef.current = currentLevel
+  adventureRunRef.current = adventureRun
 
   const showToast = useCallback((message: string) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
@@ -139,19 +142,37 @@ export default function App() {
   }, [])
 
   const startFreePlay = useCallback(() => {
-    setCurrentLevel(null)
+    setAdventureRun(null)
     dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, orderSpawnRate: gameOptions.orderSpawnRate, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
     setScreen('countdown')
   }, [gameOptions])
 
+  const startAdventure = useCallback(() => {
+    setIsNewBestAdventureRun(false)
+    const recipes = pickAdventureRecipes()
+    const shift   = 1
+    const run: AdventureRun = {
+      currentShift: shift,
+      shiftResults: [],
+      currentRecipes: recipes,
+      currentGoal: getAdventureGoal(shift),
+      accumulatedPlayerStats: {},
+    }
+    setAdventureRun(run)
+    dispatch({
+      type: 'RESET',
+      shiftDuration: ADVENTURE_SHIFT_DURATION,
+      cookingSpeed: 1, orderSpeed: 1, orderSpawnRate: 1,
+      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
+      restrictSlots: false,
+      enabledRecipes: recipes,
+    })
+    setScreen('adventurebriefing')
+  }, [])
+
   const continueFromTutorial = useCallback((destination: TutorialDestination) => {
     if (destination === 'freeplaysetup') {
       setScreen('freeplaysetup')
-      return
-    }
-
-    if (destination === 'levelselect') {
-      setScreen('levelselect')
       return
     }
 
@@ -218,15 +239,13 @@ export default function App() {
   const handleGameOver = useCallback(() => {
     const s = stateRef.current
     setFinalStats({ money: s.money, served: s.served, lost: s.lost, playerStats: s.playerStats })
-    if (currentLevel != null) {
-      const stars = getStarRating(currentLevel, s.money)
-      if (stars > (levelProgress[currentLevel] || 0)) {
-        const updated = { ...levelProgress, [currentLevel]: stars }
-        setLevelProgress(updated)
-        localStorage.setItem('chatsKitchen_levelProgress', JSON.stringify(updated))
-      }
-      setIsNewHighScore(false)
+
+    if (adventureRunRef.current) {
+      setAdventureRun(prev => prev
+        ? { ...prev, accumulatedPlayerStats: mergePlayerStats(prev.accumulatedPlayerStats, s.playerStats) }
+        : prev)
     } else {
+      // Free Play: existing high-score + history logic (unchanged)
       setFreePlayHighScore(prev => {
         if (s.money > prev) {
           try { localStorage.setItem('chatsKitchen_freePlayHighScore', String(s.money)) } catch { /* ignore */ }
@@ -243,14 +262,14 @@ export default function App() {
       })
     }
     setScreen('shiftend')
-  }, [currentLevel, levelProgress])
+  }, [])
 
   const handleMetaCommand = useCallback((user: string, text: string, isMod: boolean) => {
     if (!isMod) return
     const cmd = text.trim().toLowerCase()
     const s = screenRef.current
 
-    if (cmd === '!start' && s === 'gameover' && currentLevelRef.current == null) {
+    if (cmd === '!start' && s === 'gameover' && adventureRunRef.current == null) {
       startFreePlay()
       showToast(`▶ Starting now (${user})`)
       return
@@ -285,14 +304,68 @@ export default function App() {
     handleCommand('You', text)
   }, [handleCommand, handleMetaCommand])
 
-  const handleShiftEndDone = useCallback(() => setScreen('gameover'), [])
+  const handleShiftEndDone = useCallback(() => {
+    const run = adventureRunRef.current
+    if (!run) { setScreen('gameover'); return }
 
-  const startLevel = useCallback((level: number) => {
-    const config = getLevelConfig(level)
-    setCurrentLevel(level)
-    dispatch({ type: 'RESET', shiftDuration: config.shiftDuration, cookingSpeed: config.cookingSpeed, orderSpeed: config.orderSpeed, orderSpawnRate: gameOptions.orderSpawnRate, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
-    setScreen('countdown')
-  }, [gameOptions.stationCapacity])
+    const passed = finalStats.money >= run.currentGoal
+    const result: ShiftResult = {
+      shiftNumber: run.currentShift,
+      recipes:     run.currentRecipes,
+      goalMoney:   run.currentGoal,
+      moneyEarned: finalStats.money,
+      served:      finalStats.served,
+      lost:        finalStats.lost,
+      passed,
+    }
+    const updatedRun: AdventureRun = {
+      ...run,
+      shiftResults: [...run.shiftResults, result],
+    }
+
+    if (passed) {
+      setAdventureRun(updatedRun)
+      setScreen('adventureshiftpassed')
+    } else {
+      setAdventureRun(updatedRun)
+      const totalMoney = updatedRun.shiftResults.reduce((sum, r) => sum + r.moneyEarned, 0)
+      setAdventureBestRun(prev => {
+        const isNew = !prev
+          || updatedRun.currentShift > prev.furthestShift
+          || (updatedRun.currentShift === prev.furthestShift && totalMoney > prev.totalMoney)
+        if (isNew) {
+          const best: AdventureBestRun = { furthestShift: updatedRun.currentShift, totalMoney }
+          try { localStorage.setItem('chatsKitchen_adventureBestRun', JSON.stringify(best)) } catch { /* ignore */ }
+          setIsNewBestAdventureRun(true)
+          return best
+        }
+        return prev
+      })
+      setScreen('adventurerunend')
+    }
+  }, [finalStats])
+
+  const handleShiftPassedNext = useCallback(() => {
+    const run = adventureRunRef.current
+    if (!run) return
+    const nextShift   = run.currentShift + 1
+    const nextRecipes = pickAdventureRecipes()
+    setAdventureRun({
+      ...run,
+      currentShift:   nextShift,
+      currentRecipes: nextRecipes,
+      currentGoal:    getAdventureGoal(nextShift),
+    })
+    dispatch({
+      type: 'RESET',
+      shiftDuration: ADVENTURE_SHIFT_DURATION,
+      cookingSpeed: 1, orderSpeed: 1, orderSpawnRate: 1,
+      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
+      restrictSlots: false,
+      enabledRecipes: nextRecipes,
+    })
+    setScreen('adventurebriefing')
+  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', audioSettings.darkMode ? 'dark' : 'light')
@@ -316,7 +389,7 @@ export default function App() {
   const handleResetAll = useCallback(() => {
     setGameOptions(DEFAULT_GAME_OPTIONS)
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
-    setLevelProgress({})
+    setAdventureBestRun(null)
     setFreePlayHighScore(0)
     setIsNewHighScore(false)
     setFreePlayHistory([])
@@ -328,7 +401,7 @@ export default function App() {
 
     try {
       localStorage.setItem('audioSettings', JSON.stringify(DEFAULT_AUDIO_SETTINGS))
-      localStorage.removeItem('chatsKitchen_levelProgress')
+      localStorage.removeItem('chatsKitchen_adventureBestRun')
       localStorage.removeItem('chatsKitchen_freePlayHighScore')
       localStorage.removeItem('chatsKitchen_freePlayHistory')
       localStorage.removeItem('chatsKitchen_gameOptions')
@@ -350,7 +423,7 @@ export default function App() {
     content = (
       <MainMenu
         onPlay={() => handleMenuPlay('freeplaysetup')}
-        onLevels={() => handleMenuPlay('levelselect')}
+        onAdventure={startAdventure}
         onOptions={() => setScreen('options')}
         onTutorial={handleMenuTutorial}
         twitchChannel={twitchChannel}
@@ -360,14 +433,13 @@ export default function App() {
         onTwitchDisconnect={() => setTwitchChannel(null)}
       />
     )
-  } else if (screen === 'levelselect') {
+  } else if (screen === 'adventurebriefing') {
     content = (
-      <LevelSelect
-        progress={levelProgress}
-        onSelectLevel={startLevel}
-        onBack={() => setScreen('menu')}
-        twitchChannel={twitchChannel}
-        twitchConnected={twitchChat.status === 'connected'}
+      <AdventureBriefing
+        run={adventureRun!}
+        bestRun={adventureBestRun}
+        onStart={() => setScreen('countdown')}
+        onMenu={() => { setAdventureRun(null); setScreen('menu') }}
       />
     )
   } else if (screen === 'options') {
@@ -382,6 +454,8 @@ export default function App() {
         money={finalStats.money}
         served={finalStats.served}
         lost={finalStats.lost}
+        goalMoney={adventureRun?.currentGoal}
+        shiftNumber={adventureRun?.currentShift}
         onDone={handleShiftEndDone}
       />
     )
@@ -392,16 +466,39 @@ export default function App() {
         served={finalStats.served}
         lost={finalStats.lost}
         playerStats={finalStats.playerStats}
-        level={currentLevel}
-        highScore={currentLevel == null ? freePlayHighScore : undefined}
-        isNewHighScore={currentLevel == null ? isNewHighScore : false}
-        roundHistory={currentLevel == null ? freePlayHistory : undefined}
-        autoRestart={currentLevel == null && gameOptions.autoRestart}
+        level={null}
+        highScore={freePlayHighScore}
+        isNewHighScore={isNewHighScore}
+        roundHistory={freePlayHistory}
+        autoRestart={gameOptions.autoRestart}
         autoRestartDelay={gameOptions.autoRestartDelay}
         autoRestartSignal={autoRestartSignal}
-        onPlayAgain={currentLevel != null ? () => startLevel(currentLevel) : startFreePlay}
-        onNextLevel={currentLevel != null && currentLevel < 10 ? () => startLevel(currentLevel + 1) : undefined}
+        onPlayAgain={startFreePlay}
+        onNextLevel={undefined}
         onMenu={() => setScreen('menu')}
+      />
+    )
+  } else if (screen === 'adventureshiftpassed') {
+    content = (
+      <AdventureShiftPassed
+        shiftNumber={adventureRun!.currentShift}
+        money={finalStats.money}
+        goalMoney={adventureRun!.currentGoal}
+        served={finalStats.served}
+        lost={finalStats.lost}
+        playerStats={finalStats.playerStats}
+        onNext={handleShiftPassedNext}
+        onMenu={() => { setAdventureRun(null); setScreen('menu') }}
+      />
+    )
+  } else if (screen === 'adventurerunend') {
+    content = (
+      <AdventureRunEnd
+        run={adventureRun!}
+        bestRun={adventureBestRun}
+        isNewBestRun={isNewBestAdventureRun}
+        onPlayAgain={startAdventure}
+        onMenu={() => { setAdventureRun(null); setScreen('menu') }}
       />
     )
   } else {

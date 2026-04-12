@@ -1,0 +1,236 @@
+.screen {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  height: 100%;
+  padding: 40px 32px 40px 48px;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  padding: 40px 48px 40px 16px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.title {
+  font-family: 'Lilita One', cursive;
+  font-size: 48px;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+}
+
+.goalLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.goalPassed {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #5cb85c;
+  background: rgba(92, 184, 92, 0.12);
+  border: 1px solid rgba(92, 184, 92, 0.35);
+  border-radius: 6px;
+  padding: 4px 12px;
+}
+
+.goalText {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.statValue {
+  font-family: 'Lilita One', cursive;
+  font-size: 36px;
+  color: #f0c850;
+}
+
+.statLabel {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 240px;
+  margin-top: 8px;
+}
+
+.nextBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: #b87333;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.nextBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+}
+
+.menuBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.menuBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.2);
+}
+
+/* ── Leaderboard ── */
+
+.leaderboard {
+  background: var(--station-bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.lbEmpty {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 0;
+  font-style: italic;
+}
+
+.lbStickyHead {
+  position: sticky;
+  top: 0;
+  background: var(--station-bg);
+  z-index: 1;
+}
+
+.lbTitle {
+  font-family: 'Lilita One', cursive;
+  font-size: 18px;
+  color: var(--text-warm);
+  text-align: center;
+  padding-bottom: 8px;
+  padding-top: 2px;
+}
+
+.lbHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.lbHeader span {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.lbRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+.lbRow:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.lbYou {
+  background: rgba(184, 115, 51, 0.1) !important;
+  border: 1px solid rgba(184, 115, 51, 0.25);
+}
+
+.lbRank {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lbName {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.lbDetail {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-secondary);
+  width: 36px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lbTotal {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f0c850;
+  width: 52px;
+  text-align: right;
+  flex-shrink: 0;
+}

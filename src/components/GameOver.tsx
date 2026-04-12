@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { PlayerStats } from '../state/types'
 import { NAME_COLORS } from '../data/recipes'
-import { getLevelConfig, getStarRating } from '../data/levels'
 import styles from './GameOver.module.css'
 
 function hashStr(s: string): number {
@@ -60,9 +59,6 @@ export default function GameOver({ money, served, lost, playerStats, level, high
     return () => clearTimeout(id)
   }, [countdown, onPlayAgain])
 
-  const stars = level != null ? getStarRating(level, money) : null
-  const config = level != null ? getLevelConfig(level) : null
-
   const bestRoundMoney = roundHistory && roundHistory.length > 0
     ? Math.max(...roundHistory.map(r => r.money))
     : null
@@ -72,26 +68,7 @@ export default function GameOver({ money, served, lost, playerStats, level, high
       <div className={styles.leftCol}>
         <h1 className={styles.title}>{level != null ? `Level ${level} Complete!` : "Time's Up!"}</h1>
 
-        {stars != null && config && (
-          <div className={styles.starSection}>
-            <div className={styles.starRow}>
-              {[1, 2, 3].map(s => (
-                <span key={s} className={s <= stars ? styles.starFilled : styles.starEmpty}>
-                  {'\u{2B50}'}
-                </span>
-              ))}
-            </div>
-            <div className={styles.starThresholds}>
-              {config.stars.map((t, i) => (
-                <span key={i} className={money >= t ? styles.thresholdMet : styles.thresholdUnmet}>
-                  {i + 1}{'\u{2B50}'} ${t}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className={styles.stats}>
+<div className={styles.stats}>
           <div className={styles.stat}>
             <div className={styles.statValue}>${money}</div>
             <div className={styles.statLabel}>Money Earned</div>

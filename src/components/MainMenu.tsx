@@ -4,7 +4,7 @@ import styles from './MainMenu.module.css'
 
 interface Props {
   onPlay: () => void
-  onLevels: () => void
+  onAdventure: () => void
   onOptions: () => void
   onTutorial: () => void
   twitchChannel: string | null
@@ -14,7 +14,7 @@ interface Props {
   onTwitchDisconnect: () => void
 }
 
-export default function MainMenu({ onPlay, onLevels, onOptions, onTutorial, twitchChannel, twitchStatus, twitchError, onTwitchConnect, onTwitchDisconnect }: Props) {
+export default function MainMenu({ onPlay, onAdventure, onOptions, onTutorial, twitchChannel, twitchStatus, twitchError, onTwitchConnect, onTwitchDisconnect }: Props) {
   const [twitchInput, setTwitchInput] = useState(twitchChannel || '')
   const isConnected = twitchStatus === 'connected'
   const isConnecting = twitchStatus === 'connecting'
@@ -68,14 +68,13 @@ export default function MainMenu({ onPlay, onLevels, onOptions, onTutorial, twit
         <div className={styles.divider} />
 
         <div className={styles.streamerSection}>
-          <div className={styles.sectionLabel}>Streamer Mode</div>
           <p className={styles.streamerDesc}>
             Enable <strong>Auto-Restart</strong> in Free Play to loop rounds automatically.
-            Mods and broadcasters can control the session live from chat:
+            Mods can control the session live from chat:
           </p>
           <div className={styles.cheatsheet}>
             <span className={styles.csCmd}>!start</span>
-            <span className={styles.csDesc}>begin next round immediately</span>
+            <span className={styles.csDesc}>begin next round</span>
             <span className={styles.csCmd}>!exit</span>
             <span className={styles.csDesc}>end the current round</span>
             <span className={styles.csCmd}>!onAutoRestart</span>
@@ -147,10 +146,10 @@ export default function MainMenu({ onPlay, onLevels, onOptions, onTutorial, twit
             <div className={styles.fpArrow}>▶</div>
           </button>
 
-          <button className={styles.modeAdventures} onClick={onLevels}>
+          <button className={styles.modeAdventures} onClick={onAdventure}>
             <div>
-              <div className={styles.lvName}>Adventures</div>
-              <div className={styles.lvDesc}>10 escalating challenges — earn stars on each</div>
+              <div className={styles.lvName}>Adventure</div>
+              <div className={styles.lvDesc}>Roguelike runs — how many shifts can you survive?</div>
             </div>
             <div className={styles.lvArrow}>→</div>
           </button>
