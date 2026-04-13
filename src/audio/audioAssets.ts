@@ -21,6 +21,7 @@ export const SFX: Record<string, SfxDef> = {
   'serve-success':     { src: ['/audio/sfx/serve-success.mp3'],     volume: 0.7 },
   'fire-alarm':        { src: ['/audio/sfx/fire-alarm.mp3'],        volume: 0.8 },
   'fire-extinguished': { src: ['/audio/sfx/fire-extinguished.mp3'], volume: 0.6 },
+  'cool':              { src: ['/audio/sfx/fire-extinguished.mp3'], volume: 0.35 },
   'order-spawn':       { src: ['/audio/sfx/order-spawn.mp3'],       volume: 0.5 },
   'order-expired':     { src: ['/audio/sfx/order-expired.mp3'],     volume: 0.7 },
   'error-buzzer':      { src: ['/audio/sfx/error-buzzer.mp3'],      volume: 0.4 },

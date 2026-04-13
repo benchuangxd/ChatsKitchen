@@ -3,9 +3,6 @@ import { RECIPES, STATION_DEFS } from '../data/recipes'
 
 export const HEAT_PER_COOK = 20
 export const COOL_AMOUNT   = 30
-export const RUSH_CHANCE   = 0.25
-export const RUSH_PATIENCE = 0.5
-export const RUSH_REWARD   = 1.75
 
 export type GameAction =
   | { type: 'TICK'; delta: number; now: number }
@@ -101,7 +98,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (newVotes.length >= needed) {
         const newStations = {
           ...withStat.stations,
-          [stationId]: { ...station, slots: [], heat: 0, overheated: false, extinguishVotes: [] },
+          [stationId]: { ...station, slots: [], heat: 0, overheated: false, extinguishVotes: [], lastExtinguishedAt: Date.now() },
         }
         return addMsg({ ...withStat, stations: newStations }, 'KITCHEN',
           `🧯 ${STATION_DEFS[stationId].name} extinguished! Station restored.`, 'success')
@@ -127,7 +124,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (Date.now() - cooldown < 1500) return addMsg(state, 'KITCHEN', `${user} is on cooldown!`, 'error')
 
       const newHeat = Math.max(0, station.heat - COOL_AMOUNT)
-      const newStations = { ...state.stations, [stationId]: { ...station, heat: newHeat } }
+      const newStations = { ...state.stations, [stationId]: { ...station, heat: newHeat, lastCooledAt: Date.now() } }
       const withCooldown = { ...state, stations: newStations, userCooldowns: { ...state.userCooldowns, [user]: Date.now() } }
       return addMsg(withCooldown, 'KITCHEN', `${user} cooled the ${STATION_DEFS[stationId].name}! Heat: ${newHeat}%`, 'success')
     }
@@ -153,7 +150,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         i === orderIdx ? { ...o, served: true, outcome: 'served' as const, completedAt: Date.now() } : o
       )
       const timeBonus = Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30))
-      const reward = Math.round(recipe.reward * order.rewardMultiplier + timeBonus)
+      const reward = Math.round(recipe.reward + timeBonus)
 
       let withStats = addStat(state, user, 'served', 1)
       withStats = addStat(withStats, user, 'moneyEarned', reward)
@@ -260,10 +257,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const dish = dishKeys[Math.floor(Math.random() * dishKeys.length)]
       const recipe = RECIPES[dish]
 
-      const existingRush = state.orders.some(o => o.isRush && !o.outcome)
-      const isRush = !existingRush && Math.random() < RUSH_CHANCE
-      const basePatience = recipe.patience / state.orderSpeed
-      const patience = basePatience * (isRush ? RUSH_PATIENCE : 1)
+      const patience = recipe.patience / state.orderSpeed
 
       const order: Order = {
         id: state.nextOrderId,
@@ -272,12 +266,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         patienceMax: patience,
         patienceLeft: patience,
         spawnTime: action.now,
-        isRush,
-        rewardMultiplier: isRush ? RUSH_REWARD : 1,
       }
       return addMsg(
         { ...state, orders: [...state.orders, order], nextOrderId: state.nextOrderId + 1 },
-        'CUSTOMER', `${isRush ? '⚡ RUSH ' : ''}Order #${order.id}: ${recipe.emoji} ${recipe.name}!`, 'system'
+        'CUSTOMER', `Order #${order.id}: ${recipe.emoji} ${recipe.name}!`, 'system'
       )
     }
 
@@ -310,6 +302,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
               text: `${slot.user} finished ${slot.target.replace(/_/g, ' ')}!`,
               type: 'success',
             })
+
+            // Record completion for floating emoji
+            newStations[id] = { ...newStations[id], lastCompletion: { ingredient: slot.produces, at: now } }
 
             // Heat accumulation (chopping board is exempt)
             if (id === 'cutting_board') continue

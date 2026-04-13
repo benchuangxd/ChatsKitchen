@@ -1,5 +1,6 @@
+import { useState, useEffect } from 'react'
 import { Station as StationType, StationSlot } from '../state/types'
-import { STATION_DEFS, NAME_COLORS } from '../data/recipes'
+import { STATION_DEFS, NAME_COLORS, INGREDIENT_EMOJI } from '../data/recipes'
 import styles from './Station.module.css'
 
 function hashStr(s: string): number {
@@ -58,21 +59,61 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
   const borderColor = heatBorderColor(station.heat, station.overheated)
   const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.3))
 
+  const [coolFlash, setCoolFlash] = useState(false)
+  const [showCoolText, setShowCoolText] = useState(false)
+  const [showExtinguishText, setShowExtinguishText] = useState(false)
+  const [completionEmoji, setCompletionEmoji] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!station.lastCooledAt) return
+    setCoolFlash(true)
+    setShowCoolText(true)
+    const t1 = setTimeout(() => setCoolFlash(false), 600)
+    const t2 = setTimeout(() => setShowCoolText(false), 1000)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [station.lastCooledAt])
+
+  useEffect(() => {
+    if (!station.lastExtinguishedAt) return
+    setShowExtinguishText(true)
+    const t = setTimeout(() => setShowExtinguishText(false), 1200)
+    return () => clearTimeout(t)
+  }, [station.lastExtinguishedAt])
+
+  useEffect(() => {
+    if (!station.lastCompletion) return
+    const emoji = INGREDIENT_EMOJI[station.lastCompletion.ingredient] ?? '✅'
+    setCompletionEmoji(emoji)
+    const t = setTimeout(() => setCompletionEmoji(null), 900)
+    return () => clearTimeout(t)
+  }, [station.lastCompletion?.at])
+
   return (
-    <div className={`${styles.station} ${station.overheated ? styles.fire : ''} ${isHighlighted ? styles.highlighted : ''}`} style={{ borderColor }}>
+    <div className={`${styles.station} ${station.overheated ? styles.fire : ''} ${coolFlash ? styles.coolFlash : ''} ${isHighlighted ? styles.highlighted : ''}`} style={{ borderColor }}>
       <div className={styles.label}>
         <span className={styles.stationEmoji}>{def.emoji}</span>
         <span className={styles.stationName}>{def.name}</span>
-        <span className={styles.capacity}>
-          {capacity === Infinity ? station.slots.length : `${station.slots.length}/${capacity}`}
-        </span>
+        {!station.overheated && (
+          <span className={styles.heatBadge}>{station.heat}% 🔥</span>
+        )}
+        {capacity !== Infinity && (
+          <span className={styles.capacity}>{station.slots.length}/{capacity}</span>
+        )}
       </div>
+      {completionEmoji && (
+        <div key={station.lastCompletion?.at} className={styles.completionFloat}>{completionEmoji}</div>
+      )}
+      {showCoolText && (
+        <div className={styles.coolFloat}>❄️ COOL</div>
+      )}
+      {showExtinguishText && (
+        <div className={styles.extinguishFloat}>🧯 EXTINGUISHED</div>
+      )}
       {station.overheated ? (
         <div className={styles.overheatOverlay}>
-          <span>🔥 OVERHEATED</span>
-          <code>!extinguish {station.id.replace(/_/g, ' ')}</code>
+          <span className={styles.overheatTitle}>🔥 OVERHEATED</span>
           <span className={styles.voteProgress}>
-            {station.extinguishVotes.length}/{extinguishNeeded} extinguishing…
+            {station.extinguishVotes.length}/{extinguishNeeded} !extinguish {station.id.replace(/_/g, ' ')}
           </span>
         </div>
       ) : station.slots.length === 0 ? (

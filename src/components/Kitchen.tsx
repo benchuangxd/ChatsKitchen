@@ -20,7 +20,7 @@ export default function Kitchen({ state, tutorialHighlight }: Props) {
   const stationIds = getEnabledStations(state.enabledRecipes)
 
   return (
-    <div className={styles.kitchen}>
+    <div className={`${styles.kitchen} ${tutorialHighlight === 'kitchen' ? styles.highlighted : ''}`}>
       <PreparedItems items={state.preparedItems} enabledRecipes={state.enabledRecipes} isHighlighted={tutorialHighlight === 'prepared'} />
       <div className={styles.stationsSection}>
         <div className={styles.stationsGrid}>

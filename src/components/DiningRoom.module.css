@@ -96,12 +96,12 @@
 
 /* ── Tutorial highlight ─────────────────────── */
 .highlighted {
-  outline: 3px solid #e03030;
+  outline: 4px solid #a855f7;
   outline-offset: -3px;
-  animation: tutorialPulse 1.4s ease-in-out infinite;
+  animation: tutorialPulse 1.2s ease-in-out infinite;
 }
 
 @keyframes tutorialPulse {
-  0%, 100% { outline-color: #e03030; background-color: rgba(224, 48, 48, 0.12); }
-  50%       { outline-color: rgba(224, 48, 48, 0.3); background-color: rgba(224, 48, 48, 0.02); }
+  0%, 100% { outline-color: #a855f7; outline-width: 4px; background-color: rgba(168, 85, 247, 0.35); }
+  50%       { outline-color: rgba(168, 85, 247, 0.5);  outline-width: 2px; background-color: rgba(168, 85, 247, 0.08); }
 }

@@ -232,25 +232,3 @@
     fireFlicker  0.25s ease-in-out infinite;
 }
 
-/* ── Rush order ─────────────────────────────── */
-.rush {
-  box-shadow: 0 0 0 2px rgba(240, 180, 0, 0.6), 0 0 14px rgba(240, 180, 0, 0.3);
-  animation: rushPulse 1.2s ease-in-out infinite alternate;
-}
-
-@keyframes rushPulse {
-  from { box-shadow: 0 0 0 2px rgba(240,180,0,0.6), 0 0 10px rgba(240,180,0,0.2); }
-  to   { box-shadow: 0 0 0 2px rgba(240,180,0,0.9), 0 0 20px rgba(240,180,0,0.5); }
-}
-
-.rushBadge {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: #f0c850;
-  background: rgba(240, 180, 0, 0.15);
-  border: 1px solid rgba(240, 180, 0, 0.4);
-  border-radius: 4px;
-  padding: 1px 5px;
-  flex-shrink: 0;
-}
