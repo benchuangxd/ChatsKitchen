@@ -257,6 +257,17 @@ export default function App() {
     setTutorialStep(s => (s !== null && s < TUTORIAL_STEPS.length - 1 ? s + 1 : s))
   }, [tutorialStep, dispatch, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP])
 
+  const handleTutorialBack = useCallback(() => {
+    if (tutorialStep === null || tutorialStep <= 0) return
+    const prev = tutorialStep - 1
+    if (prev === TUTORIAL_COOL_STEP) {
+      dispatch({ type: 'SET_STATION_HEAT', stationId: 'fryer', heat: 90 })
+    } else if (prev === TUTORIAL_EXTINGUISH_STEP) {
+      dispatch({ type: 'OVERHEAT_STATION', stationId: 'fryer' })
+    }
+    setTutorialStep(prev)
+  }, [tutorialStep, dispatch, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP])
+
   const handleTutorialComplete = useCallback(() => {
     setTutorialStep(null)
     setScreen('menu')
@@ -599,6 +610,7 @@ export default function App() {
             stepIndex={tutorialStep}
             state={state}
             onNext={handleTutorialNext}
+            onBack={handleTutorialBack}
             onSkip={handleTutorialComplete}
             onRepeat={handleTutorialRepeat}
           />

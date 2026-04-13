@@ -4,8 +4,9 @@
   z-index: 500;
   pointer-events: none;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  padding-bottom: 156px;
 }
 
 .card {
@@ -14,7 +15,7 @@
   border: 2px solid #f0c850;
   border-radius: 14px;
   padding: 24px 28px;
-  max-width: 560px;
+  max-width: 680px;
   width: 100%;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 30px rgba(240, 200, 80, 0.15);
 }
@@ -32,6 +33,13 @@
   font-family: 'Lilita One', cursive;
   font-size: 22px;
   color: #f0c850;
+  margin-bottom: 10px;
+}
+
+.highlightHint {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: #a855f7;
   margin-bottom: 10px;
 }
 
@@ -83,6 +91,23 @@
   opacity: 0.85;
 }
 
+.backBtn {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  background: none;
+  color: #8a8fa8;
+  border: 1px solid #4a4f68;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-right: auto;
+  transition: color 0.15s;
+}
+
+.backBtn:hover {
+  color: #d8dae8;
+}
+
 .skipBtn {
   font-family: 'Space Mono', monospace;
   font-size: 18px;
@@ -114,6 +139,47 @@
 .repeatBtn:hover {
   color: #d8dae8;
   border-color: #8a8fa8;
+}
+
+.skipConfirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  color: #d8dae8;
+}
+
+.skipConfirmYes {
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  background: none;
+  color: #f87171;
+  border: 1px solid #f87171;
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.skipConfirmYes:hover {
+  opacity: 0.75;
+}
+
+.skipConfirmNo {
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  background: none;
+  color: #8a8fa8;
+  border: 1px solid #4a4f68;
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.skipConfirmNo:hover {
+  color: #d8dae8;
 }
 
 .waitingHint {

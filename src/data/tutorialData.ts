@@ -3,7 +3,7 @@ import { GameState } from '../state/types'
 export interface TutorialStep {
   title: string
   body: string
-  highlight: 'none' | 'orders' | 'cutting_board' | 'fryer' | 'prepared'
+  highlight: 'none' | 'orders' | 'cutting_board' | 'fryer' | 'prepared' | 'kitchen'
   advanceMode: 'button' | 'auto'
   advanceCondition?: (state: GameState) => boolean
   commandHint?: string
@@ -31,12 +31,12 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     title: "🍳 Stations",
     body: "The centre panel is your kitchen. Each station handles different actions — the Chopping Board preps ingredients, the Fryer cooks in oil. Only one station at a time per player.",
-    highlight: 'none',
+    highlight: 'kitchen',
     advanceMode: 'button',
   },
   {
     title: "Step 1 — Chop the potato 🔪",
-    body: "Type the command below in the chat box and press Enter.",
+    body: "Type the command below into your Twitch chat (if connected) or the chat panel on the right, then press Enter.",
     highlight: 'cutting_board',
     advanceMode: 'auto',
     commandHint: 'chop potato',
@@ -48,8 +48,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     title: "Chopping in progress…",
     body: "Watch the progress bar fill up. In a real game, multiple players can prep different ingredients simultaneously — coordination is key!",
     highlight: 'cutting_board',
-    advanceMode: 'auto',
-    advanceCondition: (state) => state.preparedItems.includes('chopped_potato'),
+    advanceMode: 'button',
   },
   {
     title: "🥘 Prepared Ingredients",
@@ -59,7 +58,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "Step 2 — Fry the potato 🫕",
-    body: "The fryer needs the chopped potato first (the → arrow in recipes means dependency). Type:",
+    body: "The fryer needs the chopped potato first (the → arrow in recipes means dependency). Type the command below into your Twitch chat (if connected) or the chat panel on the right:",
     highlight: 'fryer',
     advanceMode: 'auto',
     commandHint: 'fry potato',
@@ -71,12 +70,11 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     title: "Frying in progress…",
     body: "When done, the fried potato appears in the tray and the order is ready to serve.",
     highlight: 'fryer',
-    advanceMode: 'auto',
-    advanceCondition: (state) => state.preparedItems.includes('fried_potato'),
+    advanceMode: 'button',
   },
   {
     title: "🍟 Serve the order!",
-    body: "All ingredients are in the tray! Serve order #1 by typing:",
+    body: "All ingredients are in the tray! Serve order #1 by typing the command below into your Twitch chat (if connected) or the chat panel on the right:",
     highlight: 'orders',
     advanceMode: 'auto',
     commandHint: 'serve 1',
@@ -85,13 +83,13 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "🌡️ Station Heat",
-    body: "Every cook at a non-chopping station adds heat. The fryer has run hot — watch its border colour. Green is safe, yellow is warm, orange means cool it soon. At 100% the station overheats and all active cooks are cancelled!",
+    body: "Every use of a non-chopping station adds heat. The fryer has run hot — watch its border colour. Green is safe, yellow is warm, orange means cool it soon. At 100% the station overheats and all active cooks are cancelled!",
     highlight: 'fryer',
     advanceMode: 'button',
   },
   {
     title: "❄️ Cool it down!",
-    body: "The fryer is at 90% heat — one more cook and it'll overheat. Cool it now by typing the command below.",
+    body: "The fryer is at 90% heat — one more cook and it'll overheat. Cool it now by typing the command below into your Twitch chat (if connected) or the chat panel on the right.",
     highlight: 'fryer',
     advanceMode: 'auto',
     commandHint: 'cool fryer',
@@ -111,7 +109,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "🔥 Station on fire!",
-    body: "The fryer has overheated — all active cooks were cancelled and it's locked. Vote to extinguish it by typing the command below.",
+    body: "The fryer has overheated — all active cooks were cancelled and it's locked. Vote to extinguish it by typing the command below into your Twitch chat (if connected) or the chat panel on the right.",
     highlight: 'fryer',
     advanceMode: 'auto',
     commandHint: 'extinguish fryer',

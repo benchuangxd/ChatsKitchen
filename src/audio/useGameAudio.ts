@@ -13,6 +13,7 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
   const prevFireCount = useRef(0)
   const prevCookingCount = useRef(0)
   const prevPreparedCount = useRef(state.preparedItems.length)
+  const prevLastCooledAt = useRef(0)
   const intenseFired = useRef(false)
   const frenziedFired = useRef(false)
 
@@ -90,15 +91,16 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
     const cookingCount = Object.values(state.stations)
       .reduce((n, s) => n + s.slots.filter(sl => sl.state === 'cooking').length, 0)
 
+    const latestCooledAt = Math.max(0, ...Object.values(state.stations).map(s => s.lastCooledAt ?? 0))
+
     if (orderCount > prevOrderCount.current)                          audio.playSfx('order-spawn')
     if (state.served > prevServed.current)                            audio.playSfx('serve-success')
     if (state.lost > prevLost.current)                                audio.playSfx('order-expired')
     if (cookingCount > prevCookingCount.current)                      audio.playSfx('cook-start')
     if (state.preparedItems.length > prevPreparedCount.current)       audio.playSfx('take-item')
     if (fireCount > prevFireCount.current)                            audio.playSfx('fire-alarm')
-    if (fireCount < prevFireCount.current) {
-      audio.stopSfx('fire-alarm')
-    }
+    if (fireCount < prevFireCount.current)                            audio.stopSfx('fire-alarm')
+    if (latestCooledAt > prevLastCooledAt.current)                    audio.playSfx('cool')
 
     prevOrderCount.current    = orderCount
     prevServed.current        = state.served
@@ -106,6 +108,7 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
     prevFireCount.current     = fireCount
     prevCookingCount.current  = cookingCount
     prevPreparedCount.current = state.preparedItems.length
+    prevLastCooledAt.current  = latestCooledAt
   })
 
   // Error buzzer — type-based check, no text parsing

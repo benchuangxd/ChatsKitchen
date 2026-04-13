@@ -16,6 +16,9 @@ export interface Station {
   heat: number
   overheated: boolean
   extinguishVotes: string[]
+  lastCooledAt?: number
+  lastExtinguishedAt?: number
+  lastCompletion?: { ingredient: string; at: number }
 }
 
 export interface Order {
@@ -25,8 +28,6 @@ export interface Order {
   patienceMax: number
   patienceLeft: number
   spawnTime: number
-  isRush: boolean
-  rewardMultiplier: number
   outcome?: 'served' | 'lost'
   completedAt?: number
 }

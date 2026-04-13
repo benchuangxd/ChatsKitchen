@@ -15,6 +15,19 @@
   min-height: 0;
 }
 
+/* ── Tutorial highlight ─────────────────────── */
+.highlighted {
+  outline: 4px solid #a855f7;
+  outline-offset: -4px;
+  border-radius: 4px;
+  animation: tutorialPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tutorialPulse {
+  0%, 100% { outline-color: #a855f7; outline-width: 4px; background-color: rgba(168, 85, 247, 0.12); }
+  50%       { outline-color: rgba(168, 85, 247, 0.5);  outline-width: 2px; background-color: rgba(168, 85, 247, 0.03); }
+}
+
 .stationsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
