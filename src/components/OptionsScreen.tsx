@@ -147,7 +147,7 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
                 {([
                   ['c', 'chop'], ['g', 'grill'], ['f', 'fry'], ['b', 'boil'],
                   ['t', 'toast'], ['r', 'roast'], ['st', 'stir'], ['sm', 'steam'],
-                  ['si', 'simmer'], ['ck', 'cook'], ['ta', 'take'], ['s', 'serve'],
+                  ['si', 'simmer'], ['ck', 'cook'], ['cl', 'cool'], ['s', 'serve'],
                 ] as [string, string][]).map(([alias, cmd]) => (
                   <div key={alias} className={styles.shortformEntry}>
                     <span className={styles.shortformAlias}>!{alias}</span>

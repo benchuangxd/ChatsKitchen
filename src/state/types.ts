@@ -1,4 +1,4 @@
-export type SlotState = 'cooking' | 'done' | 'onFire'
+export type SlotState = 'cooking'
 
 export interface StationSlot {
   id: string
@@ -7,13 +7,15 @@ export interface StationSlot {
   produces: string
   cookStart: number
   cookDuration: number
-  burnAt: number
   state: SlotState
 }
 
 export interface Station {
   id: string
   slots: StationSlot[]
+  heat: number
+  overheated: boolean
+  extinguishVotes: string[]
 }
 
 export interface Order {
@@ -23,6 +25,8 @@ export interface Order {
   patienceMax: number
   patienceLeft: number
   spawnTime: number
+  isRush: boolean
+  rewardMultiplier: number
   outcome?: 'served' | 'lost'
   completedAt?: number
 }
@@ -36,7 +40,6 @@ export interface ChatMessage {
 
 export interface PlayerStats {
   cooked: number
-  taken: number
   served: number
   moneyEarned: number
   extinguished: number

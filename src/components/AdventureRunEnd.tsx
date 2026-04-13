@@ -9,7 +9,7 @@ function hashStr(s: string): number {
 }
 
 function totalActions(s: PlayerStats): number {
-  return s.cooked + s.taken + s.served + s.extinguished - s.firesCaused
+  return s.cooked + s.served + s.extinguished - s.firesCaused
 }
 
 interface Props {
@@ -106,7 +106,6 @@ export default function AdventureRunEnd({ run, bestRun, isNewBestRun, onPlayAgai
               <span className={styles.lbRank}>#</span>
               <span className={styles.lbName}>Player</span>
               <span className={styles.lbDetail} title="Cooked">🍳</span>
-              <span className={styles.lbDetail} title="Taken">✋</span>
               <span className={styles.lbDetail} title="Served">✅</span>
               <span className={styles.lbDetail} title="Extinguished">🧯</span>
               <span className={styles.lbDetail} title="Fires Caused">🔥</span>
@@ -124,7 +123,6 @@ export default function AdventureRunEnd({ run, bestRun, isNewBestRun, onPlayAgai
                   <span className={styles.lbRank}>{i + 1}</span>
                   <span className={styles.lbName} style={{ color }}>{name}</span>
                   <span className={styles.lbDetail}>{s.cooked}</span>
-                  <span className={styles.lbDetail}>{s.taken}</span>
                   <span className={styles.lbDetail}>{s.served}</span>
                   <span className={styles.lbDetail}>{s.extinguished}</span>
                   <span className={styles.lbDetail} style={{ color: '#d94f4f' }}>{s.firesCaused}</span>

@@ -86,8 +86,7 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
     if (screen !== 'playing') return
 
     const orderCount = state.orders.filter(o => !o.served).length
-    const fireCount = Object.values(state.stations)
-      .reduce((n, s) => n + s.slots.filter(sl => sl.state === 'onFire').length, 0)
+    const fireCount = Object.values(state.stations).filter(s => s.overheated).length
     const cookingCount = Object.values(state.stations)
       .reduce((n, s) => n + s.slots.filter(sl => sl.state === 'cooking').length, 0)
 

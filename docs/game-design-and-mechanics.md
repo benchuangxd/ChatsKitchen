@@ -4,13 +4,13 @@
 
 Let Chat Cook is a livestream-friendly kitchen coordination game where a streamer and their audience work together to complete food orders in real time. The core fantasy is simple: chat becomes the kitchen crew.
 
-The game is built around short, high-energy rounds where players type commands to prepare ingredients, plate dishes, and serve orders before time runs out. It is designed to feel readable on stream, easy to join quickly, and chaotic in a fun way when multiple people are participating.
+The game is built around short, high-energy rounds where players type commands to prepare ingredients and serve orders before time runs out. It is designed to feel readable on stream, easy to join quickly, and chaotic in a fun way when multiple people are participating.
 
 ## Design Goals
 
 ### 1. Make chat participation immediate
 
-Players should be able to join by typing a short command without learning a deep control scheme. The game uses simple text verbs such as `chop`, `grill`, `take`, and `serve`.
+Players should be able to join by typing a short command without learning a deep control scheme. The game uses simple text verbs such as `chop`, `grill`, `cool`, and `serve`.
 
 ### 2. Encourage cooperation
 
@@ -34,7 +34,7 @@ Each round follows the same basic loop:
 1. Orders spawn over time.
 2. Players read the requested dish and identify the needed ingredients.
 3. Players type cooking commands in chat to process those ingredients at the correct stations.
-4. Finished ingredients move into the prepared-items pool (automatically for the chopping board; via `take` for all other stations).
+4. Finished ingredients move automatically into the prepared-items pool.
 5. A player serves the dish to the correct order number once all required ingredients are ready.
 6. The team earns money based on the dish value and how quickly it was delivered.
 
@@ -147,7 +147,8 @@ The command system is the main input method for chat participation. Commands are
 | `simmer` | `simmer <item>` | Simmer an ingredient in the stone pot |
 | `cook` | `cook <item>` | Cook rice in the rice pot |
 | `serve` | `serve <order#>` | Serve a completed dish to an order |
-| `extinguish` | `extinguish <station>` | Put out a fire at a station |
+| `cool` | `cool <station>` | Reduce a station's heat by 30% |
+| `extinguish` | `extinguish <station>` | Vote to restore an overheated station (requires 30% of active players) |
 
 ### Mod / Broadcaster Commands
 
@@ -174,6 +175,11 @@ When shortform commands are enabled in Options, single-letter aliases can be use
 | `b` | `boil` |
 | `t` | `toast` |
 | `r` | `roast` |
+| `st` | `stir` |
+| `sm` | `steam` |
+| `si` | `simmer` |
+| `ck` | `cook` |
+| `cl` | `cool` |
 | `s` | `serve` |
 
 ### Command flow
@@ -181,7 +187,7 @@ When shortform commands are enabled in Options, single-letter aliases can be use
 The intended flow is:
 
 1. Start preparation with a cooking command.
-2. Wait for the ingredient to finish — completed ingredients are automatically deposited into the prepared-items pool.
+2. Wait for the ingredient to finish — completed ingredients are automatically deposited into the prepared-items pool from all stations.
 3. Use `serve <order#>` once all required ingredients for that order are in the pool.
 
 ## Player Constraints And Team Dynamics
@@ -200,17 +206,34 @@ There is a short per-user command cooldown to reduce spam and accidental repeate
 
 Prepared ingredients, active stations, and orders all exist in a shared state. This is what makes the game collaborative: everyone is acting on the same kitchen.
 
-## Fire And Failure Pressure
+## Heat And Failure Pressure
 
-Some cooking actions have a burn threshold. If an item sits too long, it can create failure pressure and lead to a station being blocked by fire.
+Every completed cook at a non-chopping station adds 20% heat to that station. Heat is visible on the station's border colour: green (cool) → yellow → orange → red (critical).
 
-When a station is on fire:
+Players can type `cool <station>` (e.g. `cool grill`) to reduce a station's heat by 30%. There is a per-user cooldown, so the team needs to spread this responsibility.
 
-- it cannot be used normally
-- players must type `extinguish [station]`
-- the fire response becomes a team priority
+When heat reaches 100%, the station **overheats**:
 
-This adds urgency and gives the round texture beyond simple recipe execution.
+- all active slots are destroyed and assigned players are freed
+- the station is locked and cannot accept new commands
+- players must collectively type `extinguish <station>` — at least 30% of that round's active players must vote before the station is restored
+- the station returns to 0% heat once extinguished
+
+The chopping board is exempt from heat accumulation and never overheats.
+
+This mechanic adds pressure and team coordination beyond recipe execution. Ignoring heat forces the whole team to stop and extinguish together.
+
+## Rush Orders
+
+Any order spawn has a 25% chance of being a rush order (capped at one active rush at a time). Rush orders are marked with a ⚡ badge and an amber glow.
+
+Rush order properties compared to a standard order of the same dish:
+
+- Patience is halved (50% of normal)
+- Reward is multiplied by 1.75×
+- Rush orders pin to the top of the order queue
+
+Rush orders are high-risk, high-reward: they expire faster but pay out significantly more if served quickly.
 
 ## UI Structure
 
@@ -352,17 +375,19 @@ Steps marked `→` require the prior ingredient in the prepared-items pool befor
 
 ## Station Reference
 
-| Station | Command(s) | Burns after | Default slots |
-|---------|-----------|-------------|---------------|
-| 🔪 Chopping Board | `chop` | never (auto-completes) | 3 |
-| 🔥 Grill | `grill` | 25 seconds | 2 |
-| 🫕 Fryer | `fry` | 25 seconds | 2 |
-| ♨️ Stove | `boil` | 25 seconds | 2 |
-| 🧱 Oven | `toast` / `roast` | 28 seconds | 2 |
-| 🥘 Wok | `stir` | 22–24 seconds | 2 |
-| 🫕 Steamer | `steam` | 30–32 seconds | 2 |
-| 🍲 Stone Pot | `simmer` | 25–30 seconds | 2 |
-| 🍚 Rice Pot | `cook` | 28 seconds | 2 |
+| Station | Command(s) | Heat | Default slots |
+|---------|-----------|------|---------------|
+| 🔪 Chopping Board | `chop` | exempt — never overheats | 3 |
+| 🔥 Grill | `grill` | +20% per cook | 2 |
+| 🫕 Fryer | `fry` | +20% per cook | 2 |
+| ♨️ Stove | `boil` | +20% per cook | 2 |
+| 🧱 Oven | `toast` / `roast` | +20% per cook | 2 |
+| 🥘 Wok | `stir` | +20% per cook | 2 |
+| 🫕 Steamer | `steam` | +20% per cook | 2 |
+| 🍲 Stone Pot | `simmer` | +20% per cook | 2 |
+| 🍚 Rice Pot | `cook` | +20% per cook | 2 |
+
+All cooking stations reach overheat after 5 completed cooks without cooling. The border colour of each station reflects current heat level. Use `cool <station>` (-30% heat) to prevent lockouts.
 
 Slot limits apply separately to the chopping board and to each cooking station type. In Free Play, both limits are configurable in the More Options panel (chopping: 1–8 slots, cooking: 1–8 slots per station type).
 
@@ -391,12 +416,11 @@ The game tracks per-player statistics during each round:
 
 | Stat | Description |
 |------|-------------|
-| `cooked` | Number of cooking actions started |
-| `taken` | Number of ingredients taken from stations |
+| `cooked` | Number of cooking actions completed |
 | `served` | Number of orders served |
 | `moneyEarned` | Total money earned from serves |
-| `extinguished` | Number of fires put out |
-| `firesCaused` | Number of slots that burned on this player's watch |
+| `extinguished` | Number of overheat votes cast |
+| `firesCaused` | Number of times this player's cook triggered an overheat |
 
 ## Why The Game Works
 

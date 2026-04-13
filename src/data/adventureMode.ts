@@ -21,12 +21,11 @@ export function mergePlayerStats(
   const result = { ...base }
   for (const [user, s] of Object.entries(incoming)) {
     const e = result[user] ?? {
-      cooked: 0, taken: 0, served: 0,
+      cooked: 0, served: 0,
       moneyEarned: 0, extinguished: 0, firesCaused: 0,
     }
     result[user] = {
       cooked:       e.cooked       + s.cooked,
-      taken:        e.taken        + s.taken,
       served:       e.served       + s.served,
       moneyEarned:  e.moneyEarned  + s.moneyEarned,
       extinguished: e.extinguished + s.extinguished,

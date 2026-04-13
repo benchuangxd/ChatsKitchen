@@ -1,8 +1,9 @@
 .station {
   background: var(--station-bg);
-  border: 2px solid;
+  border: 4px solid;
   border-radius: 10px;
   padding: 10px;
+  transition: border-color 0.4s ease;
 }
 
 .fire {
@@ -128,44 +129,29 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
-/* ── Done state ─────────────────────────────────── */
-.slotDone {
-  border-radius: 7px;
-  animation: donePulse 1.2s ease-in-out infinite;
+
+/* ── Overheat overlay ───────────────────────────── */
+.overheatOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #ff6060;
+  text-align: center;
 }
 
-/* ── Danger state ───────────────────────────────── */
-.slotDanger {
-  border-radius: 7px;
-  animation: dangerPulse 0.6s ease-in-out infinite;
+.overheatOverlay code {
+  font-size: 12px;
+  color: #f0c850;
+  background: rgba(240, 200, 80, 0.1);
+  border-radius: 3px;
+  padding: 1px 4px;
 }
 
-@keyframes donePulse {
-  0%, 100% { box-shadow: 0 0 0 rgba(240, 200, 80, 0); }
-  50%       { box-shadow: 0 0 12px rgba(240, 200, 80, 0.6); }
-}
-
-@keyframes dangerPulse {
-  0%, 100% { box-shadow: 0 0 0 rgba(217, 79, 79, 0); }
-  50%       { box-shadow: 0 0 12px rgba(217, 79, 79, 0.7); }
-}
-
-/* ── Fire state ─────────────────────────────────── */
-.fireBar {
-  position: relative;
-  height: 32px;
-  border-radius: 7px;
-  overflow: hidden;
-  background: linear-gradient(
-    90deg,
-    rgba(217, 79, 79, 0.95)  0%,
-    rgba(232, 148, 58, 0.9)  50%,
-    rgba(217, 79, 79, 0.95)  100%
-  );
-  animation: firePulse 0.5s ease-in-out infinite;
-}
-
-@keyframes firePulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.65; }
+.voteProgress {
+  font-size: 11px;
+  color: var(--text-muted);
 }

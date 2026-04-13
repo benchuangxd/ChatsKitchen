@@ -17,16 +17,19 @@ export default function OrderTicket({ order, orderNumber }: Props) {
 
   const isServed = order.outcome === 'served'
   const isLost = order.outcome === 'lost'
-  const reward = recipe.reward + Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30))
+  const displayReward = Math.round(recipe.reward * order.rewardMultiplier)
+  const actualReward = Math.round(recipe.reward * order.rewardMultiplier + Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30)))
   const outcomeClass = isServed ? styles.ticketServed : isLost ? styles.ticketLost : ''
 
   return (
     <div className={styles.ticketWrapper}>
-      <div className={`${styles.ticket} ${urgencyClass} ${outcomeClass}`}>
+      <div className={`${styles.ticket} ${urgencyClass} ${outcomeClass} ${order.isRush ? styles.rush : ''}`}>
         <div className={styles.header}>
+          {order.isRush && <span className={styles.rushBadge}>⚡ RUSH</span>}
           <span className={styles.orderNum}>#{orderNumber}</span>
           <span className={styles.dishEmoji}>{recipe.emoji}</span>
           <span className={styles.dishName}>{recipe.name}</span>
+          <span className={styles.reward}>${displayReward}</span>
         </div>
         <div className={styles.body}>
           <div className={styles.ingredients}>
@@ -48,7 +51,7 @@ export default function OrderTicket({ order, orderNumber }: Props) {
         </div>
         {isLost && <div className={styles.fireOverlay} />}
       </div>
-      {isServed && <div className={styles.moneyFloat}>+${reward}</div>}
+      {isServed && <div className={styles.moneyFloat}>+${actualReward}</div>}
     </div>
   )
 }

@@ -3,7 +3,6 @@ export interface RecipeStep {
   target: string
   station: string
   duration: number
-  burnAt?: number
   produces: string
   requires?: string
 }
@@ -31,8 +30,8 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Burger', emoji: '\u{1F354}', reward: 65, patience: 80000,
     steps: [
       { action: 'chop',  target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
-      { action: 'grill', target: 'patty',   station: 'grill',         duration: 9000, burnAt: 25000, produces: 'grilled_patty' },
-      { action: 'toast', target: 'bun',     station: 'oven',          duration: 7000, burnAt: 22000, produces: 'toasted_bun' },
+      { action: 'grill', target: 'patty',   station: 'grill',         duration: 9000, produces: 'grilled_patty' },
+      { action: 'toast', target: 'bun',     station: 'oven',          duration: 7000, produces: 'toasted_bun' },
     ],
     plate: ['chopped_lettuce', 'grilled_patty', 'toasted_bun']
   },
@@ -40,16 +39,16 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Fries', emoji: '\u{1F35F}', reward: 40, patience: 55000,
     steps: [
       { action: 'chop', target: 'potato', station: 'cutting_board', duration: 7000, produces: 'chopped_potato' },
-      { action: 'fry',  target: 'potato', station: 'fryer',         duration: 9000, burnAt: 25000, produces: 'fried_potato', requires: 'chopped_potato' },
+      { action: 'fry',  target: 'potato', station: 'fryer',         duration: 9000, produces: 'fried_potato', requires: 'chopped_potato' },
     ],
     plate: ['fried_potato']
   },
   pasta: {
     name: 'Hot Dog', emoji: '\u{1F32D}', reward: 45, patience: 55000,
     steps: [
-      { action: 'grill', target: 'sausage', station: 'grill',         duration: 8000, burnAt: 23000, produces: 'grilled_sausage' },
+      { action: 'grill', target: 'sausage', station: 'grill',         duration: 8000, produces: 'grilled_sausage' },
       { action: 'chop',  target: 'onion',   station: 'cutting_board', duration: 6000, produces: 'chopped_onion' },
-      { action: 'toast', target: 'bun',     station: 'oven',          duration: 7000, burnAt: 22000, produces: 'toasted_bun' },
+      { action: 'toast', target: 'bun',     station: 'oven',          duration: 7000, produces: 'toasted_bun' },
     ],
     plate: ['grilled_sausage', 'chopped_onion', 'toasted_bun']
   },
@@ -58,24 +57,24 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop',  target: 'lettuce', station: 'cutting_board', duration: 7000, produces: 'chopped_lettuce' },
       { action: 'chop',  target: 'tomato',  station: 'cutting_board', duration: 7000, produces: 'chopped_tomato' },
-      { action: 'toast', target: 'crouton', station: 'oven',          duration: 6000, burnAt: 20000, produces: 'toasted_crouton' },
+      { action: 'toast', target: 'crouton', station: 'oven',          duration: 6000, produces: 'toasted_crouton' },
     ],
     plate: ['chopped_lettuce', 'chopped_tomato', 'toasted_crouton']
   },
   mushroom_soup: {
     name: 'Grilled Cheese Sandwich', emoji: '🥪', reward: 40, patience: 55000,
     steps: [
-      { action: 'grill', target: 'cheese', station: 'grill', duration: 7000, burnAt: 22000, produces: 'grilled_cheese' },
-      { action: 'toast', target: 'bread',  station: 'oven',  duration: 6000, burnAt: 20000, produces: 'toasted_bread' },
+      { action: 'grill', target: 'cheese', station: 'grill', duration: 7000, produces: 'grilled_cheese' },
+      { action: 'toast', target: 'bread',  station: 'oven',  duration: 6000, produces: 'toasted_bread' },
     ],
     plate: ['grilled_cheese', 'toasted_bread']
   },
   fish_burger: {
     name: 'Fish & Chips', emoji: '\u{1F41F}', reward: 60, patience: 75000,
     steps: [
-      { action: 'fry',  target: 'fish',   station: 'fryer',         duration: 10000, burnAt: 25000, produces: 'fried_fish' },
+      { action: 'fry',  target: 'fish',   station: 'fryer',         duration: 10000, produces: 'fried_fish' },
       { action: 'chop', target: 'potato', station: 'cutting_board', duration: 7000,  produces: 'chopped_potato' },
-      { action: 'fry',  target: 'potato', station: 'fryer',         duration: 9000,  burnAt: 25000, produces: 'fried_potato', requires: 'chopped_potato' },
+      { action: 'fry',  target: 'potato', station: 'fryer',         duration: 9000,  produces: 'fried_potato', requires: 'chopped_potato' },
     ],
     plate: ['fried_fish', 'fried_potato']
   },
@@ -84,7 +83,7 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop',  target: 'tomato', station: 'cutting_board', duration: 7000,  produces: 'chopped_tomato' },
       { action: 'chop',  target: 'pepper', station: 'cutting_board', duration: 7000,  produces: 'chopped_pepper' },
-      { action: 'roast', target: 'pepper', station: 'oven',          duration: 10000, burnAt: 28000, produces: 'roasted_pepper', requires: 'chopped_pepper' },
+      { action: 'roast', target: 'pepper', station: 'oven',          duration: 10000, produces: 'roasted_pepper', requires: 'chopped_pepper' },
     ],
     plate: ['roasted_pepper', 'chopped_tomato']
   },
@@ -94,9 +93,9 @@ export const RECIPES: Record<string, Recipe> = {
   fried_rice: {
     name: 'Fried Rice', emoji: '\u{1F373}', reward: 55, patience: 75000,
     steps: [
-      { action: 'cook',  target: 'rice',         station: 'rice_pot',      duration: 10000, burnAt: 28000, produces: 'cooked_rice' },
+      { action: 'cook',  target: 'rice',         station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
       { action: 'chop',  target: 'spring_onion',  station: 'cutting_board', duration: 6000,  produces: 'sliced_spring_onion' },
-      { action: 'stir',  target: 'rice',          station: 'wok',           duration: 8000,  burnAt: 22000, produces: 'stir_fried_rice', requires: 'cooked_rice' },
+      { action: 'stir',  target: 'rice',          station: 'wok',           duration: 8000,  produces: 'stir_fried_rice', requires: 'cooked_rice' },
     ],
     plate: ['stir_fried_rice', 'sliced_spring_onion']
   },
@@ -105,7 +104,7 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop', target: 'pork',    station: 'cutting_board', duration: 7000, produces: 'sliced_pork' },
       { action: 'chop', target: 'cabbage', station: 'cutting_board', duration: 6000, produces: 'sliced_cabbage' },
-      { action: 'stir', target: 'pork',    station: 'wok',           duration: 9000, burnAt: 24000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
+      { action: 'stir', target: 'pork',    station: 'wok',           duration: 9000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
     ],
     plate: ['stir_fried_pork', 'sliced_cabbage']
   },
@@ -114,7 +113,7 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop',  target: 'tofu',        station: 'cutting_board', duration: 6000, produces: 'sliced_tofu' },
       { action: 'chop',  target: 'spring_onion', station: 'cutting_board', duration: 6000, produces: 'sliced_spring_onion' },
-      { action: 'steam', target: 'tofu',         station: 'steamer',       duration: 9000, burnAt: 30000, produces: 'steamed_tofu_block', requires: 'sliced_tofu' },
+      { action: 'steam', target: 'tofu',         station: 'steamer',       duration: 9000, produces: 'steamed_tofu_block', requires: 'sliced_tofu' },
     ],
     plate: ['steamed_tofu_block', 'sliced_spring_onion']
   },
@@ -122,8 +121,8 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Steamed Buns', emoji: '\u{1F95F}', reward: 55, patience: 70000,
     steps: [
       { action: 'chop',  target: 'pork', station: 'cutting_board', duration: 7000,  produces: 'sliced_pork' },
-      { action: 'stir',  target: 'pork', station: 'wok',           duration: 8000,  burnAt: 22000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
-      { action: 'steam', target: 'bun',  station: 'steamer',       duration: 11000, burnAt: 32000, produces: 'steamed_bun' },
+      { action: 'stir',  target: 'pork', station: 'wok',           duration: 8000,  produces: 'stir_fried_pork', requires: 'sliced_pork' },
+      { action: 'steam', target: 'bun',  station: 'steamer',       duration: 11000, produces: 'steamed_bun' },
     ],
     plate: ['steamed_bun', 'stir_fried_pork']
   },
@@ -135,7 +134,7 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop',  target: 'beef',        station: 'cutting_board', duration: 7000,  produces: 'sliced_beef' },
       { action: 'chop',  target: 'spring_onion', station: 'cutting_board', duration: 6000,  produces: 'sliced_spring_onion' },
-      { action: 'grill', target: 'beef',         station: 'grill',         duration: 10000, burnAt: 26000, produces: 'grilled_beef', requires: 'sliced_beef' },
+      { action: 'grill', target: 'beef',         station: 'grill',         duration: 10000, produces: 'grilled_beef', requires: 'sliced_beef' },
     ],
     plate: ['grilled_beef', 'sliced_spring_onion']
   },
@@ -144,7 +143,7 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop',   target: 'kimchi', station: 'cutting_board', duration: 6000,  produces: 'sliced_kimchi' },
       { action: 'chop',   target: 'tofu',   station: 'cutting_board', duration: 6000,  produces: 'sliced_tofu' },
-      { action: 'simmer', target: 'kimchi', station: 'stone_pot',     duration: 11000, burnAt: 30000, produces: 'simmered_kimchi', requires: 'sliced_kimchi' },
+      { action: 'simmer', target: 'kimchi', station: 'stone_pot',     duration: 11000, produces: 'simmered_kimchi', requires: 'sliced_kimchi' },
     ],
     plate: ['simmered_kimchi', 'sliced_tofu']
   },
@@ -153,16 +152,16 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'chop',   target: 'zucchini', station: 'cutting_board', duration: 6000,  produces: 'sliced_zucchini' },
       { action: 'chop',   target: 'tofu',     station: 'cutting_board', duration: 6000,  produces: 'sliced_tofu' },
-      { action: 'simmer', target: 'zucchini', station: 'stone_pot',     duration: 10000, burnAt: 28000, produces: 'simmered_zucchini', requires: 'sliced_zucchini' },
+      { action: 'simmer', target: 'zucchini', station: 'stone_pot',     duration: 10000, produces: 'simmered_zucchini', requires: 'sliced_zucchini' },
     ],
     plate: ['simmered_zucchini', 'sliced_tofu']
   },
   bibimbap: {
     name: 'Bibimbap', emoji: '\u{1F371}', reward: 75, patience: 90000,
     steps: [
-      { action: 'cook',   target: 'rice', station: 'rice_pot',      duration: 10000, burnAt: 28000, produces: 'cooked_rice' },
+      { action: 'cook',   target: 'rice', station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
       { action: 'chop',   target: 'beef', station: 'cutting_board', duration: 7000,  produces: 'sliced_beef' },
-      { action: 'simmer', target: 'beef', station: 'stone_pot',     duration: 9000,  burnAt: 25000, produces: 'simmered_beef', requires: 'sliced_beef' },
+      { action: 'simmer', target: 'beef', station: 'stone_pot',     duration: 9000,  produces: 'simmered_beef', requires: 'sliced_beef' },
     ],
     plate: ['cooked_rice', 'simmered_beef']
   },
@@ -172,7 +171,7 @@ export const RECIPES: Record<string, Recipe> = {
   sushi_roll: {
     name: 'Sushi Roll', emoji: '\u{1F363}', reward: 70, patience: 85000,
     steps: [
-      { action: 'cook', target: 'rice',   station: 'rice_pot',      duration: 10000, burnAt: 28000, produces: 'cooked_rice' },
+      { action: 'cook', target: 'rice',   station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
       { action: 'chop', target: 'tuna',   station: 'cutting_board', duration: 7000,  produces: 'sliced_tuna' },
       { action: 'chop', target: 'nori',   station: 'cutting_board', duration: 5000,  produces: 'sliced_nori' },
     ],
@@ -182,7 +181,7 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Tempura', emoji: '\u{1F364}', reward: 65, patience: 80000,
     steps: [
       { action: 'chop', target: 'shrimp',   station: 'cutting_board', duration: 6000, produces: 'sliced_shrimp' },
-      { action: 'fry',  target: 'shrimp',   station: 'fryer',         duration: 9000, burnAt: 24000, produces: 'fried_shrimp', requires: 'sliced_shrimp' },
+      { action: 'fry',  target: 'shrimp',   station: 'fryer',         duration: 9000, produces: 'fried_shrimp', requires: 'sliced_shrimp' },
       { action: 'chop', target: 'zucchini', station: 'cutting_board', duration: 6000, produces: 'sliced_zucchini' },
     ],
     plate: ['fried_shrimp', 'sliced_zucchini']
@@ -191,7 +190,7 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Chawanmushi', emoji: '\u{1F95A}', reward: 55, patience: 70000,
     steps: [
       { action: 'chop',  target: 'egg',    station: 'cutting_board', duration: 5000,  produces: 'sliced_egg' },
-      { action: 'steam', target: 'egg',    station: 'steamer',       duration: 10000, burnAt: 30000, produces: 'steamed_egg', requires: 'sliced_egg' },
+      { action: 'steam', target: 'egg',    station: 'steamer',       duration: 10000, produces: 'steamed_egg', requires: 'sliced_egg' },
       { action: 'chop',  target: 'shrimp', station: 'cutting_board', duration: 6000,  produces: 'sliced_shrimp' },
     ],
     plate: ['steamed_egg', 'sliced_shrimp']
@@ -199,7 +198,7 @@ export const RECIPES: Record<string, Recipe> = {
   salmon_donburi: {
     name: 'Salmon Donburi', emoji: '\u{1F371}', reward: 75, patience: 90000,
     steps: [
-      { action: 'cook', target: 'rice',   station: 'rice_pot',      duration: 10000, burnAt: 28000, produces: 'cooked_rice' },
+      { action: 'cook', target: 'rice',   station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
       { action: 'chop', target: 'salmon', station: 'cutting_board', duration: 7000,  produces: 'sliced_salmon' },
       { action: 'chop', target: 'nori',   station: 'cutting_board', duration: 5000,  produces: 'sliced_nori' },
     ],

@@ -108,20 +108,21 @@ Mod detection uses `tags.mod` and `tags.badges.broadcaster` from tmi.js. The loc
 ### Game Loop (100ms ticks)
 
 `useGameLoop` dispatches `TICK` actions every 100ms while playing:
-- Decrements station slot elapsed times
-- Completes cooking when done; moves output to `preparedItems` or `platedDishes`
-- Sets station `onFire` when `burnAt` threshold exceeded
+- Decrements station slot elapsed times via wall-clock `cookStart` timestamps (`elapsed = now - slot.cookStart`)
+- Completes cooking when done; auto-collects output into `preparedItems` for all stations
+- Accumulates +20% heat per completed cook on non-chopping stations; overheats at 100%
 - Decrements order patience; expires orders that run out
-- Spawns new orders at intervals scaled by shift difficulty
-- Triggers `GAME_OVER` when `timeLeft <= 0`
+- Spawns new orders at intervals scaled by shift difficulty; 25% chance of rush order (capped at 1 active)
+- Triggers game over when `timeLeft <= 0`
+- On unpause: dispatches `ADJUST_COOK_TIMES` to shift all `cookStart` values forward by pause duration
 
 ### Bot Simulation
 
 `useBotSimulation` (when enabled) picks an action every 3 seconds:
 
-Priority order: **extinguish fire → take done items → serve → plate → cook**
+Priority order: **extinguish overheated station → cool hot station (heat ≥ 60) → serve → cook**
 
-Bots respect station capacity and avoid actions while players are active.
+Bots respect station capacity, skip overheated stations, and skip `cutting_board` for cooling.
 
 ---
 
@@ -132,14 +133,16 @@ interface GameState {
   money: number
   served: number
   lost: number
-  shift: number                              // difficulty wave
   timeLeft: number                           // ms remaining
-  durationMultiplier: number
+  cookingSpeed: number
+  orderSpeed: number
+  orderSpawnRate: number
   stationCapacity: StationCapacity           // slot limits per station type
+  restrictSlots: boolean
+  enabledRecipes: string[]
   stations: Record<string, Station>          // id → Station
   orders: Order[]
   preparedItems: string[]                    // e.g. ["chopped_lettuce", "grilled_patty"]
-  platedDishes: string[]                     // finished dishes awaiting !serve
   nextOrderId: number
   userCooldowns: Record<string, number>      // last action timestamp per user
   activeUsers: Record<string, string>        // username → stationId, currently busy
@@ -237,12 +240,19 @@ Steps marked `→` require the prior ingredient in `preparedItems` before starti
 
 Only stations needed by the currently enabled recipes are rendered. Station capacities are configurable in Free Play via the More Options panel.
 
-### Fire Mechanic
+### Heat Mechanic
 
-When a slot exceeds its `burnAt` threshold, the station catches fire:
+Each completed cook adds `HEAT_PER_COOK` (20) to the station's `heat` counter (chopping board is exempt). Players use `!cool <station>` to reduce heat by `COOL_AMOUNT` (30). When heat reaches 100:
 - All slots on that station are destroyed; assigned players are freed
-- Any player can `!extinguish` to clear the fire (station ready again)
-- Burnt ingredients are lost
+- Station is locked (`overheated: true`) until extinguished
+- Players vote via `!extinguish <station>`; the station restores when votes reach `ceil(playerCount × 0.3)` (min 1)
+- Heat resets to 0 on restore
+
+Station border colour reflects heat: green (0–40%) → yellow (41–70%) → orange (71–99%) → red (overheated).
+
+### Rush Orders
+
+`SPAWN_ORDER` has a 25% chance (`RUSH_CHANCE`) to create a rush order, capped at 1 active rush at a time. Rush orders have `patienceMax × RUSH_PATIENCE` (0.5×) and `rewardMultiplier: RUSH_REWARD` (1.75×). They pin to the top of the order queue with a ⚡ badge.
 
 ### Shift Progression
 
@@ -333,6 +343,7 @@ The Twitch channel name is entered by the user in the UI at runtime.
 - `2026-04-09-station-readability.md` — Station component readability improvements
 - `2026-04-10-main-menu-redesign.md` — 2-column Hero Split MainMenu with cheatsheet
 - `2026-04-11-auto-restart-and-mod-commands.md` — Auto-restart toggle for Free Play and mod/broadcaster chat commands
+- `2026-04-13-heat-rush-remove-take.md` — Station heat meter, collective extinguish, rush orders, removal of !take
 
 `docs/superpowers/specs/` holds design specs that precede the plans above.
 
@@ -343,11 +354,11 @@ When implementing a new feature of similar scope, create a spec + plan document 
 ## Common Pitfalls
 
 1. **Do not mutate `GameState` directly** — the reducer must return a new object for React to detect changes.
-2. **Capacity checks must happen before queuing** — always check `station.slots.length < capacity` in `COOK`/`PLATE` actions.
+2. **Capacity checks must happen before queuing** — always check `station.slots.length < capacity` in `COOK` actions, and reject commands on overheated stations before the capacity check.
 3. **User cooldown** — commands are throttled at 1500ms per user (`userCooldowns` in state). Bots use the same cooldown system.
-4. **`activeUsers`** — a player cooking at one station cannot simultaneously use another. Check and clear this map correctly on station completion/fire.
+4. **`activeUsers`** — a player cooking at one station cannot simultaneously use another. Check and clear this map correctly on station completion and overheat. `!cool` and `!extinguish` are instant actions that do not set `activeUsers`.
 5. **Chat messages are capped at 200** — `ADD_CHAT` slices to `chatMessages.slice(-200)`.
-6. **Plating is timed** — `!plate` queues a slot in the plating station and consumes ingredients immediately. The dish appears in `platedDishes` automatically when the slot timer completes (no `!take` needed for plating).
+6. **`cookStart` is wall-clock time** — slot progress is `elapsed = now - slot.cookStart`. On unpause, dispatch `ADJUST_COOK_TIMES` to shift all `cookStart` values forward by the pause duration, otherwise paused time counts as elapsed cook time.
 
 ## Workflow
 
