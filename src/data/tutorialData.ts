@@ -36,7 +36,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "Step 1 — Chop the potato 🔪",
-    body: "Type the command below into your Twitch chat (if connected) or the chat panel on the right, then press Enter.",
+    body: "Type the command into your Twitch chat (if connected) or the chat panel on the right, then press Enter.",
     highlight: 'cutting_board',
     advanceMode: 'auto',
     commandHint: 'chop potato',
@@ -58,7 +58,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "Step 2 — Fry the potato 🫕",
-    body: "The fryer needs the chopped potato first (the → arrow in recipes means dependency). Type the command below into your Twitch chat (if connected) or the chat panel on the right:",
+    body: "The fryer needs the chopped potato first (the → arrow in recipes means dependency). Type the command into your Twitch chat (if connected) or the chat panel on the right:",
     highlight: 'fryer',
     advanceMode: 'auto',
     commandHint: 'fry potato',
@@ -74,7 +74,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "🍟 Serve the order!",
-    body: "All ingredients are in the tray! Serve order #1 by typing the command below into your Twitch chat (if connected) or the chat panel on the right:",
+    body: "All ingredients are in the tray! Serve order #1 by typing the command into your Twitch chat (if connected) or the chat panel on the right:",
     highlight: 'orders',
     advanceMode: 'auto',
     commandHint: 'serve 1',
@@ -89,7 +89,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "❄️ Cool it down!",
-    body: "The fryer is at 90% heat — one more cook and it'll overheat. Cool it now by typing the command below into your Twitch chat (if connected) or the chat panel on the right.",
+    body: "The fryer is at 90% heat — one more cook and it'll overheat. Cool it now by typing the command into your Twitch chat (if connected) or the chat panel on the right.",
     highlight: 'fryer',
     advanceMode: 'auto',
     commandHint: 'cool fryer',
@@ -109,7 +109,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "🔥 Station on fire!",
-    body: "The fryer has overheated — all active cooks were cancelled and it's locked. Vote to extinguish it by typing the command below into your Twitch chat (if connected) or the chat panel on the right.",
+    body: "The fryer has overheated — all active cooks were cancelled and it's locked. Vote to extinguish it by typing the command into your Twitch chat (if connected) or the chat panel on the right.",
     highlight: 'fryer',
     advanceMode: 'auto',
     commandHint: 'extinguish fryer',

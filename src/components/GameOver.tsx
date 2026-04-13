@@ -63,8 +63,8 @@ export default function GameOver({ money, served, lost, playerStats, level, high
     ? Math.max(...roundHistory.map(r => r.money))
     : null
 
-  const recentRounds = roundHistory
-    ? roundHistory.slice(-3).reverse().map((r, i) => ({
+  const allRounds = roundHistory
+    ? [...roundHistory].reverse().map((r, i) => ({
         ...r,
         roundNum: roundHistory.length - i,
       }))
@@ -154,14 +154,16 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                     <span className={styles.historyServed}>{'\u{2705}'}</span>
                     <span className={styles.historyLost}>{'\u{274C}'}</span>
                   </div>
-                  {recentRounds.map((r) => (
-                    <div key={r.roundNum} className={`${styles.historyRow} ${r.money === bestRoundMoney ? styles.historyRowBest : ''}`}>
-                      <span className={styles.historyRound}>{r.roundNum}</span>
-                      <span className={styles.historyMoney}>${r.money}</span>
-                      <span className={styles.historyServed}>{r.served}</span>
-                      <span className={styles.historyLost}>{r.lost}</span>
-                    </div>
-                  ))}
+                  <div className={styles.historyScroll}>
+                    {allRounds.map((r) => (
+                      <div key={r.roundNum} className={`${styles.historyRow} ${r.money === bestRoundMoney ? styles.historyRowBest : ''}`}>
+                        <span className={styles.historyRound}>{r.roundNum}</span>
+                        <span className={styles.historyMoney}>${r.money}</span>
+                        <span className={styles.historyServed}>{r.served}</span>
+                        <span className={styles.historyLost}>{r.lost}</span>
+                      </div>
+                    ))}
+                  </div>
                 </>
               )}
             </div>

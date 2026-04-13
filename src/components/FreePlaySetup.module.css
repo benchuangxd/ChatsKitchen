@@ -470,6 +470,95 @@
   text-align: center;
 }
 
+/* ── Recipe Detail Panel ── */
+
+.recipeDetail {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipeDetailHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.recipeDetailName {
+  flex: 1;
+}
+
+.recipeDetailReward {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: #b87333;
+  font-weight: 700;
+}
+
+.recipeDetailSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.recipeDetailStep {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.stepNum {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+  min-width: 22px;
+}
+
+.stepStation {
+  font-size: 18px;
+}
+
+.stepRequires {
+  font-size: 18px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.stepCmd {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f0c850;
+  background: rgba(240, 200, 80, 0.1);
+  border: 1px solid rgba(240, 200, 80, 0.25);
+  border-radius: 5px;
+  padding: 2px 7px;
+}
+
+.stepArrow {
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+.stepProduces {
+  font-size: 18px;
+  color: var(--text);
+}
+
 /* ── Footer / CTA ── */
 
 .footer {

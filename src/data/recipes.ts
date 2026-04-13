@@ -288,7 +288,7 @@ export const RECIPE_SETS: RecipeSet[] = [
     flag: '\u{1F1FA}\u{1F1F8}',
     description: 'Burgers, fries, pasta and grilled favourites',
     cuisine: 'Western',
-    recipeKeys: ['burger', 'fish_burger', 'mushroom_soup', 'roasted_veggies'],
+    recipeKeys: ['burger', 'fish_burger', 'salad', 'roasted_veggies'],
   },
   {
     id: 'chinese',

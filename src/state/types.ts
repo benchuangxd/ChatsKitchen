@@ -17,8 +17,10 @@ export interface Station {
   overheated: boolean
   extinguishVotes: string[]
   lastCooledAt?: number
+  lastCooledBy?: string
   lastExtinguishedAt?: number
-  lastCompletion?: { ingredient: string; at: number }
+  lastExtinguishedBy?: string[]
+  lastCompletion?: { ingredient: string; at: number; by: string }
 }
 
 export interface Order {
@@ -30,6 +32,7 @@ export interface Order {
   spawnTime: number
   outcome?: 'served' | 'lost'
   completedAt?: number
+  servedBy?: string
 }
 
 export interface ChatMessage {

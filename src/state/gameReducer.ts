@@ -98,7 +98,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (newVotes.length >= needed) {
         const newStations = {
           ...withStat.stations,
-          [stationId]: { ...station, slots: [], heat: 0, overheated: false, extinguishVotes: [], lastExtinguishedAt: Date.now() },
+          [stationId]: { ...station, slots: [], heat: 0, overheated: false, extinguishVotes: [], lastExtinguishedAt: Date.now(), lastExtinguishedBy: newVotes },
         }
         return addMsg({ ...withStat, stations: newStations }, 'KITCHEN',
           `🧯 ${STATION_DEFS[stationId].name} extinguished! Station restored.`, 'success')
@@ -124,7 +124,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (Date.now() - cooldown < 1500) return addMsg(state, 'KITCHEN', `${user} is on cooldown!`, 'error')
 
       const newHeat = Math.max(0, station.heat - COOL_AMOUNT)
-      const newStations = { ...state.stations, [stationId]: { ...station, heat: newHeat, lastCooledAt: Date.now() } }
+      const newStations = { ...state.stations, [stationId]: { ...station, heat: newHeat, lastCooledAt: Date.now(), lastCooledBy: user } }
       const withCooldown = { ...state, stations: newStations, userCooldowns: { ...state.userCooldowns, [user]: Date.now() } }
       return addMsg(withCooldown, 'KITCHEN', `${user} cooled the ${STATION_DEFS[stationId].name}! Heat: ${newHeat}%`, 'success')
     }
@@ -147,7 +147,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
       const newOrders = state.orders.map((o, i) =>
-        i === orderIdx ? { ...o, served: true, outcome: 'served' as const, completedAt: Date.now() } : o
+        i === orderIdx ? { ...o, served: true, outcome: 'served' as const, completedAt: Date.now(), servedBy: user } : o
       )
       const timeBonus = Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30))
       const reward = Math.round(recipe.reward + timeBonus)
@@ -304,7 +304,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             })
 
             // Record completion for floating emoji
-            newStations[id] = { ...newStations[id], lastCompletion: { ingredient: slot.produces, at: now } }
+            newStations[id] = { ...newStations[id], lastCompletion: { ingredient: slot.produces, at: now, by: slot.user } }
 
             // Heat accumulation (chopping board is exempt)
             if (id === 'cutting_board') continue
@@ -319,7 +319,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
               messages.push({
                 id: nextMsgId++,
                 username: 'KITCHEN',
-                text: `🔥 ${STATION_DEFS[id].name} OVERHEATED! Type !extinguish ${id} to restore it!`,
+                text: `🔥 ${STATION_DEFS[id].name} OVERHEATED! Type extinguish ${id} to restore it!`,
                 type: 'system',
               })
               slotsChanged = true
