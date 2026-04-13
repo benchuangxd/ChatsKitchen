@@ -182,6 +182,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const [stationId] = stationEntry
       const station = withCooldown.stations[stationId]
 
+      // Overheated check
+      if (station.overheated) {
+        return addMsg(withCooldown, 'KITCHEN', `The ${STATION_DEFS[stationId].name} is overheated! Extinguish it first.`, 'error')
+      }
+
       // Station capacity check
       const maxSlots = getStationCapacity(stationId, state.stationCapacity, state.restrictSlots)
       if (station.slots.length >= maxSlots) {
