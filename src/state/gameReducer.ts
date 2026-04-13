@@ -116,6 +116,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const { user, stationId } = action
       const station = state.stations[stationId]
       if (!station) return addMsg(state, 'KITCHEN', 'Unknown station!', 'error')
+      if (stationId === 'cutting_board') return addMsg(state, 'KITCHEN', `The Chopping Board doesn't overheat!`, 'error')
       if (station.overheated) return addMsg(state, 'KITCHEN', `${STATION_DEFS[stationId].name} is overheated — extinguish it first!`, 'error')
       if (station.heat === 0) return addMsg(state, 'KITCHEN', `${STATION_DEFS[stationId].name} is already cool.`, 'error')
 
@@ -302,7 +303,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
               type: 'success',
             })
 
-            // Heat accumulation
+            // Heat accumulation (chopping board is exempt)
+            if (id === 'cutting_board') continue
             const stationHeat = (newStations[id].heat ?? 0) + HEAT_PER_COOK
             if (stationHeat >= 100) {
               // Overheat — destroy all slots and lock station

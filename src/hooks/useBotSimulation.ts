@@ -17,7 +17,7 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
 
   // Cool hot stations (heat >= 60, not overheated)
   for (const [id, station] of Object.entries(state.stations)) {
-    if (!station.overheated && station.heat >= 60) return { name, command: `cool ${id}` }
+    if (id !== 'cutting_board' && !station.overheated && station.heat >= 60) return { name, command: `cool ${id}` }
   }
 
   // Serve — check if preparedItems has all ingredients for an active order
