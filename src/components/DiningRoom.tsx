@@ -4,9 +4,10 @@ import styles from './DiningRoom.module.css'
 
 interface Props {
   state: GameState
+  isHighlighted?: boolean
 }
 
-export default function OrdersBar({ state }: Props) {
+export default function OrdersBar({ state, isHighlighted }: Props) {
   const activeOrders = state.orders
     .filter(o => !o.served || o.outcome !== undefined)
     .sort((a, b) => {
@@ -22,7 +23,7 @@ export default function OrdersBar({ state }: Props) {
   const isUrgent = totalSec <= 60
 
   return (
-    <div className={styles.dining}>
+    <div className={`${styles.dining} ${isHighlighted ? styles.highlighted : ''}`}>
       <div className={styles.timeBlock}>
         <span className={styles.timeLabel}>TIME LEFT</span>
         <span className={`${styles.timeValue} ${isUrgent ? styles.urgent : ''}`}>{timerStr}</span>

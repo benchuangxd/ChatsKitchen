@@ -5,9 +5,10 @@ import styles from './PreparedItems.module.css'
 interface Props {
   items: string[]
   enabledRecipes: string[]
+  isHighlighted?: boolean
 }
 
-export default function PreparedItems({ items, enabledRecipes }: Props) {
+export default function PreparedItems({ items, enabledRecipes, isHighlighted }: Props) {
   const [showNames, setShowNames] = useState(() => {
     const stored = localStorage.getItem('preparedItems.showNames')
     return stored === null ? true : stored === 'true'
@@ -30,7 +31,7 @@ export default function PreparedItems({ items, enabledRecipes }: Props) {
   }
 
   return (
-    <div className={styles.prep}>
+    <div className={`${styles.prep} ${isHighlighted ? styles.highlighted : ''}`}>
       <div className={styles.header}>
         <div className={styles.sectionTitle}>🥘 Prepped Ingredients</div>
         <button className={styles.toggle} onClick={toggleShowNames}>

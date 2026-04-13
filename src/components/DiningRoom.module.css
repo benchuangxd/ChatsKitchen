@@ -93,3 +93,15 @@
   text-align: center;
   padding: 16px 0;
 }
+
+/* ── Tutorial highlight ─────────────────────── */
+.highlighted {
+  outline: 3px solid #f0c850;
+  outline-offset: -3px;
+  animation: tutorialPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes tutorialPulse {
+  0%, 100% { outline-color: #f0c850; }
+  50%       { outline-color: rgba(240, 200, 80, 0.3); }
+}

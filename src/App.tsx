@@ -18,6 +18,8 @@ import AdventureRunEnd from './components/AdventureRunEnd'
 import AdventureShiftPassed from './components/AdventureShiftPassed'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
+import TutorialOverlay from './components/TutorialOverlay'
+import { TUTORIAL_STEPS } from './data/tutorialData'
 import PauseModal from './components/PauseModal'
 import Toast from './components/Toast'
 import {
@@ -129,6 +131,8 @@ export default function App() {
   })
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false)
   const [tutorialDestination, setTutorialDestination] = useState<TutorialDestination>('menu')
+  const [tutorialStep, setTutorialStep] = useState<number | null>(null)
+  const isTutorial = tutorialStep !== null
 
   // Keep refs in sync so stable callbacks can read current values
   screenRef.current = screen
@@ -179,12 +183,6 @@ export default function App() {
     setScreen('menu')
   }, [])
 
-  const openTutorial = useCallback((destination: TutorialDestination) => {
-    setShowTutorialPrompt(false)
-    setTutorialDestination(destination)
-    setTutorialOpen(true)
-  }, [])
-
   const dismissTutorialPrompt = useCallback(() => {
     setShowTutorialPrompt(false)
     continueFromTutorial(tutorialDestination)
@@ -221,6 +219,33 @@ export default function App() {
     setTutorialOpen(false)
     continueFromTutorial(tutorialDestination)
   }, [continueFromTutorial, tutorialDestination])
+
+  const startTutorial = useCallback(() => {
+    dispatch({
+      type: 'RESET',
+      shiftDuration: 600_000,
+      cookingSpeed: 2,
+      orderSpeed: 0.05,
+      orderSpawnRate: 0.001,
+      stationCapacity: { chopping: 3, cooking: 2 },
+      restrictSlots: false,
+      enabledRecipes: ['fries'],
+    })
+    setShowTutorialPrompt(false)
+    setTutorialOpen(false)
+    setTutorialStep(0)
+    setChatOpen(true)
+    setScreen('playing')
+  }, [dispatch])
+
+  const handleTutorialNext = useCallback(() => {
+    setTutorialStep(s => (s !== null && s < TUTORIAL_STEPS.length - 1 ? s + 1 : s))
+  }, [])
+
+  const handleTutorialComplete = useCallback(() => {
+    setTutorialStep(null)
+    setScreen('menu')
+  }, [])
 
   const handleCommand = useCallback((user: string, text: string) => {
     const action = parseCommand(user, text, gameOptions.allowShortformCommands)
@@ -412,12 +437,20 @@ export default function App() {
   }, [handleTwitchChannelChange])
 
   const isPlaying = screen === 'playing'
-  useGameLoop(state, dispatch, isPlaying ? handleGameOver : undefined, paused)
+  const tutorialGameOver = useCallback(() => {
+    setTutorialStep(null)
+    setScreen('menu')
+  }, [])
+  useGameLoop(state, dispatch, isPlaying ? (isTutorial ? tutorialGameOver : handleGameOver) : undefined, paused)
   useBotSimulation(state, dispatch, handleCommand, isPlaying && botsEnabled)
   useGameAudio(screen, state, audioSettings)
   useViewportScale()
 
   let content
+
+  const tutorialHighlight = isTutorial && tutorialStep !== null
+    ? TUTORIAL_STEPS[tutorialStep].highlight
+    : null
 
   if (screen === 'menu') {
     content = (
@@ -426,6 +459,7 @@ export default function App() {
         onAdventure={startAdventure}
         onOptions={() => setScreen('options')}
         onTutorial={handleMenuTutorial}
+        onStartTutorial={startTutorial}
         twitchChannel={twitchChannel}
         twitchStatus={twitchChat.status}
         twitchError={twitchChat.error}
@@ -510,8 +544,8 @@ export default function App() {
           </div>
         )}
         <div className={styles.body}>
-          <OrdersBar state={state} />
-          <Kitchen state={state} />
+          <OrdersBar state={state} isHighlighted={tutorialHighlight === 'orders'} />
+          <Kitchen state={state} tutorialHighlight={tutorialHighlight} />
           {chatOpen && (
             <ChatPanel
               messages={state.chatMessages}
@@ -537,6 +571,14 @@ export default function App() {
             onExit={() => { setPaused(false); setScreen('menu') }}
           />
         )}
+        {isTutorial && tutorialStep !== null && (
+          <TutorialOverlay
+            stepIndex={tutorialStep}
+            state={state}
+            onNext={handleTutorialNext}
+            onSkip={handleTutorialComplete}
+          />
+        )}
       </div>
     )
   }
@@ -547,7 +589,7 @@ export default function App() {
       {toast && <Toast message={toast} />}
       {showTutorialPrompt && screen === 'menu' && !tutorialOpen && (
         <TutorialPrompt
-          onYes={() => openTutorial(tutorialDestination)}
+          onStartTutorial={startTutorial}
           onNo={dismissTutorialPrompt}
           onDontShowAgain={disableTutorialPrompt}
         />

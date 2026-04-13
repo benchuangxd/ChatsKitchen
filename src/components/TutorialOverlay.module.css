@@ -1,0 +1,110 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 500;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 60px;
+}
+
+.card {
+  pointer-events: all;
+  background: var(--station-bg);
+  border: 2px solid #f0c850;
+  border-radius: 14px;
+  padding: 18px 24px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 30px rgba(240, 200, 80, 0.15);
+}
+
+.stepCounter {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.title {
+  font-family: 'Lilita One', cursive;
+  font-size: 20px;
+  color: #f0c850;
+  margin-bottom: 8px;
+}
+
+.body {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  white-space: pre-line;
+  margin-bottom: 12px;
+}
+
+.commandHint {
+  background: rgba(240, 200, 80, 0.08);
+  border: 1px solid rgba(240, 200, 80, 0.3);
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.commandHint code {
+  font-family: 'Space Mono', monospace;
+  font-size: 20px;
+  color: #f0c850;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.nextBtn {
+  font-family: 'Lilita One', cursive;
+  font-size: 16px;
+  background: #f0c850;
+  color: #1c1917;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.nextBtn:hover {
+  opacity: 0.85;
+}
+
+.skipBtn {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.skipBtn:hover {
+  color: var(--text-secondary);
+}
+
+.waitingHint {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-right: auto;
+}
