@@ -28,6 +28,7 @@ export default function Kitchen({ state }: Props) {
               key={id}
               station={state.stations[id]}
               capacity={getStationCapacity(id, state.stationCapacity, state.restrictSlots)}
+              playerCount={Object.keys(state.playerStats).length}
             />
           ))}
         </div>

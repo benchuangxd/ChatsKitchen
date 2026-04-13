@@ -1,6 +1,5 @@
 import { Station as StationType, StationSlot } from '../state/types'
 import { STATION_DEFS, NAME_COLORS } from '../data/recipes'
-import { HEAT_PER_COOK } from '../state/gameReducer'
 import styles from './Station.module.css'
 
 function hashStr(s: string): number {
@@ -40,28 +39,23 @@ function SlotRow({ slot }: { slot: StationSlot }) {
 interface Props {
   station: StationType
   capacity: number
+  playerCount: number
 }
 
-// Per-station accent border colours (overheat overrides these)
-const STATION_ACCENT: Record<string, string> = {
-  cutting_board: '#2a5a3a',
-  grill:         '#7a3500',
-  fryer:         '#7a6000',
-  stove:         '#1a3a6a',
-  oven:          '#5a3a10',
-  wok:           '#6a2e00',
-  steamer:       '#2a5a6a',
-  stone_pot:     '#4a3020',
-  rice_pot:      '#6a5030',
+
+function heatBorderColor(heat: number, overheated: boolean): string {
+  if (overheated) return '#cc2200'
+  if (heat > 70)  return '#e8943a'
+  if (heat > 40)  return '#d4c43a'
+  return '#5aad5e'
 }
 
-export default function Station({ station, capacity }: Props) {
+export default function Station({ station, capacity, playerCount }: Props) {
   const def = STATION_DEFS[station.id]
   if (!def) return null
 
-  const borderColor = station.overheated ? '#cc2200' : (STATION_ACCENT[station.id] ?? def.color)
-  // Each cook adds HEAT_PER_COOK — show how many cooks until next overheat threshold
-  void HEAT_PER_COOK
+  const borderColor = heatBorderColor(station.heat, station.overheated)
+  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.3))
 
   return (
     <div className={`${styles.station} ${station.overheated ? styles.fire : ''}`} style={{ borderColor }}>
@@ -72,27 +66,13 @@ export default function Station({ station, capacity }: Props) {
           {capacity === Infinity ? station.slots.length : `${station.slots.length}/${capacity}`}
         </span>
       </div>
-      {station.heat > 0 && !station.overheated && (
-        <div className={styles.heatBar}>
-          <div
-            className={`${styles.heatBarFill} ${
-              station.heat > 70 ? styles.heatBarFillHot
-              : station.heat > 40 ? styles.heatBarFillWarm
-              : ''
-            }`}
-            style={{ width: `${station.heat}%` }}
-          />
-        </div>
-      )}
       {station.overheated ? (
         <div className={styles.overheatOverlay}>
           <span>🔥 OVERHEATED</span>
           <code>!extinguish {station.id.replace(/_/g, ' ')}</code>
-          {station.extinguishVotes.length > 0 && (
-            <span className={styles.voteProgress}>
-              {station.extinguishVotes.length} voting…
-            </span>
-          )}
+          <span className={styles.voteProgress}>
+            {station.extinguishVotes.length}/{extinguishNeeded} extinguishing…
+          </span>
         </div>
       ) : station.slots.length === 0 ? (
         <div className={styles.idleStatus}>idle</div>
