@@ -17,6 +17,8 @@ export function useGameLoop(
   stateRef.current = state
   const pausedRef = useRef(paused)
   pausedRef.current = paused
+  const prevPausedRef = useRef(paused)
+  const pauseStartRef = useRef<number | null>(null)
 
   // Reset refs when a new game starts (timeLeft is full and no orders served yet)
   useEffect(() => {
@@ -39,6 +41,23 @@ export function useGameLoop(
       gameTimeRef.current += delta
 
       const s = stateRef.current
+      const nowPaused = pausedRef.current
+      const wasPaused = prevPausedRef.current
+
+      // Detect pause start
+      if (!wasPaused && nowPaused) {
+        pauseStartRef.current = now
+      }
+
+      // Detect unpause — shift all cookStart timestamps forward so elapsed
+      // calculations exclude the time spent paused
+      if (wasPaused && !nowPaused && pauseStartRef.current !== null) {
+        const pauseDuration = now - pauseStartRef.current
+        dispatch({ type: 'ADJUST_COOK_TIMES', offset: pauseDuration })
+        pauseStartRef.current = null
+      }
+
+      prevPausedRef.current = nowPaused
 
       // Check game over before ticking
       if (s.timeLeft <= 0 && !gameOverFired.current) {
@@ -47,7 +66,7 @@ export function useGameLoop(
         return
       }
 
-      if (pausedRef.current) return
+      if (nowPaused) return
 
       // Tick game state
       dispatch({ type: 'TICK', delta, now })

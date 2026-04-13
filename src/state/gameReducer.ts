@@ -16,6 +16,7 @@ export type GameAction =
   | { type: 'SPAWN_ORDER'; now: number }
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
   | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; orderSpawnRate: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[] }
+  | { type: 'ADJUST_COOK_TIMES'; offset: number }
 
 export function createInitialState(
   shiftDuration = 120000,
@@ -356,6 +357,21 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const timeLeft = Math.max(0, state.timeLeft - delta)
 
       return { ...state, stations: newStations, activeUsers: newActiveUsers, preparedItems: newPreparedItems, playerStats: newPlayerStats, orders, lost, timeLeft, chatMessages: messages.slice(-200), nextMessageId: nextMsgId }
+    }
+
+    case 'ADJUST_COOK_TIMES': {
+      // Shift all cookStart timestamps forward by the pause duration so elapsed
+      // calculations exclude the time the game was paused.
+      const { offset } = action
+      const newStations = { ...state.stations }
+      for (const [id, station] of Object.entries(newStations)) {
+        if (station.slots.length === 0) continue
+        newStations[id] = {
+          ...station,
+          slots: station.slots.map(slot => ({ ...slot, cookStart: slot.cookStart + offset })),
+        }
+      }
+      return { ...state, stations: newStations }
     }
 
     default:
