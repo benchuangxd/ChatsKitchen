@@ -8,8 +8,8 @@ A browser-based real-time kitchen game where Twitch chat collectively runs a res
 
 - **Twitch integration** — connect any channel and chat commands become gameplay actions
 - **Cooperative chaos** — 19 recipes across 4 cuisine sets, 9 station types, one shared kitchen
-- **Fire mechanic** — leave food too long and the station burns; team must `extinguish`
-- **Level mode** — 10 fixed-difficulty levels with 1/2/3-star ratings
+- **Heat mechanic** — each completed cook heats the station; cool it with `cool <station>` or the whole team must `extinguish` if it overheats
+- **Adventure mode** — roguelike multi-shift run; survive each shift to unlock the next
 - **Bot simulation** — optional AI players fill in when chat is quiet
 - **Configurable** — tune cooking speed, order speed, station capacity, and more in Options
 
@@ -55,9 +55,10 @@ Type commands by name in chat. Spaces in ingredient names can be written as spac
 | Simmer | `simmer <item>` | Stone Pot |
 | Cook | `cook <item>` | Rice Pot |
 | Serve | `serve <order#>` | — |
+| Cool | `cool <station>` | — |
 | Extinguish | `extinguish <station>` | — |
 
-**Shortform aliases** (enable in Options): `c g f b t r s` map to chop, grill, fry, boil, toast, roast, serve.
+**Shortform aliases** (enable in Options): `c`, `g`, `f`, `b`, `t`, `r`, `st`, `sm`, `si`, `ck`, `cl`, `s` map to chop, grill, fry, boil, toast, roast, stir, steam, simmer, cook, cool, serve.
 
 ### Gameplay flow
 
@@ -118,11 +119,13 @@ Steps marked `→` require the prior ingredient in the pool first. Steps joined 
 
 Each dish also earns a time bonus of up to +$30 based on how much patience the order had remaining when served.
 
-### Fire
+### Heat & Overheat
 
-Cooking stations (grill, fryer, stove, oven, wok, steamer, stone pot, rice pot) will catch fire if an item is left too long (~22–32 seconds depending on the station). Fire blocks the station. Any player can type `extinguish <station>` to clear it and lose the burning ingredient.
+Every completed cook at a non-chopping station adds 20% heat. The station border colour shows the current level: green (safe) → yellow → orange → red (critical). Type `cool <station>` to reduce heat by 30%.
 
-The chopping board never burns — items complete automatically.
+At 100% the station overheats: all active cooks are cancelled and the station locks. At least 30% of that round's players must type `extinguish <station>` to vote it back online. Heat resets to 0 once extinguished.
+
+The chopping board is exempt from heat and never overheats.
 
 ---
 
@@ -132,15 +135,9 @@ The chopping board never burns — items complete automatically.
 
 Sandbox mode. Configure duration (1–9 min, default 3 min), cooking speed, order urgency, order frequency (all 0.25×–3.0×), station slot capacity, and which recipes can appear — all via sliders and inputs directly in the Free Play setup screen. Good for practice and casual streaming.
 
-### Levels
+### Adventure Mode
 
-Ten fixed-difficulty challenges. Cooking and order speed scale up each level. Each level has 1-star, 2-star, and 3-star money thresholds. Best star ratings are saved in the browser.
-
-| Level | Cooking | Orders | ⭐ | ⭐⭐ | ⭐⭐⭐ |
-|-------|---------|--------|-----|------|-------|
-| 1 | 1.00× | 1.0× | $100 | $200 | $350 |
-| 5 | 1.20× | 1.4× | $200 | $400 | $700 |
-| 10 | 1.45× | 1.9× | $325 | $650 | $1138 |
+A roguelike multi-shift run. Each shift must meet a money goal to unlock the next. Fail a shift and the run ends. Recipes and difficulty scale as you progress through shifts.
 
 ---
 

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { GameState } from '../state/types'
 import { TUTORIAL_STEPS } from '../data/tutorialData'
 import styles from './TutorialOverlay.module.css'
@@ -8,9 +9,10 @@ interface Props {
   state: GameState
   onNext: () => void
   onSkip: () => void
+  onRepeat: () => void
 }
 
-export default function TutorialOverlay({ stepIndex, state, onNext, onSkip }: Props) {
+export default function TutorialOverlay({ stepIndex, state, onNext, onSkip, onRepeat }: Props) {
   const step = TUTORIAL_STEPS[stepIndex]
   const isLast = stepIndex === TUTORIAL_STEPS.length - 1
 
@@ -20,7 +22,7 @@ export default function TutorialOverlay({ stepIndex, state, onNext, onSkip }: Pr
     }
   }, [state, step, onNext])
 
-  return (
+  return createPortal(
     <div className={styles.overlay}>
       <div className={styles.card}>
         <div className={styles.stepCounter}>{stepIndex + 1} / {TUTORIAL_STEPS.length}</div>
@@ -35,6 +37,9 @@ export default function TutorialOverlay({ stepIndex, state, onNext, onSkip }: Pr
           {!isLast && (
             <button className={styles.skipBtn} onClick={onSkip}>Skip Tutorial</button>
           )}
+          {isLast && (
+            <button className={styles.repeatBtn} onClick={onRepeat}>Repeat Tutorial</button>
+          )}
           {step.advanceMode === 'button' && (
             <button className={styles.nextBtn} onClick={isLast ? onSkip : onNext}>
               {isLast ? 'Start Playing!' : 'Next →'}
@@ -45,6 +50,7 @@ export default function TutorialOverlay({ stepIndex, state, onNext, onSkip }: Pr
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -12,7 +12,7 @@ export interface TutorialStep {
 export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     title: "Welcome to the Kitchen! 👨‍🍳",
-    body: "You're the chef — your Twitch chat is your kitchen crew. Together you'll cook dishes and fill orders before time runs out. Let's learn with a simple dish: Fries!",
+    body: "You're the chef — your Twitch chat is your kitchen crew. Together you'll cook dishes and fill orders before time runs out. Let's learn with a simple dish: Fries!\n\nNote: during this tutorial, only the broadcaster's commands are recognised.",
     highlight: 'none',
     advanceMode: 'button',
   },
@@ -24,7 +24,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: "Tonight's dish: Fries! 🍟",
-    body: "A customer ordered Fries. To make them:\n① !chop potato  →  adds chopped potato to the tray\n② !fry potato  →  needs the chopped potato first\nThen serve the order.",
+    body: "A customer ordered Fries. To make them:\n① chop potato  →  adds chopped potato to the tray\n② fry potato  →  needs the chopped potato first\nThen serve the order.",
     highlight: 'orders',
     advanceMode: 'button',
   },
@@ -39,7 +39,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     body: "Type the command below in the chat box and press Enter.",
     highlight: 'cutting_board',
     advanceMode: 'auto',
-    commandHint: '!chop potato',
+    commandHint: 'chop potato',
     advanceCondition: (state) =>
       (state.stations['cutting_board']?.slots.some(s => s.target === 'potato') ?? false) ||
       state.preparedItems.includes('chopped_potato'),
@@ -62,7 +62,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     body: "The fryer needs the chopped potato first (the → arrow in recipes means dependency). Type:",
     highlight: 'fryer',
     advanceMode: 'auto',
-    commandHint: '!fry potato',
+    commandHint: 'fry potato',
     advanceCondition: (state) =>
       (state.stations['fryer']?.slots.some(s => s.target === 'potato') ?? false) ||
       state.preparedItems.includes('fried_potato'),
@@ -79,13 +79,47 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     body: "All ingredients are in the tray! Serve order #1 by typing:",
     highlight: 'orders',
     advanceMode: 'auto',
-    commandHint: '!serve 1',
+    commandHint: 'serve 1',
     advanceCondition: (state) =>
       state.orders.some(o => o.dish === 'fries' && o.served),
   },
   {
-    title: "Order served! 🎉",
-    body: "You completed your first order! In real play, your entire Twitch chat types commands together. The more you coordinate across stations, the more you earn before time runs out. Good luck, chef!",
+    title: "🌡️ Station Heat",
+    body: "Every cook at a non-chopping station adds heat. The fryer has run hot — watch its border colour. Green is safe, yellow is warm, orange means cool it soon. At 100% the station overheats and all active cooks are cancelled!",
+    highlight: 'fryer',
+    advanceMode: 'button',
+  },
+  {
+    title: "❄️ Cool it down!",
+    body: "The fryer is at 90% heat — one more cook and it'll overheat. Cool it now by typing the command below.",
+    highlight: 'fryer',
+    advanceMode: 'auto',
+    commandHint: 'cool fryer',
+    advanceCondition: (state) => (state.stations['fryer']?.heat ?? 100) < 90,
+  },
+  {
+    title: "Station cooled! ✅",
+    body: "The fryer dropped to 60% heat — notice the border is now yellow. Keep cooling regularly during a busy shift to stay in the safe zone.",
+    highlight: 'fryer',
+    advanceMode: 'button',
+  },
+  {
+    title: "⚠️ What if it overheats?",
+    body: "If heat reaches 100%, the station catches fire. All active cooks are lost and the station locks — no one can use it until it's extinguished. Let's see that happen now.",
+    highlight: 'fryer',
+    advanceMode: 'button',
+  },
+  {
+    title: "🔥 Station on fire!",
+    body: "The fryer has overheated — all active cooks were cancelled and it's locked. Vote to extinguish it by typing the command below.",
+    highlight: 'fryer',
+    advanceMode: 'auto',
+    commandHint: 'extinguish fryer',
+    advanceCondition: (state) => state.stations['fryer']?.overheated === false,
+  },
+  {
+    title: "You're ready! 🎉",
+    body: "You know the full loop — cook, prep, serve, and manage heat. In real play, your entire Twitch chat pitches in across all stations at once. The more you coordinate, the more you earn. Good luck, chef!",
     highlight: 'none',
     advanceMode: 'button',
   },

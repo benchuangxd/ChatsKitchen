@@ -103,12 +103,12 @@
 
 /* ── Tutorial highlight ─────────────────────── */
 .highlighted {
-  outline: 3px solid #f0c850;
+  outline: 3px solid #e03030;
   outline-offset: 3px;
   animation: tutorialPulse 1.4s ease-in-out infinite;
 }
 
 @keyframes tutorialPulse {
-  0%, 100% { outline-color: #f0c850; }
-  50%       { outline-color: rgba(240, 200, 80, 0.3); }
+  0%, 100% { outline-color: #e03030; background-color: rgba(224, 48, 48, 0.12); }
+  50%       { outline-color: rgba(224, 48, 48, 0.3); background-color: rgba(224, 48, 48, 0.02); }
 }

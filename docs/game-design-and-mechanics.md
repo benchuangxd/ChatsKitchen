@@ -25,7 +25,7 @@ The game is meant to be busy, but not unreadable. UI panels, order tickets, the 
 The game supports:
 
 - `Free Play`, where the player can tune settings such as speeds and station capacity
-- `Levels`, where difficulty is fixed and progress is measured with star ratings
+- `Adventure`, a roguelike multi-shift run where each shift must hit a money goal to continue
 
 ## Core Game Loop
 
@@ -61,19 +61,18 @@ Auto-Restart and Restart Delay are found in the More Options panel. When Auto-Re
 
 It is the best mode for experimenting, practicing, or playing casually with chat.
 
-## Levels
+## Adventure Mode
 
-Levels are fixed-parameter challenge runs. Each level scales difficulty by increasing cooking and order pressure while keeping round structure predictable.
+Adventure is a roguelike multi-shift run. Each shift has a fixed money goal — meet it to advance to the next shift, fail and the run ends. Recipes and difficulty scale as shifts progress.
 
-Every level has:
+Every shift has:
 
-- a level number
-- fixed cooking speed
-- fixed order speed
+- a shift number
+- a money goal that must be reached to continue
+- an increasing number of enabled recipes as shifts progress
 - a fixed shift duration
-- 1-star, 2-star, and 3-star money thresholds
 
-Progress is tracked as the highest star rating earned per level.
+The best run (most shifts completed) is saved to the browser.
 
 ## Orders And Scoring
 
@@ -244,8 +243,8 @@ The game is designed to remain understandable even during busy rounds.
 The Main Menu is the hub for:
 
 - connecting Twitch
-- entering Levels or Free Play
-- opening the tutorial
+- entering Adventure or Free Play
+- starting the tutorial
 - changing Options
 
 ### Tutorial Flow
@@ -254,11 +253,11 @@ The tutorial system is meant to lower the learning curve without forcing a long 
 
 Current tutorial behavior:
 
-- clicking `Play Levels` or `Free Play` first shows a tutorial prompt
-- `Yes` opens the tutorial
-- `No` continues into the selected mode
-- `Don't Show Again` suppresses the prompt for the current session and continues
-- clicking `Tutorial` directly opens the tutorial from the menu
+- clicking `Adventure` or `Free Play` first shows a tutorial prompt for new players
+- `Play Tutorial` starts the interactive tutorial round
+- `Skip` continues into the selected mode
+- `Don't Show Again` suppresses the prompt for future sessions
+- clicking `Tutorial` on the main menu starts the tutorial directly
 
 ### Gameplay HUD
 
@@ -391,24 +390,9 @@ All cooking stations reach overheat after 5 completed cooks without cooling. The
 
 Slot limits apply separately to the chopping board and to each cooking station type. In Free Play, both limits are configurable in the More Options panel (chopping: 1–8 slots, cooking: 1–8 slots per station type).
 
-## Level Reference
+## Adventure Mode Reference
 
-There are 10 levels, each with fixed cooking speed, order speed, and a 120-second shift. Difficulty scales with level number.
-
-| Level | Cooking speed | Order speed | ⭐ | ⭐⭐ | ⭐⭐⭐ |
-|-------|--------------|-------------|-----|------|-------|
-| 1 | 1.00× | 1.0× | $100 | $200 | $350 |
-| 2 | 1.05× | 1.1× | $125 | $250 | $438 |
-| 3 | 1.10× | 1.2× | $150 | $300 | $525 |
-| 4 | 1.15× | 1.3× | $175 | $350 | $613 |
-| 5 | 1.20× | 1.4× | $200 | $400 | $700 |
-| 6 | 1.25× | 1.5× | $225 | $450 | $788 |
-| 7 | 1.30× | 1.6× | $250 | $500 | $875 |
-| 8 | 1.35× | 1.7× | $275 | $550 | $963 |
-| 9 | 1.40× | 1.8× | $300 | $600 | $1050 |
-| 10 | 1.45× | 1.9× | $325 | $650 | $1138 |
-
-Star progress is saved to the browser and persists between sessions.
+Each Adventure shift has a fixed money goal. Recipes available increase as shifts progress, keeping early shifts accessible while later shifts demand broader coordination. The best run (most shifts survived) is saved to the browser and persists between sessions.
 
 ## Player Stats
 
