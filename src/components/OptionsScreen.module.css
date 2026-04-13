@@ -83,6 +83,48 @@
   margin-top: 8px;
 }
 
+.shortformHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.shortformGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  transition: opacity 0.2s;
+}
+
+.shortformDimmed {
+  opacity: 0.35;
+}
+
+.shortformEntry {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-dark);
+  border: 1px solid #ffffff18;
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+
+.shortformAlias {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0c850;
+  min-width: 22px;
+}
+
+.shortformCmd {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
 .backBtn {
   position: fixed;
   top: 20px;

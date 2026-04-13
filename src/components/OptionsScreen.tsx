@@ -134,9 +134,8 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
             </div>
 
             <div className={styles.section}>
-              <div className={styles.label}>Shortform Commands</div>
-              <div className={styles.capacityRow}>
-                <span className={styles.capacityLabel}>c, g, f, b, t, ta, s, e</span>
+              <div className={styles.shortformHeader}>
+                <div className={styles.label} style={{ marginBottom: 0 }}>Shortform Commands</div>
                 <button
                   className={`${styles.muteBtn} ${options.allowShortformCommands ? styles.muteBtnActive : ''}`}
                   onClick={() => onChange({ ...options, allowShortformCommands: !options.allowShortformCommands })}
@@ -144,7 +143,18 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
                   {options.allowShortformCommands ? 'ON' : 'OFF'}
                 </button>
               </div>
-              <div className={styles.hint}>Allow single-letter aliases for all commands</div>
+              <div className={`${styles.shortformGrid} ${options.allowShortformCommands ? '' : styles.shortformDimmed}`}>
+                {([
+                  ['c', 'chop'], ['g', 'grill'], ['f', 'fry'], ['b', 'boil'],
+                  ['t', 'toast'], ['r', 'roast'], ['st', 'stir'], ['sm', 'steam'],
+                  ['si', 'simmer'], ['ck', 'cook'], ['ta', 'take'], ['s', 'serve'],
+                ] as [string, string][]).map(([alias, cmd]) => (
+                  <div key={alias} className={styles.shortformEntry}>
+                    <span className={styles.shortformAlias}>!{alias}</span>
+                    <span className={styles.shortformCmd}>{cmd}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
       </div>

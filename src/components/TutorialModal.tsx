@@ -22,37 +22,64 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
 
         <div className={styles.scrollArea}>
           <div className={styles.content}>
-            <section className={styles.section}>
-              <h3>Goal</h3>
-              <p>Work with your chat to cook dishes and serve orders before time runs out.</p>
+            <section className={`${styles.section} ${styles.quickPlaySection}`}>
+              <h3>Quick Play</h3>
+              <p className={styles.quickPlaySubtitle}>
+                Work with your chat to cook dishes and serve orders before time runs out.
+              </p>
+              <div className={styles.quickPlaySteps}>
+                <div className={styles.quickStep}>
+                  <div className={styles.quickStepNum}>1</div>
+                  <div className={styles.quickStepBody}>
+                    <strong>Read the order</strong>
+                    <span>Orders appear at the top — note the order number and the required ingredients.</span>
+                  </div>
+                </div>
+                <div className={styles.quickStepArrow}>▶</div>
+                <div className={styles.quickStep}>
+                  <div className={styles.quickStepNum}>2</div>
+                  <div className={styles.quickStepBody}>
+                    <strong>Cook in chat</strong>
+                    <span>Type commands like <code>!chop lettuce</code> or <code>!grill patty</code>. Each player works one station at a time. Chopped items go straight to the tray — other cooked items need <code>!take [ingredient]</code> to collect.</span>
+                  </div>
+                </div>
+                <div className={styles.quickStepArrow}>▶</div>
+                <div className={styles.quickStep}>
+                  <div className={styles.quickStepNum}>3</div>
+                  <div className={styles.quickStepBody}>
+                    <strong>Serve the order</strong>
+                    <span>Once all ingredients are ready, type <code>!serve [order#]</code> to complete it and earn money.</span>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section className={styles.section}>
-              <h3>How A Round Works</h3>
+              <h3>Round Details</h3>
               <ul className={styles.list}>
-                <li>Orders appear at the top with the order number, dish name, ingredients needed, and a patience timer.</li>
-                <li>Players type commands in chat to prepare ingredients at the cooking stations.</li>
-                <li>Once all required ingredients are ready, serve the matching order number to complete it.</li>
-                <li>Orders expire if their patience runs out — a lost order counts against your team's score.</li>
+                <li>Each order has a <strong>patience bar</strong> that depletes in real time — when it empties, the order expires and counts against your score.</li>
+                <li>Serve quickly to earn a <strong>time bonus of up to +$30</strong> — the more patience remaining, the bigger the bonus.</li>
+                <li>Orders expire if patience runs out before they are served — a lost order counts against your team's score.</li>
               </ul>
             </section>
 
             <section className={styles.section}>
               <h3>Commands</h3>
               <div className={styles.commandGrid}>
-                <span><code>!chop [ingredient]</code></span>
-                <span><code>!grill [ingredient]</code></span>
-                <span><code>!fry [ingredient]</code></span>
-                <span><code>!stir [ingredient]</code></span>
-                <span><code>!steam [ingredient]</code></span>
-                <span><code>!simmer [ingredient]</code></span>
-                <span><code>!cook [ingredient]</code></span>
-                <span><code>!toast [ingredient]</code></span>
-                <span><code>!roast [ingredient]</code></span>
-                <span><code>!extinguish [station]</code></span>
-                <span><code>!serve [order#]</code></span>
+                <span><code>!chop [ingredient]</code><span className={styles.cmdStation}>Chopping Board</span><span className={styles.cmdAlias}>!c</span></span>
+                <span><code>!grill [ingredient]</code><span className={styles.cmdStation}>Grill</span><span className={styles.cmdAlias}>!g</span></span>
+                <span><code>!fry [ingredient]</code><span className={styles.cmdStation}>Fryer</span><span className={styles.cmdAlias}>!f</span></span>
+                <span><code>!stir [ingredient]</code><span className={styles.cmdStation}>Wok</span><span className={styles.cmdAlias}>!st</span></span>
+                <span><code>!steam [ingredient]</code><span className={styles.cmdStation}>Steamer</span><span className={styles.cmdAlias}>!sm</span></span>
+                <span><code>!simmer [ingredient]</code><span className={styles.cmdStation}>Stone Pot</span><span className={styles.cmdAlias}>!si</span></span>
+                <span><code>!cook [ingredient]</code><span className={styles.cmdStation}>Rice Pot</span><span className={styles.cmdAlias}>!ck</span></span>
+                <span><code>!toast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>!t</span></span>
+                <span><code>!roast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>!r</span></span>
+                <span><code>!take [ingredient]</code><span className={styles.cmdStation}>any station</span><span className={styles.cmdAlias}>!ta</span></span>
+                <span><code>!serve [order#]</code><span className={styles.cmdStation}></span><span className={styles.cmdAlias}>!s</span></span>
+                <span><code>!extinguish [station]</code><span className={styles.cmdStation}>any station</span></span>
               </div>
-              <p className={styles.note}>Each player can only work one station at a time. The <code>!</code> prefix is optional.</p>
+              <p className={styles.note}>Each player can only work one station at a time. The <code>!</code> prefix is optional. Shortforms only work when <strong>Shortform Commands</strong> is enabled in Options.</p>
             </section>
 
             <section className={styles.section}>
@@ -77,15 +104,15 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 ))}
               </div>
               <p className={styles.note}><code>+</code> steps can be done in any order. <code>→</code> steps need the prior ingredient in the tray first (e.g. chop potato before frying it).</p>
+              <p className={styles.note} style={{ marginTop: 6 }}>Which recipes are in play depends on the <strong>Recipe Set</strong> selected in settings.</p>
             </section>
 
             <section className={styles.section}>
-              <h3>Helpful Tips</h3>
+              <h3>Tips</h3>
               <ul className={styles.list}>
-                <li>Serve orders quickly — you earn a time bonus of up to +$30 based on how much patience was left.</li>
-                <li>If something catches 🔥 fire, type <code>extinguish [station]</code> fast — it blocks the whole station!</li>
+                <li><strong>Fire hazard:</strong> ingredients left at a station too long will catch 🔥 fire — all slots on that station are destroyed. Type <code>!extinguish [station]</code> immediately (e.g. <code>!extinguish grill</code>) to clear it.</li>
+                <li>Multiple players can cook different stations simultaneously — coordinate to prepare all ingredients in parallel.</li>
                 <li>Connect to Twitch before playing if you want your community to join in.</li>
-                <li>Enable <strong>Shortform Commands</strong> in Options to use <code>c</code>, <code>g</code>, <code>f</code>, etc. instead of full names.</li>
                 <li>Open the in-game <strong>Commands &amp; Recipes</strong> panel anytime for a quick reference.</li>
               </ul>
             </section>
