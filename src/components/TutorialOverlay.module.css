@@ -1,0 +1,125 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  pointer-events: all;
+  background: #252836;
+  border: 2px solid #f0c850;
+  border-radius: 14px;
+  padding: 24px 28px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 30px rgba(240, 200, 80, 0.15);
+}
+
+.stepCounter {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: #8a8fa8;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.title {
+  font-family: 'Lilita One', cursive;
+  font-size: 22px;
+  color: #f0c850;
+  margin-bottom: 10px;
+}
+
+.body {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  color: #d8dae8;
+  line-height: 1.5;
+  white-space: pre-line;
+  margin-bottom: 14px;
+}
+
+.commandHint {
+  background: rgba(240, 200, 80, 0.08);
+  border: 1px solid rgba(240, 200, 80, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.commandHint code {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  color: #f0c850;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.nextBtn {
+  font-family: 'Lilita One', cursive;
+  font-size: 18px;
+  background: #f0c850;
+  color: #1c1917;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.nextBtn:hover {
+  opacity: 0.85;
+}
+
+.skipBtn {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  background: none;
+  color: #8a8fa8;
+  border: 1px solid #4a4f68;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.skipBtn:hover {
+  color: #d8dae8;
+}
+
+.repeatBtn {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  background: none;
+  color: #8a8fa8;
+  border: 1px solid #4a4f68;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.repeatBtn:hover {
+  color: #d8dae8;
+  border-color: #8a8fa8;
+}
+
+.waitingHint {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: #8a8fa8;
+  font-style: italic;
+  margin-right: auto;
+}

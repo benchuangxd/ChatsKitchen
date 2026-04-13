@@ -17,6 +17,8 @@ export type GameAction =
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
   | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; orderSpawnRate: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[] }
   | { type: 'ADJUST_COOK_TIMES'; offset: number }
+  | { type: 'SET_STATION_HEAT'; stationId: string; heat: number }
+  | { type: 'OVERHEAT_STATION'; stationId: string }
 
 export function createInitialState(
   shiftDuration = 120000,
@@ -377,6 +379,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         }
       }
       return { ...state, stations: newStations }
+    }
+
+    case 'SET_STATION_HEAT': {
+      const { stationId, heat } = action
+      const station = state.stations[stationId]
+      if (!station) return state
+      return { ...state, stations: { ...state.stations, [stationId]: { ...station, heat: Math.max(0, Math.min(100, heat)) } } }
+    }
+
+    case 'OVERHEAT_STATION': {
+      const station = state.stations[action.stationId]
+      if (!station) return state
+      return { ...state, stations: { ...state.stations, [action.stationId]: { ...station, slots: [], heat: 100, overheated: true, extinguishVotes: [] } } }
     }
 
     default:

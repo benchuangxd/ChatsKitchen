@@ -32,7 +32,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                   <div className={styles.quickStepNum}>1</div>
                   <div className={styles.quickStepBody}>
                     <strong>Read the order</strong>
-                    <span>Orders appear at the top — note the order number and the required ingredients.</span>
+                    <span>Orders appear on the left — note the order number and the required ingredients.</span>
                   </div>
                 </div>
                 <div className={styles.quickStepArrow}>▶</div>
@@ -69,6 +69,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 <span><code>!chop [ingredient]</code><span className={styles.cmdStation}>Chopping Board</span><span className={styles.cmdAlias}>!c</span></span>
                 <span><code>!grill [ingredient]</code><span className={styles.cmdStation}>Grill</span><span className={styles.cmdAlias}>!g</span></span>
                 <span><code>!fry [ingredient]</code><span className={styles.cmdStation}>Fryer</span><span className={styles.cmdAlias}>!f</span></span>
+                <span><code>!boil [ingredient]</code><span className={styles.cmdStation}>Stove</span><span className={styles.cmdAlias}>!b</span></span>
                 <span><code>!stir [ingredient]</code><span className={styles.cmdStation}>Wok</span><span className={styles.cmdAlias}>!st</span></span>
                 <span><code>!steam [ingredient]</code><span className={styles.cmdStation}>Steamer</span><span className={styles.cmdAlias}>!sm</span></span>
                 <span><code>!simmer [ingredient]</code><span className={styles.cmdStation}>Stone Pot</span><span className={styles.cmdAlias}>!si</span></span>

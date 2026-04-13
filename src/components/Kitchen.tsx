@@ -7,6 +7,7 @@ import styles from './Kitchen.module.css'
 
 interface Props {
   state: GameState
+  tutorialHighlight?: string | null
 }
 
 function getStationCapacity(stationId: string, cap: GameState['stationCapacity'], restricted: boolean): number {
@@ -15,12 +16,12 @@ function getStationCapacity(stationId: string, cap: GameState['stationCapacity']
   return cap.cooking
 }
 
-export default function Kitchen({ state }: Props) {
+export default function Kitchen({ state, tutorialHighlight }: Props) {
   const stationIds = getEnabledStations(state.enabledRecipes)
 
   return (
     <div className={styles.kitchen}>
-      <PreparedItems items={state.preparedItems} enabledRecipes={state.enabledRecipes} />
+      <PreparedItems items={state.preparedItems} enabledRecipes={state.enabledRecipes} isHighlighted={tutorialHighlight === 'prepared'} />
       <div className={styles.stationsSection}>
         <div className={styles.stationsGrid}>
           {stationIds.map(id => (
@@ -29,6 +30,7 @@ export default function Kitchen({ state }: Props) {
               station={state.stations[id]}
               capacity={getStationCapacity(id, state.stationCapacity, state.restrictSlots)}
               playerCount={Object.keys(state.playerStats).length}
+              isHighlighted={tutorialHighlight === id}
             />
           ))}
         </div>

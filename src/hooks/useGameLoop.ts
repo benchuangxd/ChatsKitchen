@@ -7,6 +7,7 @@ export function useGameLoop(
   dispatch: React.Dispatch<GameAction>,
   onGameOver?: () => void,
   paused?: boolean,
+  resetKey?: number,
 ) {
   const lastTimeRef = useRef(Date.now())
   const gameTimeRef = useRef(0)
@@ -29,7 +30,7 @@ export function useGameLoop(
       firstOrderSpawned.current = false
       gameOverFired.current = false
     }
-  }, [onGameOver])
+  }, [onGameOver, resetKey])
 
   useEffect(() => {
     if (!onGameOver) return // Only run when game is active

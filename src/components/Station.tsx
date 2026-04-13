@@ -40,6 +40,7 @@ interface Props {
   station: StationType
   capacity: number
   playerCount: number
+  isHighlighted?: boolean
 }
 
 
@@ -50,7 +51,7 @@ function heatBorderColor(heat: number, overheated: boolean): string {
   return '#5aad5e'
 }
 
-export default function Station({ station, capacity, playerCount }: Props) {
+export default function Station({ station, capacity, playerCount, isHighlighted }: Props) {
   const def = STATION_DEFS[station.id]
   if (!def) return null
 
@@ -58,7 +59,7 @@ export default function Station({ station, capacity, playerCount }: Props) {
   const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.3))
 
   return (
-    <div className={`${styles.station} ${station.overheated ? styles.fire : ''}`} style={{ borderColor }}>
+    <div className={`${styles.station} ${station.overheated ? styles.fire : ''} ${isHighlighted ? styles.highlighted : ''}`} style={{ borderColor }}>
       <div className={styles.label}>
         <span className={styles.stationEmoji}>{def.emoji}</span>
         <span className={styles.stationName}>{def.name}</span>

@@ -7,6 +7,7 @@ interface Props {
   onAdventure: () => void
   onOptions: () => void
   onTutorial: () => void
+  onStartTutorial: () => void
   twitchChannel: string | null
   twitchStatus: TwitchStatus
   twitchError: string | undefined
@@ -14,7 +15,7 @@ interface Props {
   onTwitchDisconnect: () => void
 }
 
-export default function MainMenu({ onPlay, onAdventure, onOptions, onTutorial, twitchChannel, twitchStatus, twitchError, onTwitchConnect, onTwitchDisconnect }: Props) {
+export default function MainMenu({ onPlay, onAdventure, onOptions, onTutorial, onStartTutorial, twitchChannel, twitchStatus, twitchError, onTwitchConnect, onTwitchDisconnect }: Props) {
   const [twitchInput, setTwitchInput] = useState(twitchChannel || '')
   const isConnected = twitchStatus === 'connected'
   const isConnecting = twitchStatus === 'connecting'
@@ -155,7 +156,8 @@ export default function MainMenu({ onPlay, onAdventure, onOptions, onTutorial, t
           </button>
 
           <div className={styles.modeBottomRow}>
-            <button className={styles.modeTutorial} onClick={onTutorial}>Tutorial</button>
+            <button className={styles.modeTutorial} onClick={onStartTutorial}>Tutorial</button>
+            <button className={styles.modeTutorial} onClick={onTutorial}>How To Play</button>
             <button className={styles.modeOptions} onClick={onOptions}>Options</button>
           </div>
 
