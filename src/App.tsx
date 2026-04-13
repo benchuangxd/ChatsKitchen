@@ -41,7 +41,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   shiftDuration: 180000,
   stationCapacity: { chopping: 3, cooking: 2 },
   restrictSlots: false,
-  enabledRecipes: ['burger', 'fish_burger', 'mushroom_soup', 'roasted_veggies'],
+  enabledRecipes: ['burger', 'fish_burger', 'salad', 'roasted_veggies'],
   allowShortformCommands: true,
   autoRestart: false,
   autoRestartDelay: 60,
@@ -602,7 +602,7 @@ export default function App() {
             botsEnabled={botsEnabled}
             onBotsToggle={() => setBotsEnabled(b => !b)}
             onResume={() => setPaused(false)}
-            onExit={() => { setPaused(false); setScreen('menu') }}
+            onExit={() => { setPaused(false); setTutorialStep(null); setScreen('menu') }}
           />
         )}
         {isTutorial && tutorialStep !== null && (

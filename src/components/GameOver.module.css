@@ -170,6 +170,11 @@
   font-weight: 700;
 }
 
+.historyScroll {
+  max-height: calc(3 * (18px + 10px + 2px));
+  overflow-y: auto;
+}
+
 .historyRow {
   display: flex;
   gap: 4px;

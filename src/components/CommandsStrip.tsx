@@ -36,14 +36,14 @@ export default function CommandsStrip({ stationIds, enabledRecipes }: Props) {
         )
       )
       if (relevantTargets.length > 0) {
-        groups.push({ label: `!${action}`, targets: '[ingredient]' })
+        groups.push({ label: action, targets: '[ingredient]' })
       }
     }
   }
 
-  groups.push({ label: '!serve', targets: '[order#]' })
-  groups.push({ label: '!cool', targets: '[station]' })
-  groups.push({ label: '!extinguish', targets: '[station]' })
+  groups.push({ label: 'serve', targets: '[order#]' })
+  groups.push({ label: 'cool', targets: '[station]' })
+  groups.push({ label: 'extinguish', targets: '[station]' })
 
   return (
     <div className={styles.strip}>

@@ -40,7 +40,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                   <div className={styles.quickStepNum}>2</div>
                   <div className={styles.quickStepBody}>
                     <strong>Cook in chat</strong>
-                    <span>Type commands like <code>!chop lettuce</code> or <code>!grill patty</code>. Each player works one station at a time. Finished ingredients go straight to the Prepared Items tray.</span>
+                    <span>Type commands like <code>chop lettuce</code> or <code>grill patty</code>. Each player works one station at a time. Finished ingredients go straight to the Prepared Items tray.</span>
                   </div>
                 </div>
                 <div className={styles.quickStepArrow}>▶</div>
@@ -48,7 +48,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                   <div className={styles.quickStepNum}>3</div>
                   <div className={styles.quickStepBody}>
                     <strong>Serve the order</strong>
-                    <span>Once all ingredients are ready, type <code>!serve [order#]</code> to complete it and earn money.</span>
+                    <span>Once all ingredients are ready, type <code>serve [order#]</code> to complete it and earn money.</span>
                   </div>
                 </div>
               </div>
@@ -66,21 +66,21 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
             <section className={styles.section}>
               <h3>Commands</h3>
               <div className={styles.commandGrid}>
-                <span><code>!chop [ingredient]</code><span className={styles.cmdStation}>Chopping Board</span><span className={styles.cmdAlias}>!c</span></span>
-                <span><code>!grill [ingredient]</code><span className={styles.cmdStation}>Grill</span><span className={styles.cmdAlias}>!g</span></span>
-                <span><code>!fry [ingredient]</code><span className={styles.cmdStation}>Fryer</span><span className={styles.cmdAlias}>!f</span></span>
-                <span><code>!boil [ingredient]</code><span className={styles.cmdStation}>Stove</span><span className={styles.cmdAlias}>!b</span></span>
-                <span><code>!stir [ingredient]</code><span className={styles.cmdStation}>Wok</span><span className={styles.cmdAlias}>!st</span></span>
-                <span><code>!steam [ingredient]</code><span className={styles.cmdStation}>Steamer</span><span className={styles.cmdAlias}>!sm</span></span>
-                <span><code>!simmer [ingredient]</code><span className={styles.cmdStation}>Stone Pot</span><span className={styles.cmdAlias}>!si</span></span>
-                <span><code>!cook [ingredient]</code><span className={styles.cmdStation}>Rice Pot</span><span className={styles.cmdAlias}>!ck</span></span>
-                <span><code>!toast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>!t</span></span>
-                <span><code>!roast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>!r</span></span>
-                <span><code>!cool [station]</code><span className={styles.cmdStation}>any station</span><span className={styles.cmdAlias}>!cl</span></span>
-                <span><code>!serve [order#]</code><span className={styles.cmdStation}></span><span className={styles.cmdAlias}>!s</span></span>
-                <span><code>!extinguish [station]</code><span className={styles.cmdStation}>any station</span></span>
+                <span><code>chop [ingredient]</code><span className={styles.cmdStation}>Chopping Board</span><span className={styles.cmdAlias}>c</span></span>
+                <span><code>grill [ingredient]</code><span className={styles.cmdStation}>Grill</span><span className={styles.cmdAlias}>g</span></span>
+                <span><code>fry [ingredient]</code><span className={styles.cmdStation}>Fryer</span><span className={styles.cmdAlias}>f</span></span>
+                <span><code>boil [ingredient]</code><span className={styles.cmdStation}>Stove</span><span className={styles.cmdAlias}>b</span></span>
+                <span><code>stir [ingredient]</code><span className={styles.cmdStation}>Wok</span><span className={styles.cmdAlias}>st</span></span>
+                <span><code>steam [ingredient]</code><span className={styles.cmdStation}>Steamer</span><span className={styles.cmdAlias}>sm</span></span>
+                <span><code>simmer [ingredient]</code><span className={styles.cmdStation}>Stone Pot</span><span className={styles.cmdAlias}>si</span></span>
+                <span><code>cook [ingredient]</code><span className={styles.cmdStation}>Rice Pot</span><span className={styles.cmdAlias}>ck</span></span>
+                <span><code>toast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>t</span></span>
+                <span><code>roast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>r</span></span>
+                <span><code>cool [station]</code><span className={styles.cmdStation}>any station</span><span className={styles.cmdAlias}>cl</span></span>
+                <span><code>serve [order#]</code><span className={styles.cmdStation}></span><span className={styles.cmdAlias}>s</span></span>
+                <span><code>extinguish [station]</code><span className={styles.cmdStation}>any station</span></span>
               </div>
-              <p className={styles.note}>Each player can only work one station at a time. The <code>!</code> prefix is optional. Shortforms only work when <strong>Shortform Commands</strong> is enabled in Options.</p>
+              <p className={styles.note}>Each player can only work one station at a time. The <code>!</code> prefix is optional — commands work with or without it. Shortforms only work when <strong>Shortform Commands</strong> is enabled in Options.</p>
             </section>
 
             <section className={styles.section}>
@@ -111,7 +111,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
             <section className={styles.section}>
               <h3>Tips</h3>
               <ul className={styles.list}>
-                <li><strong>Heat hazard:</strong> each completed cook heats up that station. Type <code>!cool [station]</code> (e.g. <code>!cool grill</code>) to reduce heat before it maxes out. At 100% the station overheats — <code>!extinguish [station]</code> requires 30% of active players to restore it.</li>
+                <li><strong>Heat hazard:</strong> each completed cook heats up that station. Type <code>cool [station]</code> (e.g. <code>cool grill</code>) to reduce heat before it maxes out. At 100% the station overheats — <code>extinguish [station]</code> requires 30% of active players to restore it.</li>
                 <li>Multiple players can cook different stations simultaneously — coordinate to prepare all ingredients in parallel.</li>
                 <li>Connect to Twitch before playing if you want your community to join in.</li>
                 <li>Open the in-game <strong>Commands &amp; Recipes</strong> panel anytime for a quick reference.</li>

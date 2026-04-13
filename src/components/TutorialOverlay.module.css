@@ -38,7 +38,7 @@
 
 .highlightHint {
   font-family: 'Space Mono', monospace;
-  font-size: 14px;
+  font-size: 18px;
   color: #a855f7;
   margin-bottom: 10px;
 }
@@ -146,13 +146,13 @@
   align-items: center;
   gap: 8px;
   font-family: 'Space Mono', monospace;
-  font-size: 15px;
+  font-size: 18px;
   color: #d8dae8;
 }
 
 .skipConfirmYes {
   font-family: 'Space Mono', monospace;
-  font-size: 15px;
+  font-size: 18px;
   background: none;
   color: #f87171;
   border: 1px solid #f87171;
@@ -168,7 +168,7 @@
 
 .skipConfirmNo {
   font-family: 'Space Mono', monospace;
-  font-size: 15px;
+  font-size: 18px;
   background: none;
   color: #8a8fa8;
   border: 1px solid #4a4f68;

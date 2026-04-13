@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { GameOptions } from '../state/types'
-import { RECIPES, RECIPE_SETS } from '../data/recipes'
+import { RECIPES, RECIPE_SETS, STATION_DEFS } from '../data/recipes'
 import styles from './FreePlaySetup.module.css'
+
+function fmtIngredient(s: string) {
+  return s.replace(/_/g, ' ')
+}
 
 interface Props {
   options: GameOptions
@@ -76,6 +80,7 @@ function SliderField({ value, min, max, step, format, parse, onChange, suffix }:
 export default function FreePlaySetup({ options, onChange, onStart, onBack }: Props) {
   const [moreOpen, setMoreOpen] = useState(false)
   const [startWarning, setStartWarning] = useState(false)
+  const [hoveredRecipe, setHoveredRecipe] = useState<string | null>(null)
 
   return (
     <div className={styles.screen}>
@@ -227,6 +232,38 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
             </div>
           </div>
         )}
+
+        {/* ── Recipe detail panel ── */}
+        {hoveredRecipe && (() => {
+          const recipe = RECIPES[hoveredRecipe]
+          if (!recipe) return null
+          return (
+            <div className={styles.recipeDetail}>
+              <div className={styles.recipeDetailHeader}>
+                <span>{recipe.emoji}</span>
+                <span className={styles.recipeDetailName}>{recipe.name}</span>
+                <span className={styles.recipeDetailReward}>${recipe.reward}</span>
+              </div>
+              <div className={styles.recipeDetailSteps}>
+                {recipe.steps.map((step, i) => {
+                  const station = STATION_DEFS[step.station]
+                  return (
+                    <div key={i} className={styles.recipeDetailStep}>
+                      <span className={styles.stepNum}>{i + 1}.</span>
+                      {step.requires && (
+                        <span className={styles.stepRequires}>needs {fmtIngredient(step.requires)} →</span>
+                      )}
+                      <span className={styles.stepStation}>{station?.emoji}</span>
+                      <code className={styles.stepCmd}>!{step.action} {step.target}</code>
+                      <span className={styles.stepArrow}>→</span>
+                      <span className={styles.stepProduces}>{fmtIngredient(step.produces)}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
       </div>
 
       <div className={styles.rightCol}>
@@ -251,6 +288,8 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                     : [...options.enabledRecipes, key]
                   onChange({ ...options, enabledRecipes: next })
                 }}
+                onMouseEnter={() => setHoveredRecipe(key)}
+                onMouseLeave={() => setHoveredRecipe(null)}
               >
                 <span className={styles.recipeEmoji}>{recipe.emoji}</span>
                 <span className={styles.recipeName}>{recipe.name}</span>

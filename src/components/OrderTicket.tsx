@@ -17,7 +17,6 @@ export default function OrderTicket({ order, orderNumber }: Props) {
 
   const isServed = order.outcome === 'served'
   const isLost = order.outcome === 'lost'
-  const displayReward = recipe.reward
   const actualReward = Math.round(recipe.reward + Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30)))
   const outcomeClass = isServed ? styles.ticketServed : isLost ? styles.ticketLost : ''
 
@@ -28,7 +27,6 @@ export default function OrderTicket({ order, orderNumber }: Props) {
           <span className={styles.orderNum}>#{orderNumber}</span>
           <span className={styles.dishEmoji}>{recipe.emoji}</span>
           <span className={styles.dishName}>{recipe.name}</span>
-          <span className={styles.reward}>${displayReward}</span>
         </div>
         <div className={styles.body}>
           <div className={styles.ingredients}>
@@ -50,7 +48,12 @@ export default function OrderTicket({ order, orderNumber }: Props) {
         </div>
         {isLost && <div className={styles.fireOverlay} />}
       </div>
-      {isServed && <div className={styles.moneyFloat}>+${actualReward}</div>}
+      {isServed && (
+        <div className={styles.moneyFloat}>
+          +${actualReward}
+          {order.servedBy && <span className={styles.moneyFloatPlayer}>{order.servedBy}</span>}
+        </div>
+      )}
     </div>
   )
 }

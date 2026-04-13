@@ -61,22 +61,27 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
 
   const [coolFlash, setCoolFlash] = useState(false)
   const [showCoolText, setShowCoolText] = useState(false)
+  const [coolPlayer, setCoolPlayer] = useState<string | null>(null)
   const [showExtinguishText, setShowExtinguishText] = useState(false)
+  const [extinguishPlayers, setExtinguishPlayers] = useState<string[]>([])
   const [completionEmoji, setCompletionEmoji] = useState<string | null>(null)
+  const [completionPlayer, setCompletionPlayer] = useState<string | null>(null)
 
   useEffect(() => {
     if (!station.lastCooledAt) return
     setCoolFlash(true)
     setShowCoolText(true)
+    setCoolPlayer(station.lastCooledBy ?? null)
     const t1 = setTimeout(() => setCoolFlash(false), 600)
-    const t2 = setTimeout(() => setShowCoolText(false), 1000)
+    const t2 = setTimeout(() => { setShowCoolText(false); setCoolPlayer(null) }, 1000)
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [station.lastCooledAt])
 
   useEffect(() => {
     if (!station.lastExtinguishedAt) return
     setShowExtinguishText(true)
-    const t = setTimeout(() => setShowExtinguishText(false), 1200)
+    setExtinguishPlayers(station.lastExtinguishedBy ?? [])
+    const t = setTimeout(() => { setShowExtinguishText(false); setExtinguishPlayers([]) }, 1200)
     return () => clearTimeout(t)
   }, [station.lastExtinguishedAt])
 
@@ -84,7 +89,8 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
     if (!station.lastCompletion) return
     const emoji = INGREDIENT_EMOJI[station.lastCompletion.ingredient] ?? '✅'
     setCompletionEmoji(emoji)
-    const t = setTimeout(() => setCompletionEmoji(null), 900)
+    setCompletionPlayer(station.lastCompletion.by)
+    const t = setTimeout(() => { setCompletionEmoji(null); setCompletionPlayer(null) }, 900)
     return () => clearTimeout(t)
   }, [station.lastCompletion?.at])
 
@@ -93,7 +99,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
       <div className={styles.label}>
         <span className={styles.stationEmoji}>{def.emoji}</span>
         <span className={styles.stationName}>{def.name}</span>
-        {!station.overheated && (
+        {!station.overheated && station.id !== 'cutting_board' && (
           <span className={styles.heatBadge}>{station.heat}% 🔥</span>
         )}
         {capacity !== Infinity && (
@@ -101,19 +107,30 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
         )}
       </div>
       {completionEmoji && (
-        <div key={station.lastCompletion?.at} className={styles.completionFloat}>{completionEmoji}</div>
+        <div key={station.lastCompletion?.at} className={styles.completionFloat}>
+          {completionEmoji}
+          {completionPlayer && <span className={styles.floatPlayer}>{completionPlayer}</span>}
+        </div>
       )}
       {showCoolText && (
-        <div className={styles.coolFloat}>❄️ COOL</div>
+        <div className={styles.coolFloat}>
+          ❄️ COOL
+          {coolPlayer && <span className={styles.floatPlayer}>{coolPlayer}</span>}
+        </div>
       )}
       {showExtinguishText && (
-        <div className={styles.extinguishFloat}>🧯 EXTINGUISHED</div>
+        <div className={styles.extinguishFloat}>
+          🧯 EXTINGUISHED
+          {extinguishPlayers.map(p => (
+            <span key={p} className={styles.floatPlayer}>{p}</span>
+          ))}
+        </div>
       )}
       {station.overheated ? (
         <div className={styles.overheatOverlay}>
           <span className={styles.overheatTitle}>🔥 OVERHEATED</span>
           <span className={styles.voteProgress}>
-            {station.extinguishVotes.length}/{extinguishNeeded} !extinguish {station.id.replace(/_/g, ' ')}
+            {station.extinguishVotes.length}/{extinguishNeeded} extinguish {station.id.replace(/_/g, ' ')}
           </span>
         </div>
       ) : station.slots.length === 0 ? (
