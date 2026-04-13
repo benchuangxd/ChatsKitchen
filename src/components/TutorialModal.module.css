@@ -106,7 +106,10 @@
 }
 
 .commandGrid span {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   border: 1px solid #ffffff18;
   border-radius: 10px;
   background: var(--bg-dark);
@@ -116,8 +119,116 @@
   color: #f0c850;
 }
 
+.cmdAlias {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
 .note {
   color: #d8b07c;
+}
+
+/* Quick Play section */
+.quickPlaySection {
+  background: rgba(184, 115, 51, 0.08);
+  border: 1px solid rgba(184, 115, 51, 0.3);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.quickPlaySection h3 {
+  color: #d8b07c;
+}
+
+.quickPlaySubtitle {
+  margin: 0 0 14px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.quickPlaySteps {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.quickStep {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-dark);
+  border: 1px solid #ffffff18;
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.quickStep strong {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.quickStep span {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.quickStep code {
+  font-size: 15px;
+  color: #f0c850;
+  background: rgba(240, 200, 80, 0.1);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.quickStepNum {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #b87333;
+  color: #fff;
+  font-family: 'Lilita One', cursive;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quickStepBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.quickStepArrow {
+  color: #b87333;
+  font-size: 20px;
+  flex-shrink: 0;
+  align-self: center;
+  opacity: 0.6;
+}
+
+/* Command station label */
+.cmdStation {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  flex: 1;
+  text-align: center;
 }
 
 .recipeCardGrid {
@@ -237,6 +348,18 @@
 
   .recipeCardGrid {
     grid-template-columns: 1fr;
+  }
+
+  .quickPlaySteps {
+    flex-direction: column;
+  }
+
+  .quickStepArrow {
+    display: none;
+  }
+
+  .cmdStation {
+    display: none;
   }
 
   .section h3 {
