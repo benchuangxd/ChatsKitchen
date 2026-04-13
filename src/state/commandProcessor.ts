@@ -3,7 +3,7 @@ import { GameAction } from './gameReducer'
 const COMMAND_ALIASES: Record<string, string> = {
   c: 'chop', g: 'grill', f: 'fry', b: 'boil', t: 'toast', r: 'roast',
   st: 'stir', sm: 'steam', si: 'simmer', ck: 'cook',
-  ta: 'take', s: 'serve',
+  cl: 'cool', s: 'serve',
 }
 
 export function parseCommand(user: string, text: string, shortformEnabled = false): GameAction | null {
@@ -18,8 +18,8 @@ export function parseCommand(user: string, text: string, shortformEnabled = fals
   switch (resolvedAction) {
     case 'extinguish':
       return target ? { type: 'EXTINGUISH', user, stationId: target } : null
-    case 'take':
-      return target ? { type: 'TAKE', user, ingredient: target } : null
+    case 'cool':
+      return target ? { type: 'COOL', user, stationId: target } : null
     case 'serve': {
       const match = target.match(/(\d+)/)
       return match ? { type: 'SERVE', user, orderId: parseInt(match[1]) } : null

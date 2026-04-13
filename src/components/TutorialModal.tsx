@@ -40,7 +40,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                   <div className={styles.quickStepNum}>2</div>
                   <div className={styles.quickStepBody}>
                     <strong>Cook in chat</strong>
-                    <span>Type commands like <code>!chop lettuce</code> or <code>!grill patty</code>. Each player works one station at a time. Chopped items go straight to the tray — other cooked items need <code>!take [ingredient]</code> to collect.</span>
+                    <span>Type commands like <code>!chop lettuce</code> or <code>!grill patty</code>. Each player works one station at a time. Finished ingredients go straight to the Prepared Items tray.</span>
                   </div>
                 </div>
                 <div className={styles.quickStepArrow}>▶</div>
@@ -75,7 +75,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 <span><code>!cook [ingredient]</code><span className={styles.cmdStation}>Rice Pot</span><span className={styles.cmdAlias}>!ck</span></span>
                 <span><code>!toast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>!t</span></span>
                 <span><code>!roast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>!r</span></span>
-                <span><code>!take [ingredient]</code><span className={styles.cmdStation}>any station</span><span className={styles.cmdAlias}>!ta</span></span>
+                <span><code>!cool [station]</code><span className={styles.cmdStation}>any station</span><span className={styles.cmdAlias}>!cl</span></span>
                 <span><code>!serve [order#]</code><span className={styles.cmdStation}></span><span className={styles.cmdAlias}>!s</span></span>
                 <span><code>!extinguish [station]</code><span className={styles.cmdStation}>any station</span></span>
               </div>
@@ -110,7 +110,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
             <section className={styles.section}>
               <h3>Tips</h3>
               <ul className={styles.list}>
-                <li><strong>Fire hazard:</strong> ingredients left at a station too long will catch 🔥 fire — all slots on that station are destroyed. Type <code>!extinguish [station]</code> immediately (e.g. <code>!extinguish grill</code>) to clear it.</li>
+                <li><strong>Heat hazard:</strong> each completed cook heats up that station. Type <code>!cool [station]</code> (e.g. <code>!cool grill</code>) to reduce heat before it maxes out. At 100% the station overheats — <code>!extinguish [station]</code> requires 30% of active players to restore it.</li>
                 <li>Multiple players can cook different stations simultaneously — coordinate to prepare all ingredients in parallel.</li>
                 <li>Connect to Twitch before playing if you want your community to join in.</li>
                 <li>Open the in-game <strong>Commands &amp; Recipes</strong> panel anytime for a quick reference.</li>

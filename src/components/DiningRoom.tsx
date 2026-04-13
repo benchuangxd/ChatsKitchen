@@ -7,7 +7,12 @@ interface Props {
 }
 
 export default function OrdersBar({ state }: Props) {
-  const activeOrders = state.orders.filter(o => !o.served || o.outcome !== undefined)
+  const activeOrders = state.orders
+    .filter(o => !o.served || o.outcome !== undefined)
+    .sort((a, b) => {
+      if (a.isRush !== b.isRush) return a.isRush ? -1 : 1
+      return a.spawnTime - b.spawnTime
+    })
   const pendingCount = activeOrders.filter(o => !o.outcome).length
 
   const totalSec = Math.max(0, Math.ceil(state.timeLeft / 1000))

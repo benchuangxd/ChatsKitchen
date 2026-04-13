@@ -33,7 +33,7 @@ interface Props {
 }
 
 export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, onPlayAgain, onNextLevel, onMenu }: Props) {
-  const totalActions = (s: PlayerStats) => s.cooked + s.taken + s.served + s.extinguished - s.firesCaused
+  const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
 
@@ -174,7 +174,6 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 <span className={styles.lbRank}>#</span>
                 <span className={styles.lbName}>Player</span>
                 <span className={styles.lbDetail} title="Cooked">{'\u{1F373}'}</span>
-                <span className={styles.lbDetail} title="Taken">{'\u{270B}'}</span>
                 <span className={styles.lbDetail} title="Served">{'\u{2705}'}</span>
                 <span className={styles.lbDetail} title="Extinguished">{'\u{1F9EF}'}</span>
                 <span className={styles.lbDetail} title="Fires Caused">{'\u{1F525}'}</span>
@@ -192,7 +191,6 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                     <span className={styles.lbRank}>{i + 1}</span>
                     <span className={styles.lbName} style={{ color }}>{name}</span>
                     <span className={styles.lbDetail}>{stats.cooked}</span>
-                    <span className={styles.lbDetail}>{stats.taken}</span>
                     <span className={styles.lbDetail}>{stats.served}</span>
                     <span className={styles.lbDetail}>{stats.extinguished}</span>
                     <span className={styles.lbDetail} style={{ color: '#d94f4f' }}>{stats.firesCaused}</span>

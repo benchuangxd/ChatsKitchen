@@ -42,6 +42,7 @@ export default function CommandsStrip({ stationIds, enabledRecipes }: Props) {
   }
 
   groups.push({ label: '!serve', targets: '[order#]' })
+  groups.push({ label: '!cool', targets: '[station]' })
   groups.push({ label: '!extinguish', targets: '[station]' })
 
   return (

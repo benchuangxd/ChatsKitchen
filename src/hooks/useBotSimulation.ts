@@ -8,20 +8,16 @@ const CHATTER = ["let's go!", 'waiting for orders...', 'COOK COOK COOK', 'we got
 function pickBotAction(state: GameState): { name: string; command: string } | null {
   const name = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)]
 
-  // Skip if this bot is already busy
   if (state.activeUsers[name]) return null
 
-  // Fire — any burning slot across all stations
+  // Extinguish overheated stations
   for (const [id, station] of Object.entries(state.stations)) {
-    if (station.slots.some(s => s.state === 'onFire')) return { name, command: `extinguish ${id}` }
+    if (station.overheated) return { name, command: `extinguish ${id}` }
   }
 
-  // Done slots — take bot's own first, then any done slot
+  // Cool hot stations (heat >= 60, not overheated)
   for (const [id, station] of Object.entries(state.stations)) {
-    const doneSlot = station.slots.find(s => s.state === 'done' && s.user === name)
-      || station.slots.find(s => s.state === 'done')
-    if (doneSlot) return { name, command: `take ${doneSlot.target}` }
-    void id
+    if (!station.overheated && station.heat >= 60) return { name, command: `cool ${id}` }
   }
 
   // Serve — check if preparedItems has all ingredients for an active order
@@ -44,9 +40,8 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
     const recipe = RECIPES[order.dish]
     for (const step of recipe.steps) {
       const station = state.stations[step.station]
-      if (!station) continue
+      if (!station || station.overheated) continue
 
-      // Check capacity
       const capacity = step.station === 'cutting_board'
         ? state.stationCapacity.chopping
         : state.stationCapacity.cooking
@@ -60,7 +55,6 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
     }
   }
 
-  // Idle chatter
   return { name, command: CHATTER[Math.floor(Math.random() * CHATTER.length)] }
 }
 
