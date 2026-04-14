@@ -74,6 +74,12 @@ function getStationCapacity(stationId: string, capacity: StationCapacity, restri
   return capacity.cooking
 }
 
+function isUserBusy(state: GameState, user: string): boolean {
+  return Boolean(state.activeUsers[user]) || Object.values(state.stations).some(
+    station => station.slots.some(slot => slot.state === 'cooking' && slot.user === user)
+  )
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RESET':
@@ -131,6 +137,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'SERVE': {
       const { user, orderId } = action
+      if (isUserBusy(state, user)) {
+        return addMsg(state, 'KITCHEN', `${user} is busy cooking at a station and can't serve right now!`, 'error')
+      }
+
       const orderIdx = state.orders.findIndex(o => o.id === orderId && !o.served)
       if (orderIdx === -1) return addMsg(state, 'KITCHEN', `No pending order #${orderId}!`, 'error')
 
@@ -168,10 +178,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const withCooldown = { ...state, userCooldowns: { ...state.userCooldowns, [user]: now } }
 
       // Per-user busy check (belt-and-suspenders: also scan station slots in case activeUsers is stale)
-      const alreadyCooking = withCooldown.activeUsers[user] || Object.values(withCooldown.stations).some(
-        s => s.slots.some(slot => slot.state === 'cooking' && slot.user === user)
-      )
-      if (alreadyCooking) {
+      if (isUserBusy(withCooldown, user)) {
         return addMsg(withCooldown, 'KITCHEN', `${user} is already busy!`, 'error')
       }
 
