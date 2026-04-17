@@ -7,7 +7,7 @@ A browser-based real-time kitchen game where Twitch chat collectively runs a res
 ## Features
 
 - **Twitch integration** — connect any channel and chat commands become gameplay actions
-- **Cooperative chaos** — 19 recipes across 4 cuisine sets, 10 station types, one shared kitchen
+- **Cooperative chaos** — 27 recipes across 6 cuisine sets, 12 station types, one shared kitchen
 - **Heat mechanic** — stations heat up gradually during cooking; cool with `cool <station>` or the team must `extinguish` if it overheats
 - **Adventure mode** — roguelike multi-shift run; survive each shift to unlock the next
 - **Bot simulation** — optional AI players fill in when chat is quiet
@@ -55,11 +55,13 @@ Type commands by name in chat. Spaces in ingredient names can be written as spac
 | Simmer | `simmer <item>` | Stone Pot |
 | Cook | `cook <item>` | Rice Pot |
 | Mix | `mix <item>` | Mixing Bowl |
+| Grind | `grind <item>` | Grinder |
+| Knead | `knead <item>` | Knead Board |
 | Serve | `serve <order#>` | — |
 | Cool | `cool <station>` | — |
 | Extinguish | `extinguish <station>` | — |
 
-**Shortform aliases** (enable in Options): `c`, `g`, `f`, `b`, `t`, `r`, `st`, `sm`, `si`, `ck`, `mx`, `cl`, `s` map to chop, grill, fry, boil, toast, roast, stir, steam, simmer, cook, mix, cool, serve.
+**Shortform aliases** (enable in Options): `c`, `g`, `f`, `b`, `t`, `r`, `st`, `sm`, `si`, `ck`, `mx`, `gr`, `kn`, `cl`, `s` map to chop, grill, fry, boil, toast, roast, stir, steam, simmer, cook, mix, grind, knead, cool, serve.
 
 ### Gameplay flow
 
@@ -110,6 +112,24 @@ Steps marked `→` require the prior ingredient in the pool first. Steps joined 
 | 🥚 Chawanmushi | `chop egg` → `steam egg` + `chop shrimp` | $55 |
 | 🍱 Salmon Donburi | `cook rice` + `chop salmon` + `chop nori` | $75 |
 
+**Japanese Bakery 🇯🇵**
+
+| Dish | Steps | Reward |
+|------|-------|--------|
+| 🥐 Shio Pan | `knead dough` → `toast bread_dough` | $50 |
+| 🍪 Melon Pan | `knead dough` → `toast bread_dough` + `mix cookie_topping` | $65 |
+| ☕ Pour-Over Coffee | `grind coffee_beans` + `boil water` | $45 |
+| 🍵 Matcha Latte | `mix matcha` + `steam milk` | $55 |
+
+**SG Hawker Breakfast 🇸🇬**
+
+| Dish | Steps | Reward |
+|------|-------|--------|
+| 🍞 Kaya Toast | `toast bread` + `mix kaya` | $40 |
+| 🍜 Economic Bee Hoon | `fry chicken_wing` + `stir bee_hoon` + `stir vegetables` + `fry egg` | $65 |
+| 🫓 Roti Prata | `knead dough` → `grill bread_dough` + `boil curry` | $55 |
+| 🍱 Nasi Lemak | `cook rice` + `mix sambal` + `fry anchovies` + `fry egg` | $75 |
+
 **Others**
 
 | Dish | Steps | Reward |
@@ -126,7 +146,7 @@ Stations heat up **gradually during cooking** — the heat bar rises as the cook
 
 At 100% the station overheats: all active cooks are cancelled and the station locks. At least 50% of that round's players must type `extinguish <station>` to vote it back online. Heat resets to 0 once extinguished.
 
-The chopping board and mixing bowl are exempt from heat and never overheat.
+The chopping board, mixing bowl, grinder, and knead board are exempt from heat and never overheat.
 
 ### Order Spawning
 

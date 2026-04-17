@@ -70,7 +70,7 @@ function addStat(state: GameState, user: string, stat: keyof PlayerStats, amount
 
 function getStationCapacity(stationId: string, capacity: StationCapacity, restricted: boolean): number {
   if (!restricted) return Infinity
-  if (stationId === 'cutting_board' || stationId === 'mixing_bowl') return capacity.chopping
+  if (stationId === 'cutting_board' || stationId === 'mixing_bowl' || stationId === 'grinder' || stationId === 'knead_board') return capacity.chopping
   return capacity.cooking
 }
 
@@ -122,7 +122,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const { user, stationId } = action
       const station = state.stations[stationId]
       if (!station) return addMsg(state, 'KITCHEN', 'Unknown station!', 'error')
-      if (stationId === 'cutting_board' || stationId === 'mixing_bowl') return addMsg(state, 'KITCHEN', `The ${STATION_DEFS[stationId].name} doesn't overheat!`, 'error')
+      if (stationId === 'cutting_board' || stationId === 'mixing_bowl' || stationId === 'grinder' || stationId === 'knead_board') return addMsg(state, 'KITCHEN', `The ${STATION_DEFS[stationId].name} doesn't overheat!`, 'error')
       if (station.overheated) return addMsg(state, 'KITCHEN', `${STATION_DEFS[stationId].name} is overheated — extinguish it first!`, 'error')
       if (station.heat === 0) return addMsg(state, 'KITCHEN', `${STATION_DEFS[stationId].name} is already cool.`, 'error')
       if (isUserBusy(state, user)) return addMsg(state, 'KITCHEN', `${user} is busy cooking and can't cool right now!`, 'error')
@@ -233,7 +233,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state: 'cooking',
       }
 
-      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted', stir: 'stir-fried', steam: 'steamed', simmer: 'simmered', cook: 'cooked', mix: 'mixed' }
+      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted', stir: 'stir-fried', steam: 'steamed', simmer: 'simmered', cook: 'cooked', mix: 'mixed', grind: 'ground', knead: 'kneaded' }
 
       if (matchedStep.duration === 0) {
         const withStat = addStat(afterRequire, user, 'cooked', 1)
@@ -303,7 +303,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
           // Step A: Apply incremental heat delta (chopping board is exempt)
           let updatedSlot = slot
-          if (id !== 'cutting_board' && id !== 'mixing_bowl' && slot.state === 'cooking') {
+          if (id !== 'cutting_board' && id !== 'mixing_bowl' && id !== 'grinder' && id !== 'knead_board' && slot.state === 'cooking') {
             const progress = Math.min(1, elapsed / slot.cookDuration)
             const expectedHeat = progress * HEAT_PER_COOK
             const heatDelta = expectedHeat - slot.heatApplied
