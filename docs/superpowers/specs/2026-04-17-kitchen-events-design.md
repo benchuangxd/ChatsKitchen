@@ -15,10 +15,10 @@ Kitchen Events are time-limited in-game occurrences that require collective Twit
 ### Hazard — Penalty Type
 Effect fires *on failure* (time runs out without enough responses). Shows both a draining time bar and a filling community progress bar.
 
-| Event | Command Pool | Fail Effect |
-|-------|-------------|-------------|
-| 🐀 Rat Invasion | SHOO, CHASE, BEGONE | Remove 3 random `preparedItems` |
-| 👨‍🍳 Angry Chef | SORRY CHEF, APOLOGIES CHEF, MY BAD CHEF | `cookingSpeed × 0.7` for 15s |
+| Event | Command Pool | Time Limit | Fail Effect |
+|-------|-------------|-----------|-------------|
+| 🐀 Rat Invasion | SHOO, CHASE, BEGONE | 10s | Remove 3 random `preparedItems` |
+| 👨‍🍳 Angry Chef | SORRY CHEF, APOLOGIES CHEF, MY BAD CHEF | 10s | `cookingSpeed × 0.7` for 15s |
 
 ### Hazard — Immediate Effect Type
 Effect fires *immediately on spawn* and lasts until resolved. Shows only a filling community progress bar (no time pressure, but effect persists until resolved).
@@ -43,7 +43,7 @@ Reward fires on successful resolution before time runs out. Shows both a drainin
 
 **Mystery Recipe:** anagram drawn from the ingredient names used by currently enabled recipes. Falls back to all recipe ingredients if `enabledRecipes` is empty. Answer matching is case-insensitive. Each unique user's first correct answer counts as one contribution toward the threshold.
 
-**Dance Entertainment:** chat types UP, DOWN, LEFT, or RIGHT. Each direction is tracked separately with its own deduplicated user list. Progress is the minimum contribution count across all four directions. Resolve threshold per direction = `ceil(playerCount × 0.8)` (min 1) — consistent with the global threshold rule; the hardcoded `DANCE_DIRECTION_THRESHOLD` constant is removed.
+**Dance Entertainment:** chat types UP, DOWN, LEFT, or RIGHT. Each direction is tracked separately with its own deduplicated user list. `progress = min(UP_count, DOWN_count, LEFT_count, RIGHT_count) / threshold × 100`. Resolve threshold per direction = `ceil(playerCount × 0.8)` (min 1) — consistent with the global threshold rule; the hardcoded `DANCE_DIRECTION_THRESHOLD` constant is removed.
 
 **Typing Frenzy:** one contribution per user per event (same general rule — the "per phrase" exception in earlier drafts was incorrect since only one phrase is active per event instance).
 
@@ -71,7 +71,11 @@ All events resolve when the community contribution count reaches `ceil(playerCou
 
 ## Command Matching
 
-`handleEventCommand(user, text)` is called with the **raw, untrimmed chat text** before any `!`-prefix stripping. It matches only when the normalized text (trimmed, uppercased) exactly equals `activeEvent.chosenCommand`. Because event commands never start with `!`, there is no collision with `parseCommand`, which only processes `!`-prefixed input.
+`handleEventCommand(user, text)` is called with the **raw, untrimmed chat text** before any `!`-prefix stripping. Because event commands never start with `!`, there is no collision with `parseCommand`, which only processes `!`-prefixed input.
+
+For all event types except Mystery Recipe: matches when `text.trim().toUpperCase() === activeEvent.chosenCommand`.
+
+**Mystery Recipe exception:** `chosenCommand` holds the displayed anagram (e.g. `TTAECLUE`). Matching instead checks `text.trim().toUpperCase() === payload.anagramAnswer.toUpperCase()` — i.e. the user types the correct unscrambled ingredient name, not the anagram itself.
 
 Multi-word commands (e.g. `SORRY CHEF`) are matched against the full trimmed+uppercased string.
 
