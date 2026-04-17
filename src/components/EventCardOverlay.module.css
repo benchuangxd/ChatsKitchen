@@ -1,0 +1,141 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14vh;
+}
+
+.card {
+  pointer-events: all;
+  background: #252836;
+  border-radius: 14px;
+  padding: 20px 26px;
+  min-width: 280px;
+  max-width: 340px;
+  text-align: center;
+  animation: pulseGlow 1.2s ease-in-out infinite alternate;
+}
+
+.cardHazard {
+  border: 2px solid #e74c3c;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(231, 76, 60, 0.2);
+}
+
+.cardOpportunity {
+  border: 2px solid #27ae60;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(39, 174, 96, 0.2);
+}
+
+.cardResolved {
+  opacity: 0.6;
+  animation: none;
+}
+
+.cardFailed {
+  opacity: 0.6;
+  animation: none;
+}
+
+@keyframes pulseGlow {
+  from { box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 15px rgba(231, 76, 60, 0.15); }
+  to   { box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 40px rgba(231, 76, 60, 0.45); }
+}
+
+.tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.tagHazard   { color: #e74c3c; }
+.tagOpportunity { color: #27ae60; }
+
+.title {
+  font-family: 'Lilita One', cursive;
+  font-size: 22px;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.cmdHint {
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.cmdHintHazard {
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.35);
+}
+
+.cmdHintOpportunity {
+  background: rgba(39, 174, 96, 0.08);
+  border: 1px solid rgba(39, 174, 96, 0.35);
+}
+
+.cmdHint code {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.cmdHintHazard code    { color: #e74c3c; }
+.cmdHintOpportunity code { color: #27ae60; }
+
+.description {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  color: #8a8fa8;
+  margin-bottom: 16px;
+  min-height: 18px;
+}
+
+.barsWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.barLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #666;
+  text-align: left;
+  margin-bottom: 2px;
+}
+
+.barTrack {
+  height: 18px;
+  background: #1a1a1a;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 9px;
+  transition: width 0.15s ease;
+}
+
+.barFillTime    { background: #555; }
+.barFillHazard  { background: #e74c3c; }
+.barFillOpp     { background: #27ae60; }
+
+.outcomeMsg {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.outcomeResolved { color: #27ae60; }
+.outcomeFailed   { color: #e74c3c; }
