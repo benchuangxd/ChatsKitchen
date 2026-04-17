@@ -41,7 +41,9 @@ Reward fires on successful resolution before time runs out. Shows both a drainin
 
 **Typing Frenzy phrase pool:** FIRE IN THE HOLE, ORDER UP, YES CHEF, TABLE FOR TWO, BEHIND YOU, ON THE FLY, HEARD THAT, MISE EN PLACE
 
-**Mystery Recipe:** anagram drawn from the ingredient names used by currently enabled recipes. Falls back to all recipe ingredients if `enabledRecipes` is empty. Answer matching is case-insensitive. Each unique user's first correct answer counts as one contribution toward the threshold.
+**Mystery Recipe:** anagram drawn from the **step `target` values** of currently enabled recipes (e.g. `lettuce`, `tteok`, `spring_onion` — the ingredient names players use in `!chop`, `!grill` etc. commands). Falls back to all recipe step targets across all recipes if `enabledRecipes` is empty. The `payload.anagramAnswer` holds the original un-anagrammed target string. Answer matching is case-insensitive against `anagramAnswer`. Each unique user's first correct answer counts as one contribution toward the threshold.
+
+**Mystery Recipe reward:** the 3 items added to `preparedItems` are drawn at random from the `produces` values of currently enabled recipe steps (i.e. valid prepared ingredient names like `chopped_lettuce`, `grilled_patty`). This mirrors what players would normally produce at stations.
 
 **Dance Entertainment:** chat types UP, DOWN, LEFT, or RIGHT. Each direction is tracked separately with its own deduplicated user list. `progress = min(UP_count, DOWN_count, LEFT_count, RIGHT_count) / threshold × 100`. Resolve threshold per direction = `ceil(playerCount × 0.8)` (min 1) — consistent with the global threshold rule; the hardcoded `DANCE_DIRECTION_THRESHOLD` constant is removed.
 
@@ -100,7 +102,7 @@ interface KitchenEvent {
   chosenCommand: string
   progress: number           // 0–100, derived from contribution count / threshold
   threshold: number          // ceil(playerCount × 0.8), min 1
-  respondedUsers: string[]   // deduplicated contributors (all event types except Dance)
+  respondedUsers: string[]   // deduplicated contributors; initialised as [] and unused for Dance (Dance dedup lives in danceProgress)
   timeLeft: number | null    // ms; null for hazard-immediate; decrements only when !paused
   resolved: boolean
   failed: boolean
@@ -144,13 +146,15 @@ disabledStations?: string[]
 |--------|---------|--------|
 | `REMOVE_PREPARED_ITEMS` | `{ count: number }` | Removes up to `count` random items from `preparedItems` (no-op if empty) |
 | `SET_COOKING_SPEED_MODIFIER` | `{ multiplier: number; expiresAt: number }` | Sets `cookingSpeedModifier`; replaces any existing modifier; applies to **new slots only** — the `COOK` action multiplies `cookDuration` by `1 / (cookingSpeed * modifier)` |
-| `DISABLE_STATIONS` | `{ stationIds: string[] }` | Sets `disabledStations` to exactly the provided IDs; disabled stations reject new `COOK` actions with an error message |
+| `DISABLE_STATIONS` | `{ stationIds: string[] }` | Unions provided IDs into `disabledStations` (additive); disabled stations reject new `COOK` actions with an error message |
 | `ENABLE_STATIONS` | `{ stationIds: string[] }` | Removes only the specified IDs from `disabledStations`; does not affect any other disabled stations |
 | `ADD_MONEY_MULTIPLIER` | `{ multiplier: number; expiresAt: number }` | Sets `moneyMultiplier`; replaces any existing multiplier; applied in `SERVE` as `reward = Math.round((recipe.reward + timeBonus) * multiplier)` (after time bonus, before rounding) |
 | `ADD_PREPARED_ITEMS` | `{ items: string[] }` | Appends items to `preparedItems` |
 | `EXTEND_ORDER_PATIENCE` | `{ ms: number }` | Adds `ms` to `patienceLeft` of all active (non-served) orders, capped at their `patienceMax` |
 
-**Power Trip — station selection:** at spawn, 2 stations are chosen at random from stations that are **not** currently `overheated: true`. Their IDs are stored in `payload.disabledStations` and passed verbatim to both `DISABLE_STATIONS` (on spawn) and `ENABLE_STATIONS` (on resolve), ensuring no other stations are affected.
+**Power Trip — station selection:** at spawn, 2 stations are chosen at random from stations that are **not** currently `overheated: true`. If fewer than 2 eligible stations exist, Power Trip is skipped and a different event type is re-rolled. Their IDs are stored in `payload.disabledStations` and passed verbatim to both `DISABLE_STATIONS` (on spawn) and `ENABLE_STATIONS` (on resolve), ensuring no other stations are affected.
+
+**`DISABLE_STATIONS` semantics:** sets `disabledStations` to a union of the current value and the provided IDs (additive, not replace-all). This mirrors `ENABLE_STATIONS`'s scoped remove and is safe for future extensibility. Since only one event is active at a time and only Power Trip uses this action, the union always starts from `[]` in practice.
 
 ---
 
