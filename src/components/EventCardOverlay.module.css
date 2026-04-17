@@ -6,16 +6,16 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 14vh;
+  padding-top: 22vh;
 }
 
 .card {
-  pointer-events: all;
+  pointer-events: none;
   background: #252836;
   border-radius: 14px;
   padding: 20px 26px;
-  min-width: 280px;
-  max-width: 340px;
+  min-width: 300px;
+  max-width: 380px;
   text-align: center;
   animation: pulseGlow 1.2s ease-in-out infinite alternate;
 }
@@ -31,12 +31,10 @@
 }
 
 .cardResolved {
-  opacity: 0.6;
   animation: none;
 }
 
 .cardFailed {
-  opacity: 0.6;
   animation: none;
 }
 
@@ -47,7 +45,7 @@
 
 .tag {
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
+  font-size: 24px;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: 8px;
@@ -58,7 +56,7 @@
 
 .title {
   font-family: 'Lilita One', cursive;
-  font-size: 22px;
+  font-size: 28px;
   color: #fff;
   margin-bottom: 14px;
 }
@@ -81,7 +79,7 @@
 
 .cmdHint code {
   font-family: 'Space Mono', monospace;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: 2px;
 }
@@ -91,10 +89,10 @@
 
 .description {
   font-family: 'Fredoka', sans-serif;
-  font-size: 14px;
+  font-size: 24px;
   color: #8a8fa8;
   margin-bottom: 16px;
-  min-height: 18px;
+  min-height: 24px;
 }
 
 .barsWrap {
@@ -105,7 +103,7 @@
 
 .barLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 24px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #666;
@@ -132,10 +130,27 @@
 
 .outcomeMsg {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 600;
   margin-top: 10px;
 }
 
 .outcomeResolved { color: #27ae60; }
 .outcomeFailed   { color: #e74c3c; }
+
+/* Screen flash on event spawn */
+.screenFlash {
+  position: fixed;
+  inset: 0;
+  z-index: 255;
+  pointer-events: none;
+  animation: flashOut 0.8s ease-out forwards;
+}
+
+.flashHazard { background: rgba(231, 76, 60, 0.35); }
+.flashOpp    { background: rgba(39, 174, 96, 0.35); }
+
+@keyframes flashOut {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
