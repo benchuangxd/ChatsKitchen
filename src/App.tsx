@@ -47,6 +47,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   allowShortformCommands: true,
   autoRestart: false,
   autoRestartDelay: 60,
+  kitchenEventsEnabled: true,
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
