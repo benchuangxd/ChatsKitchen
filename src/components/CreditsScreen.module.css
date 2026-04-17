@@ -16,7 +16,7 @@
   border: none;
   color: var(--text-secondary);
   font-family: 'Space Mono', monospace;
-  font-size: 14px;
+  font-size: 24px;
   cursor: pointer;
   padding: 6px 10px;
   border-radius: 6px;
@@ -81,13 +81,13 @@
 
 .name {
   font-family: 'Space Mono', monospace;
-  font-size: 15px;
+  font-size: 20px;
   color: #fff;
 }
 
 .role {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 18px;
   color: var(--text-secondary);
   text-align: right;
 }
