@@ -25,7 +25,7 @@ Effect fires *immediately on spawn* and lasts until resolved. Shows only a filli
 
 | Event | Command Pool | Active Effect | On Resolve |
 |-------|-------------|--------------|------------|
-| 🔌 Power Trip | RESET, REBOOT, RESTART | 2 random stations disabled | Re-enable stations |
+| 🔌 Power Trip | RESET, REBOOT, RESTART | 2 random non-overheated stations disabled | Re-enable those specific stations |
 | 💨 Smoke Blast | CLEAR, VENTILATE, BLOW | Frosted fog overlay on kitchen (opacity fades as progress fills) | Overlay removed |
 | 📦 Glitched Orders | FIX, DEBUG, PATCH | Order ticket names and ingredients scrambled | Unscramble tickets |
 
@@ -41,19 +41,21 @@ Reward fires on successful resolution before time runs out. Shows both a drainin
 
 **Typing Frenzy phrase pool:** FIRE IN THE HOLE, ORDER UP, YES CHEF, TABLE FOR TWO, BEHIND YOU, ON THE FLY, HEARD THAT, MISE EN PLACE
 
-**Mystery Recipe:** anagram drawn from the ingredient names used by currently enabled recipes. Answer matching is case-insensitive. Multiple users can submit the correct answer; each counts as one contribution.
+**Mystery Recipe:** anagram drawn from the ingredient names used by currently enabled recipes. Falls back to all recipe ingredients if `enabledRecipes` is empty. Answer matching is case-insensitive. Each unique user's first correct answer counts as one contribution toward the threshold.
 
-**Dance Entertainment:** chat types UP, DOWN, LEFT, or RIGHT. Each direction is tracked separately. Progress is the minimum count across all four directions — requires 8 of *each* direction to resolve.
+**Dance Entertainment:** chat types UP, DOWN, LEFT, or RIGHT. Each direction is tracked separately with its own deduplicated user list. Progress is the minimum contribution count across all four directions. Resolve threshold per direction = `ceil(playerCount × 0.8)` (min 1) — consistent with the global threshold rule; the hardcoded `DANCE_DIRECTION_THRESHOLD` constant is removed.
+
+**Typing Frenzy:** one contribution per user per event (same general rule — the "per phrase" exception in earlier drafts was incorrect since only one phrase is active per event instance).
 
 ---
 
 ## Resolve Threshold
 
-All events resolve when `respondedUsers.length >= ceil(playerCount × 0.8)` (minimum 1).
+All events resolve when the community contribution count reaches `ceil(playerCount × 0.8)` (minimum 1).
 
-- `playerCount` = `Object.keys(state.playerStats).length` at the time the event spawns
+- `playerCount` = `Object.keys(state.playerStats).length` at the time the event spawns; minimum 1
 - Each user may contribute **once per event instance** (deduplicated by username)
-- Exception: **Dance Entertainment** and **Typing Frenzy** — one contribution per correct message per user (still deduplicated per direction/phrase)
+- **Dance exception:** each user may contribute once *per direction* (four total contributions possible per user), using the same threshold per direction
 
 ---
 
@@ -64,6 +66,14 @@ All events resolve when `respondedUsers.length >= ceil(playerCount × 0.8)` (min
 - **Event type selection:** random from all 9 types; same type will not repeat back-to-back
 - **No spawn during:** paused game, tutorial, or when `kitchenEventsEnabled` is false
 - **Chosen command:** one word/phrase picked randomly from the event's command pool at spawn time; shown on the event card
+
+---
+
+## Command Matching
+
+`handleEventCommand(user, text)` is called with the **raw, untrimmed chat text** before any `!`-prefix stripping. It matches only when the normalized text (trimmed, uppercased) exactly equals `activeEvent.chosenCommand`. Because event commands never start with `!`, there is no collision with `parseCommand`, which only processes `!`-prefixed input.
+
+Multi-word commands (e.g. `SORRY CHEF`) are matched against the full trimmed+uppercased string.
 
 ---
 
@@ -84,17 +94,17 @@ interface KitchenEvent {
   category: EventCategory
   type: EventType
   chosenCommand: string
-  progress: number           // 0–100, derived from respondedUsers / threshold
+  progress: number           // 0–100, derived from contribution count / threshold
   threshold: number          // ceil(playerCount × 0.8), min 1
-  respondedUsers: string[]   // deduplicated contributors
-  timeLeft: number | null    // ms; null for hazard-immediate
+  respondedUsers: string[]   // deduplicated contributors (all event types except Dance)
+  timeLeft: number | null    // ms; null for hazard-immediate; decrements only when !paused
   resolved: boolean
   failed: boolean
   payload: {
-    disabledStations?: string[]   // Power Trip
-    anagramAnswer?: string        // Mystery Recipe (the unscrambled answer)
-    typingPhrase?: string         // Typing Frenzy
-    danceProgress?: Record<'UP' | 'DOWN' | 'LEFT' | 'RIGHT', string[]>  // Dance (users per direction)
+    disabledStations?: string[]    // Power Trip — exact IDs that were disabled
+    anagramAnswer?: string         // Mystery Recipe — the unscrambled answer
+    typingPhrase?: string          // Typing Frenzy — the chosen phrase
+    danceProgress?: Record<'UP' | 'DOWN' | 'LEFT' | 'RIGHT', string[]>  // Dance — users per direction
   }
 }
 ```
@@ -108,6 +118,10 @@ interface KitchenEvent {
 }
 ```
 
+### Pause behaviour
+
+`useKitchenEvents` receives a `paused: boolean` prop. The hook's internal tick (via `useRef` + `setInterval` at 100ms, mirroring `useGameLoop`) skips `timeLeft` decrements when `paused` is true. The spawn countdown likewise does not advance while paused.
+
 ### `GameState` additions
 
 ```typescript
@@ -116,7 +130,7 @@ moneyMultiplier?: { multiplier: number; expiresAt: number }
 disabledStations?: string[]
 ```
 
-`TICK` clears expired modifiers by checking `expiresAt` against `now`.
+`TICK` clears expired modifiers by comparing `expiresAt` against `now`. `disabledStations` is cleared by `ENABLE_STATIONS`.
 
 ---
 
@@ -124,13 +138,15 @@ disabledStations?: string[]
 
 | Action | Payload | Effect |
 |--------|---------|--------|
-| `REMOVE_PREPARED_ITEMS` | `{ count: number }` | Removes `count` random items from `preparedItems` |
-| `SET_COOKING_SPEED_MODIFIER` | `{ multiplier: number; expiresAt: number }` | Sets `cookingSpeedModifier`; applies to all cook durations |
-| `DISABLE_STATIONS` | `{ stationIds: string[] }` | Sets `disabledStations`; disabled stations reject new COOK actions |
-| `ENABLE_STATIONS` | `{}` | Clears `disabledStations` |
-| `ADD_MONEY_MULTIPLIER` | `{ multiplier: number; expiresAt: number }` | Sets `moneyMultiplier`; applied in SERVE payout calculation |
+| `REMOVE_PREPARED_ITEMS` | `{ count: number }` | Removes up to `count` random items from `preparedItems` (no-op if empty) |
+| `SET_COOKING_SPEED_MODIFIER` | `{ multiplier: number; expiresAt: number }` | Sets `cookingSpeedModifier`; replaces any existing modifier; applies to **new slots only** — the `COOK` action multiplies `cookDuration` by `1 / (cookingSpeed * modifier)` |
+| `DISABLE_STATIONS` | `{ stationIds: string[] }` | Sets `disabledStations` to exactly the provided IDs; disabled stations reject new `COOK` actions with an error message |
+| `ENABLE_STATIONS` | `{ stationIds: string[] }` | Removes only the specified IDs from `disabledStations`; does not affect any other disabled stations |
+| `ADD_MONEY_MULTIPLIER` | `{ multiplier: number; expiresAt: number }` | Sets `moneyMultiplier`; replaces any existing multiplier; applied in `SERVE` as `reward = Math.round((recipe.reward + timeBonus) * multiplier)` (after time bonus, before rounding) |
 | `ADD_PREPARED_ITEMS` | `{ items: string[] }` | Appends items to `preparedItems` |
-| `EXTEND_ORDER_PATIENCE` | `{ ms: number }` | Adds `ms` to `patienceLeft` of all active (non-served) orders |
+| `EXTEND_ORDER_PATIENCE` | `{ ms: number }` | Adds `ms` to `patienceLeft` of all active (non-served) orders, capped at their `patienceMax` |
+
+**Power Trip — station selection:** at spawn, 2 stations are chosen at random from stations that are **not** currently `overheated: true`. Their IDs are stored in `payload.disabledStations` and passed verbatim to both `DISABLE_STATIONS` (on spawn) and `ENABLE_STATIONS` (on resolve), ensuring no other stations are affected.
 
 ---
 
@@ -164,7 +180,7 @@ disabledStations?: string[]
 - Scramble is stable per-render (seeded by `order.id`) to avoid flickering on every tick
 
 ### Chat System Message
-When an event spawns, a `system` chat message is added:
+When an event spawns, a `system` chat message is added via `dispatch({ type: 'ADD_CHAT', ... })`:
 > `🐀 RAT INVASION! Type SHOO in chat to help!`
 
 ---
@@ -173,12 +189,12 @@ When an event spawns, a `system` chat message is added:
 
 ```
 handleTwitchMessage / handleChatSend
-  → handleEventCommand(user, text)   // new — event responses (no ! prefix)
+  → handleEventCommand(user, text)   // new — raw text, matched uppercase; no ! prefix
   → handleMetaCommand(user, text)    // existing
-  → handleCommand(user, text)        // existing — !commands
+  → handleCommand(user, text)        // existing — !commands only
 ```
 
-`useKitchenEvents` is called with `(state, dispatch, isPlaying && !isTutorial && gameOptions.kitchenEventsEnabled)`.
+`useKitchenEvents` is called with `(state, dispatch, isPlaying && !isTutorial && gameOptions.kitchenEventsEnabled, paused)`.
 
 `GameOptions` gains: `kitchenEventsEnabled: boolean` (default `true`). Exposed as a toggle in the FreePlay setup and Options screen.
 
@@ -197,7 +213,6 @@ const CHEFS_CHANT_BOOST_DURATION_MS = 20_000
 const TYPING_FRENZY_MULTIPLIER = 1.5
 const TYPING_FRENZY_DURATION_MS = 20_000
 const DANCE_PATIENCE_BONUS_MS = 15_000
-const DANCE_DIRECTION_THRESHOLD = 8
 const RAT_INVASION_ITEMS_STOLEN = 3
 const MYSTERY_RECIPE_ITEMS_REWARDED = 3
 const HAZARD_TIME_LIMIT_MS = 10_000
