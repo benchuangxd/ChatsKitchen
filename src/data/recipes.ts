@@ -202,6 +202,82 @@ export const RECIPES: Record<string, Recipe> = {
     ],
     plate: ['cooked_rice', 'sliced_salmon', 'sliced_nori']
   },
+
+  // ── Japanese Bakery ───────────────────────────────────────────────────────
+
+  shio_pan: {
+    name: 'Shio Pan', emoji: '\u{1F950}', reward: 50, patience: 65000,
+    steps: [
+      { action: 'knead', target: 'dough',       station: 'knead_board', duration: 7000, produces: 'bread_dough' },
+      { action: 'toast', target: 'bread_dough', station: 'oven',        duration: 9000, produces: 'toasted_bread', requires: 'bread_dough' },
+    ],
+    plate: ['toasted_bread']
+  },
+  melon_pan: {
+    name: 'Melon Pan', emoji: '\u{1F36A}', reward: 65, patience: 75000,
+    steps: [
+      { action: 'knead', target: 'dough',         station: 'knead_board', duration: 7000,  produces: 'bread_dough' },
+      { action: 'mix',   target: 'cookie_topping', station: 'mixing_bowl', duration: 6000,  produces: 'cookie_dough' },
+      { action: 'toast', target: 'bread_dough',    station: 'oven',        duration: 10000, produces: 'toasted_bread', requires: 'bread_dough' },
+    ],
+    plate: ['toasted_bread', 'cookie_dough']
+  },
+  pour_over_coffee: {
+    name: 'Pour-Over Coffee', emoji: '\u{2615}', reward: 45, patience: 55000,
+    steps: [
+      { action: 'grind', target: 'coffee_beans', station: 'grinder', duration: 5000, produces: 'ground_coffee' },
+      { action: 'boil',  target: 'water',        station: 'stove',   duration: 6000, produces: 'hot_water' },
+    ],
+    plate: ['ground_coffee', 'hot_water']
+  },
+  matcha_latte: {
+    name: 'Matcha Latte', emoji: '\u{1F375}', reward: 55, patience: 60000,
+    steps: [
+      { action: 'mix',   target: 'matcha', station: 'mixing_bowl', duration: 6000, produces: 'matcha_mix' },
+      { action: 'steam', target: 'milk',   station: 'steamer',     duration: 6000, produces: 'steamed_milk' },
+    ],
+    plate: ['matcha_mix', 'steamed_milk']
+  },
+
+  // ── Singapore Hawker Breakfast ────────────────────────────────────────────
+
+  kaya_toast: {
+    name: 'Kaya Toast', emoji: '\u{1F35E}', reward: 40, patience: 55000,
+    steps: [
+      { action: 'toast', target: 'bread', station: 'oven',         duration: 5000, produces: 'toasted_bread' },
+      { action: 'mix',   target: 'kaya',  station: 'mixing_bowl',  duration: 5000, produces: 'kaya_spread' },
+    ],
+    plate: ['toasted_bread', 'kaya_spread']
+  },
+  economic_bee_hoon: {
+    name: 'Economic Bee Hoon', emoji: '\u{1F35C}', reward: 65, patience: 80000,
+    steps: [
+      { action: 'fry',  target: 'chicken_wing', station: 'fryer', duration: 7000, produces: 'fried_chicken_wing' },
+      { action: 'stir', target: 'bee_hoon',     station: 'wok',   duration: 9000, produces: 'fried_bee_hoon' },
+      { action: 'stir', target: 'vegetables',   station: 'wok',   duration: 6000, produces: 'stir_fried_vegetables' },
+      { action: 'fry',  target: 'egg',          station: 'fryer', duration: 5000, produces: 'fried_egg' },
+    ],
+    plate: ['fried_chicken_wing', 'fried_bee_hoon', 'stir_fried_vegetables', 'fried_egg']
+  },
+  roti_prata: {
+    name: 'Roti Prata', emoji: '\u{1FAD3}', reward: 55, patience: 70000,
+    steps: [
+      { action: 'knead', target: 'dough',      station: 'knead_board', duration: 7000, produces: 'bread_dough' },
+      { action: 'grill', target: 'bread_dough', station: 'grill',       duration: 8000, produces: 'roti_prata', requires: 'bread_dough' },
+      { action: 'boil',  target: 'curry',       station: 'stove',       duration: 5000, produces: 'curry_dip' },
+    ],
+    plate: ['roti_prata', 'curry_dip']
+  },
+  nasi_lemak: {
+    name: 'Nasi Lemak', emoji: '\u{1F371}', reward: 75, patience: 85000,
+    steps: [
+      { action: 'cook', target: 'rice',      station: 'rice_pot',    duration: 9000, produces: 'cooked_rice' },
+      { action: 'mix',  target: 'sambal',    station: 'mixing_bowl', duration: 6000, produces: 'sambal_paste' },
+      { action: 'fry',  target: 'anchovies', station: 'fryer',       duration: 6000, produces: 'fried_anchovies' },
+      { action: 'fry',  target: 'egg',       station: 'fryer',       duration: 5000, produces: 'fried_egg' },
+    ],
+    plate: ['cooked_rice', 'sambal_paste', 'fried_anchovies', 'fried_egg']
+  },
 }
 
 export const STATION_DEFS: Record<string, StationDef> = {
@@ -215,6 +291,8 @@ export const STATION_DEFS: Record<string, StationDef> = {
   stone_pot:     { name: 'Stone Pot',     emoji: '\u{1F372}', color: '#7a5a3a', actions: ['simmer'] },
   rice_pot:      { name: 'Rice Pot',      emoji: '\u{1F35A}', color: '#a08060', actions: ['cook'] },
   mixing_bowl:   { name: 'Mixing Bowl',   emoji: '\u{1F963}', color: '#c08060', actions: ['mix'] },
+  grinder:       { name: 'Grinder',       emoji: '\u{2615}',  color: '#6b4f3a', actions: ['grind'] },
+  knead_board:   { name: 'Knead Board',   emoji: '\u{1FAD3}', color: '#d4a860', actions: ['knead'] },
 }
 
 export function getEnabledStations(enabledRecipes: string[]): string[] {
@@ -282,6 +360,26 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
   fried_shrimp:        '\u{1F364}',
   sliced_egg:          '\u{1F95A}',
   steamed_egg:         '\u{1F95A}',
+
+  // Japanese Bakery
+  bread_dough:         '\u{1FAD3}',
+  cookie_dough:        '\u{1F36A}',
+  ground_coffee:       '\u{1FAD8}',
+  hot_water:           '\u{1FAD7}',
+  matcha_mix:          '\u{1F375}',
+  steamed_milk:        '\u{1F95B}',
+
+  // Singapore Hawker Breakfast
+  kaya_spread:             '\u{1F36F}',
+  fried_bee_hoon:          '\u{1F35C}',
+  stir_fried_vegetables:   '\u{1F966}',
+  fried_egg:               '\u{1F373}',
+  chicken_wing:            '\u{1F357}',
+  fried_chicken_wing:      '\u{1F357}',
+  roti_prata:              '\u{1FAD3}',
+  curry_dip:               '\u{1F35B}',
+  sambal_paste:            '\u{1F336}\u{FE0F}',
+  fried_anchovies:         '\u{1F41F}',
 }
 
 export const RECIPE_SETS: RecipeSet[] = [
@@ -320,6 +418,24 @@ export const RECIPE_SETS: RecipeSet[] = [
     description: 'Fresh sushi, crispy tempura and delicate steamed dishes',
     cuisine: 'Japanese',
     recipeKeys: ['sushi_roll', 'tempura', 'chawanmushi', 'salmon_donburi'],
+  },
+  {
+    id: 'japanese_bakery',
+    name: 'Japanese Bakery',
+    emoji: '\u{1F35E}',
+    flag: '\u{1F1EF}\u{1F1F5}',
+    description: 'Freshly baked goods and artisan drinks from a cozy Japanese bakery',
+    cuisine: 'Japanese',
+    recipeKeys: ['shio_pan', 'melon_pan', 'pour_over_coffee', 'matcha_latte'],
+  },
+  {
+    id: 'sg_hawker',
+    name: 'SG Hawker Breakfast',
+    emoji: '\u{1F35C}',
+    flag: '\u{1F1F8}\u{1F1EC}',
+    description: 'Kopi-shop classics and hawker favourites from a Singapore breakfast stall',
+    cuisine: 'Singaporean',
+    recipeKeys: ['kaya_toast', 'economic_bee_hoon', 'roti_prata', 'nasi_lemak'],
   },
 ]
 

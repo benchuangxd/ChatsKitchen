@@ -176,7 +176,7 @@ interface GameOptions {
 
 ## Game Content
 
-### Recipes (19 dishes across 4 cuisine sets + 3 ungrouped)
+### Recipes (27 dishes across 6 cuisine sets + 3 ungrouped)
 
 **Western Classics 🇺🇸** (`burger`, `fish_burger`, `grilled_cheese`, `roasted_veggies`)
 
@@ -214,6 +214,24 @@ interface GameOptions {
 | Chawanmushi 🥚 | `chop egg` → `steam egg` + `chop shrimp` | $55 |
 | Salmon Donburi 🍱 | `cook rice` + `chop salmon` + `chop nori` | $75 |
 
+**Japanese Bakery 🇯🇵** (`shio_pan`, `melon_pan`, `pour_over_coffee`, `matcha_latte`)
+
+| Dish | Key steps | Value |
+|------|-----------|-------|
+| Shio Pan 🫓 | `knead dough` → `toast bread_dough` | $50 |
+| Melon Pan 🍨 | `knead dough` → `toast bread_dough` + `mix cookie_topping` | $65 |
+| Pour-Over Coffee ☕ | `grind coffee_beans` + `boil water` | $45 |
+| Matcha Latte 🍵 | `mix matcha` + `steam milk` | $55 |
+
+**SG Hawker Breakfast 🇸🇬** (`kaya_toast`, `economic_bee_hoon`, `roti_prata`, `nasi_lemak`)
+
+| Dish | Key steps | Value |
+|------|-----------|-------|
+| Kaya Toast 🍞 | `toast bread` + `mix kaya` | $40 |
+| Economic Bee Hoon 🍜 | `fry chicken_wing` + `stir bee_hoon` + `stir vegetables` + `fry egg` | $65 |
+| Roti Prata 🫓 | `knead dough` → `grill bread_dough` + `boil curry` | $55 |
+| Nasi Lemak 🍱 | `cook rice` + `mix sambal` + `fry anchovies` + `fry egg` | $75 |
+
 **Ungrouped** (`fries`, `hot_dog`, `salad` — not in any cuisine set)
 
 | Dish | Key steps | Value |
@@ -238,6 +256,8 @@ Steps marked `→` require the prior ingredient in `preparedItems` before starti
 | Stone Pot 🍲 | `!simmer <ingredient>` | 2 slots | Yes |
 | Rice Pot 🍚 | `!cook <ingredient>` | 2 slots | Yes |
 | Mixing Bowl 🥣 | `!mix <ingredient>` | 3 slots | Exempt |
+| Grinder ☕ | `!grind <ingredient>` | 3 slots | Exempt |
+| Knead Board 🫓 | `!knead <ingredient>` | 3 slots | Exempt |
 
 Only stations needed by the currently enabled recipes are rendered. Station capacities are configurable in Free Play via the More Options panel.
 
@@ -360,7 +380,7 @@ When implementing a new feature of similar scope, create a spec + plan document 
 5. **Chat messages are capped at 200** — `ADD_CHAT` slices to `chatMessages.slice(-200)`.
 6. **`cookStart` is wall-clock time** — slot progress is `elapsed = now - slot.cookStart`. On unpause, dispatch `ADJUST_COOK_TIMES` to shift all `cookStart` values forward by the pause duration, otherwise paused time counts as elapsed cook time.
 7. **`heatApplied` on slots** — each `StationSlot` tracks how much heat it has already contributed (`heatApplied: number`, init 0). The TICK loop applies `progress × HEAT_PER_COOK - heatApplied` each tick. When adding new slot-creating code paths, always initialise `heatApplied: 0`.
-8. **`mixing_bowl` is heat-exempt** — treat it identically to `cutting_board` in all heat-related checks (TICK heat loop, COOL guard, `getStationCapacity`, bot cool-skip). Both `Kitchen.tsx` and `gameReducer.ts` have local `getStationCapacity` — keep them in sync.
+8. **Heat-exempt stations** — `cutting_board`, `mixing_bowl`, `grinder`, and `knead_board` are all exempt from heat. Treat them identically in all heat-related checks (TICK heat loop, COOL guard, `getStationCapacity`, bot cool-skip). Both `Kitchen.tsx` and `gameReducer.ts` have local `getStationCapacity` — keep them in sync. All four use `capacity.chopping` for slot limits.
 
 ## Workflow
 

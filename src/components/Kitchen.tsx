@@ -13,7 +13,7 @@ interface Props {
 
 function getStationCapacity(stationId: string, cap: GameState['stationCapacity'], restricted: boolean): number {
   if (!restricted) return Infinity
-  if (stationId === 'cutting_board' || stationId === 'mixing_bowl') return cap.chopping
+  if (stationId === 'cutting_board' || stationId === 'mixing_bowl' || stationId === 'grinder' || stationId === 'knead_board') return cap.chopping
   return cap.cooking
 }
 

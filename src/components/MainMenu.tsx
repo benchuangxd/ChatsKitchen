@@ -88,7 +88,7 @@ export default function MainMenu({ onPlay, onAdventure, onOptions, onTutorial, o
         <div className={styles.divider} />
 
         <div className={styles.leftFooter}>
-          created by THIANzeren &nbsp;·&nbsp; work in progress — progress may reset
+          created by THIANzeren &nbsp;·&nbsp; work in progress
         </div>
 
       </div>
@@ -139,6 +139,11 @@ export default function MainMenu({ onPlay, onAdventure, onOptions, onTutorial, o
         {/* Game modes */}
         <div className={styles.modes}>
 
+          <div className={styles.modeBottomRow}>
+            <button className={styles.modeTutorial} onClick={onStartTutorial}>Tutorial</button>
+            <button className={styles.modeTutorial} onClick={onTutorial}>How To Play</button>
+          </div>
+
           <button className={styles.modeFreePlay} onClick={onPlay}>
             <div>
               <div className={styles.fpName}>Free Play</div>
@@ -156,8 +161,6 @@ export default function MainMenu({ onPlay, onAdventure, onOptions, onTutorial, o
           </button>
 
           <div className={styles.modeBottomRow}>
-            <button className={styles.modeTutorial} onClick={onStartTutorial}>Tutorial</button>
-            <button className={styles.modeTutorial} onClick={onTutorial}>How To Play</button>
             <button className={styles.modeOptions} onClick={onOptions}>Options</button>
           </div>
 
