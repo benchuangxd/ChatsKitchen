@@ -156,6 +156,18 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
                 ))}
               </div>
             </div>
+
+            <div className={styles.section}>
+              <div className={styles.shortformHeader}>
+                <div className={styles.label} style={{ marginBottom: 0 }}>Kitchen Events</div>
+                <button
+                  className={`${styles.muteBtn} ${options.kitchenEventsEnabled ? styles.muteBtnActive : ''}`}
+                  onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
+                >
+                  {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
+                </button>
+              </div>
+            </div>
           </div>
       </div>
 

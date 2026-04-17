@@ -22,6 +22,9 @@ import TutorialOverlay from './components/TutorialOverlay'
 import { TUTORIAL_STEPS } from './data/tutorialData'
 import PauseModal from './components/PauseModal'
 import FeedbackModal from './components/FeedbackModal'
+import { useKitchenEvents } from './hooks/useKitchenEvents'
+import EventCardOverlay from './components/EventCardOverlay'
+import SmokeOverlay from './components/SmokeOverlay'
 import CreditsScreen from './components/CreditsScreen'
 import Toast from './components/Toast'
 import {
@@ -286,6 +289,13 @@ export default function App() {
     if (action) dispatch(action)
   }, [gameOptions.allowShortformCommands])
 
+  const { activeEvent, handleEventCommand } = useKitchenEvents(
+    state,
+    dispatch,
+    screen === 'playing' && !isTutorial && gameOptions.kitchenEventsEnabled,
+    paused,
+  )
+
   const handleGameOptionsChange = useCallback((options: GameOptions) => {
     setGameOptions(options)
     try {
@@ -355,16 +365,18 @@ export default function App() {
 
   const handleTwitchMessage = useCallback((user: string, text: string, isMod: boolean) => {
     dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
+    handleEventCommand(user, text)
     handleMetaCommand(user, text, isMod)
     if (!isTutorialRef.current) handleCommand(user, text)
-  }, [handleCommand, handleMetaCommand])
+  }, [handleCommand, handleEventCommand, handleMetaCommand])
 
   const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
   const handleChatSend = useCallback((text: string) => {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
+    handleEventCommand('You', text)
     handleMetaCommand('You', text, true)
     handleCommand('You', text)
-  }, [handleCommand, handleMetaCommand])
+  }, [handleCommand, handleEventCommand, handleMetaCommand])
 
   const handleShiftEndDone = useCallback(() => {
     const run = adventureRunRef.current
@@ -587,7 +599,11 @@ export default function App() {
           </div>
         )}
         <div className={styles.body}>
-          <OrdersBar state={state} isHighlighted={tutorialHighlight === 'orders'} />
+          <OrdersBar
+            state={state}
+            isHighlighted={tutorialHighlight === 'orders'}
+            isGlitched={activeEvent?.type === 'glitched_orders' && !activeEvent.resolved && !activeEvent.failed}
+          />
           <Kitchen state={state} tutorialHighlight={tutorialHighlight} />
           {chatOpen && (
             <ChatPanel
@@ -601,6 +617,10 @@ export default function App() {
         <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
           <button className={styles.settingsBtn} onClick={() => setPaused(true)}>⚙️</button>
         </div>
+        {activeEvent?.type === 'smoke_blast' && !activeEvent.resolved && !activeEvent.failed && (
+          <SmokeOverlay progress={activeEvent.progress} />
+        )}
+        <EventCardOverlay activeEvent={activeEvent} />
         {paused && (
           <PauseModal
             gameOptions={gameOptions}

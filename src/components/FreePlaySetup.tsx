@@ -230,6 +230,16 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                   ? 'Automatically starts a new round after the countdown on the game over screen'
                   : 'Game over screen will wait for manual input'}
               </div>
+              <div className={styles.moreLabel}>🍳 Kitchen Events</div>
+              <div className={styles.slotsRow}>
+                <span className={styles.slotsLabel}>Random events during gameplay</span>
+                <button
+                  className={`${styles.toggleBtn} ${options.kitchenEventsEnabled ? styles.toggleBtnOn : ''}`}
+                  onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
+                >
+                  {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
+                </button>
+              </div>
             </div>
           </div>
         )}
