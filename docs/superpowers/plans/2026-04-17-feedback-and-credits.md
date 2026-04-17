@@ -21,7 +21,9 @@
 | `src/components/MainMenu.tsx` | Modify | Add `onFeedback`/`onCredits` props; expand Options row to 3 buttons |
 | `src/App.tsx` | Modify | Add `'credits'` to Screen union; add `showFeedback` state; wire new props; render new components |
 
-> **Note on `FeedbackModal` z-index:** The modal uses `z-index: 300` (matching `PauseModal`) safely because `FeedbackModal` is only reachable from the `'menu'` screen, where `PauseModal` is never rendered. No conflict is possible.
+> **Note on `FeedbackModal` z-index:** The modal uses `z-index: 400/401` — a distinct range above `PauseModal` (300) — so there is no layering conflict regardless of screen. Do not lower this to 300.
+>
+> **Note on `Screen` type:** `Screen` is a non-exported module-local type in `App.tsx`. `CreditsScreen.tsx` must not import or reference it — it receives only `onBack: () => void` and has no screen awareness.
 
 ---
 
@@ -91,7 +93,7 @@ export default function FeedbackModal({ onClose }: Props) {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 300;
+  z-index: 400; /* distinct range from PauseModal (300) — no overlap possible */
 }
 
 .panel {
@@ -103,7 +105,7 @@ export default function FeedbackModal({ onClose }: Props) {
   max-height: 85vh;
   overflow-y: auto;
   padding: 24px;
-  z-index: 301;
+  z-index: 401;
 }
 
 .closeBtn {
