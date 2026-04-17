@@ -6,9 +6,10 @@ import styles from './DiningRoom.module.css'
 interface Props {
   state: GameState
   isHighlighted?: boolean
+  isGlitched?: boolean
 }
 
-export default function OrdersBar({ state, isHighlighted }: Props) {
+export default function OrdersBar({ state, isHighlighted, isGlitched }: Props) {
   const [simpleTickets, setSimpleTickets] = useState(
     () => localStorage.getItem('diningRoom.simpleTickets') === 'true'
   )
@@ -50,6 +51,7 @@ export default function OrdersBar({ state, isHighlighted }: Props) {
             order={order}
             orderNumber={order.id}
             simple={simpleTickets}
+            isGlitched={isGlitched}
           />
         ))}
         {activeOrders.length === 0 && (

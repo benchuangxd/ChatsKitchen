@@ -293,3 +293,14 @@
     fireFlicker  0.25s ease-in-out infinite;
 }
 
+
+.glitched {
+  border-color: rgba(231, 76, 60, 0.3) !important;
+  animation: ticketGlitch 0.4s infinite;
+}
+
+@keyframes ticketGlitch {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.85; transform: translateX(1px); }
+  100% { opacity: 1; }
+}
