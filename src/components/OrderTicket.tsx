@@ -12,6 +12,7 @@ interface Props {
 }
 
 const STRIP_PREFIX = /^(chopped|grilled|fried|boiled|roasted|toasted|sliced|steamed|wok|simmered|cooked)_/
+const GLITCH_EMOJIS = ['🌀', '❓', '⚡', '🔀', '💢']
 
 export default function OrderTicket({ order, orderNumber, simple = false, isGlitched = false }: Props) {
   const recipe = RECIPES[order.dish]
@@ -19,7 +20,6 @@ export default function OrderTicket({ order, orderNumber, simple = false, isGlit
   const barColor = urgency < 0.25 ? '#d94f4f' : urgency < 0.5 ? '#e8943a' : '#5aad5e'
   const urgencyClass = urgency < 0.25 ? styles.critical : urgency < 0.5 ? styles.warning : styles.normal
 
-  const GLITCH_EMOJIS = ['🌀', '❓', '⚡', '🔀', '💢']
   const glitchEmoji = GLITCH_EMOJIS[order.id % GLITCH_EMOJIS.length]
   const glitchName = isGlitched ? seededScramble(recipe.name, order.id) : recipe.name
   const glitchEmoji2 = isGlitched ? glitchEmoji : recipe.emoji

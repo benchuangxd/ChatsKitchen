@@ -86,7 +86,8 @@ export function useKitchenEvents(
 
     if (def.type === 'mystery_recipe') {
       const targets = getIngredientTargets(s.enabledRecipes)
-      const answer = pickRandom(targets)
+      const raw = pickRandom(targets)
+      const answer = raw.replace(/_/g, ' ')  // normalise so players never need to type underscores
       payload.anagramAnswer = answer
       chosenCommand = makeAnagram(answer)
     }
