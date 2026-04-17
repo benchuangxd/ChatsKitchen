@@ -7,6 +7,7 @@ export interface StationSlot {
   produces: string
   cookStart: number
   cookDuration: number
+  heatApplied: number
   state: SlotState
 }
 

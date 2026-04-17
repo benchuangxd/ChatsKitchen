@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { GameOptions } from '../state/types'
 import { RECIPES, RECIPE_SETS, STATION_DEFS } from '../data/recipes'
+import FoodIcon from './FoodIcon'
 import styles from './FreePlaySetup.module.css'
 
 function fmtIngredient(s: string) {
@@ -109,7 +110,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
           {moreOpen ? '▲' : '▼'} More Options
         </button>
 
-        {moreOpen && (
+        {moreOpen && !hoveredRecipe && (
           <div className={styles.moreSection}>
             <div className={styles.moreRow}>
               <div className={styles.moreLabel}>⚡ Cooking Speed</div>
@@ -240,7 +241,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
           return (
             <div className={styles.recipeDetail}>
               <div className={styles.recipeDetailHeader}>
-                <span>{recipe.emoji}</span>
+                <FoodIcon icon={recipe.emoji} size={24} />
                 <span className={styles.recipeDetailName}>{recipe.name}</span>
                 <span className={styles.recipeDetailReward}>${recipe.reward}</span>
               </div>
@@ -269,6 +270,51 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
       <div className={styles.rightCol}>
         <div className={styles.cardLabel}>🍽️ Recipes</div>
 
+        {/* ── Selected panel ── */}
+        <div className={styles.selectedPanel}>
+          <div className={styles.selectedHeader}>
+            <span className={styles.selectedLabel}>Selected ({options.enabledRecipes.length})</span>
+            <div className={styles.selectedActions}>
+              <button
+                className={styles.actionBtn}
+                onClick={() => onChange({ ...options, enabledRecipes: [] })}
+              >Remove All</button>
+              <button
+                className={styles.actionBtn}
+                onClick={() => onChange({ ...options, enabledRecipes: Object.keys(RECIPES) })}
+              >Select All</button>
+              <button
+                className={`${styles.actionBtn} ${styles.actionBtnRandom}`}
+                onClick={() => {
+                  const all = Object.keys(RECIPES)
+                  const shuffled = [...all].sort(() => Math.random() - 0.5)
+                  onChange({ ...options, enabledRecipes: shuffled.slice(0, 3) })
+                }}
+              >Random 3</button>
+            </div>
+          </div>
+          <div className={styles.selectedChips}>
+            {options.enabledRecipes.length === 0 ? (
+              <span className={styles.selectedEmpty}>No recipes selected</span>
+            ) : (
+              options.enabledRecipes.map(key => {
+                const recipe = RECIPES[key]
+                if (!recipe) return null
+                return (
+                  <div key={key} className={styles.selectedChip}>
+                    <FoodIcon icon={recipe.emoji} size={16} />
+                    <span className={styles.selectedChipName}>{recipe.name}</span>
+                    <button
+                      className={styles.selectedChipRemove}
+                      onClick={() => onChange({ ...options, enabledRecipes: options.enabledRecipes.filter(r => r !== key) })}
+                    >×</button>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+
         <div className={styles.recipeScroll}>
         {(() => {
           const allSetKeys = new Set(RECIPE_SETS.flatMap(s => s.recipeKeys))
@@ -291,7 +337,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                 onMouseEnter={() => setHoveredRecipe(key)}
                 onMouseLeave={() => setHoveredRecipe(null)}
               >
-                <span className={styles.recipeEmoji}>{recipe.emoji}</span>
+                <FoodIcon icon={recipe.emoji} size={22} className={styles.recipeEmoji} />
                 <span className={styles.recipeName}>{recipe.name}</span>
                 <span className={styles.recipeReward}>${recipe.reward}</span>
               </button>

@@ -30,9 +30,10 @@ interface Props {
   onPlayAgain: () => void
   onNextLevel?: () => void
   onMenu: () => void
+  onRecipeSelect?: () => void
 }
 
-export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, onPlayAgain, onNextLevel, onMenu }: Props) {
+export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, onPlayAgain, onNextLevel, onMenu, onRecipeSelect }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
@@ -103,6 +104,11 @@ export default function GameOver({ money, served, lost, playerStats, level, high
           <button className={level != null ? styles.menuBtn : styles.playAgainBtn} onClick={onPlayAgain}>
             {level != null ? 'Repeat Level' : 'Play Again'}
           </button>
+          {level === null && onRecipeSelect && (
+            <button className={styles.menuBtn} onClick={onRecipeSelect}>
+              Recipe Select
+            </button>
+          )}
           <button className={styles.menuBtn} onClick={onMenu}>
             Main Menu
           </button>

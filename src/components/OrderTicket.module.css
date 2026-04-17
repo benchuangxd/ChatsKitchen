@@ -123,12 +123,12 @@
 }
 
 .ingredientEmoji {
-  font-size: 26px;
+  font-size: 32px;
   line-height: 1;
 }
 
 .ingredientName {
-  font-size: 18px;
+  font-size: 12px;
   font-family: 'Space Mono', monospace;
   color: #5a5040;
   text-transform: uppercase;
@@ -155,6 +155,54 @@
   border-radius: 4px;
   transition: width 0.1s linear;
 }
+
+/* ── Simple ticket ──────────────────────────── */
+.ticketSimple {
+  width: 100%;
+  position: relative;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  background: #f5f0e8;
+  padding: 6px 8px 4px;
+  overflow: hidden;
+}
+
+.simpleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.orderNumSimple {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #7a6a58;
+  flex-shrink: 0;
+}
+
+.simpleIngredients {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.simpleIngredientTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 7px;
+  padding: 4px 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ticketSimple.normal   { border-left: 3px solid #4ea854; }
+.ticketSimple.warning  { border-left: 3px solid #e06840; }
+.ticketSimple.critical { border-left: 3px solid #d94f4f; }
 
 /* ── Outcome animations ─────────────────────── */
 @keyframes ticketServedOut {

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { AudioSettings, GameOptions } from '../state/types'
 import { RECIPES } from '../data/recipes'
+import FoodIcon from './FoodIcon'
 import styles from './PauseModal.module.css'
 
 interface PauseModalProps {
@@ -13,6 +14,7 @@ interface PauseModalProps {
   onBotsToggle: () => void
   onResume: () => void
   onExit: () => void
+  onRecipeSelect?: () => void
 }
 
 export default function PauseModal({
@@ -25,6 +27,7 @@ export default function PauseModal({
   onBotsToggle,
   onResume,
   onExit,
+  onRecipeSelect,
 }: PauseModalProps) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -69,6 +72,11 @@ export default function PauseModal({
 
           <div className={styles.divider} />
 
+          {onRecipeSelect && (
+            <button className={styles.exitBtn} onClick={onRecipeSelect}>
+              Recipe Select
+            </button>
+          )}
           <button className={styles.exitBtn} onClick={onExit}>
             Exit to Menu
           </button>
@@ -85,7 +93,7 @@ export default function PauseModal({
             if (!recipe) return null
             return (
               <div key={key} className={styles.recipeCard}>
-                <div className={styles.recipeName}>{recipe.emoji} {recipe.name}</div>
+                <div className={styles.recipeName}><FoodIcon icon={recipe.emoji} size={18} /> {recipe.name}</div>
                 <div className={styles.recipeSteps}>
                   {recipe.steps.map((step, i) => (
                     <span key={i}>

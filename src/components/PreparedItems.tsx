@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { INGREDIENT_EMOJI, RECIPES } from '../data/recipes'
+import FoodIcon from './FoodIcon'
 import styles from './PreparedItems.module.css'
 
 interface Props {
@@ -44,7 +45,7 @@ export default function PreparedItems({ items, enabledRecipes, isHighlighted }: 
           const filled = count > 0
           return (
             <div key={item} className={`${styles.tray} ${filled ? styles.trayFilled : styles.trayEmpty}`}>
-              <span className={styles.emoji}>{INGREDIENT_EMOJI[item]}</span>
+              <FoodIcon icon={INGREDIENT_EMOJI[item] || '?'} size={22} className={styles.emoji} />
               {showNames && (
                 <span className={styles.name}>{item.replace(/_/g, ' ')}</span>
               )}

@@ -544,6 +544,7 @@ export default function App() {
         onPlayAgain={startFreePlay}
         onNextLevel={undefined}
         onMenu={() => setScreen('menu')}
+        onRecipeSelect={() => setScreen('freeplaysetup')}
       />
     )
   } else if (screen === 'adventureshiftpassed') {
@@ -603,6 +604,7 @@ export default function App() {
             onBotsToggle={() => setBotsEnabled(b => !b)}
             onResume={() => setPaused(false)}
             onExit={() => { setPaused(false); setTutorialStep(null); setScreen('menu') }}
+            onRecipeSelect={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('freeplaysetup') } : undefined}
           />
         )}
         {isTutorial && tutorialStep !== null && (

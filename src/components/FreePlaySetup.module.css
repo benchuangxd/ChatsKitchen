@@ -80,6 +80,117 @@
   margin-bottom: 4px;
 }
 
+/* ── Selected panel ── */
+.selectedPanel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selectedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.selectedLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.selectedActions {
+  display: flex;
+  gap: 6px;
+}
+
+.actionBtn {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+
+.actionBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--text);
+}
+
+.actionBtnRandom {
+  border-color: rgba(92, 154, 176, 0.4);
+  color: #5a9ab0;
+}
+
+.actionBtnRandom:hover {
+  background: rgba(92, 154, 176, 0.12);
+  color: #7ab8d0;
+}
+
+.selectedChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 24px;
+}
+
+.selectedEmpty {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-faint);
+  align-self: center;
+}
+
+.selectedChip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(184, 115, 51, 0.12);
+  border: 1px solid rgba(184, 115, 51, 0.3);
+  border-radius: 6px;
+  padding: 2px 4px 2px 6px;
+}
+
+.selectedChipName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.selectedChipRemove {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 2px;
+  border-radius: 3px;
+  transition: color 0.1s;
+}
+
+.selectedChipRemove:hover {
+  color: #d94f4f;
+}
+
 /* ── Preset buttons ── */
 
 .presets {

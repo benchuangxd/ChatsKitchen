@@ -70,7 +70,7 @@ function addStat(state: GameState, user: string, stat: keyof PlayerStats, amount
 
 function getStationCapacity(stationId: string, capacity: StationCapacity, restricted: boolean): number {
   if (!restricted) return Infinity
-  if (stationId === 'cutting_board') return capacity.chopping
+  if (stationId === 'cutting_board' || stationId === 'mixing_bowl') return capacity.chopping
   return capacity.cooking
 }
 
@@ -98,7 +98,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newVotes = [...station.extinguishVotes, user]
       // playerStats resets to {} on every RESET (new round) — reflects current-round participants only
       const totalPlayers = Math.max(1, Object.keys(state.playerStats).length)
-      const needed = Math.max(1, Math.ceil(totalPlayers * 0.3))
+      const needed = Math.max(1, Math.ceil(totalPlayers * 0.5))
       const withStat = addStat(state, user, 'extinguished', 1)
 
       if (newVotes.length >= needed) {
@@ -122,9 +122,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const { user, stationId } = action
       const station = state.stations[stationId]
       if (!station) return addMsg(state, 'KITCHEN', 'Unknown station!', 'error')
-      if (stationId === 'cutting_board') return addMsg(state, 'KITCHEN', `The Chopping Board doesn't overheat!`, 'error')
+      if (stationId === 'cutting_board' || stationId === 'mixing_bowl') return addMsg(state, 'KITCHEN', `The ${STATION_DEFS[stationId].name} doesn't overheat!`, 'error')
       if (station.overheated) return addMsg(state, 'KITCHEN', `${STATION_DEFS[stationId].name} is overheated — extinguish it first!`, 'error')
       if (station.heat === 0) return addMsg(state, 'KITCHEN', `${STATION_DEFS[stationId].name} is already cool.`, 'error')
+      if (isUserBusy(state, user)) return addMsg(state, 'KITCHEN', `${user} is busy cooking and can't cool right now!`, 'error')
 
       const cooldown = state.userCooldowns[user] ?? 0
       if (Date.now() - cooldown < 1500) return addMsg(state, 'KITCHEN', `${user} is on cooldown!`, 'error')
@@ -228,10 +229,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         produces: matchedStep.produces,
         cookStart: now,
         cookDuration: matchedStep.duration / speed,
+        heatApplied: 0,
         state: 'cooking',
       }
 
-      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted', stir: 'stir-fried', steam: 'steamed', simmer: 'simmered', cook: 'cooked' }
+      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted', stir: 'stir-fried', steam: 'steamed', simmer: 'simmered', cook: 'cooked', mix: 'mixed' }
 
       if (matchedStep.duration === 0) {
         const withStat = addStat(afterRequire, user, 'cooked', 1)
@@ -294,12 +296,43 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
         let slotsChanged = false
         const updatedSlots: StationSlot[] = []
+        let currentHeat = newStations[id].heat
 
         for (const slot of station.slots) {
           const elapsed = now - slot.cookStart
 
+          // Step A: Apply incremental heat delta (chopping board is exempt)
+          let updatedSlot = slot
+          if (id !== 'cutting_board' && id !== 'mixing_bowl' && slot.state === 'cooking') {
+            const progress = Math.min(1, elapsed / slot.cookDuration)
+            const expectedHeat = progress * HEAT_PER_COOK
+            const heatDelta = expectedHeat - slot.heatApplied
+            if (heatDelta > 0) {
+              currentHeat += heatDelta
+              updatedSlot = { ...slot, heatApplied: expectedHeat }
+              slotsChanged = true
+            }
+          }
+
+          // Step B: Check overheat
+          if (currentHeat >= 100) {
+            const statSnap = addStat({ ...state, playerStats: newPlayerStats }, slot.user, 'firesCaused', 1)
+            newPlayerStats = statSnap.playerStats
+            // Free all users assigned to all slots on this station
+            for (const s of newStations[id].slots) delete newActiveUsers[s.user]
+            newStations[id] = { ...newStations[id], slots: [], heat: 100, overheated: true, extinguishVotes: [] }
+            messages.push({
+              id: nextMsgId++,
+              username: 'KITCHEN',
+              text: `🔥 ${STATION_DEFS[id].name} OVERHEATED! Type extinguish ${id} to restore it!`,
+              type: 'system',
+            })
+            slotsChanged = true
+            break // station is locked, skip remaining slots
+          }
+
+          // Step C: Check completion (no heat addition — already applied incrementally)
           if (slot.state === 'cooking' && elapsed >= slot.cookDuration) {
-            // Auto-collect: all stations work like cutting_board
             newPreparedItems.push(slot.produces)
             delete newActiveUsers[slot.user]
             slotsChanged = true
@@ -309,39 +342,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
               text: `${slot.user} finished ${slot.target.replace(/_/g, ' ')}!`,
               type: 'success',
             })
-
-            // Record completion for floating emoji
             newStations[id] = { ...newStations[id], lastCompletion: { ingredient: slot.produces, at: now, by: slot.user } }
-
-            // Heat accumulation (chopping board is exempt)
-            if (id === 'cutting_board') continue
-            const stationHeat = (newStations[id].heat ?? 0) + HEAT_PER_COOK
-            if (stationHeat >= 100) {
-              // Overheat — destroy all slots and lock station
-              const statSnap = addStat({ ...state, playerStats: newPlayerStats }, slot.user, 'firesCaused', 1)
-              newPlayerStats = statSnap.playerStats
-              // Free all users assigned to remaining slots
-              for (const s of newStations[id].slots) delete newActiveUsers[s.user]
-              newStations[id] = { ...newStations[id], slots: [], heat: 100, overheated: true, extinguishVotes: [] }
-              messages.push({
-                id: nextMsgId++,
-                username: 'KITCHEN',
-                text: `🔥 ${STATION_DEFS[id].name} OVERHEATED! Type extinguish ${id} to restore it!`,
-                type: 'system',
-              })
-              slotsChanged = true
-              break // station is locked, skip remaining slots
-            } else {
-              newStations[id] = { ...newStations[id], heat: stationHeat }
-              // slot NOT pushed — removed (auto-collected)
-            }
+            // slot NOT pushed — removed (auto-collected)
           } else {
-            updatedSlots.push(slot)
+            updatedSlots.push(updatedSlot)
           }
         }
 
         if (slotsChanged && !newStations[id].overheated) {
-          newStations[id] = { ...newStations[id], slots: updatedSlots }
+          newStations[id] = { ...newStations[id], heat: currentHeat, slots: updatedSlots }
         }
       }
 

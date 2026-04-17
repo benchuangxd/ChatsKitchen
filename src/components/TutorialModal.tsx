@@ -1,4 +1,5 @@
 import { RECIPES } from '../data/recipes'
+import FoodIcon from './FoodIcon'
 import styles from './TutorialModal.module.css'
 
 interface Props {
@@ -89,7 +90,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 {Object.values(RECIPES).map(recipe => (
                   <div key={recipe.name} className={styles.recipeCard}>
                     <div className={styles.recipeCardHeader}>
-                      <span className={styles.recipeCardName}>{recipe.emoji} {recipe.name}</span>
+                      <span className={styles.recipeCardName}><FoodIcon icon={recipe.emoji} size={18} /> {recipe.name}</span>
                       <span className={styles.recipeCardReward}>${recipe.reward}</span>
                     </div>
                     <div className={styles.recipeCardSteps}>

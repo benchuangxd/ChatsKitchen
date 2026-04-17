@@ -93,20 +93,20 @@ export const RECIPES: Record<string, Recipe> = {
   fried_rice: {
     name: 'Fried Rice', emoji: '\u{1F373}', reward: 55, patience: 75000,
     steps: [
-      { action: 'cook',  target: 'rice',         station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
-      { action: 'chop',  target: 'spring_onion',  station: 'cutting_board', duration: 6000,  produces: 'sliced_spring_onion' },
+      { action: 'cook',  target: 'rice',          station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
+      { action: 'stir',  target: 'egg',           station: 'wok',           duration: 6000,  produces: 'stir_fried_egg' },
       { action: 'stir',  target: 'rice',          station: 'wok',           duration: 8000,  produces: 'stir_fried_rice', requires: 'cooked_rice' },
     ],
-    plate: ['stir_fried_rice', 'sliced_spring_onion']
+    plate: ['stir_fried_rice', 'stir_fried_egg']
   },
   stir_fried_pork: {
-    name: 'Stir-Fried Pork', emoji: '\u{1F962}', reward: 65, patience: 80000,
+    name: 'Stir-Fried Pork', emoji: '\u{1F35B}', reward: 65, patience: 80000,
     steps: [
       { action: 'chop', target: 'pork',    station: 'cutting_board', duration: 7000, produces: 'sliced_pork' },
-      { action: 'chop', target: 'cabbage', station: 'cutting_board', duration: 6000, produces: 'sliced_cabbage' },
-      { action: 'stir', target: 'pork',    station: 'wok',           duration: 9000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
+      { action: 'chop', target: 'spring_onion', station: 'cutting_board', duration: 6000, produces: 'sliced_spring_onion' },
+      { action: 'stir', target: 'pork',         station: 'wok',           duration: 9000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
     ],
-    plate: ['stir_fried_pork', 'sliced_cabbage']
+    plate: ['stir_fried_pork', 'sliced_spring_onion']
   },
   steamed_tofu: {
     name: 'Steamed Tofu', emoji: '\u{1F9C8}', reward: 45, patience: 65000,
@@ -120,11 +120,10 @@ export const RECIPES: Record<string, Recipe> = {
   steamed_buns: {
     name: 'Steamed Buns', emoji: '\u{1F95F}', reward: 55, patience: 70000,
     steps: [
-      { action: 'chop',  target: 'pork', station: 'cutting_board', duration: 7000,  produces: 'sliced_pork' },
-      { action: 'stir',  target: 'pork', station: 'wok',           duration: 8000,  produces: 'stir_fried_pork', requires: 'sliced_pork' },
-      { action: 'steam', target: 'bun',  station: 'steamer',       duration: 11000, produces: 'steamed_bun' },
+      { action: 'chop',  target: 'cabbage', station: 'cutting_board', duration: 6000,  produces: 'sliced_cabbage' },
+      { action: 'steam', target: 'bun',     station: 'steamer',       duration: 11000, produces: 'steamed_bun' },
     ],
-    plate: ['steamed_bun', 'stir_fried_pork']
+    plate: ['steamed_bun', 'sliced_cabbage']
   },
 
   // ── Korean Kitchen ────────────────────────────────────────────────────────
@@ -147,23 +146,23 @@ export const RECIPES: Record<string, Recipe> = {
     ],
     plate: ['simmered_kimchi', 'sliced_tofu']
   },
-  doenjang_jjigae: {
-    name: 'Doenjang Jjigae', emoji: '\u{1F375}', reward: 60, patience: 75000,
+  korean_fried_chicken: {
+    name: 'Korean Fried Chicken', emoji: '\u{1F357}', reward: 75, patience: 85000,
     steps: [
-      { action: 'chop',   target: 'zucchini', station: 'cutting_board', duration: 6000,  produces: 'sliced_zucchini' },
-      { action: 'chop',   target: 'tofu',     station: 'cutting_board', duration: 6000,  produces: 'sliced_tofu' },
-      { action: 'simmer', target: 'zucchini', station: 'stone_pot',     duration: 10000, produces: 'simmered_zucchini', requires: 'sliced_zucchini' },
+      { action: 'chop', target: 'chicken',   station: 'cutting_board', duration: 7000,  produces: 'sliced_chicken' },
+      { action: 'fry',  target: 'chicken',   station: 'fryer',         duration: 10000, produces: 'fried_chicken', requires: 'sliced_chicken' },
+      { action: 'mix',  target: 'gochujang', station: 'mixing_bowl',   duration: 5000,  produces: 'gochujang_sauce' },
     ],
-    plate: ['simmered_zucchini', 'sliced_tofu']
+    plate: ['fried_chicken', 'gochujang_sauce']
   },
-  bibimbap: {
-    name: 'Bibimbap', emoji: '\u{1F371}', reward: 75, patience: 90000,
+  tteokbokki: {
+    name: 'Tteokbokki', emoji: '\u{1F336}\u{FE0F}', reward: 65, patience: 80000,
     steps: [
-      { action: 'cook',   target: 'rice', station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
-      { action: 'chop',   target: 'beef', station: 'cutting_board', duration: 7000,  produces: 'sliced_beef' },
-      { action: 'simmer', target: 'beef', station: 'stone_pot',     duration: 9000,  produces: 'simmered_beef', requires: 'sliced_beef' },
+      { action: 'chop', target: 'tteok',     station: 'cutting_board', duration: 5000,  produces: 'sliced_tteok' },
+      { action: 'mix',  target: 'gochujang', station: 'mixing_bowl',   duration: 5000,  produces: 'gochujang_sauce' },
+      { action: 'boil', target: 'tteok',     station: 'stove',         duration: 9000,  produces: 'boiled_tteok', requires: 'sliced_tteok' },
     ],
-    plate: ['cooked_rice', 'simmered_beef']
+    plate: ['boiled_tteok', 'gochujang_sauce']
   },
 
   // ── Japanese Kitchen ──────────────────────────────────────────────────────
@@ -173,18 +172,17 @@ export const RECIPES: Record<string, Recipe> = {
     steps: [
       { action: 'cook', target: 'rice',   station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
       { action: 'chop', target: 'tuna',   station: 'cutting_board', duration: 7000,  produces: 'sliced_tuna' },
-      { action: 'chop', target: 'nori',   station: 'cutting_board', duration: 5000,  produces: 'sliced_nori' },
+      { action: 'toast', target: 'nori',  station: 'oven',          duration: 5000,  produces: 'toasted_nori' },
     ],
-    plate: ['cooked_rice', 'sliced_tuna', 'sliced_nori']
+    plate: ['cooked_rice', 'sliced_tuna', 'toasted_nori']
   },
   tempura: {
     name: 'Tempura', emoji: '\u{1F364}', reward: 65, patience: 80000,
     steps: [
-      { action: 'chop', target: 'shrimp',   station: 'cutting_board', duration: 6000, produces: 'sliced_shrimp' },
-      { action: 'fry',  target: 'shrimp',   station: 'fryer',         duration: 9000, produces: 'fried_shrimp', requires: 'sliced_shrimp' },
-      { action: 'chop', target: 'zucchini', station: 'cutting_board', duration: 6000, produces: 'sliced_zucchini' },
+      { action: 'chop', target: 'shrimp', station: 'cutting_board', duration: 6000, produces: 'sliced_shrimp' },
+      { action: 'fry',  target: 'shrimp', station: 'fryer',         duration: 9000, produces: 'fried_shrimp', requires: 'sliced_shrimp' },
     ],
-    plate: ['fried_shrimp', 'sliced_zucchini']
+    plate: ['fried_shrimp']
   },
   chawanmushi: {
     name: 'Chawanmushi', emoji: '\u{1F95A}', reward: 55, patience: 70000,
@@ -216,6 +214,7 @@ export const STATION_DEFS: Record<string, StationDef> = {
   steamer:       { name: 'Steamer',       emoji: '\u{1FAD5}', color: '#5a9ab0', actions: ['steam'] },
   stone_pot:     { name: 'Stone Pot',     emoji: '\u{1F372}', color: '#7a5a3a', actions: ['simmer'] },
   rice_pot:      { name: 'Rice Pot',      emoji: '\u{1F35A}', color: '#a08060', actions: ['cook'] },
+  mixing_bowl:   { name: 'Mixing Bowl',   emoji: '\u{1F963}', color: '#c08060', actions: ['mix'] },
 }
 
 export function getEnabledStations(enabledRecipes: string[]): string[] {
@@ -258,6 +257,7 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
 
   // Chinese
   stir_fried_rice:     '\u{1F373}',
+  stir_fried_egg:      '\u{1F373}',
   sliced_pork:         '\u{1F969}',
   sliced_cabbage:      '\u{1F96C}',
   stir_fried_pork:            '🍖',
@@ -268,13 +268,17 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
   grilled_beef:        '\u{1F969}',
   sliced_kimchi:       '\u{1F336}\u{FE0F}',
   simmered_kimchi:     '\u{1F372}',
-  simmered_zucchini:   '\u{1FAD1}',
-  simmered_beef:       '\u{1F969}',
+  sliced_chicken:      '\u{1F357}',
+  fried_chicken:       '\u{1F357}',
+  gochujang_sauce:     '\u{1F336}\u{FE0F}',
+  sliced_tteok:        '\u{1F361}',
+  boiled_tteok:        '\u{1F362}',
 
   // Japanese
   sliced_tuna:         '\u{1F41F}',
   sliced_salmon:       '\u{1F421}',
   sliced_nori:         '\u{1F33F}',
+  toasted_nori:        '\u{1F33F}',
   fried_shrimp:        '\u{1F364}',
   sliced_egg:          '\u{1F95A}',
   steamed_egg:         '\u{1F95A}',
@@ -306,7 +310,7 @@ export const RECIPE_SETS: RecipeSet[] = [
     flag: '\u{1F1F0}\u{1F1F7}',
     description: 'Grilled meats, spicy stews and hearty rice bowls',
     cuisine: 'Korean',
-    recipeKeys: ['bulgogi', 'kimchi_jjigae', 'doenjang_jjigae', 'bibimbap'],
+    recipeKeys: ['bulgogi', 'kimchi_jjigae', 'korean_fried_chicken', 'tteokbokki'],
   },
   {
     id: 'japanese',
