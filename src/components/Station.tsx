@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Station as StationType, StationSlot } from '../state/types'
 import { STATION_DEFS, NAME_COLORS, INGREDIENT_EMOJI } from '../data/recipes'
+import FoodIcon from './FoodIcon'
 import styles from './Station.module.css'
 
 function hashStr(s: string): number {
@@ -57,7 +58,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
   if (!def) return null
 
   const borderColor = heatBorderColor(station.heat, station.overheated)
-  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.3))
+  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
 
   const [coolFlash, setCoolFlash] = useState(false)
   const [showCoolText, setShowCoolText] = useState(false)
@@ -100,7 +101,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
         <span className={styles.stationEmoji}>{def.emoji}</span>
         <span className={styles.stationName}>{def.name}</span>
         {!station.overheated && station.id !== 'cutting_board' && (
-          <span className={styles.heatBadge}>{station.heat}% 🔥</span>
+          <span className={styles.heatBadge}>{Math.floor(station.heat)}% 🔥</span>
         )}
         {capacity !== Infinity && (
           <span className={styles.capacity}>{station.slots.length}/{capacity}</span>
@@ -108,7 +109,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
       </div>
       {completionEmoji && (
         <div key={station.lastCompletion?.at} className={styles.completionFloat}>
-          {completionEmoji}
+          <FoodIcon icon={completionEmoji} size={26} />
           {completionPlayer && <span className={styles.floatPlayer}>{completionPlayer}</span>}
         </div>
       )}

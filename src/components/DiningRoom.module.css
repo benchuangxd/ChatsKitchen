@@ -4,7 +4,7 @@
 }
 
 .dining {
-  width: 215px;
+  width: 260px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -72,6 +72,27 @@
   padding: 1px 11px;
   min-width: 28px;
   text-align: center;
+}
+
+.viewToggle {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #5a5048;
+  cursor: pointer;
+  transition: color 0.1s, background 0.1s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.viewToggle:hover {
+  color: #c8841a;
+  background: rgba(200, 132, 26, 0.08);
+  border-color: rgba(200, 132, 26, 0.3);
 }
 
 /* ── Orders list ────────────────────────────── */

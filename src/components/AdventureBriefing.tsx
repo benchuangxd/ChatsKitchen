@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react'
 import { AdventureRun, AdventureBestRun } from '../state/types'
 import { RECIPES } from '../data/recipes'
+import FoodIcon from './FoodIcon'
 import { ADVENTURE_SHIFT_DURATION } from '../data/adventureMode'
 import AdventureExitConfirm from './AdventureExitConfirm'
 import styles from './AdventureBriefing.module.css'
@@ -66,7 +67,7 @@ export default function AdventureBriefing({ run, bestRun, onStart, onMenu }: Pro
             return (
               <div key={key} className={`${styles.recipeCard} ${i > 0 ? styles.recipeCardBorder : ''}`}>
                 <div className={styles.recipeHeader}>
-                  <span className={styles.recipeEmoji}>{recipe.emoji}</span>
+                  <FoodIcon icon={recipe.emoji} size={24} className={styles.recipeEmoji} />
                   <span className={styles.recipeName}>{recipe.name}</span>
                   <span className={styles.recipeReward}>${recipe.reward}</span>
                 </div>

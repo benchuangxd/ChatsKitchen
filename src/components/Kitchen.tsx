@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { GameState } from '../state/types'
 import { getEnabledStations } from '../data/recipes'
 import Station from './Station'
@@ -12,12 +13,21 @@ interface Props {
 
 function getStationCapacity(stationId: string, cap: GameState['stationCapacity'], restricted: boolean): number {
   if (!restricted) return Infinity
-  if (stationId === 'cutting_board') return cap.chopping
+  if (stationId === 'cutting_board' || stationId === 'mixing_bowl') return cap.chopping
   return cap.cooking
 }
 
 export default function Kitchen({ state, tutorialHighlight }: Props) {
   const stationIds = getEnabledStations(state.enabledRecipes)
+  const [showCommands, setShowCommands] = useState(() =>
+    localStorage.getItem('kitchen.showCommands') !== 'false'
+  )
+
+  const toggleCommands = () => setShowCommands(v => {
+    const next = !v
+    localStorage.setItem('kitchen.showCommands', String(next))
+    return next
+  })
 
   return (
     <div className={`${styles.kitchen} ${tutorialHighlight === 'kitchen' ? styles.highlighted : ''}`}>
@@ -35,7 +45,17 @@ export default function Kitchen({ state, tutorialHighlight }: Props) {
           ))}
         </div>
       </div>
-      <CommandsStrip stationIds={stationIds} enabledRecipes={state.enabledRecipes} />
+      <div className={styles.commandsRow}>
+        <div className={styles.commandsHeader}>
+          <button
+            className={styles.commandsToggle}
+            onClick={toggleCommands}
+          >
+            {showCommands ? '▼ Hide Commands' : '▲ Show Commands'}
+          </button>
+        </div>
+        {showCommands && <CommandsStrip stationIds={stationIds} enabledRecipes={state.enabledRecipes} />}
+      </div>
     </div>
   )
 }

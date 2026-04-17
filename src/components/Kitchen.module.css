@@ -28,6 +28,37 @@
   50%       { outline-color: rgba(168, 85, 247, 0.5);  outline-width: 2px; background-color: rgba(168, 85, 247, 0.03); }
 }
 
+.commandsRow {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.commandsHeader {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.commandsToggle {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 4px 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.commandsToggle:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .stationsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { GameState } from '../state/types'
 import OrderTicket from './OrderTicket'
 import styles from './DiningRoom.module.css'
@@ -8,6 +9,16 @@ interface Props {
 }
 
 export default function OrdersBar({ state, isHighlighted }: Props) {
+  const [simpleTickets, setSimpleTickets] = useState(
+    () => localStorage.getItem('diningRoom.simpleTickets') === 'true'
+  )
+
+  const toggleSimple = () => setSimpleTickets(v => {
+    const next = !v
+    localStorage.setItem('diningRoom.simpleTickets', String(next))
+    return next
+  })
+
   const activeOrders = state.orders
     .filter(o => !o.served || o.outcome !== undefined)
     .sort((a, b) => a.spawnTime - b.spawnTime)
@@ -28,6 +39,9 @@ export default function OrdersBar({ state, isHighlighted }: Props) {
       <div className={styles.ordersHeader}>
         <span className={styles.ordersTitle}>📋 Orders</span>
         <span className={styles.ordersCount}>{pendingCount}</span>
+        <button className={styles.viewToggle} onClick={toggleSimple}>
+          {simpleTickets ? 'Detailed' : 'Simple'}
+        </button>
       </div>
       <div className={styles.ordersList}>
         {activeOrders.map((order) => (
@@ -35,6 +49,7 @@ export default function OrdersBar({ state, isHighlighted }: Props) {
             key={order.id}
             order={order}
             orderNumber={order.id}
+            simple={simpleTickets}
           />
         ))}
         {activeOrders.length === 0 && (

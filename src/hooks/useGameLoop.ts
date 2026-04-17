@@ -2,6 +2,9 @@ import { useEffect, useRef } from 'react'
 import { GameAction } from '../state/gameReducer'
 import { GameState } from '../state/types'
 
+const EMPTY_BOOST_DURATION = 10000  // ms — how long the faster spawn rate lasts
+const EMPTY_BOOST_MULTIPLIER = 2    // spawn 2× faster during boost window
+
 export function useGameLoop(
   state: GameState,
   dispatch: React.Dispatch<GameAction>,
@@ -14,6 +17,8 @@ export function useGameLoop(
   const orderTimerRef = useRef(0)
   const firstOrderSpawned = useRef(false)
   const gameOverFired = useRef(false)
+  const lastOrderCountRef = useRef(0)
+  const boostEndTimeRef = useRef(0)
   const stateRef = useRef(state)
   stateRef.current = state
   const pausedRef = useRef(paused)
@@ -29,6 +34,8 @@ export function useGameLoop(
       orderTimerRef.current = 0
       firstOrderSpawned.current = false
       gameOverFired.current = false
+      lastOrderCountRef.current = 0
+      boostEndTimeRef.current = 0
     }
   }, [onGameOver, resetKey])
 
@@ -74,16 +81,25 @@ export function useGameLoop(
 
       // Spawn orders
       orderTimerRef.current += delta
-      const orderInterval = 13000 / s.orderSpawnRate
+      const pendingOrders = s.orders.filter(o => !o.served).length
+      const isBoosting = now < boostEndTimeRef.current
+      const orderInterval = (13000 / s.orderSpawnRate) / (isBoosting ? EMPTY_BOOST_MULTIPLIER : 1)
 
       if (!firstOrderSpawned.current && gameTimeRef.current > 2000) {
         dispatch({ type: 'SPAWN_ORDER', now })
         firstOrderSpawned.current = true
         orderTimerRef.current = 0
+      } else if (firstOrderSpawned.current && pendingOrders === 0 && lastOrderCountRef.current > 0) {
+        // Queue just emptied — spawn immediately and start boost window
+        dispatch({ type: 'SPAWN_ORDER', now })
+        boostEndTimeRef.current = now + EMPTY_BOOST_DURATION
+        orderTimerRef.current = 0
       } else if (orderTimerRef.current > orderInterval) {
         dispatch({ type: 'SPAWN_ORDER', now })
         orderTimerRef.current = 0
       }
+
+      lastOrderCountRef.current = pendingOrders
     }, 100)
 
     return () => clearInterval(interval)

@@ -30,6 +30,7 @@ class AudioManager {
       this.sfxSounds[name] = new Howl({
         src: def.src,
         volume: def.volume * this.sfxVolume,
+        loop: def.loop ?? false,
         preload: true,
       })
     }
@@ -116,6 +117,7 @@ class AudioManager {
     if (this.sfxThrottles[name] && now - this.sfxThrottles[name] < 500) return
     this.sfxThrottles[name] = now
 
+    if (SFX[name].loop && sound.playing()) return
     sound.volume(SFX[name].volume * this.sfxVolume * this.masterVolume)
     sound.play()
   }

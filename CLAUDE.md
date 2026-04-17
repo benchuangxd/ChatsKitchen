@@ -60,7 +60,7 @@ ChatsKitchen/
 
 `App.tsx` owns top-level screen state as a union type:
 ```
-'menu' | 'levelselect' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover'
+'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend'
 ```
 No router library — screens are conditionally rendered components.
 
@@ -110,9 +110,9 @@ Mod detection uses `tags.mod` and `tags.badges.broadcaster` from tmi.js. The loc
 `useGameLoop` dispatches `TICK` actions every 100ms while playing:
 - Decrements station slot elapsed times via wall-clock `cookStart` timestamps (`elapsed = now - slot.cookStart`)
 - Completes cooking when done; auto-collects output into `preparedItems` for all stations
-- Accumulates +20% heat per completed cook on non-chopping stations; overheats at 100%
+- Applies heat **incrementally during cooking** (proportional to slot progress); `HEAT_PER_COOK` (20) is the total heat applied per full cook — not at completion. Chopping board and mixing bowl are exempt.
 - Decrements order patience; expires orders that run out
-- Spawns new orders at intervals scaled by shift difficulty; 25% chance of rush order (capped at 1 active)
+- Spawns new orders at regular intervals. If the order queue empties mid-game, a new order spawns immediately and the spawn rate doubles for 10 seconds.
 - Triggers game over when `timeLeft <= 0`
 - On unpause: dispatches `ADJUST_COOK_TIMES` to shift all `cookStart` values forward by pause duration
 
@@ -122,7 +122,7 @@ Mod detection uses `tags.mod` and `tags.badges.broadcaster` from tmi.js. The loc
 
 Priority order: **extinguish overheated station → cool hot station (heat ≥ 60) → serve → cook**
 
-Bots respect station capacity, skip overheated stations, and skip `cutting_board` for cooling.
+Bots respect station capacity, skip overheated stations, and skip `cutting_board` and `mixing_bowl` for cooling.
 
 ---
 
@@ -178,43 +178,43 @@ interface GameOptions {
 
 ### Recipes (19 dishes across 4 cuisine sets + 3 ungrouped)
 
-**Western Classics 🇺🇸** (`burger`, `fish_burger`, `mushroom_soup`, `roasted_veggies`)
+**Western Classics 🇺🇸** (`burger`, `fish_burger`, `grilled_cheese`, `roasted_veggies`)
 
 | Dish | Key steps | Value |
 |------|-----------|-------|
 | Burger 🍔 | `chop lettuce` + `grill patty` + `toast bun` | $65 |
 | Fish & Chips 🐟 | `chop potato` → `fry potato` + `fry fish` | $60 |
-| Grilled Cheese 🧀 | `grill cheese` + `toast bread` | $40 |
+| Grilled Cheese 🥪 | `grill cheese` + `toast bread` | $40 |
 | Roasted Veggies 🫑 | `chop tomato` + `chop pepper` → `roast pepper` | $55 |
 
 **Chinese Kitchen 🇨🇳** (`fried_rice`, `stir_fried_pork`, `steamed_tofu`, `steamed_buns`)
 
 | Dish | Key steps | Value |
 |------|-----------|-------|
-| Fried Rice 🍳 | `cook rice` → `stir rice` + `chop spring_onion` | $55 |
-| Stir-Fried Pork 🥢 | `chop pork` → `stir pork` + `chop cabbage` | $65 |
+| Fried Rice 🍳 | `cook rice` → `stir rice` + `stir egg` | $55 |
+| Stir-Fried Pork 🍛 | `chop pork` → `stir pork` + `chop spring_onion` | $65 |
 | Steamed Tofu 🧈 | `chop tofu` → `steam tofu` + `chop spring_onion` | $45 |
-| Steamed Buns 🥟 | `chop pork` → `stir pork` + `steam bun` | $55 |
+| Steamed Buns 🥟 | `chop cabbage` + `steam bun` | $55 |
 
-**Korean Kitchen 🇰🇷** (`bulgogi`, `kimchi_jjigae`, `doenjang_jjigae`, `bibimbap`)
+**Korean Kitchen 🇰🇷** (`bulgogi`, `kimchi_jjigae`, `korean_fried_chicken`, `tteokbokki`)
 
 | Dish | Key steps | Value |
 |------|-----------|-------|
 | Bulgogi 🥩 | `chop beef` → `grill beef` + `chop spring_onion` | $70 |
-| Kimchi Jjigae | `chop kimchi` → `simmer kimchi` + `chop tofu` | $65 |
-| Doenjang Jjigae | `chop zucchini` → `simmer zucchini` + `chop tofu` | $60 |
-| Bibimbap 🍱 | `cook rice` + `chop beef` → `simmer beef` | $75 |
+| Kimchi Jjigae 🥘 | `chop kimchi` → `simmer kimchi` + `chop tofu` | $65 |
+| Korean Fried Chicken 🍗 | `chop chicken` → `fry chicken` + `mix gochujang` | $75 |
+| Tteokbokki 🌶️ | `chop tteok` + `mix gochujang` → `boil tteok` | $65 |
 
 **Japanese Kitchen 🇯🇵** (`sushi_roll`, `tempura`, `chawanmushi`, `salmon_donburi`)
 
 | Dish | Key steps | Value |
 |------|-----------|-------|
-| Sushi Roll 🍣 | `cook rice` + `chop tuna` + `chop nori` | $70 |
-| Tempura 🍤 | `chop shrimp` → `fry shrimp` + `chop zucchini` | $65 |
+| Sushi Roll 🍣 | `cook rice` + `chop tuna` + `toast nori` | $70 |
+| Tempura 🍤 | `chop shrimp` → `fry shrimp` | $65 |
 | Chawanmushi 🥚 | `chop egg` → `steam egg` + `chop shrimp` | $55 |
 | Salmon Donburi 🍱 | `cook rice` + `chop salmon` + `chop nori` | $75 |
 
-**Ungrouped** (`fries`, `pasta`/Hot Dog, `salad`/Caesar Salad — not in any cuisine set)
+**Ungrouped** (`fries`, `hot_dog`, `salad` — not in any cuisine set)
 
 | Dish | Key steps | Value |
 |------|-----------|-------|
@@ -224,35 +224,34 @@ interface GameOptions {
 
 Steps marked `→` require the prior ingredient in `preparedItems` before starting.
 
-### Stations (9 types)
+### Stations (10 types)
 
-| Station | Command | Default Capacity |
-|---------|---------|-----------------|
-| Chopping Board 🔪 | `!chop <ingredient>` | 3 slots |
-| Grill 🔥 | `!grill <ingredient>` | 2 slots |
-| Fryer 🫕 | `!fry <ingredient>` | 2 slots |
-| Stove ♨️ | `!boil <ingredient>` | 2 slots |
-| Oven 🧱 | `!toast` / `!roast <ingredient>` | 2 slots |
-| Wok 🥘 | `!stir <ingredient>` | 2 slots |
-| Steamer 🫕 | `!steam <ingredient>` | 2 slots |
-| Stone Pot 🍲 | `!simmer <ingredient>` | 2 slots |
-| Rice Pot 🍚 | `!cook <ingredient>` | 2 slots |
+| Station | Command | Default Capacity | Heat |
+|---------|---------|-----------------|------|
+| Chopping Board 🔪 | `!chop <ingredient>` | 3 slots | Exempt |
+| Grill 🔥 | `!grill <ingredient>` | 2 slots | Yes |
+| Fryer 🫕 | `!fry <ingredient>` | 2 slots | Yes |
+| Stove ♨️ | `!boil <ingredient>` | 2 slots | Yes |
+| Oven 🧱 | `!toast` / `!roast <ingredient>` | 2 slots | Yes |
+| Wok 🍳 | `!stir <ingredient>` | 2 slots | Yes |
+| Steamer 🫕 | `!steam <ingredient>` | 2 slots | Yes |
+| Stone Pot 🍲 | `!simmer <ingredient>` | 2 slots | Yes |
+| Rice Pot 🍚 | `!cook <ingredient>` | 2 slots | Yes |
+| Mixing Bowl 🥣 | `!mix <ingredient>` | 3 slots | Exempt |
 
 Only stations needed by the currently enabled recipes are rendered. Station capacities are configurable in Free Play via the More Options panel.
 
 ### Heat Mechanic
 
-Each completed cook adds `HEAT_PER_COOK` (20) to the station's `heat` counter (chopping board is exempt). Players use `!cool <station>` to reduce heat by `COOL_AMOUNT` (30). When heat reaches 100:
+Heat accumulates **incrementally during cooking** — each tick adds `progress × HEAT_PER_COOK` heat proportional to how far along the slot is. `HEAT_PER_COOK` (20) is the total heat applied per full cook cycle. Chopping Board and Mixing Bowl are exempt from heat.
+
+Players use `!cool <station>` to reduce heat by `COOL_AMOUNT` (30). `!cool` requires the player to not be actively cooking. When heat reaches 100:
 - All slots on that station are destroyed; assigned players are freed
 - Station is locked (`overheated: true`) until extinguished
-- Players vote via `!extinguish <station>`; the station restores when votes reach `ceil(playerCount × 0.3)` (min 1)
+- Players vote via `!extinguish <station>`; the station restores when votes reach `ceil(playerCount × 0.5)` (min 1)
 - Heat resets to 0 on restore
 
 Station border colour reflects heat: green (0–40%) → yellow (41–70%) → orange (71–99%) → red (overheated).
-
-### Rush Orders
-
-`SPAWN_ORDER` has a 25% chance (`RUSH_CHANCE`) to create a rush order, capped at 1 active rush at a time. Rush orders have `patienceMax × RUSH_PATIENCE` (0.5×) and `rewardMultiplier: RUSH_REWARD` (1.75×). They pin to the top of the order queue with a ⚡ badge.
 
 ### Shift Progression
 
@@ -296,6 +295,7 @@ Math.max(5000, 14000 - shift * 1000) ms
 | `src/hooks/useGameLoop.ts` | 100ms TICK dispatching, order spawning, game-over detection |
 | `src/hooks/useTwitchChat.ts` | tmi.js client lifecycle, connect/disconnect; passes `isMod` (mod/broadcaster) to message handler |
 | `src/components/Toast.tsx` | Brief fixed-position toast notification for mod command feedback |
+| `src/components/FoodIcon.tsx` | Renders food icons — `<img>` for `/`-prefixed paths, `<span>` for emoji strings |
 | `src/hooks/useBotSimulation.ts` | AI player logic, action priority, cooldown awareness |
 
 ---
@@ -359,6 +359,8 @@ When implementing a new feature of similar scope, create a spec + plan document 
 4. **`activeUsers`** — a player cooking at one station cannot simultaneously use another. Check and clear this map correctly on station completion and overheat. `!cool` and `!extinguish` are instant actions that do not set `activeUsers`.
 5. **Chat messages are capped at 200** — `ADD_CHAT` slices to `chatMessages.slice(-200)`.
 6. **`cookStart` is wall-clock time** — slot progress is `elapsed = now - slot.cookStart`. On unpause, dispatch `ADJUST_COOK_TIMES` to shift all `cookStart` values forward by the pause duration, otherwise paused time counts as elapsed cook time.
+7. **`heatApplied` on slots** — each `StationSlot` tracks how much heat it has already contributed (`heatApplied: number`, init 0). The TICK loop applies `progress × HEAT_PER_COOK - heatApplied` each tick. When adding new slot-creating code paths, always initialise `heatApplied: 0`.
+8. **`mixing_bowl` is heat-exempt** — treat it identically to `cutting_board` in all heat-related checks (TICK heat loop, COOL guard, `getStationCapacity`, bot cool-skip). Both `Kitchen.tsx` and `gameReducer.ts` have local `getStationCapacity` — keep them in sync.
 
 ## Workflow
 

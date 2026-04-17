@@ -1,5 +1,6 @@
 import { AdventureRun, AdventureBestRun, PlayerStats } from '../state/types'
 import { RECIPES, NAME_COLORS } from '../data/recipes'
+import FoodIcon from './FoodIcon'
 import styles from './AdventureRunEnd.module.css'
 
 function hashStr(s: string): number {
@@ -88,7 +89,7 @@ export default function AdventureRunEnd({ run, bestRun, isNewBestRun, onPlayAgai
             >
               <span className={styles.historyShift}>{r.shiftNumber}</span>
               <span className={styles.historyRecipes}>
-                {r.recipes.map(k => RECIPES[k]?.emoji ?? '?').join(' ')}
+                {r.recipes.map(k => <FoodIcon key={k} icon={RECIPES[k]?.emoji ?? '?'} size={18} />)}
               </span>
               <span className={styles.historyGoal}>${r.goalMoney}</span>
               <span className={styles.historyEarned}>${r.moneyEarned}</span>

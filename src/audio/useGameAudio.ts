@@ -26,6 +26,8 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
       case 'adventurebriefing':
       case 'adventurerunend':
       case 'options':
+      case 'freeplaysetup':
+        audio.stopAllSfx()
         if (trackEnabled.menu) audio.playMusic('menu')
         else audio.stopMusic()
         break
@@ -99,7 +101,7 @@ export function useGameAudio(screen: Screen, state: GameState, audioSettings: Au
     if (cookingCount > prevCookingCount.current)                      audio.playSfx('cook-start')
     if (state.preparedItems.length > prevPreparedCount.current)       audio.playSfx('take-item')
     if (fireCount > prevFireCount.current)                            audio.playSfx('fire-alarm')
-    if (fireCount < prevFireCount.current)                            audio.stopSfx('fire-alarm')
+    if (fireCount === 0 && prevFireCount.current > 0)                 audio.stopSfx('fire-alarm')
     if (latestCooledAt > prevLastCooledAt.current)                    audio.playSfx('cool')
 
     prevOrderCount.current    = orderCount
