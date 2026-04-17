@@ -38,25 +38,37 @@ The existing `modeBottomRow` in the right panel currently holds one button (Opti
 - No new screen or route is introduced.
 
 ### Tally Embed
-The following code is used verbatim inside the modal:
+The iframe is rendered in JSX using React-compatible attributes (no deprecated `frameborder`/`marginheight`/`marginwidth` HTML attributes):
 
-```html
+```tsx
 <iframe
   data-tally-src="https://tally.so/embed/Bzb124?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
   loading="lazy"
   width="100%"
-  height="753"
-  frameborder="0"
-  marginheight="0"
-  marginwidth="0"
+  height={753}
+  style={{ border: 'none', margin: 0 }}
   title="Let Chat Cook - Feedback"
-></iframe>
+/>
 ```
 
-The Tally loader script is injected into `document.body` once when the modal mounts (via `useEffect`), matching the snippet provided. It calls `Tally.loadEmbeds()` if already available, otherwise appends the script tag.
+### Tally Script Injection
+The Tally loader script is injected via `useEffect` on modal mount. To avoid duplicate injection across open/close cycles, the effect first checks both `window.Tally` and `document.querySelector('script[src*="tally.so"]')` before appending a new `<script>` tag. A global type declaration is added to handle strict-mode TypeScript:
+
+```ts
+declare global {
+  interface Window {
+    Tally?: { loadEmbeds: () => void }
+  }
+}
+```
+
+This declaration lives at the top of `FeedbackModal.tsx`.
 
 ### State
 `App.tsx` holds a `showFeedback` boolean (local state, not part of `GameState`). `MainMenu` receives `onFeedback` which sets this to `true`. `<FeedbackModal onClose={() => setShowFeedback(false)} />` is rendered when `showFeedback` is true.
+
+### z-index
+`FeedbackModal` uses `z-index: 300` (matching `PauseModal`) for the backdrop and a higher value for the modal content panel, ensuring it layers correctly over any in-game toasts or other overlays.
 
 ### New Files
 - `src/components/FeedbackModal.tsx`
@@ -94,6 +106,9 @@ type Screen = 'menu' | ... | 'credits'
 **Music Credits**
 - [Track Title] — [Artist / Source]
 
+### Scroll Behaviour
+The credits content container uses `overflow-y: auto` so the page scrolls on short viewports rather than clipping content.
+
 ### New Files
 - `src/components/CreditsScreen.tsx`
 - `src/components/CreditsScreen.module.css`
@@ -105,7 +120,7 @@ type Screen = 'menu' | ... | 'credits'
 | File | Change |
 |------|--------|
 | `src/App.tsx` | Add `'credits'` to `Screen` union; add `showFeedback` state; wire `onFeedback`, `onCredits`, render `FeedbackModal`, render `CreditsScreen` |
-| `src/components/MainMenu.tsx` | Add `onFeedback` + `onCredits` props; expand Options row to 3 buttons |
+| `src/components/MainMenu.tsx` | Add `onFeedback: () => void` + `onCredits: () => void` to the `Props` interface; expand Options row to 3 buttons |
 | `src/components/FeedbackModal.tsx` | New — modal with Tally embed |
 | `src/components/FeedbackModal.module.css` | New — modal styles |
 | `src/components/CreditsScreen.tsx` | New — full-screen credits layout |
