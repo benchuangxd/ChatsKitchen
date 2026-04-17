@@ -21,6 +21,8 @@ import TutorialPrompt from './components/TutorialPrompt'
 import TutorialOverlay from './components/TutorialOverlay'
 import { TUTORIAL_STEPS } from './data/tutorialData'
 import PauseModal from './components/PauseModal'
+import FeedbackModal from './components/FeedbackModal'
+import CreditsScreen from './components/CreditsScreen'
 import Toast from './components/Toast'
 import {
   ADVENTURE_SHIFT_DURATION, getAdventureGoal, pickAdventureRecipes, mergePlayerStats,
@@ -31,7 +33,7 @@ import ChatPanel from './components/ChatPanel'
 import BottomBar from './components/BottomBar'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend'
+type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
 type TutorialDestination = 'menu' | 'freeplaysetup'
 
 const DEFAULT_GAME_OPTIONS: GameOptions = {
@@ -80,6 +82,7 @@ export default function App() {
   const [botsEnabled, setBotsEnabled] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
   const [paused, setPaused] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
   const [twitchChannel, setTwitchChannel] = useState<string | null>(() => {
     try {
       return localStorage.getItem('chatsKitchen_twitchChannel')
@@ -492,6 +495,8 @@ export default function App() {
         onPlay={() => handleMenuPlay('freeplaysetup')}
         onAdventure={startAdventure}
         onOptions={() => setScreen('options')}
+        onFeedback={() => setShowFeedback(true)}
+        onCredits={() => setScreen('credits')}
         onTutorial={handleMenuTutorial}
         onStartTutorial={startTutorial}
         twitchChannel={twitchChannel}
@@ -512,6 +517,8 @@ export default function App() {
     )
   } else if (screen === 'options') {
     content = <OptionsScreen options={gameOptions} onChange={handleGameOptionsChange} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
+  } else if (screen === 'credits') {
+    content = <CreditsScreen onBack={() => setScreen('menu')} />
   } else if (screen === 'freeplaysetup') {
     content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen('menu')} />
   } else if (screen === 'countdown') {
@@ -625,6 +632,7 @@ export default function App() {
     <>
       {content}
       {toast && <Toast message={toast} />}
+      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
       {showTutorialPrompt && screen === 'menu' && !tutorialOpen && (
         <TutorialPrompt
           onStartTutorial={startTutorial}
