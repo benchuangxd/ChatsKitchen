@@ -178,7 +178,7 @@ interface GameOptions {
 
 ### Recipes (27 dishes across 6 cuisine sets + 3 ungrouped)
 
-**Western Classics 🇺🇸** (`burger`, `fish_burger`, `grilled_cheese`, `roasted_veggies`)
+**Western Classics 🇺🇸** (`burger`, `fish_burger`, `salad`, `roasted_veggies`)
 
 | Dish | Key steps | Value |
 |------|-----------|-------|
