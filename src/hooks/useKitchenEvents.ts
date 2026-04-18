@@ -47,6 +47,7 @@ export function useKitchenEvents(
   const spawnMaxRef = useRef(spawnMaxMs)
   spawnMaxRef.current = spawnMaxMs
   const lastEventTypeRef = useRef<EventType | null>(null)
+  const concludingEventIdRef = useRef<string | null>(null)  // prevents double resolve/fail if React hasn't re-rendered yet
   const spawnTimerRef = useRef(0)
   const pickSpawnInterval = () => {
     const lo = spawnMinRef.current
@@ -135,11 +136,14 @@ export function useKitchenEvents(
       msgType: 'system',
     })
 
+    concludingEventIdRef.current = null
     setActiveEvent(event)
   }, [dispatch])
 
   // ── Resolve an event ──────────────────────────────────────────────────────
   const resolveEvent = useCallback((event: KitchenEvent) => {
+    if (concludingEventIdRef.current === event.id) return
+    concludingEventIdRef.current = event.id
     const s = stateRef.current
     const now = Date.now()
 
@@ -172,6 +176,8 @@ export function useKitchenEvents(
 
   // ── Fail an event ─────────────────────────────────────────────────────────
   const failEvent = useCallback((event: KitchenEvent) => {
+    if (concludingEventIdRef.current === event.id) return
+    concludingEventIdRef.current = event.id
     const now = Date.now()
     if (event.type === 'rat_invasion') {
       dispatch({ type: 'REMOVE_PREPARED_ITEMS', count: RAT_INVASION_ITEMS_STOLEN })
@@ -205,7 +211,7 @@ export function useKitchenEvents(
         return
       }
 
-      if (ev.resolved || ev.failed) return
+      if (ev.resolved || ev.failed || concludingEventIdRef.current === ev.id) return
 
       if (ev.timeLeft !== null && !isPaused) {
         const newTimeLeft = ev.timeLeft - 100
@@ -275,6 +281,7 @@ export function useKitchenEvents(
       }
       setActiveEvent(null)
       spawnTimerRef.current = 0
+      concludingEventIdRef.current = null
     }
   }, [active, dispatch])
 
