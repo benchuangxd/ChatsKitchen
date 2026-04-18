@@ -57,6 +57,14 @@ export function useKitchenEvents(
 
   const spawnIntervalRef = useRef(pickSpawnInterval())
 
+  // Reset the spawn countdown whenever the min/max settings change so the new
+  // interval takes effect immediately rather than after the old one expires.
+  useEffect(() => {
+    spawnIntervalRef.current = pickSpawnInterval()
+    spawnTimerRef.current = 0
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spawnMinMs, spawnMaxMs])
+
   // ── Spawn a new event ──────────────────────────────────────────────────────
   const spawnEvent = useCallback(() => {
     const s = stateRef.current
