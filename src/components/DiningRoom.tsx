@@ -1,7 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GameState } from '../state/types'
 import OrderTicket from './OrderTicket'
 import styles from './DiningRoom.module.css'
+
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const result = [...arr]
+  let s = (seed * 1664525 + 1013904223) & 0xffffffff
+  for (let i = result.length - 1; i > 0; i--) {
+    s = (s * 1664525 + 1013904223) & 0xffffffff
+    const j = Math.abs(s) % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
 
 interface Props {
   state: GameState
@@ -13,6 +24,13 @@ export default function OrdersBar({ state, isHighlighted, isGlitched }: Props) {
   const [simpleTickets, setSimpleTickets] = useState(
     () => localStorage.getItem('diningRoom.simpleTickets') === 'true'
   )
+  const [shuffleSeed, setShuffleSeed] = useState(0)
+
+  useEffect(() => {
+    if (!isGlitched) return
+    const t = setInterval(() => setShuffleSeed(s => s + 1), 2000)
+    return () => clearInterval(t)
+  }, [isGlitched])
 
   const toggleSimple = () => setSimpleTickets(v => {
     const next = !v
@@ -23,6 +41,8 @@ export default function OrdersBar({ state, isHighlighted, isGlitched }: Props) {
   const activeOrders = state.orders
     .filter(o => !o.served || o.outcome !== undefined)
     .sort((a, b) => a.spawnTime - b.spawnTime)
+
+  const displayOrders = isGlitched ? seededShuffle(activeOrders, shuffleSeed) : activeOrders
   const pendingCount = activeOrders.filter(o => !o.outcome).length
 
   const totalSec = Math.max(0, Math.ceil(state.timeLeft / 1000))
@@ -45,7 +65,7 @@ export default function OrdersBar({ state, isHighlighted, isGlitched }: Props) {
         </button>
       </div>
       <div className={styles.ordersList}>
-        {activeOrders.map((order) => (
+        {displayOrders.map((order) => (
           <OrderTicket
             key={order.id}
             order={order}

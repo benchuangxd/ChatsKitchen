@@ -23,6 +23,7 @@ export default function OrderTicket({ order, orderNumber, simple = false, isGlit
   const glitchEmoji = GLITCH_EMOJIS[order.id % GLITCH_EMOJIS.length]
   const glitchName = isGlitched ? seededScramble(recipe.name, order.id) : recipe.name
   const glitchEmoji2 = isGlitched ? glitchEmoji : recipe.emoji
+  const glitchDelay = `${(order.id % 5) * 0.18}s`
   const glitchedPlate = isGlitched
     ? recipe.plate.map((item, i) => seededScramble(item.replace(/_/g, ' '), order.id + i + 1))
     : recipe.plate.map(item => item.replace(STRIP_PREFIX, '').replace(/_/g, ' '))
@@ -37,8 +38,16 @@ export default function OrderTicket({ order, orderNumber, simple = false, isGlit
       <div className={styles.ticketWrapper}>
         <div className={`${styles.ticketSimple} ${urgencyClass} ${outcomeClass} ${isGlitched ? styles.glitched : ''}`}>
           <div className={styles.simpleRow}>
-            <span className={styles.orderNumSimple}>#{orderNumber}</span>
-            <FoodIcon icon={glitchEmoji2} size={24} />
+            <span
+              className={`${styles.orderNumSimple} ${isGlitched ? styles.glitchWobbleNum : ''}`}
+              style={isGlitched ? { animationDelay: glitchDelay } : undefined}
+            >#{orderNumber}</span>
+            <span
+              className={isGlitched ? styles.glitchSpinEmoji : undefined}
+              style={isGlitched ? { animationDelay: glitchDelay } : undefined}
+            >
+              <FoodIcon icon={glitchEmoji2} size={24} />
+            </span>
             <div className={styles.simpleIngredients}>
               {recipe.plate.map((item, i) => (
                 <div key={i} className={styles.simpleIngredientTile}>
@@ -66,8 +75,16 @@ export default function OrderTicket({ order, orderNumber, simple = false, isGlit
     <div className={styles.ticketWrapper}>
       <div className={`${styles.ticket} ${urgencyClass} ${outcomeClass} ${isGlitched ? styles.glitched : ''}`}>
         <div className={styles.header}>
-          <span className={styles.orderNum}>#{orderNumber}</span>
-          <FoodIcon icon={glitchEmoji2} size={22} className={styles.dishEmoji} />
+          <span
+            className={`${styles.orderNum} ${isGlitched ? styles.glitchWobbleNum : ''}`}
+            style={isGlitched ? { animationDelay: glitchDelay } : undefined}
+          >#{orderNumber}</span>
+          <span
+            className={`${styles.dishEmoji} ${isGlitched ? styles.glitchSpinEmoji : ''}`}
+            style={isGlitched ? { animationDelay: glitchDelay } : undefined}
+          >
+            <FoodIcon icon={glitchEmoji2} size={22} />
+          </span>
           <span className={styles.dishName}>{glitchName}</span>
         </div>
         <div className={styles.body}>
