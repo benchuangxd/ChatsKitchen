@@ -48,9 +48,13 @@ export function useKitchenEvents(
   spawnMaxRef.current = spawnMaxMs
   const lastEventTypeRef = useRef<EventType | null>(null)
   const spawnTimerRef = useRef(0)
-  const spawnIntervalRef = useRef(
-    spawnMinMs + Math.random() * (spawnMaxMs - spawnMinMs)
-  )
+  const pickSpawnInterval = () => {
+    const lo = spawnMinRef.current
+    const hi = spawnMaxRef.current
+    return hi > lo ? lo + Math.random() * (hi - lo) : lo
+  }
+
+  const spawnIntervalRef = useRef(pickSpawnInterval())
 
   // ── Spawn a new event ──────────────────────────────────────────────────────
   const spawnEvent = useCallback(() => {
@@ -194,7 +198,7 @@ export function useKitchenEvents(
           spawnTimerRef.current += 100
           if (spawnTimerRef.current >= spawnIntervalRef.current) {
             spawnTimerRef.current = 0
-            spawnIntervalRef.current = spawnMinRef.current + Math.random() * (spawnMaxRef.current - spawnMinRef.current)
+            spawnIntervalRef.current = pickSpawnInterval()
             spawnEvent()
           }
         }

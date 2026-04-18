@@ -268,7 +268,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                     <SliderField
                       value={options.kitchenEventSpawnMin}
                       min={5}
-                      max={options.kitchenEventSpawnMax - 5}
+                      max={300}
                       step={5}
                       format={v => String(v)}
                       parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
@@ -280,7 +280,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                     <span className={styles.slotsLabel}>Max</span>
                     <SliderField
                       value={options.kitchenEventSpawnMax}
-                      min={options.kitchenEventSpawnMin + 5}
+                      min={5}
                       max={300}
                       step={5}
                       format={v => String(v)}

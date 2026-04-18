@@ -196,7 +196,7 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
                       type="range"
                       className={styles.slider}
                       min={5}
-                      max={options.kitchenEventSpawnMax - 5}
+                      max={300}
                       step={5}
                       value={options.kitchenEventSpawnMin}
                       onChange={e => onChange({ ...options, kitchenEventSpawnMin: Number(e.target.value) })}
@@ -208,7 +208,7 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
                     <input
                       type="range"
                       className={styles.slider}
-                      min={options.kitchenEventSpawnMin + 5}
+                      min={5}
                       max={300}
                       step={5}
                       value={options.kitchenEventSpawnMax}
