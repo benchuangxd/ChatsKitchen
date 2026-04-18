@@ -216,6 +216,11 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
                     />
                     <span className={styles.sliderValue}>{options.kitchenEventSpawnMax}s</span>
                   </div>
+                  {options.kitchenEventSpawnMin >= options.kitchenEventSpawnMax && (
+                    <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 14, color: '#e8943a', marginTop: 6 }}>
+                      ⚠ Min ≥ Max — fixed interval of {options.kitchenEventSpawnMin}s will be used
+                    </div>
+                  )}
                 </>
               )}
             </div>
