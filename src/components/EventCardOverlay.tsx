@@ -32,6 +32,9 @@ export default function EventCardOverlay({ activeEvent }: Props) {
       {flashing && (
         <div className={`${styles.screenFlash} ${flashIsHazard ? styles.flashHazard : styles.flashOpp}`} />
       )}
+      {activeEvent && !activeEvent.resolved && !activeEvent.failed && (
+        <div className={`${styles.vignette} ${activeEvent.category !== 'opportunity' ? styles.vignetteHazard : styles.vignetteOpp}`} />
+      )}
       {activeEvent && (() => {
         const ev = activeEvent
         const isHazard = ev.category !== 'opportunity'
