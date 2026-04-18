@@ -242,25 +242,54 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                 </button>
               </div>
               {options.kitchenEventsEnabled && (
-                <div className={styles.eventGrid}>
-                  {EVENT_DEFS.map(def => {
-                    const on = options.enabledKitchenEvents.includes(def.type)
-                    return (
-                      <button
-                        key={def.type}
-                        className={`${styles.eventChip} ${on ? styles.eventChipOn : ''}`}
-                        onClick={() => {
-                          const next = on
-                            ? options.enabledKitchenEvents.filter(t => t !== def.type)
-                            : [...options.enabledKitchenEvents, def.type]
-                          onChange({ ...options, enabledKitchenEvents: next })
-                        }}
-                      >
-                        {def.emoji} {def.label}
-                      </button>
-                    )
-                  })}
-                </div>
+                <>
+                  <div className={styles.eventGrid}>
+                    {EVENT_DEFS.map(def => {
+                      const on = options.enabledKitchenEvents.includes(def.type)
+                      return (
+                        <button
+                          key={def.type}
+                          className={`${styles.eventChip} ${on ? styles.eventChipOn : ''}`}
+                          onClick={() => {
+                            const next = on
+                              ? options.enabledKitchenEvents.filter(t => t !== def.type)
+                              : [...options.enabledKitchenEvents, def.type]
+                            onChange({ ...options, enabledKitchenEvents: next })
+                          }}
+                        >
+                          {def.emoji} {def.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <div className={styles.slotsLabel}>Event frequency (seconds between spawns)</div>
+                  <div className={styles.slotsRow}>
+                    <span className={styles.slotsLabel}>Min</span>
+                    <SliderField
+                      value={options.kitchenEventSpawnMin}
+                      min={5}
+                      max={options.kitchenEventSpawnMax - 5}
+                      step={5}
+                      format={v => String(v)}
+                      parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                      onChange={v => onChange({ ...options, kitchenEventSpawnMin: v })}
+                      suffix="s"
+                    />
+                  </div>
+                  <div className={styles.slotsRow}>
+                    <span className={styles.slotsLabel}>Max</span>
+                    <SliderField
+                      value={options.kitchenEventSpawnMax}
+                      min={options.kitchenEventSpawnMin + 5}
+                      max={300}
+                      step={5}
+                      format={v => String(v)}
+                      parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                      onChange={v => onChange({ ...options, kitchenEventSpawnMax: v })}
+                      suffix="s"
+                    />
+                  </div>
+                </>
               )}
             </div>
           </div>

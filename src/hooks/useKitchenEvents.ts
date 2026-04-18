@@ -27,6 +27,8 @@ export function useKitchenEvents(
   active: boolean,
   paused: boolean,
   enabledEvents: EventType[] = [],
+  spawnMinMs: number = EVENT_SPAWN_MIN_MS,
+  spawnMaxMs: number = EVENT_SPAWN_MAX_MS,
 ) {
   const [activeEvent, setActiveEvent] = useState<KitchenEvent | null>(null)
 
@@ -40,10 +42,14 @@ export function useKitchenEvents(
   activeRef.current = active
   const enabledEventsRef = useRef(enabledEvents)
   enabledEventsRef.current = enabledEvents
+  const spawnMinRef = useRef(spawnMinMs)
+  spawnMinRef.current = spawnMinMs
+  const spawnMaxRef = useRef(spawnMaxMs)
+  spawnMaxRef.current = spawnMaxMs
   const lastEventTypeRef = useRef<EventType | null>(null)
   const spawnTimerRef = useRef(0)
   const spawnIntervalRef = useRef(
-    EVENT_SPAWN_MIN_MS + Math.random() * (EVENT_SPAWN_MAX_MS - EVENT_SPAWN_MIN_MS)
+    spawnMinMs + Math.random() * (spawnMaxMs - spawnMinMs)
   )
 
   // ── Spawn a new event ──────────────────────────────────────────────────────
@@ -188,7 +194,7 @@ export function useKitchenEvents(
           spawnTimerRef.current += 100
           if (spawnTimerRef.current >= spawnIntervalRef.current) {
             spawnTimerRef.current = 0
-            spawnIntervalRef.current = EVENT_SPAWN_MIN_MS + Math.random() * (EVENT_SPAWN_MAX_MS - EVENT_SPAWN_MIN_MS)
+            spawnIntervalRef.current = spawnMinRef.current + Math.random() * (spawnMaxRef.current - spawnMinRef.current)
             spawnEvent()
           }
         }

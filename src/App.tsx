@@ -52,6 +52,8 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   autoRestartDelay: 60,
   kitchenEventsEnabled: true,
   enabledKitchenEvents: ['rat_invasion', 'angry_chef', 'power_trip', 'smoke_blast', 'glitched_orders', 'chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance'] as EventType[],
+  kitchenEventSpawnMin: 30,
+  kitchenEventSpawnMax: 60,
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -296,6 +298,8 @@ export default function App() {
     screen === 'playing' && !isTutorial && gameOptions.kitchenEventsEnabled,
     paused,
     gameOptions.enabledKitchenEvents,
+    gameOptions.kitchenEventSpawnMin * 1000,
+    gameOptions.kitchenEventSpawnMax * 1000,
   )
 
   const handleGameOptionsChange = useCallback((options: GameOptions) => {
