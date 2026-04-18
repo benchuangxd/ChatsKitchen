@@ -1,7 +1,7 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult } from './state/types'
+import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, EventType } from './state/types'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
@@ -51,6 +51,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   autoRestart: false,
   autoRestartDelay: 60,
   kitchenEventsEnabled: true,
+  enabledKitchenEvents: ['rat_invasion', 'angry_chef', 'power_trip', 'smoke_blast', 'glitched_orders', 'chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance'] as EventType[],
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -294,6 +295,7 @@ export default function App() {
     dispatch,
     screen === 'playing' && !isTutorial && gameOptions.kitchenEventsEnabled,
     paused,
+    gameOptions.enabledKitchenEvents,
   )
 
   const handleGameOptionsChange = useCallback((options: GameOptions) => {

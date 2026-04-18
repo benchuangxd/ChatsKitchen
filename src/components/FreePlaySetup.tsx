@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { GameOptions } from '../state/types'
 import { RECIPES, RECIPE_SETS, STATION_DEFS } from '../data/recipes'
+import { EVENT_DEFS } from '../data/kitchenEventDefs'
 import FoodIcon from './FoodIcon'
 import styles from './FreePlaySetup.module.css'
 
@@ -240,6 +241,27 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                   {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
                 </button>
               </div>
+              {options.kitchenEventsEnabled && (
+                <div className={styles.eventGrid}>
+                  {EVENT_DEFS.map(def => {
+                    const on = options.enabledKitchenEvents.includes(def.type)
+                    return (
+                      <button
+                        key={def.type}
+                        className={`${styles.eventChip} ${on ? styles.eventChipOn : ''}`}
+                        onClick={() => {
+                          const next = on
+                            ? options.enabledKitchenEvents.filter(t => t !== def.type)
+                            : [...options.enabledKitchenEvents, def.type]
+                          onChange({ ...options, enabledKitchenEvents: next })
+                        }}
+                      >
+                        {def.emoji} {def.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

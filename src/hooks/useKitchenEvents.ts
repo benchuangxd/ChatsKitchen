@@ -26,6 +26,7 @@ export function useKitchenEvents(
   dispatch: React.Dispatch<GameAction>,
   active: boolean,
   paused: boolean,
+  enabledEvents: EventType[] = [],
 ) {
   const [activeEvent, setActiveEvent] = useState<KitchenEvent | null>(null)
 
@@ -37,6 +38,8 @@ export function useKitchenEvents(
   pausedRef.current = paused
   const activeRef = useRef(active)
   activeRef.current = active
+  const enabledEventsRef = useRef(enabledEvents)
+  enabledEventsRef.current = enabledEvents
   const lastEventTypeRef = useRef<EventType | null>(null)
   const spawnTimerRef = useRef(0)
   const spawnIntervalRef = useRef(
@@ -49,22 +52,17 @@ export function useKitchenEvents(
     const playerCount = Object.keys(s.playerStats).length
     const threshold = calcThreshold(playerCount)
 
-    // Build candidate pool — exclude last event type to prevent back-to-back
-    let candidates = EVENT_DEFS.filter(d => d.type !== lastEventTypeRef.current)
-
-    // Power Trip: needs at least 2 non-overheated stations
+    const enabled = enabledEventsRef.current
     const eligibleStations = Object.values(s.stations).filter(st => !st.overheated)
-    if (eligibleStations.length < 2) {
-      candidates = candidates.filter(d => d.type !== 'power_trip')
-    }
 
-    // Safety fallback — preserve the power_trip eligibility filter even when resetting
-    if (candidates.length === 0) {
-      candidates = eligibleStations.length < 2
-        ? EVENT_DEFS.filter(d => d.type !== 'power_trip')
-        : EVENT_DEFS
-    }
-    if (candidates.length === 0) candidates = EVENT_DEFS  // absolute last resort
+    const isAllowed = (type: EventType) =>
+      (enabled.length === 0 || enabled.includes(type)) &&
+      !(type === 'power_trip' && eligibleStations.length < 2)
+
+    // Prefer no back-to-back; fall back to full pool if only one event type enabled
+    let candidates = EVENT_DEFS.filter(d => isAllowed(d.type) && d.type !== lastEventTypeRef.current)
+    if (candidates.length === 0) candidates = EVENT_DEFS.filter(d => isAllowed(d.type))
+    if (candidates.length === 0) return  // all events disabled or ineligible
 
     const def = pickRandom(candidates)
     lastEventTypeRef.current = def.type

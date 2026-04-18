@@ -68,6 +68,7 @@ export interface GameOptions {
   autoRestart: boolean
   autoRestartDelay: number  // seconds
   kitchenEventsEnabled: boolean
+  enabledKitchenEvents: EventType[]
 }
 
 export interface AudioSettings {

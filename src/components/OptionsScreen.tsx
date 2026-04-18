@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AudioSettings, GameOptions } from '../state/types'
+import { EVENT_DEFS } from '../data/kitchenEventDefs'
 import styles from './OptionsScreen.module.css'
 
 interface Props {
@@ -167,6 +168,27 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
                   {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
                 </button>
               </div>
+              {options.kitchenEventsEnabled && (
+                <div className={styles.eventGrid}>
+                  {EVENT_DEFS.map(def => {
+                    const on = options.enabledKitchenEvents.includes(def.type)
+                    return (
+                      <button
+                        key={def.type}
+                        className={`${styles.eventChip} ${on ? styles.eventChipOn : ''}`}
+                        onClick={() => {
+                          const next = on
+                            ? options.enabledKitchenEvents.filter(t => t !== def.type)
+                            : [...options.enabledKitchenEvents, def.type]
+                          onChange({ ...options, enabledKitchenEvents: next })
+                        }}
+                      >
+                        {def.emoji} {def.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
       </div>
