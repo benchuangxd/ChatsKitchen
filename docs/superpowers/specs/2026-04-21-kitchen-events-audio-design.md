@@ -13,9 +13,9 @@ Every kitchen event fires audio at four lifecycle moments:
 | Moment | Behaviour |
 |--------|-----------|
 | **Start** | One-shot SFX sting on event spawn |
-| **During** | Looping ambient track; gameplay music ducked to ~0.15 volume bed |
-| **Success** | Gameplay music restored, then one-shot success SFX |
-| **Fail** | Gameplay music restored, then one-shot fail SFX (hazard-immediate events omit fail audio — they cannot time out) |
+| **During** | Looping ambient track; gameplay/intense music ducked to ~0.15 volume bed |
+| **Success** | Ambient fades out, music restores, then one-shot success SFX |
+| **Fail** | Ambient fades out, music restores, then one-shot fail SFX (hazard-immediate events omit fail audio — they cannot time out) |
 
 ---
 
@@ -116,7 +116,7 @@ export const EVENT_SFX: Record<string, { src: string[]; volume: number }> = {
   'event-dance-fail':            { src: ['/audio/events/dance-fail.mp3'],                  volume: 0.6 },
 }
 
-// Looping ambient tracks (duck gameplay music while active)
+// Looping ambient tracks (duck gameplay/intense music while active)
 export const EVENT_AMBIENT: Record<string, { src: string[]; volume: number }> = {
   'event-rat-ambient':           { src: ['/audio/events/rat_invasion-ambient.mp3'],        volume: 0.4 },
   'event-angry-chef-ambient':    { src: ['/audio/events/angry_chef-ambient.mp3'],          volume: 0.35 },
@@ -137,74 +137,90 @@ export const EVENT_AMBIENT: Record<string, { src: string[]; volume: number }> = 
 ### New private state
 
 ```typescript
+private eventSfxSounds: Record<string, Howl> = {}
 private eventAmbientSounds: Record<string, Howl> = {}
 private activeEventAmbientKey: string | null = null
-private MUSIC_BED_VOLUME = 0.15   // existing constant, already used by crossfadeToIntense
+private ambientDuckingActive: boolean = false
+// MUSIC_BED_VOLUME = 0.15 already exists (used by crossfadeToIntense)
 ```
 
 ### New public methods
 
-```typescript
-playEventSfx(key: string): void
-```
-- Plays a one-shot event SFX from `eventSfxSounds` pool
-- Respects `_sfxMuted` and `sfxThrottles` (same as `playSfx`)
+#### `playEventSfx(key: string): void`
+- Plays a one-shot event SFX from the `eventSfxSounds` pool
+- Respects `_sfxMuted`
+- **Does NOT use `sfxThrottles`** — event stings are already rate-limited by gameplay; throttling would crash because `EVENT_SFX` is a separate map from `SFX` and the existing throttle reads `SFX[name].volume`
+- Applies volume as `EVENT_SFX[key].volume * sfxVolume * masterVolume`
 
-```typescript
-startEventAmbient(key: string): void
-```
-- Fades gameplay music down to `MUSIC_BED_VOLUME` (0.15) over 500ms — mirrors existing crossfadeToIntense ducking
-- Starts looping ambient Howl with 500ms fade-in
-- Stores key in `activeEventAmbientKey`
-- No-ops if intense mode is active (time < 30s) — intense music already ducked
+#### `startEventAmbient(key: string): void`
+- Determines which music track to duck: if `intenseMixActive` is true, duck the intense track; otherwise duck the gameplay track
+- Fades the target track down to `MUSIC_BED_VOLUME` (0.15) over 500ms
+- Starts looping ambient Howl with 500ms fade-in at `EVENT_AMBIENT[key].volume * musicVolume * masterVolume`
+- Sets `activeEventAmbientKey = key` and `ambientDuckingActive = true`
 
-```typescript
-stopEventAmbient(): void
-```
+#### `stopEventAmbient(): void`
+- **No-ops if `activeEventAmbientKey` is null** — safe to call multiple times (e.g. game end during post-resolution 1500ms window)
 - Fades out active ambient over 500ms
-- Restores gameplay music to full music volume over 800ms (unless intense mode active — restores to intense instead)
-- Clears `activeEventAmbientKey`
+- Restores music: if `intenseMixActive`, restore intense track to its full volume; otherwise restore gameplay track to full `musicVolume * masterVolume`
+- Clears `activeEventAmbientKey = null` and `ambientDuckingActive = false`
+
+### Volume change guard
+
+`setMusicVolume()` must check `ambientDuckingActive`. When ducking is active, music tracks receive `MUSIC_BED_VOLUME * newVolume * masterVolume` rather than full volume — preserving the duck state across slider adjustments.
+
+#### `crossfadeToIntense()` — amended behaviour
+
+The existing method fades the gameplay track from its current volume (`gameplay.volume()`) rather than from its defined full volume. This means if an event ambient is already ducking the gameplay track, the fade starts from the already-low value — the double-duck is avoided in practice.
+
+The spec formalises this: **if `ambientDuckingActive` is true, skip fading the gameplay track entirely** — it is already at bed level. Set `intenseMixActive = true` and start the intense track as normal.
+
+#### `stopMusic()` — amended behaviour
+
+`stopMusic()` must reset `ambientDuckingActive = false` and `activeEventAmbientKey = null`. This ensures that if the game ends while an event is active, a subsequent game session does not start with stale ducking state on the AudioManager singleton.
 
 ### Init
 
-`init()` loads `EVENT_SFX` into `eventSfxSounds` (Record<string, Howl>) and `EVENT_AMBIENT` into `eventAmbientSounds` — same lazy-init pattern as existing `sfxSounds`.
+`init()` adds two new loops alongside existing SFX init:
+- Iterate `EVENT_SFX` → populate `eventSfxSounds` with `new Howl({ src, volume, loop: false })`
+- Iterate `EVENT_AMBIENT` → populate `eventAmbientSounds` with `new Howl({ src, volume, loop: true })`
 
 ---
 
 ## useKitchenEvents Wiring
 
+`def` is retrieved via `EVENT_DEFS.find(d => d.type === event.type)!` at each call site. This is the simplest approach — `EVENT_DEFS` is already imported in `useKitchenEvents.ts`, and each lookup is O(9). No change to the `KitchenEvent` struct or `types.ts` is needed.
+
 ```typescript
-// spawnEvent()
+// spawnEvent() — def is already in scope as the selected EventDef
 const am = getAudioManager()
 am.playEventSfx(def.audio.start)
 am.startEventAmbient(def.audio.ambient)
 
-// resolveEvent()
+// resolveEvent(event)
+const def = EVENT_DEFS.find(d => d.type === event.type)!
 const am = getAudioManager()
 am.stopEventAmbient()
 am.playEventSfx(def.audio.success)
 
-// failEvent()
+// failEvent(event)
+const def = EVENT_DEFS.find(d => d.type === event.type)!
 const am = getAudioManager()
 am.stopEventAmbient()
 if (def.audio.fail) am.playEventSfx(def.audio.fail)
 
-// cleanup effect (game ends / events disabled)
-getAudioManager().stopEventAmbient()
+// cleanup effect (game ends / events disabled mid-game)
+getAudioManager().stopEventAmbient()  // no-ops if already stopped
 ```
-
-The `def` reference in each lifecycle function is obtained by looking up `EVENT_DEFS.find(d => d.type === event.type)`.
 
 ---
 
 ## Interaction with Intense Music Mode
 
-When `timeLeft ≤ 30s`, the game crossfades to the intense music track. If a kitchen event is active during this window:
+When `timeLeft ≤ 30s`, the game crossfades to the intense track (`intenseMixActive = true`, gameplay ducked to 0.15 bed).
 
-- `startEventAmbient` checks if intense mode is active; if so, it ducks the intense track instead of the gameplay track
-- `stopEventAmbient` checks `intenseMixActive` flag and restores the correct track
-
-This is handled by reading the existing `intenseMixActive` private flag in AudioManager.
+- **Event starts during intense mode:** `startEventAmbient` ducks the intense track (not gameplay) to `MUSIC_BED_VOLUME`
+- **Event ends during intense mode:** `stopEventAmbient` checks `intenseMixActive` and restores the intense track to full volume — gameplay track stays at bed level
+- **Intense mode triggers while event is active:** `crossfadeToIntense` should check `ambientDuckingActive`; if true, only duck from the current (already-ducked) volume, not full volume — avoids an abrupt double-duck. In practice this is a very short timing window (event must be active exactly as timeLeft crosses 30s) and the bed is already 0.15, so the crossfade will be a near-no-op.
 
 ---
 
@@ -214,7 +230,7 @@ This is handled by reading the existing `intenseMixActive` private flag in Audio
 |------|--------|
 | `public/audio/events/*.mp3` | 33 new audio files |
 | `src/audio/audioAssets.ts` | Add `EVENT_SFX` and `EVENT_AMBIENT` exports |
-| `src/audio/AudioManager.ts` | Add `eventSfxSounds`, `eventAmbientSounds`, 3 new methods, updated `init()` |
+| `src/audio/AudioManager.ts` | Add `eventSfxSounds`, `eventAmbientSounds`, `ambientDuckingActive`; 3 new methods; guard in `setMusicVolume`; amended `crossfadeToIntense`; amended `stopMusic`; updated `init()` |
 | `src/data/kitchenEventDefs.ts` | Add `audio` field to `EventDef` interface + populate all 9 entries |
 | `src/hooks/useKitchenEvents.ts` | Wire 4 call points + cleanup |
 
@@ -222,5 +238,5 @@ This is handled by reading the existing `intenseMixActive` private flag in Audio
 
 ## Out of Scope
 
-- No new audio settings UI — event audio respects existing SFX mute/volume controls (stings) and music volume controls (ambients)
+- No new audio settings UI — event stings respect existing SFX mute/volume; ambients respect existing music mute/volume
 - No per-event audio toggle in GameOptions
