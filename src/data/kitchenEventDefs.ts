@@ -30,6 +30,8 @@ export interface EventDef {
   commandPool: string[]
   failDescription?: string
   rewardDescription?: string
+  color: string    // accent for time bar fill and header gradient end
+  cmdColor: string // darker shade for command box and header gradient start
   audio: {
     ambient: string
     success: string
@@ -45,6 +47,8 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Rat Invasion',
     commandPool: ['SHOO SHOO SHOO', 'CHASE CHASE CHASE', 'BEGONE BEGONE BEGONE'],
     failDescription: 'Fail: lose prepped ingredients',
+    color: '#a0603a',
+    cmdColor: '#7a4020',
     audio: { ambient: 'event-rat-ambient', success: 'event-success', fail: 'event-fail' },
   },
   {
@@ -54,6 +58,8 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Angry Chef',
     commandPool: ['SORRY CHEF', 'APOLOGIES CHEF', 'MY BAD CHEF'],
     failDescription: 'Fail: cooking speed debuff for 15s',
+    color: '#e05020',
+    cmdColor: '#c0390a',
     audio: { ambient: 'event-angry-chef-ambient', success: 'event-success', fail: 'event-fail' },
   },
   {
@@ -62,7 +68,9 @@ export const EVENT_DEFS: EventDef[] = [
     emoji: '🔌',
     label: 'Power Trip',
     commandPool: ['RESET', 'REBOOT', 'RESTART'],
-    failDescription: 'Stations are offline until resolved',
+    failDescription: 'Stations offline until resolved',
+    color: '#2a5acc',
+    cmdColor: '#1a3a8a',
     audio: { ambient: 'event-power-trip-ambient', success: 'event-success' },
   },
   {
@@ -71,7 +79,9 @@ export const EVENT_DEFS: EventDef[] = [
     emoji: '💨',
     label: 'Smoke Blast',
     commandPool: ['CLEAR', 'VENTILATE', 'BLOW'],
-    failDescription: 'Kitchen is obscured until resolved',
+    failDescription: 'Kitchen obscured until resolved',
+    color: '#888888',
+    cmdColor: '#555555',
     audio: { ambient: 'event-smoke-blast-ambient', success: 'event-success' },
   },
   {
@@ -81,6 +91,8 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Glitched Orders',
     commandPool: ['FIX', 'DEBUG', 'PATCH'],
     failDescription: 'Orders scrambled until resolved',
+    color: '#7a30cc',
+    cmdColor: '#4a1a7a',
     audio: { ambient: 'event-glitch-ambient', success: 'event-success' },
   },
   {
@@ -90,6 +102,8 @@ export const EVENT_DEFS: EventDef[] = [
     label: "Chef's Chant",
     commandPool: ['YES CHEF', 'AYE CHEF', 'OF COURSE CHEF'],
     rewardDescription: 'Reward: cooking speed boost for 20s',
+    color: '#c09020',
+    cmdColor: '#8a6000',
     audio: { ambient: 'event-chant-ambient', success: 'event-success', fail: 'event-fail' },
   },
   {
@@ -99,6 +113,8 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Mystery Recipe',
     commandPool: [],
     rewardDescription: 'Reward: 3 free prepped ingredients',
+    color: '#5030a0',
+    cmdColor: '#2a1a6a',
     audio: { ambient: 'event-mystery-ambient', success: 'event-success', fail: 'event-fail' },
   },
   {
@@ -107,7 +123,9 @@ export const EVENT_DEFS: EventDef[] = [
     emoji: '⚡',
     label: 'Typing Frenzy',
     commandPool: [],
-    rewardDescription: 'Reward: money multiplier × 1.5 for 20s',
+    rewardDescription: 'Reward: money multiplier ×1.5 for 20s',
+    color: '#88cc00',
+    cmdColor: '#4a7800',
     audio: { ambient: 'event-frenzy-ambient', success: 'event-success', fail: 'event-fail' },
   },
   {
@@ -117,6 +135,8 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Dance',
     commandPool: ['UP', 'DOWN', 'LEFT', 'RIGHT'],
     rewardDescription: 'Reward: all orders +15s patience',
+    color: '#cc30aa',
+    cmdColor: '#7a1a6a',
     audio: { ambient: 'event-dance-ambient', success: 'event-success', fail: 'event-fail' },
   },
 ]
