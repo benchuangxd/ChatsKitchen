@@ -1,3 +1,4 @@
+/* ── Overlay ── */
 .overlay {
   position: fixed;
   inset: 0;
@@ -9,136 +10,303 @@
   padding-top: 22vh;
 }
 
-.card {
-  pointer-events: none;
-  background: #252836;
-  border-radius: 14px;
-  padding: 20px 26px;
-  min-width: 300px;
-  max-width: 380px;
-  text-align: center;
-  animation: pulseGlow 1.2s ease-in-out infinite alternate;
+/* ── Clip + ticket assembly ── */
+.assembly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
 }
 
-.cardHazard {
-  border: 2px solid #e74c3c;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(231, 76, 60, 0.2);
+.assembly.tearing {
+  animation: tearOff 0.45s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
-.cardOpportunity {
-  border: 2px solid #27ae60;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 20px rgba(39, 174, 96, 0.2);
+/* ── Metal bulldog clip ── */
+.clip {
+  width: 32px;
+  height: 40px;
+  background: linear-gradient(180deg, #aaa 0%, #777 100%);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+  flex-shrink: 0;
 }
 
-.cardResolved {
-  animation: none;
+.clip::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  background: #555;
+  border-radius: 50%;
+  border: 2px solid #444;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
 }
 
-.cardFailed {
-  animation: none;
+.clip::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(180deg, #666, #888);
+  border-radius: 0 0 2px 2px;
 }
 
-@keyframes pulseGlow {
-  from { box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 15px rgba(231, 76, 60, 0.15); }
-  to   { box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 40px rgba(231, 76, 60, 0.45); }
+/*
+ * ── Entry animation: wrapper split ──
+ * clip-path clips box-shadow, so we split into two elements:
+ *   .ticketRevealWrapper  — carries clip-path (printReveal)
+ *   .ticket               — carries box-shadow + transform bounce (printBounce)
+ * Both animations play together on mount.
+ */
+.ticketRevealWrapper {
+  width: 100%;
+  animation: printReveal 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-.tag {
+/* ── Ticket body ── */
+.ticket {
+  background: #fdf6e8;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.75), 3px 0 0 rgba(0,0,0,0.06), -3px 0 0 rgba(0,0,0,0.06);
+  position: relative;
+  transform-origin: top center;
+  animation: printBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Header ── */
+.header {
+  padding: 14px 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--event-cmd-color), var(--event-color));
+}
+
+.headerStripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0.6;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255,255,255,0.5) 0,
+    rgba(255,255,255,0.5) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+
+.badge {
   font-family: 'Space Mono', monospace;
-  font-size: 24px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.22);
+  color: rgba(255,255,255,0.85);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
-
-.tagHazard   { color: #e74c3c; }
-.tagOpportunity { color: #27ae60; }
 
 .title {
   font-family: 'Lilita One', cursive;
-  font-size: 28px;
+  font-size: 19px;
   color: #fff;
-  margin-bottom: 14px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  white-space: nowrap;
 }
 
-.cmdHint {
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
+/* ── Body ── */
+.body {
+  padding: 14px 16px 6px;
+  color: #3a2e20;
+  position: relative;
 }
 
-.cmdHintHazard {
-  background: rgba(231, 76, 60, 0.08);
-  border: 1px solid rgba(231, 76, 60, 0.35);
-}
-
-.cmdHintOpportunity {
-  background: rgba(39, 174, 96, 0.08);
-  border: 1px solid rgba(39, 174, 96, 0.35);
-}
-
-.cmdHint code {
+.cmdLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 24px;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #9a7a60;
+  margin-bottom: 5px;
+}
+
+.cmdBox {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: 2px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  border-style: dashed;
+  border-width: 1.5px;
+  border-color: color-mix(in srgb, var(--event-cmd-color) 40%, transparent);
+  background: color-mix(in srgb, var(--event-cmd-color) 8%, transparent);
+  color: var(--event-cmd-color);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  white-space: nowrap;
 }
 
-.cmdHintHazard code    { color: #e74c3c; }
-.cmdHintOpportunity code { color: #27ae60; }
-
-.description {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 24px;
-  color: #8a8fa8;
-  margin-bottom: 16px;
-  min-height: 24px;
+.desc {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #8a6a50;
+  margin-bottom: 12px;
+  white-space: nowrap;
 }
 
-.barsWrap {
+/* ── Progress bars ── */
+.bars {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
+  margin-bottom: 4px;
 }
 
-.barLabel {
+.barMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
   font-family: 'Space Mono', monospace;
-  font-size: 24px;
+  font-size: 18px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #666;
-  text-align: left;
-  margin-bottom: 2px;
+  color: #9a7a60;
+  margin-bottom: 3px;
+  white-space: nowrap;
 }
 
 .barTrack {
-  height: 18px;
-  background: #1a1a1a;
-  border-radius: 9px;
+  height: 16px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 6px;
   overflow: hidden;
 }
 
-.barFill {
+.barFillTime {
   height: 100%;
-  border-radius: 9px;
+  border-radius: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--event-color) 0,
+    var(--event-color) 5px,
+    rgba(0,0,0,0.15) 5px,
+    rgba(0,0,0,0.15) 8px
+  );
+  transition: width 0.1s linear;
+}
+
+.barFillProg {
+  height: 100%;
+  border-radius: 6px;
+  background: #5a8a40;
   transition: width 0.15s ease;
 }
 
-.barFillTime    { background: #555; }
-.barFillHazard  { background: #e74c3c; }
-.barFillOpp     { background: #27ae60; }
-
-.outcomeMsg {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 24px;
-  font-weight: 600;
-  margin-top: 10px;
+/* ── Perforated bottom edge ── */
+.perf {
+  height: 11px;
+  background-color: #fdf6e8;
+  background-image: radial-gradient(circle, #1c1917 3px, transparent 3px);
+  background-size: 16px 11px;
+  background-position: 4px center;
+  border-top: 1px dashed rgba(0,0,0,0.12);
 }
 
-.outcomeResolved { color: #27ae60; }
-.outcomeFailed   { color: #e74c3c; }
+/* ── Rubber stamp overlay ── */
+.stamp {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 20;
+  background: rgba(253,246,232,0.15);
+}
 
-/* Screen flash on event spawn */
+.stampCircle {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border-width: 5px;
+  border-style: solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Lilita One', cursive;
+  animation: stampIn 0.35s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+}
+
+.stampResolved {
+  border-color: #27ae60;
+  color: #27ae60;
+  background: rgba(39,174,96,0.08);
+}
+
+.stampFailed {
+  border-color: #c0392b;
+  color: #c0392b;
+  background: rgba(192,57,43,0.08);
+}
+
+.stampIcon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.stampText {
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── Keyframes ── */
+@keyframes printReveal {
+  0%   { clip-path: inset(0 0 100% 0); }
+  60%  { clip-path: inset(0 0 0% 0); }
+  100% { clip-path: inset(0 0 0% 0); }
+}
+
+@keyframes printBounce {
+  0%   { transform: translateY(-8px); }
+  60%  { transform: translateY(6px); }
+  80%  { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes stampIn {
+  0%   { transform: scale(2.5) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(0.92) rotate(4deg); opacity: 1; }
+  80%  { transform: scale(1.06) rotate(-2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes tearOff {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  30%  { transform: translateY(-12px) rotate(-1.5deg); opacity: 1; }
+  100% { transform: translateY(-340px) rotate(3deg); opacity: 0; }
+}
+
+/* ── Screen flash on event spawn (unchanged) ── */
 .screenFlash {
   position: fixed;
   inset: 0;
@@ -155,7 +323,7 @@
   100% { opacity: 0; }
 }
 
-/* Persistent vignette pulse while event is active */
+/* ── Persistent vignette while event is active (unchanged) ── */
 .vignette {
   position: fixed;
   inset: 0;
