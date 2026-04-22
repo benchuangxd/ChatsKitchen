@@ -117,6 +117,8 @@ export default function App() {
   const [autoRestartSignal, setAutoRestartSignal] = useState(0)
   const screenRef = useRef<Screen>('menu')
   const gameOptionsRef = useRef(gameOptions)
+  const twitchConnectedRef = useRef(false)
+  const twitchChannelRef = useRef<string | null>(null)
   const [adventureRun, setAdventureRun]   = useState<AdventureRun | null>(null)
   const adventureRunRef                   = useRef<AdventureRun | null>(null)
   const [adventureBestRun, setAdventureBestRun] = useState<AdventureBestRun | null>(() => {
@@ -361,9 +363,6 @@ export default function App() {
   const isTutorialRef = useRef(isTutorial)
   isTutorialRef.current = isTutorial
 
-  const twitchConnectedRef = useRef(false)
-  const twitchChannelRef = useRef<string | null>(null)
-
   const handleTwitchMessage = useCallback((user: string, text: string, isMod: boolean) => {
     dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
     handleMetaCommand(user, text, isMod)
@@ -371,14 +370,8 @@ export default function App() {
   }, [handleCommand, handleMetaCommand])
 
   const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
-
-  useEffect(() => {
-    twitchConnectedRef.current = twitchChat.status === 'connected'
-  }, [twitchChat.status])
-
-  useEffect(() => {
-    twitchChannelRef.current = twitchChannel
-  }, [twitchChannel])
+  twitchConnectedRef.current = twitchChat.status === 'connected'
+  twitchChannelRef.current = twitchChannel
 
   const handleChatSend = useCallback((text: string) => {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
