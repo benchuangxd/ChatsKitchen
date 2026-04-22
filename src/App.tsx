@@ -51,7 +51,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   autoRestart: false,
   autoRestartDelay: 60,
   kitchenEventsEnabled: true,
-  enabledKitchenEvents: ['rat_invasion', 'angry_chef', 'power_trip', 'smoke_blast', 'glitched_orders', 'chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance'] as EventType[],
+  enabledKitchenEvents: ['angry_chef', 'smoke_blast', 'mystery_recipe', 'dance'] as EventType[],
   kitchenEventSpawnMin: 30,
   kitchenEventSpawnMax: 60,
 }
