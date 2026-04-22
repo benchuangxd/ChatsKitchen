@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { GameState, KitchenEvent, EventType } from '../state/types'
 import { GameAction } from '../state/gameReducer'
+import { getAudioManager } from '../audio/AudioManager'
 import {
   EVENT_DEFS, EVENT_SPAWN_MIN_MS, EVENT_SPAWN_MAX_MS,
   RESOLVE_THRESHOLD_RATIO,
@@ -62,7 +63,6 @@ export function useKitchenEvents(
   useEffect(() => {
     spawnIntervalRef.current = pickSpawnInterval()
     spawnTimerRef.current = 0
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spawnMinMs, spawnMaxMs])
 
   // ── Spawn a new event ──────────────────────────────────────────────────────
@@ -146,6 +146,10 @@ export function useKitchenEvents(
 
     concludingEventIdRef.current = null
     setActiveEvent(event)
+
+    const am = getAudioManager()
+    am.playEventSfx(def.audio.start)
+    am.startEventAmbient(def.audio.ambient)
   }, [dispatch])
 
   // ── Resolve an event ──────────────────────────────────────────────────────
@@ -179,6 +183,12 @@ export function useKitchenEvents(
     }
 
     setActiveEvent(prev => prev?.id === event.id ? { ...prev, resolved: true, progress: 100 } : prev)
+
+    const def = EVENT_DEFS.find(d => d.type === event.type)!
+    const am = getAudioManager()
+    am.stopEventAmbient()
+    setTimeout(() => am.playEventSfx(def.audio.success), 500)
+
     setTimeout(() => setActiveEvent(null), 1500)
   }, [dispatch])
 
@@ -196,6 +206,12 @@ export function useKitchenEvents(
     }
 
     setActiveEvent(prev => prev?.id === event.id ? { ...prev, failed: true } : prev)
+
+    const def = EVENT_DEFS.find(d => d.type === event.type)!
+    const am = getAudioManager()
+    am.stopEventAmbient()
+    if (def.audio.fail) setTimeout(() => am.playEventSfx(def.audio.fail!), 500)
+
     setTimeout(() => setActiveEvent(null), 1500)
   }, [dispatch])
 
@@ -287,6 +303,7 @@ export function useKitchenEvents(
       if (ev?.type === 'power_trip' && ev.payload.disabledStations) {
         dispatch({ type: 'ENABLE_STATIONS', stationIds: ev.payload.disabledStations })
       }
+      getAudioManager().stopEventAmbient()
       setActiveEvent(null)
       spawnTimerRef.current = 0
       concludingEventIdRef.current = null

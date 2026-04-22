@@ -30,6 +30,12 @@ export interface EventDef {
   commandPool: string[]
   failDescription?: string
   rewardDescription?: string
+  audio: {
+    start: string
+    ambient: string
+    success: string
+    fail?: string
+  }
 }
 
 export const EVENT_DEFS: EventDef[] = [
@@ -38,8 +44,9 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'hazard-penalty',
     emoji: '🐀',
     label: 'Rat Invasion',
-    commandPool: ['SHOO', 'CHASE', 'BEGONE'],
+    commandPool: ['SHOO SHOO SHOO', 'CHASE CHASE CHASE', 'BEGONE BEGONE BEGONE'],
     failDescription: 'Fail: lose prepped ingredients',
+    audio: { start: 'event-rat-start', ambient: 'event-rat-ambient', success: 'event-rat-success', fail: 'event-rat-fail' },
   },
   {
     type: 'angry_chef',
@@ -48,6 +55,7 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Angry Chef',
     commandPool: ['SORRY CHEF', 'APOLOGIES CHEF', 'MY BAD CHEF'],
     failDescription: 'Fail: cooking speed debuff for 15s',
+    audio: { start: 'event-angry-chef-start', ambient: 'event-angry-chef-ambient', success: 'event-angry-chef-success', fail: 'event-angry-chef-fail' },
   },
   {
     type: 'power_trip',
@@ -56,6 +64,7 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Power Trip',
     commandPool: ['RESET', 'REBOOT', 'RESTART'],
     failDescription: 'Stations are offline until resolved',
+    audio: { start: 'event-power-trip-start', ambient: 'event-power-trip-ambient', success: 'event-power-trip-success' },
   },
   {
     type: 'smoke_blast',
@@ -64,6 +73,7 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Smoke Blast',
     commandPool: ['CLEAR', 'VENTILATE', 'BLOW'],
     failDescription: 'Kitchen is obscured until resolved',
+    audio: { start: 'event-smoke-blast-start', ambient: 'event-smoke-blast-ambient', success: 'event-smoke-blast-success' },
   },
   {
     type: 'glitched_orders',
@@ -72,6 +82,7 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Glitched Orders',
     commandPool: ['FIX', 'DEBUG', 'PATCH'],
     failDescription: 'Orders scrambled until resolved',
+    audio: { start: 'event-glitch-start', ambient: 'event-glitch-ambient', success: 'event-glitch-success' },
   },
   {
     type: 'chefs_chant',
@@ -80,6 +91,7 @@ export const EVENT_DEFS: EventDef[] = [
     label: "Chef's Chant",
     commandPool: ['YES CHEF', 'AYE CHEF', 'OF COURSE CHEF'],
     rewardDescription: 'Reward: cooking speed boost for 20s',
+    audio: { start: 'event-chant-start', ambient: 'event-chant-ambient', success: 'event-chant-success', fail: 'event-chant-fail' },
   },
   {
     type: 'mystery_recipe',
@@ -88,6 +100,7 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Mystery Recipe',
     commandPool: [],
     rewardDescription: 'Reward: 3 free prepped ingredients',
+    audio: { start: 'event-mystery-start', ambient: 'event-mystery-ambient', success: 'event-mystery-success', fail: 'event-mystery-fail' },
   },
   {
     type: 'typing_frenzy',
@@ -96,6 +109,7 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Typing Frenzy',
     commandPool: [],
     rewardDescription: 'Reward: money multiplier × 1.5 for 20s',
+    audio: { start: 'event-frenzy-start', ambient: 'event-frenzy-ambient', success: 'event-frenzy-success', fail: 'event-frenzy-fail' },
   },
   {
     type: 'dance',
@@ -104,6 +118,7 @@ export const EVENT_DEFS: EventDef[] = [
     label: 'Dance',
     commandPool: ['UP', 'DOWN', 'LEFT', 'RIGHT'],
     rewardDescription: 'Reward: all orders +15s patience',
+    audio: { start: 'event-dance-start', ambient: 'event-dance-ambient', success: 'event-dance-success', fail: 'event-dance-fail' },
   },
 ]
 
