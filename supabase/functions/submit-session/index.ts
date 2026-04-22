@@ -146,37 +146,24 @@ Deno.serve(async (req: Request) => {
   const { channel_name, money_earned, served, lost, players } = validation.data
 
   // -------------------------------------------------------------------------
-  // Rate limit check
+  // Atomic rate-limit claim — single DB round-trip, no race window.
+  // try_claim_rate_limit() does INSERT ... ON CONFLICT DO UPDATE ... WHERE
+  // so the check and the timestamp write happen in one statement.
+  // Returns true if the slot was claimed, false if the window hasn't expired.
   // -------------------------------------------------------------------------
-  const { data: rateRow, error: rateErr } = await supabase
-    .from('rate_limits')
-    .select('last_submission')
-    .eq('channel_name', channel_name)
-    .maybeSingle()
+  const { data: claimed, error: claimErr } = await supabase
+    .rpc('try_claim_rate_limit', {
+      p_channel: channel_name,
+      p_window_ms: RATE_LIMIT_WINDOW_MS,
+    })
 
-  if (rateErr) {
-    console.error('rate_limits select error:', rateErr)
+  if (claimErr) {
+    console.error('try_claim_rate_limit error:', claimErr)
     return json({ error: 'Internal error' }, 500)
   }
 
-  if (rateRow?.last_submission) {
-    const lastMs = new Date(rateRow.last_submission).getTime()
-    if (Date.now() - lastMs < RATE_LIMIT_WINDOW_MS) {
-      return json({ error: 'Rate limit: 1 submission per channel per 3 minutes' }, 429)
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // Claim rate limit slot BEFORE any writes — prevents duplicate submissions
-  // if the request is retried concurrently.
-  // -------------------------------------------------------------------------
-  const { error: rlUpsertErr } = await supabase
-    .from('rate_limits')
-    .upsert({ channel_name, last_submission: new Date().toISOString() })
-
-  if (rlUpsertErr) {
-    console.error('rate_limits upsert error:', rlUpsertErr)
-    return json({ error: 'Internal error' }, 500)
+  if (!claimed) {
+    return json({ error: 'Rate limit: 1 submission per channel per 3 minutes' }, 429)
   }
 
   // -------------------------------------------------------------------------
