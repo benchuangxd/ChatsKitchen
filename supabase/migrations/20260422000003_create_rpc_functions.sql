@@ -17,3 +17,6 @@ BEGIN
   RETURN (SELECT total_money_earned FROM seasons WHERE id = p_season_id);
 END;
 $$;
+
+-- Grant execute to the service role used by Edge Functions
+GRANT EXECUTE ON FUNCTION increment_season_money(int, int) TO service_role;
