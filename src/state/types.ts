@@ -130,7 +130,7 @@ export interface KitchenEvent {
   chosenCommand: string
   progress: number           // 0–100
   threshold: number          // ceil(playerCount × 0.8), min 1
-  respondedUsers: string[]   // unused for Dance; Dance uses danceProgress
+  respondedUsers: string[]   // unused for Dance; Dance uses danceSequence/danceStep/danceStepUsers
   timeLeft: number | null    // null for hazard-immediate
   resolved: boolean
   failed: boolean
@@ -138,7 +138,8 @@ export interface KitchenEvent {
     disabledStations?: string[]
     anagramAnswer?: string
     typingPhrase?: string
-    danceProgress?: Record<'UP' | 'DOWN' | 'LEFT' | 'RIGHT', string[]>
+    danceSequence?: ('UP' | 'DOWN' | 'LEFT' | 'RIGHT')[]
+    powerTripAnswer?: number
   }
 }
 

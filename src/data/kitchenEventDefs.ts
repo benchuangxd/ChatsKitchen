@@ -17,10 +17,54 @@ export const MYSTERY_RECIPE_ITEMS_REWARDED = 3
 export const HAZARD_TIME_LIMIT_MS = 10_000
 export const OPPORTUNITY_TIME_LIMIT_MS = 12_000
 
-export const TYPING_FRENZY_PHRASES = [
-  'FIRE IN THE HOLE', 'ORDER UP', 'YES CHEF', 'TABLE FOR TWO',
-  'BEHIND YOU', 'ON THE FLY', 'HEARD THAT', 'MISE EN PLACE',
-]
+function randInt(min: number, max: number): number {
+  return min + Math.floor(Math.random() * (max - min + 1))
+}
+
+// Generates a random maths equation. Answer is always a positive integer.
+// Add/subtract: 3 numbers; multiply/divide: 2 numbers.
+export function makePowerTripEquation(): { display: string; answer: number } {
+  const type = Math.floor(Math.random() * 3)
+
+  if (type === 1) {
+    const a = randInt(2, 12)
+    const b = randInt(2, 12)
+    return { display: `${a} × ${b} = ?`, answer: a * b }
+  }
+
+  if (type === 2) {
+    const divisor = randInt(2, 9)
+    const quotient = randInt(2, 12)
+    return { display: `${divisor * quotient} ÷ ${divisor} = ?`, answer: quotient }
+  }
+
+  // Add / subtract with 3 numbers — retry until answer is positive
+  let display: string, answer: number
+  do {
+    const a = randInt(20, 60)
+    const b = randInt(5, 25)
+    const c = randInt(5, 25)
+    const op1 = Math.random() < 0.6 ? '+' : '-'
+    const op2 = Math.random() < 0.6 ? '+' : '-'
+    answer = a + (op1 === '+' ? b : -b) + (op2 === '+' ? c : -c)
+    display = `${a} ${op1} ${b} ${op2} ${c} = ?`
+  } while (answer <= 0)
+  return { display, answer }
+}
+
+const FRENZY_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+='
+const FRENZY_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+// Generates a random 20–25 char gibberish string. First char is always
+// alphanumeric so Twitch doesn't interpret it as a command prefix.
+export function makeTypingFrenzyPhrase(): string {
+  const len = 15
+  let result = FRENZY_ALPHA[Math.floor(Math.random() * FRENZY_ALPHA.length)]
+  for (let i = 1; i < len; i++) {
+    result += FRENZY_CHARS[Math.floor(Math.random() * FRENZY_CHARS.length)]
+  }
+  return result
+}
 
 export interface EventDef {
   type: EventType
@@ -67,7 +111,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'hazard-immediate',
     emoji: '🔌',
     label: 'Power Trip',
-    commandPool: ['RESET', 'REBOOT', 'RESTART'],
+    commandPool: [],
     failDescription: 'Stations offline until resolved',
     color: '#2a5acc',
     cmdColor: '#1a3a8a',
@@ -164,6 +208,13 @@ export function getProducesValues(enabledRecipes: string[]): string[] {
     for (const step of recipe.steps) produces.add(step.produces)
   }
   return [...produces]
+}
+
+const DANCE_DIRS = ['UP', 'DOWN', 'LEFT', 'RIGHT'] as const
+export type DanceDir = typeof DANCE_DIRS[number]
+
+export function makeDanceSequence(): DanceDir[] {
+  return Array.from({ length: 4 }, () => DANCE_DIRS[Math.floor(Math.random() * DANCE_DIRS.length)])
 }
 
 // Produces a simple character-shuffle anagram of the input string.

@@ -8,7 +8,7 @@ import {
   ANGRY_CHEF_DEBUFF_MULTIPLIER, ANGRY_CHEF_DEBUFF_DURATION_MS,
   CHEFS_CHANT_BOOST_MULTIPLIER, CHEFS_CHANT_BOOST_DURATION_MS,
   TYPING_FRENZY_MULTIPLIER, TYPING_FRENZY_DURATION_MS,
-  TYPING_FRENZY_PHRASES, DANCE_PATIENCE_BONUS_MS,
+  makeTypingFrenzyPhrase, makePowerTripEquation, makeDanceSequence, DANCE_PATIENCE_BONUS_MS,
   RAT_INVASION_ITEMS_STOLEN, MYSTERY_RECIPE_ITEMS_REWARDED,
   HAZARD_TIME_LIMIT_MS, OPPORTUNITY_TIME_LIMIT_MS,
   getIngredientTargets, getProducesValues, makeAnagram,
@@ -99,6 +99,9 @@ export function useKitchenEvents(
       const toDisable = shuffled.slice(0, 2).map(st => st.id)
       payload.disabledStations = toDisable
       dispatch({ type: 'DISABLE_STATIONS', stationIds: toDisable })
+      const eq = makePowerTripEquation()
+      payload.powerTripAnswer = eq.answer
+      chosenCommand = eq.display
     }
 
     if (def.type === 'mystery_recipe') {
@@ -110,14 +113,15 @@ export function useKitchenEvents(
     }
 
     if (def.type === 'typing_frenzy') {
-      const phrase = pickRandom(TYPING_FRENZY_PHRASES)
+      const phrase = makeTypingFrenzyPhrase()
       payload.typingPhrase = phrase
       chosenCommand = phrase
     }
 
     if (def.type === 'dance') {
-      payload.danceProgress = { UP: [], DOWN: [], LEFT: [], RIGHT: [] }
-      chosenCommand = 'UP / DOWN / LEFT / RIGHT'
+      const sequence = makeDanceSequence()
+      payload.danceSequence = sequence
+      chosenCommand = sequence.join(' ')
     }
 
     const event: KitchenEvent = {
@@ -134,13 +138,14 @@ export function useKitchenEvents(
       payload,
     }
 
-    const cmdDisplay = def.type === 'dance' ? 'UP / DOWN / LEFT / RIGHT'
-      : chosenCommand
     const label = def.category === 'opportunity' ? '⚡ Opportunity' : '⚠️ Hazard'
+    const chatText = def.type === 'dance'
+      ? `${label}: ${def.emoji} ${def.label}! Memorise the sequence and type it in chat!`
+      : `${label}: ${def.emoji} ${def.label}! Type ${chosenCommand} in chat to help!`
     dispatch({
       type: 'ADD_CHAT',
       username: 'KITCHEN',
-      text: `${label}: ${def.emoji} ${def.label}! Type ${cmdDisplay} in chat to help!`,
+      text: chatText,
       msgType: 'system',
     })
 
@@ -256,28 +261,10 @@ export function useKitchenEvents(
 
     const normalized = text.trim().toUpperCase()
 
-    if (ev.type === 'dance') {
-      const dir = normalized as 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
-      if (!['UP', 'DOWN', 'LEFT', 'RIGHT'].includes(dir)) return
-      const prog = ev.payload.danceProgress!
-      if (prog[dir].includes(user)) return
-
-      const newProg = { ...prog, [dir]: [...prog[dir], user] }
-      const minCount = Math.min(...Object.values(newProg).map(arr => arr.length))
-      const progress = Math.min(100, Math.round(minCount / ev.threshold * 100))
-
-      if (minCount >= ev.threshold) {
-        resolveEvent({ ...ev, payload: { ...ev.payload, danceProgress: newProg }, progress: 100 })
-      } else {
-        setActiveEvent(prev => prev?.id === ev.id
-          ? { ...prev, progress, payload: { ...prev.payload, danceProgress: newProg } }
-          : prev)
-      }
-      return
-    }
-
     const matchTarget = ev.type === 'mystery_recipe'
       ? ev.payload.anagramAnswer!.toUpperCase()
+      : ev.type === 'power_trip'
+      ? String(ev.payload.powerTripAnswer!)
       : ev.chosenCommand
 
     if (normalized !== matchTarget) return

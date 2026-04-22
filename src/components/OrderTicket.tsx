@@ -24,9 +24,10 @@ export default function OrderTicket({ order, orderNumber, simple = false, isGlit
   const glitchName = isGlitched ? seededScramble(recipe.name, order.id) : recipe.name
   const glitchEmoji2 = isGlitched ? glitchEmoji : recipe.emoji
   const glitchDelay = `${(order.id % 5) * 0.18}s`
+  const displayItem = (item: string) => item.replace(STRIP_PREFIX, '').replace(/_/g, ' ')
   const glitchedPlate = isGlitched
-    ? recipe.plate.map((item, i) => seededScramble(item.replace(/_/g, ' '), order.id + i + 1))
-    : recipe.plate.map(item => item.replace(STRIP_PREFIX, '').replace(/_/g, ' '))
+    ? recipe.plate.map((item, i) => seededScramble(displayItem(item), order.id + i + 1))
+    : recipe.plate.map(displayItem)
 
   const isServed = order.outcome === 'served'
   const isLost = order.outcome === 'lost'

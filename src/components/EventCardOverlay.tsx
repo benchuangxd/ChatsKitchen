@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { KitchenEvent, EventCategory } from '../state/types'
 import { createPortal } from 'react-dom'
-import { EVENT_DEFS } from '../data/kitchenEventDefs'
+import { EVENT_DEFS, DanceDir } from '../data/kitchenEventDefs'
 import styles from './EventCardOverlay.module.css'
+
+const DANCE_ARROWS: Record<DanceDir, string> = { UP: '⬆', DOWN: '⬇', LEFT: '⬅', RIGHT: '➡' }
 
 interface Props {
   activeEvent: KitchenEvent | null
@@ -89,32 +91,70 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                     <span className={styles.title}>{def.emoji} {def.label}</span>
                   </div>
                   <div className={styles.body}>
-                    <div className={styles.cmdLabel}>Type in chat</div>
-                    <div className={styles.cmdBox}>{ev.chosenCommand}</div>
-                    <div className={styles.desc}>{description}</div>
-                    {!ev.resolved && !ev.failed && (
-                      <div className={styles.bars}>
-                        {timePercent !== null && (
-                          <div>
-                            <div className={styles.barMeta}>
-                              <span>Time</span>
-                              <span>{timeSeconds}s</span>
+                    {ev.type === 'dance' && ev.payload.danceSequence ? (() => {
+                      const sequence = ev.payload.danceSequence
+                      // First 3 s of the 12 s window: show all arrows; then hide
+                      const isRevealing = ev.timeLeft !== null && ev.timeLeft > 9_000
+                      return (
+                        <>
+                          <div className={styles.cmdLabel}>{isRevealing ? '🧠 Memorise!' : '🕺 Type the full sequence!'}</div>
+                          <div className={styles.danceRow}>
+                            {sequence.map((dir, i) => (
+                              <div key={i} className={`${styles.danceStep} ${isRevealing ? styles.danceStepReveal : styles.danceStepPending}`}>
+                                {isRevealing ? DANCE_ARROWS[dir] : '?'}
+                              </div>
+                            ))}
+                          </div>
+                          <div className={styles.desc}>{description}</div>
+                          {!ev.resolved && !ev.failed && (
+                            <div className={styles.bars}>
+                              {timePercent !== null && (
+                                <div>
+                                  <div className={styles.barMeta}><span>Time</span><span>{timeSeconds}s</span></div>
+                                  <div className={styles.barTrack}><div className={styles.barFillTime} style={{ width: `${timePercent}%` }} /></div>
+                                </div>
+                              )}
+                              <div>
+                                <div className={styles.barMeta}>
+                                  <span>Progress</span>
+                                  <span>{ev.respondedUsers.length} / {ev.threshold}</span>
+                                </div>
+                                <div className={styles.barTrack}><div className={styles.barFillProg} style={{ width: `${ev.progress}%` }} /></div>
+                              </div>
                             </div>
-                            <div className={styles.barTrack}>
-                              <div className={styles.barFillTime} style={{ width: `${timePercent}%` }} />
+                          )}
+                        </>
+                      )
+                    })() : (
+                      <>
+                        <div className={styles.cmdLabel}>Type in chat</div>
+                        <div className={styles.cmdBox}>{ev.chosenCommand}</div>
+                        <div className={styles.desc}>{description}</div>
+                        {!ev.resolved && !ev.failed && (
+                          <div className={styles.bars}>
+                            {timePercent !== null && (
+                              <div>
+                                <div className={styles.barMeta}>
+                                  <span>Time</span>
+                                  <span>{timeSeconds}s</span>
+                                </div>
+                                <div className={styles.barTrack}>
+                                  <div className={styles.barFillTime} style={{ width: `${timePercent}%` }} />
+                                </div>
+                              </div>
+                            )}
+                            <div>
+                              <div className={styles.barMeta}>
+                                <span>Progress</span>
+                                <span>{ev.respondedUsers.length} / {ev.threshold}</span>
+                              </div>
+                              <div className={styles.barTrack}>
+                                <div className={styles.barFillProg} style={{ width: `${ev.progress}%` }} />
+                              </div>
                             </div>
                           </div>
                         )}
-                        <div>
-                          <div className={styles.barMeta}>
-                            <span>Progress</span>
-                            <span>{ev.respondedUsers.length} / {ev.threshold}</span>
-                          </div>
-                          <div className={styles.barTrack}>
-                            <div className={styles.barFillProg} style={{ width: `${ev.progress}%` }} />
-                          </div>
-                        </div>
-                      </div>
+                      </>
                     )}
                     {showStamp && (
                       <div className={styles.stamp}>

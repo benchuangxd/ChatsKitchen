@@ -219,6 +219,45 @@
   transition: width 0.15s ease;
 }
 
+/* ── Dance Simon Says sequence ── */
+.danceRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  justify-content: center;
+}
+
+.danceStep {
+  width: 62px;
+  height: 62px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 700;
+  transition: opacity 0.2s ease;
+}
+
+.danceStepReveal {
+  background: color-mix(in srgb, var(--event-cmd-color) 12%, transparent);
+  border: 2px solid color-mix(in srgb, var(--event-cmd-color) 60%, transparent);
+  color: var(--event-cmd-color);
+  animation: danceRevealPulse 1s ease-in-out infinite alternate;
+}
+
+.danceStepPending {
+  background: rgba(0,0,0,0.06);
+  color: #9a7a60;
+  opacity: 0.4;
+  font-size: 26px;
+}
+
+@keyframes danceRevealPulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.06); }
+}
+
 /* ── Perforated bottom edge ── */
 .perf {
   height: 11px;

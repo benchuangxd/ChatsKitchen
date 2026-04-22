@@ -406,6 +406,80 @@ The game tracks per-player statistics during each round:
 | `extinguished` | Number of overheat votes cast |
 | `firesCaused` | Number of times this player's cook triggered an overheat |
 
+## Kitchen Events
+
+Kitchen events are timed interruptions that fire randomly during a round. They require the whole chat to respond collectively — progress scales with how many people participate. Only one event can be active at a time.
+
+When an event spawns, a receipt-style ticket appears on screen and the kitchen announces it in chat. A screen flash signals the type: red for hazards, green for opportunities.
+
+### Categories
+
+**Hazard — Penalty:** The team has 10 seconds to respond. Fail and a negative effect is applied. There is no ongoing kitchen disruption — just the punishment if time runs out.
+
+**Hazard — Immediate:** There is no time limit, but the harmful effect starts the moment the event spawns and stays active until the team resolves it.
+
+**Opportunity:** The team has 12 seconds to hit the participation threshold. Succeed and a temporary bonus is granted. Miss the window and no reward is given.
+
+### Participation
+
+Every event uses the same threshold:
+
+```
+threshold = ceil(activePlayerCount × 0.8), minimum 1
+```
+
+Each player can contribute once per event (one correct response counts). The progress bar on the event card tracks how close the team is.
+
+### Events
+
+#### 🐀 Rat Invasion (Hazard — Penalty)
+
+A random command is shown: one of `SHOO SHOO SHOO`, `CHASE CHASE CHASE`, or `BEGONE BEGONE BEGONE`. Players must type it exactly. If the team fails, 3 random prepared ingredients are stolen from the tray.
+
+#### 👨‍🍳 Angry Chef (Hazard — Penalty)
+
+A random apology phrase is shown: `SORRY CHEF`, `APOLOGIES CHEF`, or `MY BAD CHEF`. If the team fails to reach threshold in time, cooking speed is reduced to 70% for 15 seconds.
+
+#### 🔌 Power Trip (Hazard — Immediate)
+
+A math equation is shown on the card — for example `7 × 8 = ?`. Players type the numeric answer. Until it is resolved, two random stations are knocked offline and cannot be used. Equations are add/subtract (three operands) or multiply/divide problems. No time limit — the stations stay offline until enough players answer correctly.
+
+#### 💨 Smoke Blast (Hazard — Immediate)
+
+A random command is shown: `CLEAR`, `VENTILATE`, or `BLOW`. A thick smoke overlay obscures the kitchen until the team resolves it. No time limit.
+
+#### 📦 Glitched Orders (Hazard — Immediate)
+
+A random command is shown: `FIX`, `DEBUG`, or `PATCH`. All order tickets display scrambled dish names and ingredients until the event is resolved. No time limit.
+
+#### 📢 Chef's Chant (Opportunity)
+
+A random chant is shown: `YES CHEF`, `AYE CHEF`, or `OF COURSE CHEF`. Resolve within 12 seconds to earn a 1.5× cooking speed boost for 20 seconds.
+
+#### 🧩 Mystery Recipe (Opportunity)
+
+An anagram of a random ingredient name is shown. Players type the unscrambled ingredient name (spaces are used — no underscores). Resolve within 12 seconds to receive 3 free prepared ingredients added to the tray.
+
+#### ⚡ Typing Frenzy (Opportunity)
+
+A randomly generated 15-character string of letters, numbers, and symbols is shown. Every player who types it exactly within 12 seconds counts toward the threshold. Resolve to earn a 1.5× money multiplier on all serves for 20 seconds.
+
+#### 🕺 Dance (Opportunity)
+
+A random 4-step direction sequence is generated — for example `UP DOWN RIGHT RIGHT`. Directions can repeat.
+
+**Memorise phase (first 3 seconds):** All four directional arrows are shown on the card simultaneously.
+
+**Type phase (remaining 9 seconds):** The arrows are hidden. Players must type the full sequence from memory as a single chat message, e.g. `up down right right`. Any capitalisation works. Resolve to grant all active orders an extra 15 seconds of patience.
+
+### Spawn Timing
+
+Events spawn at a random interval between the configured minimum and maximum (default 30–60 seconds). The timer only counts down when no event is active and the game is not paused. Back-to-back identical event types are avoided. Power Trip requires at least two non-overheated stations to be eligible.
+
+Kitchen events can be toggled off entirely in Free Play setup, and the event type pool can be narrowed to specific events. The spawn interval range is also configurable.
+
+---
+
 ## Why The Game Works
 
 The game works because it combines:
@@ -423,7 +497,6 @@ Natural extension points for the design include:
 
 - more recipes and station types
 - modifiers per level
-- special event orders
 - stronger player identity or contribution summaries
 - stream-specific scoring or audience challenges
 - persistent progression beyond level stars
