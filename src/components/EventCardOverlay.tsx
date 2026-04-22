@@ -65,8 +65,8 @@ export default function EventCardOverlay({ activeEvent }: Props) {
         const def = EVENT_DEFS.find(d => d.type === ev.type)!
         const isHazard = ev.category !== 'opportunity'
         const description = isHazard ? (def.failDescription ?? '') : (def.rewardDescription ?? '')
-        const timePercent = ev.timeLeft !== null
-          ? (ev.timeLeft / (ev.category === 'hazard-penalty' ? 10_000 : 12_000)) * 100
+        const timePercent = ev.timeLeft !== null && ev.initialTimeLeft
+          ? (ev.timeLeft / ev.initialTimeLeft) * 100
           : null
         const timeSeconds = ev.timeLeft !== null ? (ev.timeLeft / 1000).toFixed(1) : null
         const showStamp = animState === 'stamping' || animState === 'tearing'
@@ -94,7 +94,8 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                     {ev.type === 'dance' && ev.payload.danceSequence ? (() => {
                       const sequence = ev.payload.danceSequence
                       // First 3 s of the 12 s window: show all arrows; then hide
-                      const isRevealing = ev.timeLeft !== null && ev.timeLeft > 9_000
+                      const isRevealing = ev.timeLeft !== null && ev.initialTimeLeft !== null
+                        && ev.timeLeft > ev.initialTimeLeft - 3_000
                       return (
                         <>
                           <div className={styles.cmdLabel}>{isRevealing ? '🧠 Memorise!' : '🕺 Type the full sequence!'}</div>

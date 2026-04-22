@@ -69,8 +69,9 @@ export interface GameOptions {
   autoRestartDelay: number  // seconds
   kitchenEventsEnabled: boolean
   enabledKitchenEvents: EventType[]
-  kitchenEventSpawnMin: number  // seconds
-  kitchenEventSpawnMax: number  // seconds
+  kitchenEventSpawnMin: number    // seconds
+  kitchenEventSpawnMax: number    // seconds
+  kitchenEventDuration: number    // seconds — applies to all timed events (hazard-penalty + opportunity)
 }
 
 export interface AudioSettings {
@@ -130,8 +131,9 @@ export interface KitchenEvent {
   chosenCommand: string
   progress: number           // 0–100
   threshold: number          // ceil(playerCount × 0.8), min 1
-  respondedUsers: string[]   // unused for Dance; Dance uses danceSequence/danceStep/danceStepUsers
-  timeLeft: number | null    // null for hazard-immediate
+  respondedUsers: string[]
+  timeLeft: number | null     // null for hazard-immediate
+  initialTimeLeft: number | null  // original duration at spawn, for bar % calculation
   resolved: boolean
   failed: boolean
   payload: {

@@ -10,7 +10,7 @@ import {
   TYPING_FRENZY_MULTIPLIER, TYPING_FRENZY_DURATION_MS,
   makeTypingFrenzyPhrase, makePowerTripEquation, makeDanceSequence, DANCE_PATIENCE_BONUS_MS,
   RAT_INVASION_ITEMS_STOLEN, MYSTERY_RECIPE_ITEMS_REWARDED,
-  HAZARD_TIME_LIMIT_MS, OPPORTUNITY_TIME_LIMIT_MS,
+  EVENT_DURATION_MS,
   getIngredientTargets, getProducesValues, makeAnagram,
 } from '../data/kitchenEventDefs'
 
@@ -30,6 +30,7 @@ export function useKitchenEvents(
   enabledEvents: EventType[] = [],
   spawnMinMs: number = EVENT_SPAWN_MIN_MS,
   spawnMaxMs: number = EVENT_SPAWN_MAX_MS,
+  eventDurationMs: number = EVENT_DURATION_MS,
 ) {
   const [activeEvent, setActiveEvent] = useState<KitchenEvent | null>(null)
 
@@ -47,6 +48,8 @@ export function useKitchenEvents(
   spawnMinRef.current = spawnMinMs
   const spawnMaxRef = useRef(spawnMaxMs)
   spawnMaxRef.current = spawnMaxMs
+  const eventDurationRef = useRef(eventDurationMs)
+  eventDurationRef.current = eventDurationMs
   const lastEventTypeRef = useRef<EventType | null>(null)
   const concludingEventIdRef = useRef<string | null>(null)  // prevents double resolve/fail if React hasn't re-rendered yet
   const spawnTimerRef = useRef(0)
@@ -87,9 +90,7 @@ export function useKitchenEvents(
     lastEventTypeRef.current = def.type
 
     const id = `evt_${Date.now()}`
-    const timeLeft = def.category === 'hazard-immediate' ? null
-      : def.category === 'hazard-penalty' ? HAZARD_TIME_LIMIT_MS
-      : OPPORTUNITY_TIME_LIMIT_MS
+    const timeLeft = def.category === 'hazard-immediate' ? null : eventDurationRef.current
 
     let chosenCommand = pickRandom(def.commandPool.length > 0 ? def.commandPool : [''])
     const payload: KitchenEvent['payload'] = {}
@@ -133,6 +134,7 @@ export function useKitchenEvents(
       threshold,
       respondedUsers: [],
       timeLeft,
+      initialTimeLeft: timeLeft,
       resolved: false,
       failed: false,
       payload,

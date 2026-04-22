@@ -14,8 +14,7 @@ export const TYPING_FRENZY_DURATION_MS = 20_000
 export const DANCE_PATIENCE_BONUS_MS = 15_000
 export const RAT_INVASION_ITEMS_STOLEN = 3
 export const MYSTERY_RECIPE_ITEMS_REWARDED = 3
-export const HAZARD_TIME_LIMIT_MS = 10_000
-export const OPPORTUNITY_TIME_LIMIT_MS = 12_000
+export const EVENT_DURATION_MS = 20_000  // default duration for all timed events; overridden by kitchenEventDuration in GameOptions
 
 function randInt(min: number, max: number): number {
   return min + Math.floor(Math.random() * (max - min + 1))
@@ -55,7 +54,7 @@ export function makePowerTripEquation(): { display: string; answer: number } {
 const FRENZY_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+='
 const FRENZY_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
-// Generates a random 20–25 char gibberish string. First char is always
+// Generates a random 15 char gibberish string. First char is always
 // alphanumeric so Twitch doesn't interpret it as a command prefix.
 export function makeTypingFrenzyPhrase(): string {
   const len = 15

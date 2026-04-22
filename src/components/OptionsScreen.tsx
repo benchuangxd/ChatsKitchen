@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { AudioSettings, GameOptions } from '../state/types'
-import { EVENT_DEFS } from '../data/kitchenEventDefs'
 import styles from './OptionsScreen.module.css'
 
 interface Props {
@@ -158,72 +157,6 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
               </div>
             </div>
 
-            <div className={styles.section}>
-              <div className={styles.shortformHeader}>
-                <div className={styles.label} style={{ marginBottom: 0 }}>Kitchen Events</div>
-                <button
-                  className={`${styles.muteBtn} ${options.kitchenEventsEnabled ? styles.muteBtnActive : ''}`}
-                  onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
-                >
-                  {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
-                </button>
-              </div>
-              {options.kitchenEventsEnabled && (
-                <>
-                  <div className={styles.eventGrid}>
-                    {EVENT_DEFS.map(def => {
-                      const on = options.enabledKitchenEvents.includes(def.type)
-                      return (
-                        <button
-                          key={def.type}
-                          className={`${styles.eventChip} ${on ? styles.eventChipOn : ''}`}
-                          onClick={() => {
-                            const next = on
-                              ? options.enabledKitchenEvents.filter(t => t !== def.type)
-                              : [...options.enabledKitchenEvents, def.type]
-                            onChange({ ...options, enabledKitchenEvents: next })
-                          }}
-                        >
-                          {def.emoji} {def.label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <div className={styles.sliderLabel} style={{ marginTop: 10 }}>Frequency range (seconds between events)</div>
-                  <div className={styles.sliderRow}>
-                    <span className={styles.sliderLabel}>Min</span>
-                    <input
-                      type="range"
-                      className={styles.slider}
-                      min={5}
-                      max={300}
-                      step={5}
-                      value={options.kitchenEventSpawnMin}
-                      onChange={e => onChange({ ...options, kitchenEventSpawnMin: Number(e.target.value) })}
-                    />
-                    <span className={styles.sliderValue}>{options.kitchenEventSpawnMin}s</span>
-                  </div>
-                  <div className={styles.sliderRow}>
-                    <span className={styles.sliderLabel}>Max</span>
-                    <input
-                      type="range"
-                      className={styles.slider}
-                      min={5}
-                      max={300}
-                      step={5}
-                      value={options.kitchenEventSpawnMax}
-                      onChange={e => onChange({ ...options, kitchenEventSpawnMax: Number(e.target.value) })}
-                    />
-                    <span className={styles.sliderValue}>{options.kitchenEventSpawnMax}s</span>
-                  </div>
-                  {options.kitchenEventSpawnMin >= options.kitchenEventSpawnMax && (
-                    <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 14, color: '#e8943a', marginTop: 6 }}>
-                      ⚠ Min ≥ Max — fixed interval of {options.kitchenEventSpawnMin}s will be used
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
           </div>
       </div>
 

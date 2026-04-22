@@ -265,6 +265,19 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                       )
                     })}
                   </div>
+                  <div className={styles.hint}>Event duration (countdown timer length)</div>
+                  <div className={styles.slotsRow}>
+                    <SliderField
+                      value={options.kitchenEventDuration}
+                      min={5}
+                      max={60}
+                      step={5}
+                      format={v => String(v)}
+                      parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                      onChange={v => onChange({ ...options, kitchenEventDuration: v })}
+                      suffix="s"
+                    />
+                  </div>
                   <div className={styles.hint}>Event frequency (seconds between spawns)</div>
                   <div className={styles.slotsRow}>
                     <span className={styles.freqLabel}>MIN</span>

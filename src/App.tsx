@@ -54,6 +54,7 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   enabledKitchenEvents: ['angry_chef', 'smoke_blast', 'mystery_recipe', 'dance'] as EventType[],
   kitchenEventSpawnMin: 30,
   kitchenEventSpawnMax: 60,
+  kitchenEventDuration: 20,
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -300,6 +301,7 @@ export default function App() {
     gameOptions.enabledKitchenEvents,
     gameOptions.kitchenEventSpawnMin * 1000,
     gameOptions.kitchenEventSpawnMax * 1000,
+    gameOptions.kitchenEventDuration * 1000,
   )
 
   const handleGameOptionsChange = useCallback((options: GameOptions) => {
