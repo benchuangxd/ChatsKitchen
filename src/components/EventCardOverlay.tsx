@@ -44,7 +44,7 @@ export default function EventCardOverlay({ activeEvent }: Props) {
     return () => {
       if (tearTimerRef.current) clearTimeout(tearTimerRef.current)
     }
-  }, [activeEvent?.resolved, activeEvent?.failed])
+  }, [activeEvent?.resolved, activeEvent?.failed, activeEvent?.id])
 
   if (!activeEvent && !flashing) return null
 
@@ -120,7 +120,7 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                       <div className={styles.stamp}>
                         <div className={`${styles.stampCircle} ${ev.resolved ? styles.stampResolved : styles.stampFailed}`}>
                           <div className={styles.stampIcon}>{ev.resolved ? '✓' : '✗'}</div>
-                          <div className={styles.stampText}>{ev.resolved ? 'Resolved' : 'Failed'}</div>
+                          <div className={styles.stampText}>{ev.resolved ? 'RESOLVED' : 'FAILED'}</div>
                         </div>
                       </div>
                     )}
