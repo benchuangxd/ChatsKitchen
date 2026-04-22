@@ -42,9 +42,12 @@ function validatePayload(
 
   const b = body as Record<string, unknown>
 
-  // channel_name: required, non-empty string
+  // channel_name: required, non-empty string, max 25 chars
   if (typeof b.channel_name !== 'string' || b.channel_name.trim() === '') {
     return { ok: false, error: 'channel_name must be a non-empty string' }
+  }
+  if (b.channel_name.trim().length > 25) {
+    return { ok: false, error: 'channel_name must be at most 25 characters' }
   }
 
   // money_earned: 0..99_999
@@ -57,9 +60,9 @@ function validatePayload(
     return { ok: false, error: 'served must be an integer between 0 and 200' }
   }
 
-  // lost: >= 0
-  if (!isNonNegativeInteger(b.lost)) {
-    return { ok: false, error: 'lost must be a non-negative integer' }
+  // lost: 0..200
+  if (!isNonNegativeInteger(b.lost) || (b.lost as number) > 200) {
+    return { ok: false, error: 'lost must be an integer between 0 and 200' }
   }
 
   // players: array, length <= 500
@@ -79,6 +82,9 @@ function validatePayload(
 
     if (typeof player.username !== 'string' || player.username.trim() === '') {
       return { ok: false, error: `players[${i}].username must be a non-empty string` }
+    }
+    if (player.username.trim().length > 25) {
+      return { ok: false, error: `players[${i}].username must be at most 25 characters` }
     }
     for (const field of ['cooked', 'served', 'money_earned', 'extinguished', 'fires_caused'] as const) {
       if (!isNonNegativeInteger(player[field])) {
@@ -161,6 +167,19 @@ Deno.serve(async (req: Request) => {
   }
 
   // -------------------------------------------------------------------------
+  // Claim rate limit slot BEFORE any writes — prevents duplicate submissions
+  // if the request is retried concurrently.
+  // -------------------------------------------------------------------------
+  const { error: rlUpsertErr } = await supabase
+    .from('rate_limits')
+    .upsert({ channel_name, last_submission: new Date().toISOString() })
+
+  if (rlUpsertErr) {
+    console.error('rate_limits upsert error:', rlUpsertErr)
+    return json({ error: 'Internal error' }, 500)
+  }
+
+  // -------------------------------------------------------------------------
   // Get active season (include `number` so rollover can compute next number)
   // -------------------------------------------------------------------------
   const { data: season, error: seasonErr } = await supabase
@@ -176,7 +195,8 @@ Deno.serve(async (req: Request) => {
   }
 
   if (!season) {
-    return json({ error: 'Internal error' }, 500)
+    console.error('No active season found — database may be in an inconsistent state')
+    return json({ error: 'Service temporarily unavailable' }, 503)
   }
 
   // -------------------------------------------------------------------------
@@ -200,10 +220,31 @@ Deno.serve(async (req: Request) => {
   }
 
   // -------------------------------------------------------------------------
+  // Deduplicate players by username, summing stats for duplicates
+  // -------------------------------------------------------------------------
+  const playerMap = new Map<string, typeof players[0]>()
+  for (const p of players) {
+    const existing = playerMap.get(p.username)
+    if (existing) {
+      playerMap.set(p.username, {
+        username: p.username,
+        cooked: existing.cooked + p.cooked,
+        served: existing.served + p.served,
+        money_earned: existing.money_earned + p.money_earned,
+        extinguished: existing.extinguished + p.extinguished,
+        fires_caused: existing.fires_caused + p.fires_caused,
+      })
+    } else {
+      playerMap.set(p.username, p)
+    }
+  }
+  const uniquePlayers = Array.from(playerMap.values())
+
+  // -------------------------------------------------------------------------
   // Bulk insert player contributions (skip if empty)
   // -------------------------------------------------------------------------
-  if (players.length > 0) {
-    const contributions = players.map((p) => ({
+  if (uniquePlayers.length > 0) {
+    const contributions = uniquePlayers.map((p) => ({
       session_id: sessionRow.id,
       season_id: season.id,
       channel_name,
@@ -245,51 +286,38 @@ Deno.serve(async (req: Request) => {
   const updatedTotal: number = newTotal as number
 
   // -------------------------------------------------------------------------
-  // Season rollover: if goal reached, end current season and start next
+  // Season rollover: if goal reached, end current season and start next.
+  // Both operations are idempotent: only the request that actually transitions
+  // the season from active→ended will create the new season.
   // -------------------------------------------------------------------------
   let seasonEnded = false
 
   if (updatedTotal >= season.money_goal) {
-    seasonEnded = true
-
-    // Mark current season as ended
-    const { error: endErr } = await supabase
+    // Only end the season if it's still active (idempotent guard)
+    const { data: endedSeason, error: endError } = await supabase
       .from('seasons')
       .update({ status: 'ended', ended_at: new Date().toISOString() })
       .eq('id', season.id)
+      .eq('status', 'active')  // Only update if still active — prevents double-fire
+      .select('id')
+      .maybeSingle()
 
-    if (endErr) {
-      console.error('seasons end error:', endErr)
-      return json({ error: 'Internal error' }, 500)
+    if (endError) { console.error('Failed to end season:', endError) /* continue, don't 500 */ }
+
+    // Only insert new season if we were the one to end it
+    if (endedSeason) {
+      const { error: newSeasonError } = await supabase
+        .from('seasons')
+        .insert({
+          number: season.number + 1,
+          status: 'active',
+          money_goal: season.money_goal,
+          total_money_earned: 0,
+          started_at: new Date().toISOString(),
+        })
+      if (newSeasonError) { console.error('Failed to create new season:', newSeasonError) }
+      seasonEnded = true
     }
-
-    // Create next season (number + 1, same money_goal, total reset to 0)
-    const { error: newSeasonErr } = await supabase
-      .from('seasons')
-      .insert({
-        number: season.number + 1,
-        status: 'active',
-        money_goal: season.money_goal,
-        total_money_earned: 0,
-        started_at: new Date().toISOString(),
-      })
-
-    if (newSeasonErr) {
-      console.error('new season insert error:', newSeasonErr)
-      return json({ error: 'Internal error' }, 500)
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // Update rate limit (upsert — non-fatal if it errors)
-  // -------------------------------------------------------------------------
-  const { error: rlUpsertErr } = await supabase
-    .from('rate_limits')
-    .upsert({ channel_name, last_submission: new Date().toISOString() })
-
-  if (rlUpsertErr) {
-    // The session is already committed — log but don't fail the request
-    console.error('rate_limits upsert error:', rlUpsertErr)
   }
 
   return json({ ok: true, season_ended: seasonEnded })
