@@ -88,6 +88,10 @@ class AudioManager {
     for (const howl of Object.values(this.musicTracks)) {
       howl.stop()
     }
+    if (this.activeEventAmbientKey) {
+      const ambient = this.eventAmbientSounds[this.activeEventAmbientKey]
+      if (ambient) ambient.stop()
+    }
     this.intenseMixActive = false
     this.currentMusicName = null
     this.ambientDuckingActive = false
@@ -191,7 +195,10 @@ class AudioManager {
 
     const key = this.activeEventAmbientKey
     const ambient = this.eventAmbientSounds[key]
-    if (ambient?.playing()) ambient.fade(ambient.volume() as number, 0, 500)
+    if (ambient?.playing()) {
+      ambient.fade(ambient.volume() as number, 0, 500)
+      setTimeout(() => ambient.stop(), 600)
+    }
 
     // Restore ducked music track
     const trackToRestore = this.intenseMixActive
