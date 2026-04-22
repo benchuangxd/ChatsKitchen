@@ -207,7 +207,7 @@ Deno.serve(async (req: Request) => {
       session_id: sessionRow.id,
       season_id: season.id,
       channel_name,
-      username: p.username,
+      twitch_username: p.username,
       cooked: p.cooked,
       served: p.served,
       money_earned: p.money_earned,
