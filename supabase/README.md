@@ -11,11 +11,8 @@
    ```
    supabase db push
    ```
-4. **Important:** Seed the initial Season 1 row (db push does NOT run seed.sql automatically):
-   ```
-   supabase db seed
-   ```
-   Or run the seed manually in the Supabase SQL editor:
+4. **Important:** Seed the initial Season 1 row (`db push` does NOT run `seed.sql`).
+   Run this in the **Supabase SQL Editor** (Dashboard → SQL Editor → New query):
    ```sql
    INSERT INTO seasons (number, status, money_goal, total_money_earned, started_at)
    VALUES (1, 'active', 500000, 0, now())
