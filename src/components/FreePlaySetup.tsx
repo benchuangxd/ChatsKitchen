@@ -266,33 +266,31 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
                     })}
                   </div>
                   <div className={styles.hint}>Event frequency (seconds between spawns)</div>
-                  <div className={styles.eventFreqGrid}>
-                    <div>
-                      <div className={styles.freqLabel}>MIN</div>
-                      <SliderField
-                        value={options.kitchenEventSpawnMin}
-                        min={5}
-                        max={300}
-                        step={5}
-                        format={v => String(v)}
-                        parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
-                        onChange={v => onChange({ ...options, kitchenEventSpawnMin: v })}
-                        suffix="s"
-                      />
-                    </div>
-                    <div>
-                      <div className={styles.freqLabel}>MAX</div>
-                      <SliderField
-                        value={options.kitchenEventSpawnMax}
-                        min={5}
-                        max={300}
-                        step={5}
-                        format={v => String(v)}
-                        parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
-                        onChange={v => onChange({ ...options, kitchenEventSpawnMax: v })}
-                        suffix="s"
-                      />
-                    </div>
+                  <div className={styles.slotsRow}>
+                    <span className={styles.freqLabel}>MIN</span>
+                    <SliderField
+                      value={options.kitchenEventSpawnMin}
+                      min={5}
+                      max={300}
+                      step={5}
+                      format={v => String(v)}
+                      parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                      onChange={v => onChange({ ...options, kitchenEventSpawnMin: v })}
+                      suffix="s"
+                    />
+                  </div>
+                  <div className={styles.slotsRow}>
+                    <span className={styles.freqLabel}>MAX</span>
+                    <SliderField
+                      value={options.kitchenEventSpawnMax}
+                      min={5}
+                      max={300}
+                      step={5}
+                      format={v => String(v)}
+                      parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                      onChange={v => onChange({ ...options, kitchenEventSpawnMax: v })}
+                      suffix="s"
+                    />
                   </div>
                   {options.kitchenEventSpawnMin >= options.kitchenEventSpawnMax && (
                     <div className={styles.hint} style={{ color: '#e8943a' }}>
