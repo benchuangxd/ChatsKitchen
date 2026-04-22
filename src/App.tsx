@@ -326,12 +326,13 @@ export default function App() {
         submitGameStats(
           twitchChannelRef.current,
           { money: s.money, served: s.served, lost: s.lost },
-          s.playerStats
+          s.playerStats,
+          () => showToast('⏱ Stats cooldown — try again in 3 min')
         )
       }
     }
     setScreen('shiftend')
-  }, [])
+  }, [showToast])
 
   const handleMetaCommand = useCallback((user: string, text: string, isMod: boolean) => {
     if (!isMod) return

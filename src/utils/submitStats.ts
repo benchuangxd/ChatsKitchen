@@ -10,7 +10,8 @@ const BOT_NAMES_LOWER = new Set(BOT_NAMES.map(n => n.toLowerCase()))
 export async function submitGameStats(
   channelName: string,
   finalStats: { money: number; served: number; lost: number },
-  playerStats: Record<string, PlayerStats>
+  playerStats: Record<string, PlayerStats>,
+  onRateLimit?: () => void
 ): Promise<void> {
   if (!SUBMIT_SESSION_URL) {
     console.debug('[submitGameStats] VITE_SUBMIT_SESSION_URL is not set — skipping submission.')
@@ -47,7 +48,9 @@ export async function submitGameStats(
     })
     clearTimeout(timeoutId)
 
-    if (!response.ok) {
+    if (response.status === 429) {
+      onRateLimit?.()
+    } else if (!response.ok) {
       console.error('[submitGameStats] Non-200 response:', response.status, response.statusText)
     }
   } catch (err) {
