@@ -8,20 +8,43 @@ interface Props {
   activeEvent: KitchenEvent | null
 }
 
+function badgeText(category: EventCategory): string {
+  if (category === 'hazard-penalty') return '⚠ Hazard'
+  if (category === 'hazard-immediate') return '⚠ Immediate'
+  return '⚡ Opportunity'
+}
+
+type AnimState = 'idle' | 'stamping' | 'tearing'
+
 export default function EventCardOverlay({ activeEvent }: Props) {
   const prevIdRef = useRef<string | null>(null)
   const flashCategoryRef = useRef<EventCategory>('hazard-penalty')
   const [flashing, setFlashing] = useState(false)
+  const [animState, setAnimState] = useState<AnimState>('idle')
+  const tearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Screen flash on new event spawn (unchanged behaviour)
   useEffect(() => {
     if (activeEvent && activeEvent.id !== prevIdRef.current) {
       prevIdRef.current = activeEvent.id
       flashCategoryRef.current = activeEvent.category
       setFlashing(true)
+      setAnimState('idle')
+      if (tearTimerRef.current) clearTimeout(tearTimerRef.current)
       const t = setTimeout(() => setFlashing(false), 800)
       return () => clearTimeout(t)
     }
   }, [activeEvent])
+
+  // Stamp → tear when event concludes
+  useEffect(() => {
+    if (!activeEvent || (!activeEvent.resolved && !activeEvent.failed)) return
+    setAnimState('stamping')
+    tearTimerRef.current = setTimeout(() => setAnimState('tearing'), 900)
+    return () => {
+      if (tearTimerRef.current) clearTimeout(tearTimerRef.current)
+    }
+  }, [activeEvent?.resolved, activeEvent?.failed])
 
   if (!activeEvent && !flashing) return null
 
@@ -37,61 +60,74 @@ export default function EventCardOverlay({ activeEvent }: Props) {
       )}
       {activeEvent && (() => {
         const ev = activeEvent
-        const isHazard = ev.category !== 'opportunity'
         const def = EVENT_DEFS.find(d => d.type === ev.type)!
-
-        const tagText = isHazard ? '⚠️ Hazard' : '⚡ Opportunity'
-        const description = isHazard
-          ? (def.failDescription ?? '')
-          : (def.rewardDescription ?? '')
-
+        const isHazard = ev.category !== 'opportunity'
+        const description = isHazard ? (def.failDescription ?? '') : (def.rewardDescription ?? '')
         const timePercent = ev.timeLeft !== null
           ? (ev.timeLeft / (ev.category === 'hazard-penalty' ? 10_000 : 12_000)) * 100
           : null
-
-        const cardClass = [
-          styles.card,
-          isHazard ? styles.cardHazard : styles.cardOpportunity,
-          ev.resolved ? styles.cardResolved : '',
-          ev.failed ? styles.cardFailed : '',
-        ].filter(Boolean).join(' ')
+        const timeSeconds = ev.timeLeft !== null ? (ev.timeLeft / 1000).toFixed(1) : null
+        const showStamp = animState === 'stamping' || animState === 'tearing'
 
         return (
           <div className={styles.overlay}>
-            <div className={cardClass}>
-              <div className={`${styles.tag} ${isHazard ? styles.tagHazard : styles.tagOpportunity}`}>
-                {tagText}
-              </div>
-              <div className={styles.title}>{def.emoji} {def.label}</div>
-              <div className={`${styles.cmdHint} ${isHazard ? styles.cmdHintHazard : styles.cmdHintOpportunity}`}>
-                <code>{ev.chosenCommand}</code>
-              </div>
-              <div className={styles.description}>{description}</div>
-
-              {ev.resolved && <div className={`${styles.outcomeMsg} ${styles.outcomeResolved}`}>✓ Resolved!</div>}
-              {ev.failed && <div className={`${styles.outcomeMsg} ${styles.outcomeFailed}`}>✗ Failed!</div>}
-
-              {!ev.resolved && !ev.failed && (
-                <div className={styles.barsWrap}>
-                  {timePercent !== null && (
-                    <div>
-                      <div className={styles.barLabel}>Time</div>
-                      <div className={styles.barTrack}>
-                        <div className={`${styles.barFill} ${styles.barFillTime}`} style={{ width: `${timePercent}%` }} />
-                      </div>
-                    </div>
-                  )}
-                  <div>
-                    <div className={styles.barLabel}>Progress</div>
-                    <div className={styles.barTrack}>
-                      <div
-                        className={`${styles.barFill} ${isHazard ? styles.barFillHazard : styles.barFillOpp}`}
-                        style={{ width: `${ev.progress}%` }}
-                      />
-                    </div>
+            {/* key={ev.id} forces full remount on each new event, restarting CSS entry animations */}
+            <div key={ev.id} className={`${styles.assembly} ${animState === 'tearing' ? styles.tearing : ''}`}>
+              <div className={styles.clip} />
+              {/* ticketRevealWrapper carries clip-path; ticket carries box-shadow + bounce */}
+              <div className={styles.ticketRevealWrapper}>
+                <div
+                  className={styles.ticket}
+                  style={{
+                    '--event-color': def.color,
+                    '--event-cmd-color': def.cmdColor,
+                  } as React.CSSProperties}
+                >
+                  <div className={styles.header}>
+                    <div className={styles.headerStripe} />
+                    <span className={styles.badge}>{badgeText(ev.category)}</span>
+                    <span className={styles.title}>{def.emoji} {def.label}</span>
                   </div>
+                  <div className={styles.body}>
+                    <div className={styles.cmdLabel}>Type in chat</div>
+                    <div className={styles.cmdBox}>{ev.chosenCommand}</div>
+                    <div className={styles.desc}>{description}</div>
+                    {!ev.resolved && !ev.failed && (
+                      <div className={styles.bars}>
+                        {timePercent !== null && (
+                          <div>
+                            <div className={styles.barMeta}>
+                              <span>Time</span>
+                              <span>{timeSeconds}s</span>
+                            </div>
+                            <div className={styles.barTrack}>
+                              <div className={styles.barFillTime} style={{ width: `${timePercent}%` }} />
+                            </div>
+                          </div>
+                        )}
+                        <div>
+                          <div className={styles.barMeta}>
+                            <span>Progress</span>
+                            <span>{ev.respondedUsers.length} / {ev.threshold}</span>
+                          </div>
+                          <div className={styles.barTrack}>
+                            <div className={styles.barFillProg} style={{ width: `${ev.progress}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {showStamp && (
+                      <div className={styles.stamp}>
+                        <div className={`${styles.stampCircle} ${ev.resolved ? styles.stampResolved : styles.stampFailed}`}>
+                          <div className={styles.stampIcon}>{ev.resolved ? '✓' : '✗'}</div>
+                          <div className={styles.stampText}>{ev.resolved ? 'Resolved' : 'Failed'}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.perf} />
                 </div>
-              )}
+              </div>
             </div>
           </div>
         )
