@@ -32,32 +32,10 @@ export const SFX: Record<string, SfxDef> = {
   'round-over':        { src: ['/audio/sfx/round-over.mp3'],        volume: 0.3 },
 }
 
-// One-shot event stings (start / success / fail)
+// One-shot event stings (success / fail)
 export const EVENT_SFX: Record<string, SfxDef> = {
-  'event-rat-start':           { src: ['/audio/events/rat_invasion-start.mp3'],        volume: 0.7 },
-  'event-rat-success':         { src: ['/audio/events/rat_invasion-success.mp3'],      volume: 0.7 },
-  'event-rat-fail':            { src: ['/audio/events/rat_invasion-fail.mp3'],         volume: 0.7 },
-  'event-angry-chef-start':    { src: ['/audio/events/angry_chef-start.mp3'],          volume: 0.7 },
-  'event-angry-chef-success':  { src: ['/audio/events/angry_chef-success.mp3'],        volume: 0.7 },
-  'event-angry-chef-fail':     { src: ['/audio/events/angry_chef-fail.mp3'],           volume: 0.7 },
-  'event-power-trip-start':    { src: ['/audio/events/power_trip-start.mp3'],          volume: 0.7 },
-  'event-power-trip-success':  { src: ['/audio/events/power_trip-success.mp3'],        volume: 0.7 },
-  'event-smoke-blast-start':   { src: ['/audio/events/smoke_blast-start.mp3'],         volume: 0.7 },
-  'event-smoke-blast-success': { src: ['/audio/events/smoke_blast-success.mp3'],       volume: 0.7 },
-  'event-glitch-start':        { src: ['/audio/events/glitched_orders-start.mp3'],     volume: 0.7 },
-  'event-glitch-success':      { src: ['/audio/events/glitched_orders-success.mp3'],   volume: 0.7 },
-  'event-chant-start':         { src: ['/audio/events/chefs_chant-start.mp3'],         volume: 0.7 },
-  'event-chant-success':       { src: ['/audio/events/chefs_chant-success.mp3'],       volume: 0.8 },
-  'event-chant-fail':          { src: ['/audio/events/chefs_chant-fail.mp3'],          volume: 0.6 },
-  'event-mystery-start':       { src: ['/audio/events/mystery_recipe-start.mp3'],      volume: 0.7 },
-  'event-mystery-success':     { src: ['/audio/events/mystery_recipe-success.mp3'],    volume: 0.7 },
-  'event-mystery-fail':        { src: ['/audio/events/mystery_recipe-fail.mp3'],       volume: 0.6 },
-  'event-frenzy-start':        { src: ['/audio/events/typing_frenzy-start.mp3'],       volume: 0.7 },
-  'event-frenzy-success':      { src: ['/audio/events/typing_frenzy-success.mp3'],     volume: 0.8 },
-  'event-frenzy-fail':         { src: ['/audio/events/typing_frenzy-fail.mp3'],        volume: 0.6 },
-  'event-dance-start':         { src: ['/audio/events/dance-start.mp3'],               volume: 0.7 },
-  'event-dance-success':       { src: ['/audio/events/dance-success.mp3'],             volume: 0.8 },
-  'event-dance-fail':          { src: ['/audio/events/dance-fail.mp3'],                volume: 0.6 },
+  'event-success': { src: ['/audio/events/typing_frenzy-success.mp3'], volume: 0.5 },
+  'event-fail':    { src: ['/audio/events/dance-start.mp3'],           volume: 0.5 },
 }
 
 // Looping ambient tracks (duck gameplay/intense music while active)

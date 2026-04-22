@@ -148,7 +148,6 @@ export function useKitchenEvents(
     setActiveEvent(event)
 
     const am = getAudioManager()
-    am.playEventSfx(def.audio.start)
     am.startEventAmbient(def.audio.ambient)
   }, [dispatch])
 
