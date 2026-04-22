@@ -24,6 +24,7 @@ import PauseModal from './components/PauseModal'
 import FeedbackModal from './components/FeedbackModal'
 import CreditsScreen from './components/CreditsScreen'
 import Toast from './components/Toast'
+import { submitGameStats } from './utils/submitStats'
 import {
   ADVENTURE_SHIFT_DURATION, getAdventureGoal, pickAdventureRecipes, mergePlayerStats,
 } from './data/adventureMode'
@@ -318,6 +319,14 @@ export default function App() {
         try { localStorage.setItem('chatsKitchen_freePlayHistory', JSON.stringify(updated)) } catch { /* ignore */ }
         return updated
       })
+      // Submit to global stats if connected to Twitch
+      if (twitchConnectedRef.current && twitchChannelRef.current) {
+        submitGameStats(
+          twitchChannelRef.current,
+          { money: s.money, served: s.served, lost: s.lost },
+          s.playerStats
+        )
+      }
     }
     setScreen('shiftend')
   }, [])
@@ -352,6 +361,9 @@ export default function App() {
   const isTutorialRef = useRef(isTutorial)
   isTutorialRef.current = isTutorial
 
+  const twitchConnectedRef = useRef(false)
+  const twitchChannelRef = useRef<string | null>(null)
+
   const handleTwitchMessage = useCallback((user: string, text: string, isMod: boolean) => {
     dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
     handleMetaCommand(user, text, isMod)
@@ -359,6 +371,15 @@ export default function App() {
   }, [handleCommand, handleMetaCommand])
 
   const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
+
+  useEffect(() => {
+    twitchConnectedRef.current = twitchChat.status === 'connected'
+  }, [twitchChat.status])
+
+  useEffect(() => {
+    twitchChannelRef.current = twitchChannel
+  }, [twitchChannel])
+
   const handleChatSend = useCallback((text: string) => {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
     handleMetaCommand('You', text, true)
