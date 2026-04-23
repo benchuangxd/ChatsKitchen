@@ -104,6 +104,43 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
           />
         </div>
 
+        <div className={styles.card}>
+          <div className={styles.cardLabel}>🍳 Kitchen Events</div>
+          <div className={styles.slotsRow}>
+            <span className={styles.slotsLabel}>Random events during gameplay</span>
+            <button
+              className={`${styles.toggleBtn} ${options.kitchenEventsEnabled ? styles.toggleBtnOn : ''}`}
+              onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
+            >
+              {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
+            </button>
+          </div>
+          {options.kitchenEventsEnabled && (
+            <div className={styles.eventGrid}>
+              {EVENT_DEFS.map(def => {
+                const on = options.enabledKitchenEvents.includes(def.type)
+                return (
+                  <button
+                    key={def.type}
+                    className={`${styles.eventChip} ${on ? styles.eventChipOn : ''}`}
+                    onClick={() => {
+                      const next = on
+                        ? options.enabledKitchenEvents.filter(t => t !== def.type)
+                        : [...options.enabledKitchenEvents, def.type]
+                      onChange({ ...options, enabledKitchenEvents: next })
+                    }}
+                  >
+                    {def.emoji} {def.label}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+          {!options.kitchenEventsEnabled && (
+            <div className={styles.hint}>Enable to configure event types and frequency</div>
+          )}
+        </div>
+
         <button
           className={styles.moreToggle}
           onClick={() => setMoreOpen(o => !o)}
@@ -157,6 +194,55 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
               />
               <div className={styles.hint}>Higher = orders arrive more frequently</div>
             </div>
+
+            <div className={styles.moreRow}>
+                <div className={styles.moreLabel}>🍳 Kitchen Events</div>
+                <div className={styles.hint}>Event duration (countdown timer length)</div>
+                <div className={styles.slotsRow}>
+                  <SliderField
+                    value={options.kitchenEventDuration}
+                    min={5}
+                    max={60}
+                    step={5}
+                    format={v => String(v)}
+                    parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                    onChange={v => onChange({ ...options, kitchenEventDuration: v })}
+                    suffix="s"
+                  />
+                </div>
+                <div className={styles.hint}>Event frequency (seconds between spawns)</div>
+                <div className={styles.slotsRow}>
+                  <span className={styles.freqLabel}>MIN</span>
+                  <SliderField
+                    value={options.kitchenEventSpawnMin}
+                    min={5}
+                    max={300}
+                    step={5}
+                    format={v => String(v)}
+                    parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                    onChange={v => onChange({ ...options, kitchenEventSpawnMin: v })}
+                    suffix="s"
+                  />
+                </div>
+                <div className={styles.slotsRow}>
+                  <span className={styles.freqLabel}>MAX</span>
+                  <SliderField
+                    value={options.kitchenEventSpawnMax}
+                    min={5}
+                    max={300}
+                    step={5}
+                    format={v => String(v)}
+                    parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                    onChange={v => onChange({ ...options, kitchenEventSpawnMax: v })}
+                    suffix="s"
+                  />
+                </div>
+                {options.kitchenEventSpawnMin >= options.kitchenEventSpawnMax && (
+                  <div className={styles.hint} style={{ color: '#e8943a' }}>
+                    ⚠ Min ≥ Max — fixed interval of {options.kitchenEventSpawnMin}s will be used
+                  </div>
+                )}
+              </div>
 
             <div className={styles.moreRow}>
               <div className={styles.moreLabel}>🔧 Station Slots</div>
@@ -233,89 +319,6 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack }: Pr
               </div>
             </div>
 
-            <div className={styles.moreRow}>
-              <div className={styles.moreLabel}>🍳 Kitchen Events</div>
-              <div className={styles.slotsRow}>
-                <span className={styles.slotsLabel}>Random events during gameplay</span>
-                <button
-                  className={`${styles.toggleBtn} ${options.kitchenEventsEnabled ? styles.toggleBtnOn : ''}`}
-                  onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
-                >
-                  {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
-                </button>
-              </div>
-              {options.kitchenEventsEnabled && (
-                <>
-                  <div className={styles.eventGrid}>
-                    {EVENT_DEFS.map(def => {
-                      const on = options.enabledKitchenEvents.includes(def.type)
-                      return (
-                        <button
-                          key={def.type}
-                          className={`${styles.eventChip} ${on ? styles.eventChipOn : ''}`}
-                          onClick={() => {
-                            const next = on
-                              ? options.enabledKitchenEvents.filter(t => t !== def.type)
-                              : [...options.enabledKitchenEvents, def.type]
-                            onChange({ ...options, enabledKitchenEvents: next })
-                          }}
-                        >
-                          {def.emoji} {def.label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <div className={styles.hint}>Event duration (countdown timer length)</div>
-                  <div className={styles.slotsRow}>
-                    <SliderField
-                      value={options.kitchenEventDuration}
-                      min={5}
-                      max={60}
-                      step={5}
-                      format={v => String(v)}
-                      parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
-                      onChange={v => onChange({ ...options, kitchenEventDuration: v })}
-                      suffix="s"
-                    />
-                  </div>
-                  <div className={styles.hint}>Event frequency (seconds between spawns)</div>
-                  <div className={styles.slotsRow}>
-                    <span className={styles.freqLabel}>MIN</span>
-                    <SliderField
-                      value={options.kitchenEventSpawnMin}
-                      min={5}
-                      max={300}
-                      step={5}
-                      format={v => String(v)}
-                      parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
-                      onChange={v => onChange({ ...options, kitchenEventSpawnMin: v })}
-                      suffix="s"
-                    />
-                  </div>
-                  <div className={styles.slotsRow}>
-                    <span className={styles.freqLabel}>MAX</span>
-                    <SliderField
-                      value={options.kitchenEventSpawnMax}
-                      min={5}
-                      max={300}
-                      step={5}
-                      format={v => String(v)}
-                      parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
-                      onChange={v => onChange({ ...options, kitchenEventSpawnMax: v })}
-                      suffix="s"
-                    />
-                  </div>
-                  {options.kitchenEventSpawnMin >= options.kitchenEventSpawnMax && (
-                    <div className={styles.hint} style={{ color: '#e8943a' }}>
-                      ⚠ Min ≥ Max — fixed interval of {options.kitchenEventSpawnMin}s will be used
-                    </div>
-                  )}
-                </>
-              )}
-              {!options.kitchenEventsEnabled && (
-                <div className={styles.hint}>Enable to configure event types and frequency</div>
-              )}
-            </div>
           </div>
         )}
 
