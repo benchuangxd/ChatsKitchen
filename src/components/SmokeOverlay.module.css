@@ -1,0 +1,9 @@
+.smoke {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(220, 220, 220, 0.55) 0%, rgba(240, 240, 240, 0.82) 100%);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.3s ease;
+}

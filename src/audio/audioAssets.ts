@@ -31,3 +31,22 @@ export const SFX: Record<string, SfxDef> = {
   'countdown-beep':    { src: ['/audio/sfx/countdown-beep.mp3'],    volume: 0.6 },
   'round-over':        { src: ['/audio/sfx/round-over.mp3'],        volume: 0.3 },
 }
+
+// One-shot event stings (success / fail)
+export const EVENT_SFX: Record<string, SfxDef> = {
+  'event-success': { src: ['/audio/events/typing_frenzy-success.mp3'], volume: 0.5 },
+  'event-fail':    { src: ['/audio/events/dance-start.mp3'],           volume: 0.5 },
+}
+
+// Looping ambient tracks (duck gameplay/intense music while active)
+export const EVENT_AMBIENT: Record<string, SfxDef> = {
+  'event-rat-ambient':         { src: ['/audio/events/rat_invasion-ambient.mp3'],      volume: 0.4 },
+  'event-angry-chef-ambient':  { src: ['/audio/events/angry_chef-ambient.mp3'],        volume: 0.35 },
+  'event-power-trip-ambient':  { src: ['/audio/events/power_trip-ambient.mp3'],        volume: 0.4 },
+  'event-smoke-blast-ambient': { src: ['/audio/events/smoke_blast-ambient.mp3'],       volume: 0.4 },
+  'event-glitch-ambient':      { src: ['/audio/events/glitched_orders-ambient.mp3'],   volume: 0.4 },
+  'event-chant-ambient':       { src: ['/audio/events/chefs_chant-ambient.mp3'],       volume: 0.45 },
+  'event-mystery-ambient':     { src: ['/audio/events/mystery_recipe-ambient.mp3'],    volume: 0.35 },
+  'event-frenzy-ambient':      { src: ['/audio/events/typing_frenzy-ambient.mp3'],     volume: 0.45 },
+  'event-dance-ambient':       { src: ['/audio/events/dance-ambient.mp3'],             volume: 0.5 },
+}

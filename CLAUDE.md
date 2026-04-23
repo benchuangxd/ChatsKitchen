@@ -32,7 +32,7 @@ npm run preview   # Preview production build locally
 ```
 ChatsKitchen/
 ├── src/
-│   ├── components/         # 18 React UI components (PascalCase)
+│   ├── components/         # React UI components (PascalCase)
 │   ├── state/
 │   │   ├── gameReducer.ts  # All game logic (Redux-style reducer)
 │   │   ├── commandProcessor.ts  # Parses !command input → GameAction
@@ -40,11 +40,15 @@ ChatsKitchen/
 │   ├── hooks/
 │   │   ├── useGameLoop.ts  # 100ms game tick loop
 │   │   ├── useTwitchChat.ts # Twitch IRC client lifecycle
-│   │   └── useBotSimulation.ts # AI bot player (3s action interval)
+│   │   ├── useBotSimulation.ts # AI bot player (3s action interval)
+│   │   └── useKitchenEvents.ts # Kitchen events lifecycle (spawn, command match, resolve/fail)
 │   ├── data/
-│   │   └── recipes.ts      # Recipe definitions, station configs, bot names
+│   │   ├── recipes.ts      # Recipe definitions, station configs, bot names
+│   │   └── kitchenEventDefs.ts # Event definitions, constants, generator functions
 │   └── main.tsx            # React entry point → App.tsx
-├── docs/superpowers/plans/ # Development planning documents
+├── docs/
+│   ├── Kitchen Events.md   # Kitchen events system reference
+│   └── superpowers/plans/  # Development planning documents
 ├── index.html              # SPA root
 ├── vite.config.ts
 ├── tsconfig.json           # Project references → tsconfig.app.json + tsconfig.node.json
@@ -68,14 +72,16 @@ No router library — screens are conditionally rendered components.
 
 ```
 App.tsx
-├─ StatsBar         — money, served, lost, timer
-├─ DiningRoom       — OrderTicket list (current orders)
+├─ StatsBar              — money, served, lost, timer
+├─ DiningRoom            — OrderTicket list (current orders); accepts isGlitched for Glitched Orders event
 ├─ Kitchen
-│  ├─ Station[]     — 6 cooking stations with slot progress
-│  ├─ PreparedItems — ingredient inventory
-│  └─ AssemblyArea  — plating in progress + finished dishes
-├─ ChatPanel        — message list + local input
-└─ InfoBar          — modal command reference
+│  ├─ Station[]          — 6 cooking stations with slot progress
+│  ├─ PreparedItems      — ingredient inventory
+│  └─ AssemblyArea       — plating in progress + finished dishes
+├─ ChatPanel             — message list + local input
+├─ InfoBar               — modal command reference
+├─ EventCardOverlay      — receipt-ticket overlay for active kitchen events (portal → document.body)
+└─ SmokeOverlay          — frosted fog overlay during Smoke Blast event (portal → document.body)
 ```
 
 ### Command Flow
@@ -83,6 +89,7 @@ App.tsx
 ```
 Twitch Chat (or local ChatPanel)
   → handleTwitchMessage (App.tsx)       // receives (user, text, isMod)
+  → handleEventCommand (useKitchenEvents) // kitchen event response matching; runs before game commands
   → handleMetaCommand (App.tsx)         // handles mod-only shell commands; returns early if consumed
   → parseCommand (commandProcessor.ts)  // returns GameAction or null
   → dispatch(action)
@@ -150,6 +157,9 @@ interface GameState {
   chatMessages: ChatMessage[]                // last 200 messages
   nextMessageId: number
   playerStats: Record<string, PlayerStats>
+  cookingSpeedModifier?: { multiplier: number; expiresAt: number }  // set by Chef's Chant / Angry Chef
+  moneyMultiplier?: { multiplier: number; expiresAt: number }       // set by Typing Frenzy
+  disabledStations?: string[]                // station ids offline during Power Trip
 }
 ```
 
@@ -169,6 +179,10 @@ interface GameOptions {
   allowShortformCommands: boolean
   autoRestart: boolean        // Free Play only — auto-restart after game over
   autoRestartDelay: number    // seconds to count down before restarting (default 60)
+  kitchenEventsEnabled: boolean
+  enabledKitchenEvents: EventType[]  // empty = all events enabled
+  kitchenEventSpawnMin: number       // seconds
+  kitchenEventSpawnMax: number       // seconds
 }
 ```
 
@@ -312,8 +326,11 @@ Math.max(5000, 14000 - shift * 1000) ms
 | `src/state/types.ts` | All TypeScript interfaces and types |
 | `src/state/commandProcessor.ts` | `parseCommand()` — maps chat text to `GameAction` |
 | `src/data/recipes.ts` | `RECIPES`, `STATION_DEFS`, `BOT_NAMES`, color palette |
+| `src/data/kitchenEventDefs.ts` | Event definitions, tunable constants, generator functions (`makePowerTripEquation`, `makeTypingFrenzyPhrase`, `makeDanceSequence`, `makeAnagram`, `seededScramble`) |
 | `src/hooks/useGameLoop.ts` | 100ms TICK dispatching, order spawning, game-over detection |
 | `src/hooks/useTwitchChat.ts` | tmi.js client lifecycle, connect/disconnect; passes `isMod` (mod/broadcaster) to message handler |
+| `src/hooks/useKitchenEvents.ts` | Kitchen events lifecycle — spawn timer, command matching, resolve/fail dispatch, audio triggers |
+| `src/components/EventCardOverlay.tsx` | Receipt-ticket overlay for active kitchen events; dance memorise/type phases |
 | `src/components/Toast.tsx` | Brief fixed-position toast notification for mod command feedback |
 | `src/components/FoodIcon.tsx` | Renders food icons — `<img>` for `/`-prefixed paths, `<span>` for emoji strings |
 | `src/hooks/useBotSimulation.ts` | AI player logic, action priority, cooldown awareness |
@@ -364,6 +381,8 @@ The Twitch channel name is entered by the user in the UI at runtime.
 - `2026-04-10-main-menu-redesign.md` — 2-column Hero Split MainMenu with cheatsheet
 - `2026-04-11-auto-restart-and-mod-commands.md` — Auto-restart toggle for Free Play and mod/broadcaster chat commands
 - `2026-04-13-heat-rush-remove-take.md` — Station heat meter, collective extinguish, rush orders, removal of !take
+- `2026-04-18-kitchen-events.md` — Kitchen events system (9 event types, `useKitchenEvents` hook, overlays)
+- `2026-04-22-event-card-redesign.md` — EventCardOverlay receipt-ticket redesign with per-event colours and animations
 
 `docs/superpowers/specs/` holds design specs that precede the plans above.
 

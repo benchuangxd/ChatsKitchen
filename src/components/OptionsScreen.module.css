@@ -556,3 +556,38 @@
     flex-direction: column;
   }
 }
+
+.eventGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.eventChip {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  background: none;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.eventChip:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.eventChipOn {
+  border-color: #5cb85c;
+  background: rgba(92, 184, 92, 0.15);
+  color: #5cb85c;
+}
+
+.eventChipOn:hover {
+  background: rgba(92, 184, 92, 0.25);
+}

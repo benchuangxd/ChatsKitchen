@@ -1,7 +1,7 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult } from './state/types'
+import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, EventType, KitchenEvent } from './state/types'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
@@ -22,6 +22,9 @@ import TutorialOverlay from './components/TutorialOverlay'
 import { TUTORIAL_STEPS } from './data/tutorialData'
 import PauseModal from './components/PauseModal'
 import FeedbackModal from './components/FeedbackModal'
+import { useKitchenEvents } from './hooks/useKitchenEvents'
+import EventCardOverlay from './components/EventCardOverlay'
+import SmokeOverlay from './components/SmokeOverlay'
 import CreditsScreen from './components/CreditsScreen'
 import Toast from './components/Toast'
 import {
@@ -47,6 +50,11 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   allowShortformCommands: true,
   autoRestart: false,
   autoRestartDelay: 60,
+  kitchenEventsEnabled: true,
+  enabledKitchenEvents: ['angry_chef', 'smoke_blast', 'mystery_recipe', 'dance'] as EventType[],
+  kitchenEventSpawnMin: 30,
+  kitchenEventSpawnMax: 60,
+  kitchenEventDuration: 20,
 }
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -57,6 +65,21 @@ const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   sfxMuted: false,
   darkMode: true,
   trackEnabled: { menu: false, gameplay: true, gameover: true }
+}
+
+const TUTORIAL_MYSTERY_EVENT: KitchenEvent = {
+  id: 'tutorial_mystery',
+  category: 'opportunity',
+  type: 'mystery_recipe',
+  chosenCommand: 'EDCILS FEEB',
+  progress: 33,
+  threshold: 3,
+  respondedUsers: ['viewer1'],
+  timeLeft: 14000,
+  initialTimeLeft: 20000,
+  resolved: false,
+  failed: false,
+  payload: { anagramAnswer: 'SLICED BEEF' },
 }
 
 export default function App() {
@@ -136,7 +159,11 @@ export default function App() {
   const [tutorialDestination, setTutorialDestination] = useState<TutorialDestination>('menu')
   const [tutorialStep, setTutorialStep] = useState<number | null>(null)
   const [tutorialResetKey, setTutorialResetKey] = useState(0)
+  const [tutorialEvent, setTutorialEvent] = useState<KitchenEvent | null>(null)
+  const [tutorialEventResolved, setTutorialEventResolved] = useState(false)
   const isTutorial = tutorialStep !== null
+  const tutorialStepRef = useRef(tutorialStep)
+  tutorialStepRef.current = tutorialStep
 
   // Keep refs in sync so stable callbacks can read current values
   screenRef.current = screen
@@ -245,6 +272,8 @@ export default function App() {
 
   const TUTORIAL_COOL_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "❄️ Cool it down!")
   const TUTORIAL_EXTINGUISH_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🔥 Station on fire!")
+  const TUTORIAL_EVENT_INTRO_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🎲 Kitchen Events")
+  const TUTORIAL_EVENT_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🧩 Mystery Recipe")
 
   const handleTutorialNext = useCallback(() => {
     // Dispatch step-entry side-effects before setTutorialStep so React 18
@@ -255,10 +284,16 @@ export default function App() {
         dispatch({ type: 'SET_STATION_HEAT', stationId: 'fryer', heat: 90 })
       } else if (next === TUTORIAL_EXTINGUISH_STEP) {
         dispatch({ type: 'OVERHEAT_STATION', stationId: 'fryer' })
+      } else if (next === TUTORIAL_EVENT_STEP) {
+        setTutorialEvent(TUTORIAL_MYSTERY_EVENT)
+        setTutorialEventResolved(false)
+      } else if (tutorialStep === TUTORIAL_EVENT_STEP) {
+        setTutorialEvent(null)
+        setTutorialEventResolved(false)
       }
     }
     setTutorialStep(s => (s !== null && s < TUTORIAL_STEPS.length - 1 ? s + 1 : s))
-  }, [tutorialStep, dispatch, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP])
+  }, [tutorialStep, dispatch, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP, TUTORIAL_EVENT_STEP])
 
   const handleTutorialBack = useCallback(() => {
     if (tutorialStep === null || tutorialStep <= 0) return
@@ -267,11 +302,19 @@ export default function App() {
       dispatch({ type: 'SET_STATION_HEAT', stationId: 'fryer', heat: 90 })
     } else if (prev === TUTORIAL_EXTINGUISH_STEP) {
       dispatch({ type: 'OVERHEAT_STATION', stationId: 'fryer' })
+    } else if (prev === TUTORIAL_EVENT_STEP) {
+      setTutorialEvent(TUTORIAL_MYSTERY_EVENT)
+      setTutorialEventResolved(false)
+    } else if (tutorialStep === TUTORIAL_EVENT_STEP) {
+      setTutorialEvent(null)
+      setTutorialEventResolved(false)
     }
     setTutorialStep(prev)
-  }, [tutorialStep, dispatch, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP])
+  }, [tutorialStep, dispatch, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP, TUTORIAL_EVENT_STEP])
 
   const handleTutorialComplete = useCallback(() => {
+    setTutorialEvent(null)
+    setTutorialEventResolved(false)
     setTutorialStep(null)
     setScreen('menu')
   }, [])
@@ -284,6 +327,24 @@ export default function App() {
     const action = parseCommand(user, text, gameOptions.allowShortformCommands)
     if (action) dispatch(action)
   }, [gameOptions.allowShortformCommands])
+
+  const handleTutorialEventCommand = useCallback((text: string) => {
+    if (tutorialStepRef.current !== TUTORIAL_EVENT_STEP) return
+    if (text.trim().toUpperCase() !== 'SLICED BEEF') return
+    setTutorialEvent(ev => ev && !ev.resolved ? { ...ev, resolved: true, progress: 100 } : ev)
+    setTimeout(() => setTutorialEventResolved(true), 1800)
+  }, [TUTORIAL_EVENT_STEP])
+
+  const { activeEvent, handleEventCommand } = useKitchenEvents(
+    state,
+    dispatch,
+    screen === 'playing' && !isTutorial && gameOptions.kitchenEventsEnabled,
+    paused,
+    gameOptions.enabledKitchenEvents,
+    gameOptions.kitchenEventSpawnMin * 1000,
+    gameOptions.kitchenEventSpawnMax * 1000,
+    gameOptions.kitchenEventDuration * 1000,
+  )
 
   const handleGameOptionsChange = useCallback((options: GameOptions) => {
     setGameOptions(options)
@@ -354,16 +415,20 @@ export default function App() {
 
   const handleTwitchMessage = useCallback((user: string, text: string, isMod: boolean) => {
     dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
+    handleEventCommand(user, text)
+    handleTutorialEventCommand(text)
     handleMetaCommand(user, text, isMod)
     if (!isTutorialRef.current) handleCommand(user, text)
-  }, [handleCommand, handleMetaCommand])
+  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand])
 
   const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
   const handleChatSend = useCallback((text: string) => {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
+    handleEventCommand('You', text)
+    handleTutorialEventCommand(text)
     handleMetaCommand('You', text, true)
     handleCommand('You', text)
-  }, [handleCommand, handleMetaCommand])
+  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand])
 
   const handleShiftEndDone = useCallback(() => {
     const run = adventureRunRef.current
@@ -586,7 +651,11 @@ export default function App() {
           </div>
         )}
         <div className={styles.body}>
-          <OrdersBar state={state} isHighlighted={tutorialHighlight === 'orders'} />
+          <OrdersBar
+            state={state}
+            isHighlighted={tutorialHighlight === 'orders'}
+            isGlitched={activeEvent?.type === 'glitched_orders' && !activeEvent.resolved && !activeEvent.failed}
+          />
           <Kitchen state={state} tutorialHighlight={tutorialHighlight} />
           {chatOpen && (
             <ChatPanel
@@ -600,6 +669,10 @@ export default function App() {
         <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
           <button className={styles.settingsBtn} onClick={() => setPaused(true)}>⚙️</button>
         </div>
+        {activeEvent?.type === 'smoke_blast' && !activeEvent.resolved && !activeEvent.failed && (
+          <SmokeOverlay progress={activeEvent.progress} />
+        )}
+        <EventCardOverlay activeEvent={tutorialEvent ?? activeEvent} />
         {paused && (
           <PauseModal
             gameOptions={gameOptions}
@@ -622,6 +695,8 @@ export default function App() {
             onBack={handleTutorialBack}
             onSkip={handleTutorialComplete}
             onRepeat={handleTutorialRepeat}
+            shiftLeft={tutorialStep === TUTORIAL_EVENT_INTRO_STEP || tutorialStep === TUTORIAL_EVENT_STEP}
+            advanceReady={tutorialEventResolved}
           />
         )}
       </div>

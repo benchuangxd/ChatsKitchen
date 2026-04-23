@@ -67,6 +67,11 @@ export interface GameOptions {
   allowShortformCommands: boolean
   autoRestart: boolean
   autoRestartDelay: number  // seconds
+  kitchenEventsEnabled: boolean
+  enabledKitchenEvents: EventType[]
+  kitchenEventSpawnMin: number    // seconds
+  kitchenEventSpawnMax: number    // seconds
+  kitchenEventDuration: number    // seconds — applies to all timed events (hazard-penalty + opportunity)
 }
 
 export interface AudioSettings {
@@ -112,6 +117,34 @@ export interface AdventureBestRun {
   totalMoney: number      // sum of moneyEarned across all shifts
 }
 
+export type EventType =
+  | 'rat_invasion' | 'angry_chef'
+  | 'power_trip' | 'smoke_blast' | 'glitched_orders'
+  | 'chefs_chant' | 'mystery_recipe' | 'typing_frenzy' | 'dance'
+
+export type EventCategory = 'hazard-penalty' | 'hazard-immediate' | 'opportunity'
+
+export interface KitchenEvent {
+  id: string
+  category: EventCategory
+  type: EventType
+  chosenCommand: string
+  progress: number           // 0–100
+  threshold: number          // ceil(playerCount × 0.8), min 1
+  respondedUsers: string[]
+  timeLeft: number | null     // null for hazard-immediate
+  initialTimeLeft: number | null  // original duration at spawn, for bar % calculation
+  resolved: boolean
+  failed: boolean
+  payload: {
+    disabledStations?: string[]
+    anagramAnswer?: string
+    typingPhrase?: string
+    danceSequence?: ('UP' | 'DOWN' | 'LEFT' | 'RIGHT')[]
+    powerTripAnswer?: number
+  }
+}
+
 export interface GameState {
   money: number
   served: number
@@ -133,4 +166,7 @@ export interface GameState {
   chatMessages: ChatMessage[]
   nextMessageId: number
   playerStats: Record<string, PlayerStats>
+  cookingSpeedModifier?: { multiplier: number; expiresAt: number }
+  moneyMultiplier?: { multiplier: number; expiresAt: number }
+  disabledStations?: string[]
 }

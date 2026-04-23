@@ -4,6 +4,8 @@ import { STATION_DEFS, NAME_COLORS, INGREDIENT_EMOJI } from '../data/recipes'
 import FoodIcon from './FoodIcon'
 import styles from './Station.module.css'
 
+const HEAT_EXEMPT = new Set(['cutting_board', 'mixing_bowl', 'grinder', 'knead_board'])
+
 function hashStr(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
@@ -100,7 +102,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
       <div className={styles.label}>
         <span className={styles.stationEmoji}>{def.emoji}</span>
         <span className={styles.stationName}>{def.name}</span>
-        {!station.overheated && station.id !== 'cutting_board' && (
+        {!station.overheated && !HEAT_EXEMPT.has(station.id) && (
           <span className={styles.heatBadge}>{Math.floor(station.heat)}% 🔥</span>
         )}
         {capacity !== Infinity && (

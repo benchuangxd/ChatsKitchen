@@ -19,9 +19,11 @@ interface Props {
   onBack: () => void
   onSkip: () => void
   onRepeat: () => void
+  shiftLeft?: boolean
+  advanceReady?: boolean
 }
 
-export default function TutorialOverlay({ stepIndex, state, onNext, onBack, onSkip, onRepeat }: Props) {
+export default function TutorialOverlay({ stepIndex, state, onNext, onBack, onSkip, onRepeat, shiftLeft, advanceReady }: Props) {
   const step = TUTORIAL_STEPS[stepIndex]
   const isLast = stepIndex === TUTORIAL_STEPS.length - 1
   const [skipConfirm, setSkipConfirm] = useState(false)
@@ -36,9 +38,15 @@ export default function TutorialOverlay({ stepIndex, state, onNext, onBack, onSk
     }
   }, [state, step, onNext])
 
+  useEffect(() => {
+    if (step.advanceMode === 'auto' && advanceReady) {
+      onNext()
+    }
+  }, [advanceReady, step.advanceMode, onNext])
+
   return createPortal(
-    <div className={styles.overlay}>
-      <div className={styles.card}>
+    <div className={`${styles.overlay} ${shiftLeft ? styles.overlayLeft : ''}`}>
+      <div className={`${styles.card} ${shiftLeft ? styles.cardNarrow : ''}`}>
         <div className={styles.stepCounter}>{stepIndex + 1} / {TUTORIAL_STEPS.length}</div>
         <div className={styles.title}>{step.title}</div>
         {step.highlight !== 'none' && (

@@ -1,11 +1,17 @@
 import { Howl } from 'howler'
-import { MUSIC_TRACKS, SFX } from './audioAssets'
+import { MUSIC_TRACKS, SFX, EVENT_SFX, EVENT_AMBIENT } from './audioAssets'
+
+const MUSIC_BED_VOLUME = 0.15
 
 class AudioManager {
   private musicTracks: Record<string, Howl> = {}
   private sfxSounds: Record<string, Howl> = {}
+  private eventSfxSounds: Record<string, Howl> = {}
+  private eventAmbientSounds: Record<string, Howl> = {}
   private currentMusicName: string | null = null
   private intenseMixActive = false
+  private activeEventAmbientKey: string | null = null
+  private ambientDuckingActive = false
   private masterVolume = 1
   private musicVolume = 0.5
   private sfxVolume = 0.5
@@ -31,6 +37,24 @@ class AudioManager {
         src: def.src,
         volume: def.volume * this.sfxVolume,
         loop: def.loop ?? false,
+        preload: true,
+      })
+    }
+
+    for (const [name, def] of Object.entries(EVENT_SFX)) {
+      this.eventSfxSounds[name] = new Howl({
+        src: def.src,
+        volume: def.volume,
+        loop: false,
+        preload: true,
+      })
+    }
+
+    for (const [name, def] of Object.entries(EVENT_AMBIENT)) {
+      this.eventAmbientSounds[name] = new Howl({
+        src: def.src,
+        volume: def.volume,
+        loop: true,
         preload: true,
       })
     }
@@ -64,8 +88,14 @@ class AudioManager {
     for (const howl of Object.values(this.musicTracks)) {
       howl.stop()
     }
+    if (this.activeEventAmbientKey) {
+      const ambient = this.eventAmbientSounds[this.activeEventAmbientKey]
+      if (ambient) ambient.stop()
+    }
     this.intenseMixActive = false
     this.currentMusicName = null
+    this.ambientDuckingActive = false
+    this.activeEventAmbientKey = null
   }
 
   crossfadeToIntense() {
@@ -85,9 +115,11 @@ class AudioManager {
     intense.play()
     intense.fade(0, intenseVol, 2000)
 
-    // Fade gameplay down to a bed
-    const gpVol = gameplay.volume() as number
-    gameplay.fade(gpVol, 0.15 * this.musicVolume, 2000)
+    // If ambient is already ducking gameplay, skip fading it — already at bed level
+    if (!this.ambientDuckingActive) {
+      const gpVol = gameplay.volume() as number
+      gameplay.fade(gpVol, MUSIC_BED_VOLUME * this.musicVolume * this.masterVolume, 2000)
+    }
   }
 
   setIntenseRate(rate: number) {
@@ -122,6 +154,69 @@ class AudioManager {
     sound.play()
   }
 
+  playEventSfx(key: string) {
+    if (this._sfxMuted) return
+    this.init()
+    const sound = this.eventSfxSounds[key]
+    const def = EVENT_SFX[key]
+    if (!sound || !def) return
+    sound.volume(def.volume * this.sfxVolume * this.masterVolume)
+    sound.play()
+  }
+
+  startEventAmbient(key: string) {
+    this.init()
+    const ambient = this.eventAmbientSounds[key]
+    const def = EVENT_AMBIENT[key]
+    if (!ambient || !def) return
+
+    // Determine which music track to duck
+    const trackToDuck = this.intenseMixActive
+      ? this.musicTracks['intense']
+      : this.musicTracks['gameplay']
+
+    if (trackToDuck?.playing()) {
+      const currentVol = trackToDuck.volume() as number
+      trackToDuck.fade(currentVol, MUSIC_BED_VOLUME * this.musicVolume * this.masterVolume, 500)
+    }
+
+    const targetVol = def.volume * this.musicVolume * this.masterVolume
+    ambient.volume(0)
+    ambient.play()
+    ambient.fade(0, targetVol, 500)
+
+    this.activeEventAmbientKey = key
+    this.ambientDuckingActive = true
+  }
+
+  stopEventAmbient() {
+    if (!this.activeEventAmbientKey) return
+    this.init()
+
+    const key = this.activeEventAmbientKey
+    const ambient = this.eventAmbientSounds[key]
+    if (ambient?.playing()) {
+      ambient.fade(ambient.volume() as number, 0, 500)
+      setTimeout(() => ambient.stop(), 600)
+    }
+
+    // Restore ducked music track
+    const trackToRestore = this.intenseMixActive
+      ? this.musicTracks['intense']
+      : this.musicTracks['gameplay']
+
+    if (trackToRestore?.playing()) {
+      const trackName = this.intenseMixActive ? 'intense' : (this.currentMusicName ?? 'gameplay')
+      const fullVol = MUSIC_TRACKS[trackName]
+        ? MUSIC_TRACKS[trackName].volume * this.musicVolume * this.masterVolume
+        : this.musicVolume * this.masterVolume
+      trackToRestore.fade(trackToRestore.volume() as number, fullVol, 500)
+    }
+
+    this.activeEventAmbientKey = null
+    this.ambientDuckingActive = false
+  }
+
   setMasterVolume(v: number) {
     this.masterVolume = v
     this.setMusicVolume(this.musicVolume)
@@ -131,17 +226,31 @@ class AudioManager {
   setMusicVolume(v: number) {
     this.musicVolume = v
     const effective = v * this.masterVolume
-    // Update currently playing music
     if (this.intenseMixActive) {
       const gameplay = this.musicTracks['gameplay']
       const intense = this.musicTracks['intense']
-      if (gameplay?.playing()) gameplay.volume(0.15 * effective)
-      if (intense?.playing()) intense.volume(MUSIC_TRACKS['intense'].volume * effective)
+      if (gameplay?.playing()) gameplay.volume(MUSIC_BED_VOLUME * effective)
+      if (intense?.playing()) {
+        // If event ambient is ducking the intense track, keep it at bed level
+        const intenseTarget = this.ambientDuckingActive
+          ? MUSIC_BED_VOLUME * effective
+          : MUSIC_TRACKS['intense'].volume * effective
+        intense.volume(intenseTarget)
+      }
     } else if (this.currentMusicName) {
       const current = this.musicTracks[this.currentMusicName]
       if (current?.playing()) {
-        current.volume(MUSIC_TRACKS[this.currentMusicName].volume * effective)
+        const target = this.ambientDuckingActive
+          ? MUSIC_BED_VOLUME * effective
+          : MUSIC_TRACKS[this.currentMusicName].volume * effective
+        current.volume(target)
       }
+    }
+    // Update active ambient volume if playing
+    if (this.activeEventAmbientKey) {
+      const ambient = this.eventAmbientSounds[this.activeEventAmbientKey]
+      const ambDef = EVENT_AMBIENT[this.activeEventAmbientKey]
+      if (ambient && ambDef) ambient.volume(ambDef.volume * v * this.masterVolume)
     }
   }
 
