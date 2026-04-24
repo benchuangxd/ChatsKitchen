@@ -20,7 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 32px 48px 0 16px;
+  padding: 0;
   overflow: hidden;
   min-height: 0;
 }
@@ -30,6 +30,13 @@
   overflow-y: auto;
   min-height: 0;
   padding-right: 4px;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .backBtn {
@@ -581,19 +588,7 @@
   text-align: center;
 }
 
-/* ── Recipe Detail Panel ── */
-
-.recipeDetail {
-  flex-shrink: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* ── Recipe Detail Panel (styles still used inside .detailPanel) ── */
 
 .recipeDetailHeader {
   display: flex;
@@ -709,38 +704,225 @@
   transform: scale(0.98);
 }
 
-.eventGrid {
+/* ── Right column inner layout ── */
+
+.rightColInner {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.recipesSection {
+  display: flex;
+  flex-direction: column;
+  flex: 2;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Kitchen Events section (right column) ── */
+
+.eventSection {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px 12px 16px;
+  background: var(--surface);
+  border-top: 2px solid var(--border);
+}
+
+.eventScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.eventSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.eventChip {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 16px;
-  background: none;
-  border: 2px solid var(--border);
-  border-radius: 20px;
-  padding: 4px 12px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-  white-space: nowrap;
+.eventCategoryRow {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 2px;
+  margin-bottom: -2px;
 }
 
-.eventChip:hover {
-  border-color: var(--text);
+.eventBtnGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.eventBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.eventBtn:hover {
+  border-color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text);
 }
 
-.eventChipOn {
+.eventBtnOn {
   border-color: #5cb85c;
-  background: rgba(92, 184, 92, 0.15);
-  color: #5cb85c;
+  background: rgba(92, 184, 92, 0.1);
+  color: var(--text);
 }
 
-.eventChipOn:hover {
-  background: rgba(92, 184, 92, 0.25);
+.eventBtnOn:hover {
+  border-color: #6ed06e;
+  background: rgba(92, 184, 92, 0.18);
+}
+
+.eventBtnCheck {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  color: transparent;
+  background: transparent;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+
+.eventBtnCheckOn {
+  border-color: #5cb85c;
+  background: #5cb85c;
+  color: #fff;
+}
+
+.eventBtnEmoji {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.eventBtnName {
+  font-size: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Shared detail panel ── */
+
+.detailPanel {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 80px;
+}
+
+.detailEmpty {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detailTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.detailBadge {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  padding: 3px 8px;
+  align-self: flex-start;
+}
+
+.detailBadgeHazard {
+  background: rgba(208, 64, 64, 0.15);
+  color: #d04040;
+  border: 1px solid rgba(208, 64, 64, 0.3);
+}
+
+.detailBadgeOpportunity {
+  background: rgba(92, 184, 92, 0.12);
+  color: #5cb85c;
+  border: 1px solid rgba(92, 184, 92, 0.3);
+}
+
+.detailDesc {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.detailConsequence {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  border-radius: 6px;
+  padding: 7px 10px;
+  line-height: 1.4;
+}
+
+.detailConsequenceFail {
+  background: rgba(208, 64, 64, 0.1);
+  color: var(--text);
+  border: 1px solid rgba(208, 64, 64, 0.2);
+}
+
+.detailConsequenceReward {
+  background: rgba(92, 184, 92, 0.08);
+  color: var(--text);
+  border: 1px solid rgba(92, 184, 92, 0.2);
 }
 
 .eventFreqGrid {

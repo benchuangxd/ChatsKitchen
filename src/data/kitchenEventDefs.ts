@@ -70,6 +70,7 @@ export interface EventDef {
   category: EventCategory
   emoji: string
   label: string
+  description: string
   commandPool: string[]
   failDescription?: string
   rewardDescription?: string
@@ -88,6 +89,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'hazard-penalty',
     emoji: '🐀',
     label: 'Rat Invasion',
+    description: 'Rats swarm the kitchen. Chat must shout them out before they steal from the prep tray.',
     commandPool: ['SHOO SHOO SHOO', 'CHASE CHASE CHASE', 'BEGONE BEGONE BEGONE'],
     failDescription: 'Fail: lose prepped ingredients',
     color: '#a0603a',
@@ -99,6 +101,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'hazard-penalty',
     emoji: '👨‍🍳',
     label: 'Angry Chef',
+    description: 'The head chef snaps. Chat must apologise before the timer runs out.',
     commandPool: ['SORRY CHEF', 'APOLOGIES CHEF', 'MY BAD CHEF'],
     failDescription: 'Fail: cooking speed debuff for 15s',
     color: '#e05020',
@@ -110,6 +113,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'hazard-immediate',
     emoji: '🔌',
     label: 'Power Trip',
+    description: 'The power goes out. Stations go offline until chat solves a maths equation.',
     commandPool: [],
     failDescription: 'Stations offline until resolved',
     color: '#2a5acc',
@@ -121,6 +125,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'hazard-immediate',
     emoji: '💨',
     label: 'Smoke Blast',
+    description: 'Smoke floods the kitchen. Chat must clear it by typing together fast.',
     commandPool: ['CLEAR', 'VENTILATE', 'BLOW'],
     failDescription: 'Kitchen obscured until resolved',
     color: '#888888',
@@ -132,6 +137,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'hazard-immediate',
     emoji: '📦',
     label: 'Glitched Orders',
+    description: 'Order tickets are scrambled. Chat must debug the system to restore them.',
     commandPool: ['FIX', 'DEBUG', 'PATCH'],
     failDescription: 'Orders scrambled until resolved',
     color: '#7a30cc',
@@ -143,6 +149,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'opportunity',
     emoji: '📢',
     label: "Chef's Chant",
+    description: 'Time to rally the brigade! Chat chants together to fire up the kitchen.',
     commandPool: ['YES CHEF', 'AYE CHEF', 'OF COURSE CHEF'],
     rewardDescription: 'Reward: cooking speed boost for 20s',
     color: '#c09020',
@@ -154,6 +161,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'opportunity',
     emoji: '🧩',
     label: 'Mystery Recipe',
+    description: 'A scrambled recipe name appears. Chat must unscramble it to claim the reward.',
     commandPool: [],
     rewardDescription: 'Reward: 3 free prepped ingredients',
     color: '#5030a0',
@@ -165,6 +173,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'opportunity',
     emoji: '⚡',
     label: 'Typing Frenzy',
+    description: 'A random string flashes on screen — chat races to type it exactly.',
     commandPool: [],
     rewardDescription: 'Reward: money multiplier ×1.5 for 20s',
     color: '#88cc00',
@@ -176,6 +185,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'opportunity',
     emoji: '🕺',
     label: 'Dance',
+    description: 'A Simon Says sequence of dance moves — chat memorises and types them in order.',
     commandPool: ['UP', 'DOWN', 'LEFT', 'RIGHT'],
     rewardDescription: 'Reward: all orders +15s patience',
     color: '#cc30aa',

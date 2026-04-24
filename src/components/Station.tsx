@@ -56,12 +56,6 @@ function heatBorderColor(heat: number, overheated: boolean): string {
 }
 
 export default function Station({ station, capacity, playerCount, isHighlighted }: Props) {
-  const def = STATION_DEFS[station.id]
-  if (!def) return null
-
-  const borderColor = heatBorderColor(station.heat, station.overheated)
-  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
-
   const [coolFlash, setCoolFlash] = useState(false)
   const [showCoolText, setShowCoolText] = useState(false)
   const [coolPlayer, setCoolPlayer] = useState<string | null>(null)
@@ -78,7 +72,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
     const t1 = setTimeout(() => setCoolFlash(false), 600)
     const t2 = setTimeout(() => { setShowCoolText(false); setCoolPlayer(null) }, 1000)
     return () => { clearTimeout(t1); clearTimeout(t2) }
-  }, [station.lastCooledAt])
+  }, [station.lastCooledAt, station.lastCooledBy])
 
   useEffect(() => {
     if (!station.lastExtinguishedAt) return
@@ -86,7 +80,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
     setExtinguishPlayers(station.lastExtinguishedBy ?? [])
     const t = setTimeout(() => { setShowExtinguishText(false); setExtinguishPlayers([]) }, 1200)
     return () => clearTimeout(t)
-  }, [station.lastExtinguishedAt])
+  }, [station.lastExtinguishedAt, station.lastExtinguishedBy])
 
   useEffect(() => {
     if (!station.lastCompletion) return
@@ -95,7 +89,13 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
     setCompletionPlayer(station.lastCompletion.by)
     const t = setTimeout(() => { setCompletionEmoji(null); setCompletionPlayer(null) }, 900)
     return () => clearTimeout(t)
-  }, [station.lastCompletion?.at])
+  }, [station.lastCompletion])
+
+  const def = STATION_DEFS[station.id]
+  if (!def) return null
+
+  const borderColor = heatBorderColor(station.heat, station.overheated)
+  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
 
   return (
     <div className={`${styles.station} ${station.overheated ? styles.fire : ''} ${coolFlash ? styles.coolFlash : ''} ${isHighlighted ? styles.highlighted : ''}`} style={{ borderColor }}>
