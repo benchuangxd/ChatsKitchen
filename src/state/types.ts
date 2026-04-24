@@ -74,6 +74,8 @@ export interface GameOptions {
   kitchenEventSpawnMin: number    // seconds
   kitchenEventSpawnMax: number    // seconds
   kitchenEventDuration: number    // seconds — applies to all timed events (hazard-penalty + opportunity)
+  pvpMode: boolean
+  pvpAutoBalance: boolean
 }
 
 export interface AudioSettings {
@@ -171,4 +173,11 @@ export interface GameState {
   cookingSpeedModifier?: { multiplier: number; expiresAt: number }
   moneyMultiplier?: { multiplier: number; expiresAt: number }
   disabledStations?: string[]
+  teams?: Record<string, 'red' | 'blue'>
+  redPreparedItems?: string[]
+  bluePreparedItems?: string[]
+  redMoney?: number
+  blueMoney?: number
+  redServed?: number
+  blueServed?: number
 }

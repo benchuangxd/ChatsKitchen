@@ -24,6 +24,9 @@ export type GameAction =
   | { type: 'ADD_PREPARED_ITEMS'; items: string[] }
   | { type: 'EXTEND_ORDER_PATIENCE'; ms: number }
   | { type: 'RECORD_EVENT_PARTICIPATION'; user: string }
+  | { type: 'JOIN_TEAM'; username: string; team: 'red' | 'blue' }
+  | { type: 'BALANCE_TEAMS' }
+  | { type: 'MOVE_TO_TEAM'; username: string; team: 'red' | 'blue' }
 
 export function createInitialState(
   shiftDuration = 120000,
@@ -474,6 +477,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'RECORD_EVENT_PARTICIPATION':
       return addStat(state, action.user, 'eventParticipations', 1)
+
+    case 'JOIN_TEAM':
+      return state
+
+    case 'BALANCE_TEAMS':
+      return state
+
+    case 'MOVE_TO_TEAM':
+      return state
 
     default:
       return state
