@@ -105,14 +105,18 @@ function isUserBusy(state: GameState, user: string): boolean {
 
 function teamPrepItems(state: GameState, user: string): string[] {
   if (!state.teams) return state.preparedItems
-  return state.teams[user] === 'red' ? (state.redPreparedItems ?? []) : (state.bluePreparedItems ?? [])
+  const team = state.teams[user]
+  if (team === 'red') return state.redPreparedItems ?? []
+  if (team === 'blue') return state.bluePreparedItems ?? []
+  return []
 }
 
 function setTeamPrepItems(state: GameState, user: string, items: string[]): GameState {
   if (!state.teams) return { ...state, preparedItems: items }
-  return state.teams[user] === 'red'
-    ? { ...state, redPreparedItems: items }
-    : { ...state, bluePreparedItems: items }
+  const team = state.teams[user]
+  if (team === 'red') return { ...state, redPreparedItems: items }
+  if (team === 'blue') return { ...state, bluePreparedItems: items }
+  return state
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -400,7 +404,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             if (state.teams) {
               const team = state.teams[slot.user]
               if (team === 'red') newRedPreparedItems.push(slot.produces)
-              else newBluePreparedItems.push(slot.produces)
+              else if (team === 'blue') newBluePreparedItems.push(slot.produces)
+              // else: unregistered player in PvP — item dropped
             } else {
               newPreparedItems.push(slot.produces)
             }
