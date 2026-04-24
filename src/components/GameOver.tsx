@@ -34,7 +34,7 @@ interface Props {
 }
 
 export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, onPlayAgain, onNextLevel, onMenu, onRecipeSelect }: Props) {
-  const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished - s.firesCaused
+  const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
 
@@ -184,6 +184,8 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 <span className={styles.lbDetail} title="Cooked">{'\u{1F373}'}</span>
                 <span className={styles.lbDetail} title="Served">{'\u{2705}'}</span>
                 <span className={styles.lbDetail} title="Extinguished">{'\u{1F9EF}'}</span>
+                <span className={styles.lbDetail} title="Cooled">{'\u{2744}'}</span>
+                <span className={styles.lbDetail} title="Event Participations">{'\u{2728}'}</span>
                 <span className={styles.lbDetail} title="Fires Caused">{'\u{1F525}'}</span>
                 <span className={styles.lbTotal}>Total</span>
               </div>
@@ -201,6 +203,8 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                     <span className={styles.lbDetail}>{stats.cooked}</span>
                     <span className={styles.lbDetail}>{stats.served}</span>
                     <span className={styles.lbDetail}>{stats.extinguished}</span>
+                    <span className={styles.lbDetail}>{stats.cooled}</span>
+                    <span className={styles.lbDetail}>{stats.eventParticipations}</span>
                     <span className={styles.lbDetail} style={{ color: '#d94f4f' }}>{stats.firesCaused}</span>
                     <span className={styles.lbTotal}>{totalActions(stats)}</span>
                   </div>

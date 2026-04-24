@@ -37,8 +37,14 @@
   flex-shrink: 0;
 }
 
-.hint {
+.right {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hint {
   font-family: 'Space Mono', monospace;
   font-size: 18px;
   color: #3a3530;

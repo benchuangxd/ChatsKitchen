@@ -23,6 +23,7 @@ export type GameAction =
   | { type: 'ADD_MONEY_MULTIPLIER'; multiplier: number; expiresAt: number }
   | { type: 'ADD_PREPARED_ITEMS'; items: string[] }
   | { type: 'EXTEND_ORDER_PATIENCE'; ms: number }
+  | { type: 'RECORD_EVENT_PARTICIPATION'; user: string }
 
 export function createInitialState(
   shiftDuration = 120000,
@@ -71,7 +72,7 @@ function addMsg(state: GameState, username: string, text: string, msgType: ChatM
   return { ...state, chatMessages: messages, nextMessageId: state.nextMessageId + 1 }
 }
 
-const EMPTY_STATS: PlayerStats = { cooked: 0, served: 0, moneyEarned: 0, extinguished: 0, firesCaused: 0 }
+const EMPTY_STATS: PlayerStats = { cooked: 0, served: 0, moneyEarned: 0, extinguished: 0, firesCaused: 0, cooled: 0, eventParticipations: 0 }
 
 function addStat(state: GameState, user: string, stat: keyof PlayerStats, amount: number): GameState {
   const prev = state.playerStats[user] || { ...EMPTY_STATS }
@@ -143,7 +144,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newHeat = Math.max(0, station.heat - COOL_AMOUNT)
       const newStations = { ...state.stations, [stationId]: { ...station, heat: newHeat, lastCooledAt: Date.now(), lastCooledBy: user } }
       const withCooldown = { ...state, stations: newStations, userCooldowns: { ...state.userCooldowns, [user]: Date.now() } }
-      return addMsg(withCooldown, 'KITCHEN', `${user} cooled the ${STATION_DEFS[stationId].name}! Heat: ${newHeat}%`, 'success')
+      const withStat = addStat(withCooldown, user, 'cooled', 1)
+      return addMsg(withStat, 'KITCHEN', `${user} cooled the ${STATION_DEFS[stationId].name}! Heat: ${newHeat}%`, 'success')
     }
 
     case 'SERVE': {
@@ -469,6 +471,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       )
       return addMsg({ ...state, orders: updatedOrders }, 'KITCHEN', `🕺 Dance worked! All orders got extra time!`, 'success')
     }
+
+    case 'RECORD_EVENT_PARTICIPATION':
+      return addStat(state, action.user, 'eventParticipations', 1)
 
     default:
       return state

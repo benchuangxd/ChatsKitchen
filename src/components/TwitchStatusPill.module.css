@@ -1,0 +1,44 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.label {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* connected */
+.connected .dot  { background: #4ade80; box-shadow: 0 0 5px #4ade80aa; }
+.connected .label { color: #a3f0bc; }
+
+/* connecting */
+.connecting .dot  { background: #facc15; animation: pulse 1.2s ease-in-out infinite; }
+.connecting .label { color: #fde68a; }
+
+/* disconnected */
+.disconnected .dot  { background: #6b7280; }
+.disconnected .label { color: #9ca3af; }
+
+/* error */
+.error .dot  { background: #f87171; }
+.error .label { color: #fca5a5; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}

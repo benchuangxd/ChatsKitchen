@@ -15,6 +15,7 @@ class AudioManager {
   private masterVolume = 1
   private musicVolume = 0.5
   private sfxVolume = 0.5
+  private _musicMuted = false
   private _sfxMuted = false
   private sfxThrottles: Record<string, number> = {}
   private initialized = false
@@ -78,6 +79,7 @@ class AudioManager {
     // Fade in new track
     const targetVol = MUSIC_TRACKS[track].volume * this.musicVolume * this.masterVolume
     next.volume(0)
+    next.mute(this._musicMuted)
     next.play()
     next.fade(0, targetVol, 1000)
     this.currentMusicName = track
@@ -182,6 +184,7 @@ class AudioManager {
 
     const targetVol = def.volume * this.musicVolume * this.masterVolume
     ambient.volume(0)
+    ambient.mute(this._musicMuted)
     ambient.play()
     ambient.fade(0, targetVol, 500)
 
@@ -200,17 +203,29 @@ class AudioManager {
       setTimeout(() => ambient.stop(), 600)
     }
 
-    // Restore ducked music track
-    const trackToRestore = this.intenseMixActive
-      ? this.musicTracks['intense']
-      : this.musicTracks['gameplay']
+    // Restore all music tracks to their correct levels.
+    // We restore both gameplay and intense because either (or both) may have been
+    // ducked — e.g. if intense triggered mid-event, gameplay was ducked at event
+    // start and only intense was faded in; stopping the event must restore intense
+    // to full and keep gameplay at bed level (its correct level during intense mix).
+    const gameplay = this.musicTracks['gameplay']
+    const intense  = this.musicTracks['intense']
 
-    if (trackToRestore?.playing()) {
-      const trackName = this.intenseMixActive ? 'intense' : (this.currentMusicName ?? 'gameplay')
-      const fullVol = MUSIC_TRACKS[trackName]
-        ? MUSIC_TRACKS[trackName].volume * this.musicVolume * this.masterVolume
-        : this.musicVolume * this.masterVolume
-      trackToRestore.fade(trackToRestore.volume() as number, fullVol, 500)
+    if (this.intenseMixActive) {
+      if (intense?.playing()) {
+        const fullVol = MUSIC_TRACKS['intense'].volume * this.musicVolume * this.masterVolume
+        intense.fade(intense.volume() as number, fullVol, 500)
+      }
+      // gameplay stays at bed level — correct while intense mix is active
+      if (gameplay?.playing()) {
+        gameplay.volume(MUSIC_BED_VOLUME * this.musicVolume * this.masterVolume)
+      }
+    } else if (this.currentMusicName) {
+      const current = this.musicTracks[this.currentMusicName]
+      if (current?.playing()) {
+        const fullVol = (MUSIC_TRACKS[this.currentMusicName]?.volume ?? 1) * this.musicVolume * this.masterVolume
+        current.fade(current.volume() as number, fullVol, 500)
+      }
     }
 
     this.activeEventAmbientKey = null
@@ -259,7 +274,11 @@ class AudioManager {
   }
 
   setMusicMuted(muted: boolean) {
+    this._musicMuted = muted
     for (const howl of Object.values(this.musicTracks)) {
+      howl.mute(muted)
+    }
+    for (const howl of Object.values(this.eventAmbientSounds)) {
       howl.mute(muted)
     }
   }
