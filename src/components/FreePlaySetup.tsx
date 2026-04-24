@@ -367,10 +367,10 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
 
           {/* ── Recipes section ── */}
           <div className={styles.recipesSection}>
-            <div className={styles.cardLabel} style={{ padding: '32px 48px 0 16px', paddingBottom: 4 }}>🍽️ Recipes</div>
+            <div className={styles.cardLabel} style={{ padding: '16px 16px 0 16px', paddingBottom: 4 }}>🍽️ Recipes</div>
 
             {/* ── Selected panel ── */}
-            <div className={styles.selectedPanel} style={{ margin: '0 48px 9px 16px' }}>
+            <div className={styles.selectedPanel} style={{ margin: '0 16px 9px 16px' }}>
               <div className={styles.selectedHeader}>
                 <span className={styles.selectedLabel}>Selected ({options.enabledRecipes.length})</span>
                 <div className={styles.selectedActions}>
@@ -414,7 +414,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
               </div>
             </div>
 
-            <div className={styles.recipeScroll} style={{ padding: '0 48px 0 16px' }}>
+            <div className={styles.recipeScroll} style={{ padding: '0 16px 12px 16px' }}>
             {(() => {
               const allSetKeys = new Set(RECIPE_SETS.flatMap(s => s.recipeKeys))
               const orphanKeys = Object.keys(RECIPES).filter(k => !allSetKeys.has(k))
@@ -550,7 +550,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
           </div>
 
           {/* ── Footer ── */}
-          <div className={styles.footer} style={{ padding: '12px 48px 24px 16px' }}>
+          <div className={styles.footer} style={{ padding: '0 0 8px 0' }}>
             <div className={styles.startWarning} style={{ visibility: startWarning ? 'visible' : 'hidden' }}>
               Select at least one recipe to start.
             </div>
