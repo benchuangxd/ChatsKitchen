@@ -16,6 +16,14 @@ export type GameAction =
   | { type: 'ADJUST_COOK_TIMES'; offset: number }
   | { type: 'SET_STATION_HEAT'; stationId: string; heat: number }
   | { type: 'OVERHEAT_STATION'; stationId: string }
+  | { type: 'REMOVE_PREPARED_ITEMS'; count: number }
+  | { type: 'SET_COOKING_SPEED_MODIFIER'; multiplier: number; expiresAt: number }
+  | { type: 'DISABLE_STATIONS'; stationIds: string[] }
+  | { type: 'ENABLE_STATIONS'; stationIds: string[] }
+  | { type: 'ADD_MONEY_MULTIPLIER'; multiplier: number; expiresAt: number }
+  | { type: 'ADD_PREPARED_ITEMS'; items: string[] }
+  | { type: 'EXTEND_ORDER_PATIENCE'; ms: number }
+  | { type: 'RECORD_EVENT_PARTICIPATION'; user: string }
 
 export function createInitialState(
   shiftDuration = 120000,
@@ -52,6 +60,9 @@ export function createInitialState(
     chatMessages: [],
     nextMessageId: 1,
     playerStats: {},
+    disabledStations: undefined,
+    cookingSpeedModifier: undefined,
+    moneyMultiplier: undefined,
   }
 }
 
@@ -61,7 +72,7 @@ function addMsg(state: GameState, username: string, text: string, msgType: ChatM
   return { ...state, chatMessages: messages, nextMessageId: state.nextMessageId + 1 }
 }
 
-const EMPTY_STATS: PlayerStats = { cooked: 0, served: 0, moneyEarned: 0, extinguished: 0, firesCaused: 0 }
+const EMPTY_STATS: PlayerStats = { cooked: 0, served: 0, moneyEarned: 0, extinguished: 0, firesCaused: 0, cooled: 0, eventParticipations: 0 }
 
 function addStat(state: GameState, user: string, stat: keyof PlayerStats, amount: number): GameState {
   const prev = state.playerStats[user] || { ...EMPTY_STATS }
@@ -133,7 +144,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newHeat = Math.max(0, station.heat - COOL_AMOUNT)
       const newStations = { ...state.stations, [stationId]: { ...station, heat: newHeat, lastCooledAt: Date.now(), lastCooledBy: user } }
       const withCooldown = { ...state, stations: newStations, userCooldowns: { ...state.userCooldowns, [user]: Date.now() } }
-      return addMsg(withCooldown, 'KITCHEN', `${user} cooled the ${STATION_DEFS[stationId].name}! Heat: ${newHeat}%`, 'success')
+      const withStat = addStat(withCooldown, user, 'cooled', 1)
+      return addMsg(withStat, 'KITCHEN', `${user} cooled the ${STATION_DEFS[stationId].name}! Heat: ${newHeat}%`, 'success')
     }
 
     case 'SERVE': {
@@ -161,7 +173,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         i === orderIdx ? { ...o, served: true, outcome: 'served' as const, completedAt: Date.now(), servedBy: user } : o
       )
       const timeBonus = Math.max(0, Math.floor((order.patienceLeft / order.patienceMax) * 30))
-      const reward = Math.round(recipe.reward + timeBonus)
+      const baseReward = recipe.reward + timeBonus
+      const multiplier = state.moneyMultiplier?.multiplier ?? 1
+      const reward = Math.round(baseReward * multiplier)
 
       let withStats = addStat(state, user, 'served', 1)
       withStats = addStat(withStats, user, 'moneyEarned', reward)
@@ -192,6 +206,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Overheated check
       if (station.overheated) {
         return addMsg(withCooldown, 'KITCHEN', `The ${STATION_DEFS[stationId].name} is overheated! Extinguish it first.`, 'error')
+      }
+
+      // Disabled station check (Kitchen Events — Power Trip)
+      if ((state.disabledStations ?? []).includes(stationId)) {
+        return addMsg(withCooldown, 'KITCHEN', `The ${STATION_DEFS[stationId].name} is offline! Help restore power!`, 'error')
       }
 
       // Station capacity check
@@ -228,7 +247,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         target: matchedStep.target,
         produces: matchedStep.produces,
         cookStart: now,
-        cookDuration: matchedStep.duration / speed,
+        cookDuration: matchedStep.duration / (speed * (state.cookingSpeedModifier?.multiplier ?? 1)),
         heatApplied: 0,
         state: 'cooking',
       }
@@ -374,7 +393,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Timer countdown
       const timeLeft = Math.max(0, state.timeLeft - delta)
 
-      return { ...state, stations: newStations, activeUsers: newActiveUsers, preparedItems: newPreparedItems, playerStats: newPlayerStats, orders, lost, timeLeft, chatMessages: messages.slice(-200), nextMessageId: nextMsgId }
+      // Expire timed modifiers
+      const cookingSpeedModifier = state.cookingSpeedModifier && now < state.cookingSpeedModifier.expiresAt
+        ? state.cookingSpeedModifier : undefined
+      const moneyMultiplier = state.moneyMultiplier && now < state.moneyMultiplier.expiresAt
+        ? state.moneyMultiplier : undefined
+
+      return { ...state, stations: newStations, activeUsers: newActiveUsers, preparedItems: newPreparedItems, playerStats: newPlayerStats, orders, lost, timeLeft, chatMessages: messages.slice(-200), nextMessageId: nextMsgId, cookingSpeedModifier, moneyMultiplier }
     }
 
     case 'ADJUST_COOK_TIMES': {
@@ -404,6 +429,51 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!station) return state
       return { ...state, stations: { ...state.stations, [action.stationId]: { ...station, slots: [], heat: 100, overheated: true, extinguishVotes: [] } } }
     }
+
+    case 'REMOVE_PREPARED_ITEMS': {
+      const count = Math.min(action.count, state.preparedItems.length)
+      if (count === 0) return state
+      const items = [...state.preparedItems]
+      for (let i = 0; i < count; i++) {
+        const idx = Math.floor(Math.random() * items.length)
+        items.splice(idx, 1)
+      }
+      return addMsg({ ...state, preparedItems: items }, 'KITCHEN', `🐀 Rats stole ${count} prepared ingredient(s)!`, 'error')
+    }
+
+    case 'SET_COOKING_SPEED_MODIFIER':
+      return { ...state, cookingSpeedModifier: { multiplier: action.multiplier, expiresAt: action.expiresAt } }
+
+    case 'DISABLE_STATIONS': {
+      const current = state.disabledStations ?? []
+      const merged = [...new Set([...current, ...action.stationIds])]
+      return { ...state, disabledStations: merged }
+    }
+
+    case 'ENABLE_STATIONS': {
+      const current = state.disabledStations ?? []
+      const remaining = current.filter(id => !action.stationIds.includes(id))
+      return { ...state, disabledStations: remaining.length > 0 ? remaining : undefined }
+    }
+
+    case 'ADD_MONEY_MULTIPLIER':
+      return { ...state, moneyMultiplier: { multiplier: action.multiplier, expiresAt: action.expiresAt } }
+
+    case 'ADD_PREPARED_ITEMS':
+      return addMsg(
+        { ...state, preparedItems: [...state.preparedItems, ...action.items] },
+        'KITCHEN', `🧩 Mystery solved! ${action.items.length} ingredients added to the tray!`, 'success'
+      )
+
+    case 'EXTEND_ORDER_PATIENCE': {
+      const updatedOrders = state.orders.map(o =>
+        o.served ? o : { ...o, patienceLeft: Math.min(o.patienceMax, o.patienceLeft + action.ms) }
+      )
+      return addMsg({ ...state, orders: updatedOrders }, 'KITCHEN', `🕺 Dance worked! All orders got extra time!`, 'success')
+    }
+
+    case 'RECORD_EVENT_PARTICIPATION':
+      return addStat(state, action.user, 'eventParticipations', 1)
 
     default:
       return state

@@ -9,6 +9,11 @@
   padding-bottom: 156px;
 }
 
+.overlayLeft {
+  justify-content: flex-start;
+  padding-left: 40px;
+}
+
 .card {
   pointer-events: all;
   background: #252836;
@@ -18,6 +23,10 @@
   max-width: 680px;
   width: 100%;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.75), 0 0 30px rgba(240, 200, 80, 0.15);
+}
+
+.cardNarrow {
+  max-width: 340px;
 }
 
 .stepCounter {
@@ -46,6 +55,7 @@
 .body {
   font-family: 'Fredoka', sans-serif;
   font-size: 18px;
+  font-weight: 600;
   color: #d8dae8;
   line-height: 1.5;
   white-space: pre-line;

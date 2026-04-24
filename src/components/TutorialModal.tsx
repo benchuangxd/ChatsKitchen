@@ -58,9 +58,8 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
             <section className={styles.section}>
               <h3>Round Details</h3>
               <ul className={styles.list}>
-                <li>Each order has a <strong>patience bar</strong> that depletes in real time — when it empties, the order expires and counts against your score.</li>
+                <li>Each order has a <strong>patience bar</strong> that depletes in real time — when it empties, the order expires and counts as a loss.</li>
                 <li>Serve quickly to earn a <strong>time bonus of up to +$30</strong> — the more patience remaining, the bigger the bonus.</li>
-                <li>Orders expire if patience runs out before they are served — a lost order counts against your team's score.</li>
               </ul>
             </section>
 
@@ -77,6 +76,9 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 <span><code>cook [ingredient]</code><span className={styles.cmdStation}>Rice Pot</span><span className={styles.cmdAlias}>ck</span></span>
                 <span><code>toast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>t</span></span>
                 <span><code>roast [ingredient]</code><span className={styles.cmdStation}>Oven</span><span className={styles.cmdAlias}>r</span></span>
+                <span><code>mix [ingredient]</code><span className={styles.cmdStation}>Mixing Bowl</span><span className={styles.cmdAlias}>mx</span></span>
+                <span><code>grind [ingredient]</code><span className={styles.cmdStation}>Grinder</span><span className={styles.cmdAlias}>gr</span></span>
+                <span><code>knead [ingredient]</code><span className={styles.cmdStation}>Knead Board</span><span className={styles.cmdAlias}>kn</span></span>
                 <span><code>cool [station]</code><span className={styles.cmdStation}>any station</span><span className={styles.cmdAlias}>cl</span></span>
                 <span><code>serve [order#]</code><span className={styles.cmdStation}></span><span className={styles.cmdAlias}>s</span></span>
                 <span><code>extinguish [station]</code><span className={styles.cmdStation}>any station</span></span>
@@ -110,9 +112,21 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
             </section>
 
             <section className={styles.section}>
+              <h3>Kitchen Events</h3>
+              <p>
+                When Kitchen Events are enabled, random events fire mid-round. A card appears on screen with a command or phrase — the whole chat must type it together to respond before the timer runs out.
+              </p>
+              <ul className={styles.list}>
+                <li><strong>Opportunities</strong> (e.g. Chef's Chant, Mystery Recipe) — resolve them for a bonus like faster cooking or free ingredients.</li>
+                <li><strong>Hazards</strong> (e.g. Angry Chef, Smoke Blast) — respond to reduce the penalty; ignore them and you'll suffer the full effect.</li>
+                <li>Events need a minimum number of participants to resolve — coordinate your chat to hit the threshold in time.</li>
+              </ul>
+            </section>
+
+            <section className={styles.section}>
               <h3>Tips</h3>
               <ul className={styles.list}>
-                <li><strong>Heat hazard:</strong> each completed cook heats up that station. Type <code>cool [station]</code> (e.g. <code>cool grill</code>) to reduce heat before it maxes out. At 100% the station overheats — <code>extinguish [station]</code> requires 30% of active players to restore it.</li>
+                <li><strong>Heat hazard:</strong> stations heat up gradually while cooking. Type <code>cool [station]</code> (e.g. <code>cool grill</code>) to reduce heat before it maxes out. At 100% the station overheats — <code>extinguish [station]</code> requires 50% of active players to vote and restore it.</li>
                 <li>Multiple players can cook different stations simultaneously — coordinate to prepare all ingredients in parallel.</li>
                 <li>Connect to Twitch before playing if you want your community to join in.</li>
                 <li>Open the in-game <strong>Commands &amp; Recipes</strong> panel anytime for a quick reference.</li>

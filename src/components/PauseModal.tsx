@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { AudioSettings, GameOptions } from '../state/types'
 import { RECIPES } from '../data/recipes'
 import FoodIcon from './FoodIcon'
@@ -37,7 +38,7 @@ export default function PauseModal({
     return () => window.removeEventListener('keydown', handler)
   }, [onResume])
 
-  return (
+  return createPortal(
     <div className={styles.backdrop}>
       <div className={styles.modal}>
         <button className={styles.closeBtn} onClick={onResume}>✕</button>
@@ -109,6 +110,7 @@ export default function PauseModal({
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -4,6 +4,8 @@ import { STATION_DEFS, NAME_COLORS, INGREDIENT_EMOJI } from '../data/recipes'
 import FoodIcon from './FoodIcon'
 import styles from './Station.module.css'
 
+const HEAT_EXEMPT = new Set(['cutting_board', 'mixing_bowl', 'grinder', 'knead_board'])
+
 function hashStr(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
@@ -54,12 +56,6 @@ function heatBorderColor(heat: number, overheated: boolean): string {
 }
 
 export default function Station({ station, capacity, playerCount, isHighlighted }: Props) {
-  const def = STATION_DEFS[station.id]
-  if (!def) return null
-
-  const borderColor = heatBorderColor(station.heat, station.overheated)
-  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
-
   const [coolFlash, setCoolFlash] = useState(false)
   const [showCoolText, setShowCoolText] = useState(false)
   const [coolPlayer, setCoolPlayer] = useState<string | null>(null)
@@ -76,7 +72,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
     const t1 = setTimeout(() => setCoolFlash(false), 600)
     const t2 = setTimeout(() => { setShowCoolText(false); setCoolPlayer(null) }, 1000)
     return () => { clearTimeout(t1); clearTimeout(t2) }
-  }, [station.lastCooledAt])
+  }, [station.lastCooledAt, station.lastCooledBy])
 
   useEffect(() => {
     if (!station.lastExtinguishedAt) return
@@ -84,7 +80,7 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
     setExtinguishPlayers(station.lastExtinguishedBy ?? [])
     const t = setTimeout(() => { setShowExtinguishText(false); setExtinguishPlayers([]) }, 1200)
     return () => clearTimeout(t)
-  }, [station.lastExtinguishedAt])
+  }, [station.lastExtinguishedAt, station.lastExtinguishedBy])
 
   useEffect(() => {
     if (!station.lastCompletion) return
@@ -93,14 +89,20 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
     setCompletionPlayer(station.lastCompletion.by)
     const t = setTimeout(() => { setCompletionEmoji(null); setCompletionPlayer(null) }, 900)
     return () => clearTimeout(t)
-  }, [station.lastCompletion?.at])
+  }, [station.lastCompletion])
+
+  const def = STATION_DEFS[station.id]
+  if (!def) return null
+
+  const borderColor = heatBorderColor(station.heat, station.overheated)
+  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
 
   return (
     <div className={`${styles.station} ${station.overheated ? styles.fire : ''} ${coolFlash ? styles.coolFlash : ''} ${isHighlighted ? styles.highlighted : ''}`} style={{ borderColor }}>
       <div className={styles.label}>
         <span className={styles.stationEmoji}>{def.emoji}</span>
         <span className={styles.stationName}>{def.name}</span>
-        {!station.overheated && station.id !== 'cutting_board' && (
+        {!station.overheated && !HEAT_EXEMPT.has(station.id) && (
           <span className={styles.heatBadge}>{Math.floor(station.heat)}% 🔥</span>
         )}
         {capacity !== Infinity && (

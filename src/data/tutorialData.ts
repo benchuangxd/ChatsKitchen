@@ -116,8 +116,21 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     advanceCondition: (state) => state.stations['fryer']?.overheated === false,
   },
   {
+    title: "🎲 Kitchen Events",
+    body: "During a shift, random Kitchen Events can interrupt gameplay — a challenge card appears on screen and your whole chat must respond together. Opportunities earn rewards if enough viewers respond in time; hazards trigger penalties if you fail or the timer runs out.",
+    highlight: 'none',
+    advanceMode: 'button',
+  },
+  {
+    title: "🧩 Mystery Recipe",
+    body: "This is what an event looks like! A Mystery Recipe shows an anagram of an ingredient name — chat must type the correct unscrambled answer before the timer runs out.\n\nThe anagram is EDCILS FEEB. Type the unscrambled answer to resolve it:",
+    highlight: 'none',
+    advanceMode: 'auto',
+    commandHint: 'SLICED BEEF',
+  },
+  {
     title: "You're ready! 🎉",
-    body: "You know the full loop — cook, prep, serve, and manage heat. In real play, your entire Twitch chat pitches in across all stations at once. The more you coordinate, the more you earn. Good luck, chef!",
+    body: "You know the full loop — cook, prep, serve, manage heat, and respond to events. In real play, your entire Twitch chat pitches in across all stations at once. The more you coordinate, the more you earn. Good luck, chef!",
     highlight: 'none',
     advanceMode: 'button',
   },
