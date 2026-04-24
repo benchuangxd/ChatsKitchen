@@ -39,6 +39,10 @@ export function parseCommand(user: string, text: string, shortformEnabled = fals
     case 'grind':
     case 'knead':
       return target ? { type: 'COOK', user, action: resolvedAction, target, now: Date.now() } : null
+    case 'red':
+      return { type: 'JOIN_TEAM', username: user, team: 'red' }
+    case 'blue':
+      return { type: 'JOIN_TEAM', username: user, team: 'blue' }
     default:
       return null
   }
