@@ -493,7 +493,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'BALANCE_TEAMS': {
-      const players = Object.keys(state.teams ?? {})
+      if (!state.teams || Object.keys(state.teams).length === 0) return state
+      const players = Object.keys(state.teams)
       const shuffled = [...players].sort(() => Math.random() - 0.5)
       const balanced: Record<string, 'red' | 'blue'> = {}
       shuffled.forEach((p, i) => { balanced[p] = i % 2 === 0 ? 'red' : 'blue' })
