@@ -274,6 +274,7 @@ export function useKitchenEvents(
 
     const newUsers = [...ev.respondedUsers, user]
     const progress = Math.min(100, Math.round(newUsers.length / ev.threshold * 100))
+    dispatch({ type: 'RECORD_EVENT_PARTICIPATION', user })
 
     if (newUsers.length >= ev.threshold) {
       resolveEvent({ ...ev, respondedUsers: newUsers, progress: 100 })
@@ -282,7 +283,7 @@ export function useKitchenEvents(
         ? { ...prev, respondedUsers: newUsers, progress }
         : prev)
     }
-  }, [resolveEvent])
+  }, [resolveEvent, dispatch])
 
   // Stop events when deactivated (e.g. game ends)
   useEffect(() => {

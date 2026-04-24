@@ -39,6 +39,20 @@ export default function CreditsScreen({ onBack }: Props) {
         </section>
 
         <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Inspiration</h2>
+          <ul className={styles.list}>
+            <li className={styles.item}>
+              <span className={styles.name}>Overcooked</span>
+              <span className={styles.role}>Game Design</span>
+            </li>
+            <li className={styles.item}>
+              <span className={styles.name}>Chatexto</span>
+              <span className={styles.role}>User Experience</span>
+            </li>
+          </ul>
+        </section>
+
+        <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Art Credits</h2>
           <ul className={styles.list}>
             <li className={styles.item}>

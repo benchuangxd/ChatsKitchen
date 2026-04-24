@@ -4,6 +4,8 @@ import { RECIPES } from '../data/recipes'
 import FoodIcon from './FoodIcon'
 import { ADVENTURE_SHIFT_DURATION } from '../data/adventureMode'
 import AdventureExitConfirm from './AdventureExitConfirm'
+import { TwitchStatus } from '../hooks/useTwitchChat'
+import TwitchStatusPill from './TwitchStatusPill'
 import styles from './AdventureBriefing.module.css'
 
 const SHIFT_MINUTES = Math.round(ADVENTURE_SHIFT_DURATION / 60_000)
@@ -13,9 +15,11 @@ interface Props {
   bestRun: AdventureBestRun | null
   onStart: () => void
   onMenu: () => void
+  twitchStatus: TwitchStatus
+  twitchChannel: string | null
 }
 
-export default function AdventureBriefing({ run, bestRun, onStart, onMenu }: Props) {
+export default function AdventureBriefing({ run, bestRun, onStart, onMenu, twitchStatus, twitchChannel }: Props) {
   const [confirmExit, setConfirmExit] = useState(false)
 
   const lastResult = run.shiftResults.length > 0
@@ -54,6 +58,7 @@ export default function AdventureBriefing({ run, bestRun, onStart, onMenu }: Pro
         <div className={styles.buttons}>
           <button className={styles.startBtn} onClick={onStart}>START</button>
           <button className={styles.menuBtn} onClick={() => setConfirmExit(true)}>Main Menu</button>
+          <TwitchStatusPill status={twitchStatus} channel={twitchChannel} />
         </div>
       </div>
 

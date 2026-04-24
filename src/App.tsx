@@ -18,6 +18,7 @@ import AdventureRunEnd from './components/AdventureRunEnd'
 import AdventureShiftPassed from './components/AdventureShiftPassed'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
+import NoTwitchPrompt from './components/NoTwitchPrompt'
 import TutorialOverlay from './components/TutorialOverlay'
 import { TUTORIAL_STEPS } from './data/tutorialData'
 import PauseModal from './components/PauseModal'
@@ -157,6 +158,8 @@ export default function App() {
   })
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false)
   const [tutorialDestination, setTutorialDestination] = useState<TutorialDestination>('menu')
+  const [showNoTwitchPrompt, setShowNoTwitchPrompt] = useState(false)
+  const pendingActionRef = useRef<(() => void) | null>(null)
   const [tutorialStep, setTutorialStep] = useState<number | null>(null)
   const [tutorialResetKey, setTutorialResetKey] = useState(0)
   const [tutorialEvent, setTutorialEvent] = useState<KitchenEvent | null>(null)
@@ -205,14 +208,39 @@ export default function App() {
     setScreen('adventurebriefing')
   }, [])
 
+  const checkTwitch = useCallback((action: () => void) => {
+    if (!twitchChannel) {
+      pendingActionRef.current = action
+      setShowNoTwitchPrompt(true)
+      return
+    }
+    action()
+  }, [twitchChannel])
+
+  const confirmNoTwitch = useCallback(() => {
+    setShowNoTwitchPrompt(false)
+    const action = pendingActionRef.current
+    pendingActionRef.current = null
+    action?.()
+  }, [])
+
+  const cancelNoTwitch = useCallback(() => {
+    setShowNoTwitchPrompt(false)
+    pendingActionRef.current = null
+  }, [])
+
   const continueFromTutorial = useCallback((destination: TutorialDestination) => {
     if (destination === 'freeplaysetup') {
-      setScreen('freeplaysetup')
+      checkTwitch(() => setScreen('freeplaysetup'))
       return
     }
 
     setScreen('menu')
-  }, [])
+  }, [checkTwitch])
+
+  const handleMenuAdventure = useCallback(() => {
+    checkTwitch(startAdventure)
+  }, [checkTwitch, startAdventure])
 
   const dismissTutorialPrompt = useCallback(() => {
     setShowTutorialPrompt(false)
@@ -532,6 +560,9 @@ export default function App() {
       localStorage.removeItem('chatsKitchen_freePlayHistory')
       localStorage.removeItem('chatsKitchen_gameOptions')
       localStorage.removeItem('chatsKitchen_hideTutorialPrompt')
+      localStorage.removeItem('preparedItems.showNames')
+      localStorage.removeItem('diningRoom.simpleTickets')
+      localStorage.removeItem('kitchen.showCommands')
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
@@ -558,7 +589,7 @@ export default function App() {
     content = (
       <MainMenu
         onPlay={() => handleMenuPlay('freeplaysetup')}
-        onAdventure={startAdventure}
+        onAdventure={handleMenuAdventure}
         onOptions={() => setScreen('options')}
         onFeedback={() => setShowFeedback(true)}
         onCredits={() => setScreen('credits')}
@@ -578,6 +609,8 @@ export default function App() {
         bestRun={adventureBestRun}
         onStart={() => setScreen('countdown')}
         onMenu={() => { setAdventureRun(null); setScreen('menu') }}
+        twitchStatus={twitchChat.status}
+        twitchChannel={twitchChannel}
       />
     )
   } else if (screen === 'options') {
@@ -585,7 +618,7 @@ export default function App() {
   } else if (screen === 'credits') {
     content = <CreditsScreen onBack={() => setScreen('menu')} />
   } else if (screen === 'freeplaysetup') {
-    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen('menu')} />
+    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen('menu')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
   } else if (screen === 'countdown') {
     content = <Countdown onDone={() => setScreen('playing')} />
   } else if (screen === 'shiftend') {
@@ -665,7 +698,7 @@ export default function App() {
             />
           )}
         </div>
-        <BottomBar money={state.money} served={state.served} lost={state.lost} />
+        <BottomBar money={state.money} served={state.served} lost={state.lost} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
         <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
           <button className={styles.settingsBtn} onClick={() => setPaused(true)}>⚙️</button>
         </div>
@@ -713,6 +746,12 @@ export default function App() {
           onStartTutorial={startTutorial}
           onNo={dismissTutorialPrompt}
           onDontShowAgain={disableTutorialPrompt}
+        />
+      )}
+      {showNoTwitchPrompt && screen === 'menu' && !tutorialOpen && !showTutorialPrompt && (
+        <NoTwitchPrompt
+          onContinue={confirmNoTwitch}
+          onBack={cancelNoTwitch}
         />
       )}
       {tutorialOpen && (

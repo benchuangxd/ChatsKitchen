@@ -49,6 +49,8 @@ export interface PlayerStats {
   moneyEarned: number
   extinguished: number
   firesCaused: number
+  cooled: number
+  eventParticipations: number
 }
 
 export interface StationCapacity {

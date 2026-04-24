@@ -10,7 +10,7 @@ function hashStr(s: string): number {
 }
 
 function totalActions(s: PlayerStats): number {
-  return s.cooked + s.served + s.extinguished - s.firesCaused
+  return s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
 }
 
 interface Props {
@@ -109,6 +109,8 @@ export default function AdventureRunEnd({ run, bestRun, isNewBestRun, onPlayAgai
               <span className={styles.lbDetail} title="Cooked">🍳</span>
               <span className={styles.lbDetail} title="Served">✅</span>
               <span className={styles.lbDetail} title="Extinguished">🧯</span>
+              <span className={styles.lbDetail} title="Cooled">❄️</span>
+              <span className={styles.lbDetail} title="Event Participations">✨</span>
               <span className={styles.lbDetail} title="Fires Caused">🔥</span>
               <span className={styles.lbTotal}>Total</span>
             </div>
@@ -126,6 +128,8 @@ export default function AdventureRunEnd({ run, bestRun, isNewBestRun, onPlayAgai
                   <span className={styles.lbDetail}>{s.cooked}</span>
                   <span className={styles.lbDetail}>{s.served}</span>
                   <span className={styles.lbDetail}>{s.extinguished}</span>
+                  <span className={styles.lbDetail}>{s.cooled}</span>
+                  <span className={styles.lbDetail}>{s.eventParticipations}</span>
                   <span className={styles.lbDetail} style={{ color: '#d94f4f' }}>{s.firesCaused}</span>
                   <span className={styles.lbTotal}>{totalActions(s)}</span>
                 </div>

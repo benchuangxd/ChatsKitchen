@@ -46,7 +46,7 @@ export default function EventCardOverlay({ activeEvent }: Props) {
     return () => {
       if (tearTimerRef.current) clearTimeout(tearTimerRef.current)
     }
-  }, [activeEvent?.resolved, activeEvent?.failed, activeEvent?.id])
+  }, [activeEvent])
 
   if (!activeEvent && !flashing) return null
 

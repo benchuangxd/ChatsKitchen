@@ -165,7 +165,7 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
           Reset Everything To Default
         </button>
         <div className={styles.resetHint}>
-          Clears free play settings, audio settings, level progress, and tutorial prompt preferences.
+          Clears free play settings, audio settings, high scores, and tutorial prompt preferences.
         </div>
       </div>
 
@@ -174,7 +174,7 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
           <div className={styles.dialog}>
             <div className={styles.dialogTitle}>Reset Everything?</div>
             <div className={styles.dialogText}>
-              This will clear your saved stars, audio preferences, free play settings, and tutorial flags.
+              This will clear your audio preferences, free play settings, high scores, and tutorial flags.
             </div>
             <div className={styles.dialogActions}>
               <button className={styles.dialogCancelBtn} onClick={() => setConfirmOpen(false)}>
