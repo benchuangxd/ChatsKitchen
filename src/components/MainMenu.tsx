@@ -163,7 +163,7 @@ export default function MainMenu({ onPlay, onPvp, onAdventure, onOptions, onFeed
             <div className={styles.lvArrow}>→</div>
           </button>
 
-          <button className={styles.modeAdventures} onClick={onPvp}>
+          <button className={styles.modePvp} onClick={onPvp}>
             <div>
               <div className={styles.lvName}>PvP</div>
               <div className={styles.lvDesc}>Two teams compete — most money wins!</div>
