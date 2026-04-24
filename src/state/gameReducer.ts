@@ -12,7 +12,7 @@ export type GameAction =
   | { type: 'COOL'; user: string; stationId: string }
   | { type: 'SPAWN_ORDER'; now: number }
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
-  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; orderSpawnRate: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[] }
+  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; orderSpawnRate: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[]; teams?: Record<string, 'red' | 'blue'> }
   | { type: 'ADJUST_COOK_TIMES'; offset: number }
   | { type: 'SET_STATION_HEAT'; stationId: string; heat: number }
   | { type: 'OVERHEAT_STATION'; stationId: string }
@@ -35,13 +35,15 @@ export function createInitialState(
   orderSpawnRate = 1,
   stationCapacity: StationCapacity = { chopping: 3, cooking: 2 },
   restrictSlots = false,
-  enabledRecipes: string[] = Object.keys(RECIPES)
+  enabledRecipes: string[] = Object.keys(RECIPES),
+  teams: Record<string, 'red' | 'blue'> = {}
 ): GameState {
   const stations: Record<string, Station> = {}
   for (const id of Object.keys(STATION_DEFS)) {
     stations[id] = { id, slots: [], heat: 0, overheated: false, extinguishVotes: [] }
   }
 
+  const pvp = Object.keys(teams).length > 0
   return {
     money: 0,
     served: 0,
@@ -66,6 +68,13 @@ export function createInitialState(
     disabledStations: undefined,
     cookingSpeedModifier: undefined,
     moneyMultiplier: undefined,
+    teams: pvp ? teams : undefined,
+    redPreparedItems: pvp ? [] : undefined,
+    bluePreparedItems: pvp ? [] : undefined,
+    redMoney: pvp ? 0 : undefined,
+    blueMoney: pvp ? 0 : undefined,
+    redServed: pvp ? 0 : undefined,
+    blueServed: pvp ? 0 : undefined,
   }
 }
 
@@ -97,7 +106,7 @@ function isUserBusy(state: GameState, user: string): boolean {
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RESET':
-      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.orderSpawnRate, action.stationCapacity, action.restrictSlots, action.enabledRecipes)
+      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.orderSpawnRate, action.stationCapacity, action.restrictSlots, action.enabledRecipes, action.teams ?? {})
 
     case 'ADD_CHAT':
       return addMsg(state, action.username, action.text, action.msgType)
@@ -478,14 +487,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'RECORD_EVENT_PARTICIPATION':
       return addStat(state, action.user, 'eventParticipations', 1)
 
-    case 'JOIN_TEAM':
-      return state
+    case 'JOIN_TEAM': {
+      const teams = { ...(state.teams ?? {}), [action.username]: action.team }
+      return addMsg({ ...state, teams }, 'KITCHEN', `${action.username} joined Team ${action.team === 'red' ? '🔴 Red' : '🔵 Blue'}!`, 'system')
+    }
 
-    case 'BALANCE_TEAMS':
-      return state
+    case 'BALANCE_TEAMS': {
+      const players = Object.keys(state.teams ?? {})
+      const shuffled = [...players].sort(() => Math.random() - 0.5)
+      const balanced: Record<string, 'red' | 'blue'> = {}
+      shuffled.forEach((p, i) => { balanced[p] = i % 2 === 0 ? 'red' : 'blue' })
+      return addMsg({ ...state, teams: balanced }, 'KITCHEN', '⚖️ Teams auto-balanced!', 'system')
+    }
 
-    case 'MOVE_TO_TEAM':
-      return state
+    case 'MOVE_TO_TEAM': {
+      const teams = { ...(state.teams ?? {}), [action.username]: action.team }
+      return addMsg({ ...state, teams }, 'KITCHEN', `${action.username} moved to Team ${action.team === 'red' ? '🔴 Red' : '🔵 Blue'}`, 'system')
+    }
 
     default:
       return state
