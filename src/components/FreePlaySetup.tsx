@@ -3,6 +3,7 @@ import { GameOptions } from '../state/types'
 import { RECIPES, RECIPE_SETS, STATION_DEFS } from '../data/recipes'
 import { EVENT_DEFS } from '../data/kitchenEventDefs'
 import { TwitchStatus } from '../hooks/useTwitchChat'
+import { DEFAULT_GAME_OPTIONS } from '../state/defaultOptions'
 import FoodIcon from './FoodIcon'
 import TwitchStatusPill from './TwitchStatusPill'
 import styles from './FreePlaySetup.module.css'
@@ -112,14 +113,35 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
           />
         </div>
 
-        <button
-          className={styles.moreToggle}
-          onClick={() => setMoreOpen(o => !o)}
-        >
-          {moreOpen ? '▲' : '▼'} More Options
-        </button>
+        <div className={styles.moreToggleRow}>
+          <button
+            className={styles.moreToggle}
+            onClick={() => setMoreOpen(o => !o)}
+          >
+            {moreOpen ? '▲' : '▼'} More Options
+          </button>
+          {moreOpen && (
+            <button
+              className={styles.actionBtn}
+              onClick={() => onChange({
+                ...options,
+                cookingSpeed:           DEFAULT_GAME_OPTIONS.cookingSpeed,
+                orderSpeed:             DEFAULT_GAME_OPTIONS.orderSpeed,
+                orderSpawnRate:         DEFAULT_GAME_OPTIONS.orderSpawnRate,
+                shiftDuration:          DEFAULT_GAME_OPTIONS.shiftDuration,
+                restrictSlots:          DEFAULT_GAME_OPTIONS.restrictSlots,
+                stationCapacity:        { ...DEFAULT_GAME_OPTIONS.stationCapacity },
+                autoRestart:            DEFAULT_GAME_OPTIONS.autoRestart,
+                autoRestartDelay:       DEFAULT_GAME_OPTIONS.autoRestartDelay,
+                kitchenEventDuration:   DEFAULT_GAME_OPTIONS.kitchenEventDuration,
+                kitchenEventSpawnMin:   DEFAULT_GAME_OPTIONS.kitchenEventSpawnMin,
+                kitchenEventSpawnMax:   DEFAULT_GAME_OPTIONS.kitchenEventSpawnMax,
+              })}
+            >Defaults</button>
+          )}
+        </div>
 
-        {moreOpen && (
+        {moreOpen && !hoveredRecipe && !hoveredEvent && (
           <div className={styles.moreSection}>
             <div className={styles.moreRow}>
               <div className={styles.moreLabel}>⚡ Cooking Speed</div>
@@ -293,8 +315,8 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
           </div>
         )}
 
-        {/* ── Shared detail panel ── */}
-        {(() => {
+        {/* ── Shared detail panel — hidden when More Options is open and nothing is hovered ── */}
+        {(!moreOpen || hoveredRecipe || hoveredEvent) && (() => {
           if (hoveredRecipe) {
             const recipe = RECIPES[hoveredRecipe]
             if (!recipe) return null
@@ -390,6 +412,10 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
                       onChange({ ...options, enabledRecipes: shuffled.slice(0, 3) })
                     }}
                   >Random 3</button>
+                  <button
+                    className={styles.actionBtn}
+                    onClick={() => onChange({ ...options, enabledRecipes: DEFAULT_GAME_OPTIONS.enabledRecipes })}
+                  >Defaults</button>
                 </div>
               </div>
               <div className={styles.selectedChips}>
@@ -494,12 +520,22 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
           <div className={styles.eventSection}>
             <div className={styles.eventSectionHeader}>
               <div className={styles.cardLabel} style={{ marginBottom: 0 }}>🍳 Kitchen Events</div>
-              <button
-                className={`${styles.toggleBtn} ${options.kitchenEventsEnabled ? styles.toggleBtnOn : ''}`}
-                onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
-              >
-                {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
-              </button>
+              <div className={styles.eventSectionActions}>
+                <button
+                  className={`${styles.toggleBtn} ${options.kitchenEventsEnabled ? styles.toggleBtnOn : ''}`}
+                  onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
+                >
+                  {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
+                </button>
+                <button
+                  className={styles.actionBtn}
+                  onClick={() => onChange({
+                    ...options,
+                    kitchenEventsEnabled:   DEFAULT_GAME_OPTIONS.kitchenEventsEnabled,
+                    enabledKitchenEvents:   DEFAULT_GAME_OPTIONS.enabledKitchenEvents,
+                  })}
+                >Defaults</button>
+              </div>
             </div>
 
             {options.kitchenEventsEnabled && (() => {

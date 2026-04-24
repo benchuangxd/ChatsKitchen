@@ -1,7 +1,7 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, EventType, KitchenEvent } from './state/types'
+import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, KitchenEvent } from './state/types'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
@@ -35,28 +35,12 @@ import Kitchen from './components/Kitchen'
 import OrdersBar from './components/DiningRoom'
 import ChatPanel from './components/ChatPanel'
 import BottomBar from './components/BottomBar'
+import { DEFAULT_GAME_OPTIONS } from './state/defaultOptions'
 import styles from './App.module.css'
 
 type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
 type TutorialDestination = 'menu' | 'freeplaysetup'
 
-const DEFAULT_GAME_OPTIONS: GameOptions = {
-  cookingSpeed: 1,
-  orderSpeed: 1,
-  orderSpawnRate: 1,
-  shiftDuration: 180000,
-  stationCapacity: { chopping: 3, cooking: 2 },
-  restrictSlots: false,
-  enabledRecipes: ['burger', 'fish_burger', 'salad', 'roasted_veggies'],
-  allowShortformCommands: true,
-  autoRestart: false,
-  autoRestartDelay: 60,
-  kitchenEventsEnabled: true,
-  enabledKitchenEvents: ['angry_chef', 'smoke_blast', 'mystery_recipe', 'dance'] as EventType[],
-  kitchenEventSpawnMin: 30,
-  kitchenEventSpawnMax: 60,
-  kitchenEventDuration: 20,
-}
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   masterVolume: 1,
