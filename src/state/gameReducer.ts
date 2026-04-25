@@ -24,9 +24,6 @@ export type GameAction =
   | { type: 'ADD_PREPARED_ITEMS'; items: string[] }
   | { type: 'EXTEND_ORDER_PATIENCE'; ms: number }
   | { type: 'RECORD_EVENT_PARTICIPATION'; user: string }
-  | { type: 'JOIN_TEAM'; username: string; team: 'red' | 'blue' }
-  | { type: 'BALANCE_TEAMS' }
-  | { type: 'MOVE_TO_TEAM'; username: string; team: 'red' | 'blue' }
 
 export function createInitialState(
   shiftDuration = 120000,
@@ -534,27 +531,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'RECORD_EVENT_PARTICIPATION':
       return addStat(state, action.user, 'eventParticipations', 1)
-
-    case 'JOIN_TEAM': {
-      if (!state.teams) return state
-      const teams = { ...state.teams, [action.username]: action.team }
-      return addMsg({ ...state, teams }, 'KITCHEN', `${action.username} joined Team ${action.team === 'red' ? '🔴 Red' : '🔵 Blue'}!`, 'system')
-    }
-
-    case 'BALANCE_TEAMS': {
-      if (!state.teams || Object.keys(state.teams).length === 0) return state
-      const players = Object.keys(state.teams)
-      const shuffled = [...players].sort(() => Math.random() - 0.5)
-      const balanced: Record<string, 'red' | 'blue'> = {}
-      shuffled.forEach((p, i) => { balanced[p] = i % 2 === 0 ? 'red' : 'blue' })
-      return addMsg({ ...state, teams: balanced }, 'KITCHEN', '⚖️ Teams auto-balanced!', 'system')
-    }
-
-    case 'MOVE_TO_TEAM': {
-      if (!state.teams) return state
-      const teams = { ...state.teams, [action.username]: action.team }
-      return addMsg({ ...state, teams }, 'KITCHEN', `${action.username} moved to Team ${action.team === 'red' ? '🔴 Red' : '🔵 Blue'}`, 'system')
-    }
 
     default:
       return state

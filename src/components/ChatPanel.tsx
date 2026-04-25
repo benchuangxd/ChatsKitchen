@@ -14,9 +14,10 @@ interface Props {
   onSend: (text: string) => void
   onClose: () => void
   teams?: Record<string, 'red' | 'blue'>
+  className?: string
 }
 
-export default function ChatPanel({ messages, onSend, onClose, teams }: Props) {
+export default function ChatPanel({ messages, onSend, onClose, teams, className }: Props) {
   const [input, setInput] = useState('')
   const [historyOpen, setHistoryOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -32,7 +33,7 @@ export default function ChatPanel({ messages, onSend, onClose, teams }: Props) {
   }
 
   return (
-    <aside className={`${styles.panel} ${historyOpen ? styles.panelExpanded : ''}`}>
+    <aside className={`${styles.panel} ${historyOpen ? styles.panelExpanded : ''} ${className ?? ''}`}>
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <span className={styles.dot} /> CHAT

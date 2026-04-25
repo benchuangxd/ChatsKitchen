@@ -468,6 +468,11 @@ export default function App() {
       const team = moveMatch[1] as 'red' | 'blue'
       const target = moveMatch[2]
       const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
+      const lobby = pvpLobbyRef.current
+      if (!lobby || (!lobby.red.includes(target) && !lobby.blue.includes(target))) {
+        showToast(`❌ ${target} not found`)
+        return
+      }
       setPvpLobby(prev => {
         if (!prev) return prev
         return {
@@ -528,6 +533,15 @@ export default function App() {
         })
         return
       }
+      if (cmd === '!join') {
+        setPvpLobby(prev => {
+          if (!prev) return prev
+          if (prev.red.includes(user) || prev.blue.includes(user)) return prev
+          const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
+          return { ...prev, [team]: [...prev[team], user] }
+        })
+        return
+      }
       handleLobbyMetaCommand(user, text, isMod)
       return
     }
@@ -552,6 +566,15 @@ export default function App() {
             [team]: prev[team].includes('You') ? prev[team] : [...prev[team], 'You'],
             [other]: prev[other].filter(u => u !== 'You'),
           }
+        })
+        return
+      }
+      if (cmd === '!join') {
+        setPvpLobby(prev => {
+          if (!prev) return prev
+          if (prev.red.includes('You') || prev.blue.includes('You')) return prev
+          const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
+          return { ...prev, [team]: [...prev[team], 'You'] }
         })
         return
       }
@@ -714,8 +737,22 @@ export default function App() {
       <PvPLobby
         red={pvpLobby?.red ?? []}
         blue={pvpLobby?.blue ?? []}
-        messages={state.chatMessages}
-        onChatSend={handleChatSend}
+        onMovePlayer={(username, team) => setPvpLobby(prev => {
+          if (!prev) return prev
+          const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
+          return {
+            ...prev,
+            [team]: prev[team].includes(username) ? prev[team] : [...prev[team], username],
+            [other]: prev[other].filter(u => u !== username),
+          }
+        })}
+        onBalance={() => setPvpLobby(prev => {
+          if (!prev) return prev
+          const all = [...prev.red, ...prev.blue].sort(() => Math.random() - 0.5)
+          return { red: all.filter((_, i) => i % 2 === 0), blue: all.filter((_, i) => i % 2 !== 0) }
+        })}
+        onClear={() => setPvpLobby(prev => prev ? { red: [], blue: [] } : prev)}
+        onBack={() => { setPvpLobby(null); setScreen('menu') }}
         onNext={startPvpGame}
       />
     )

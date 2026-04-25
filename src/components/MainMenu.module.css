@@ -448,6 +448,14 @@
   flex-shrink: 0;
 }
 
+/* Adventure + PvP side-by-side */
+.modeRow {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
 /* Tutorial + Options row */
 .modeBottomRow {
   display: flex;
