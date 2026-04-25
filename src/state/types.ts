@@ -53,6 +53,13 @@ export interface PlayerStats {
   eventParticipations: number
 }
 
+export interface RoundRecord {
+  money: number
+  served: number
+  lost: number
+  playerCount: number
+}
+
 export interface StationCapacity {
   chopping: number    // slots for cutting_board
   cooking: number     // slots per cooking station (grill, fryer, stove, oven)
@@ -69,6 +76,7 @@ export interface GameOptions {
   allowShortformCommands: boolean
   autoRestart: boolean
   autoRestartDelay: number  // seconds
+  expectedPlayers: number   // default: 10
   kitchenEventsEnabled: boolean
   enabledKitchenEvents: EventType[]
   kitchenEventSpawnMin: number    // seconds
