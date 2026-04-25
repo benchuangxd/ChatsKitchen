@@ -74,10 +74,12 @@ patienceFactor = clamp(effectivePatience / (completionTime * 1.5), 0.15, 1.0)
 #### 4. Coordination efficiency
 Models how much of theoretical throughput the kitchen achieves given player count:
 ```
-// Count total station slots needed by enabled recipes
-stationSlots = Σ (slots per station type used by any enabled recipe)
-             = chopping slots (if cutting_board needed)
-             + capacity.cooking × (count of non-chopping station types needed)
+// Count total station slots needed by enabled recipes.
+// StationCapacity has exactly two fields:
+//   chopping — slot limit for cutting_board
+//   cooking  — slot limit for every other station type (grill, fryer, oven, wok, etc.)
+stationSlots = (cuttingBoardNeeded ? capacity.chopping : 0)
+             + capacity.cooking × (distinct non-chopping station types needed by enabled recipes)
 
 playerFactor = clamp(expectedPlayers / stationSlots, 0, 1.0)
 coordinationEfficiency = 0.20 + 0.75 × playerFactor
@@ -98,13 +100,14 @@ theoreticalMax = totalSpawnableOrders × avgReward × patienceFactor × coordina
 ```
 
 #### 6. Event modifier
-Only applied when `kitchenEventsEnabled = true`:
+Only applied when `kitchenEventsEnabled = true`. `enabledKitchenEvents` is a non-empty array of specific event types the player has toggled on — an empty array means no events are selected (same as disabled), which yields `eventFactor = 1.0`.
+
 ```
 HAZARD_TYPES = ['rat_invasion', 'angry_chef', 'power_trip', 'smoke_blast', 'glitched_orders']
 OPP_TYPES    = ['chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance']
 
-hazardCount = enabledKitchenEvents ∩ HAZARD_TYPES — count
-oppCount    = enabledKitchenEvents ∩ OPP_TYPES    — count
+hazardCount = count of HAZARD_TYPES present in enabledKitchenEvents
+oppCount    = count of OPP_TYPES present in enabledKitchenEvents
 
 eventFactor = (1.0 − hazardCount × 0.03) × (1.0 + oppCount × 0.02)
 ```
@@ -115,7 +118,7 @@ Hazard events lower the estimated ceiling (thresholds drop, making stars easier 
 adjustedMax = theoreticalMax × eventFactor
 ```
 
-If events are disabled, `eventFactor = 1.0` and `adjustedMax = theoreticalMax`.
+If `kitchenEventsEnabled = false` or `enabledKitchenEvents` is empty, `eventFactor = 1.0` and `adjustedMax = theoreticalMax`.
 
 #### 7. Star thresholds
 ```
