@@ -1,18 +1,13 @@
 import { useState, useEffect } from 'react'
-import { PlayerStats } from '../state/types'
+import { PlayerStats, RoundRecord } from '../state/types'
 import { NAME_COLORS } from '../data/recipes'
+import { getStarCount } from '../data/starThresholds'
 import styles from './GameOver.module.css'
 
 function hashStr(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
   return h
-}
-
-interface RoundRecord {
-  money: number
-  served: number
-  lost: number
 }
 
 interface PvpResult {
@@ -35,16 +30,19 @@ interface Props {
   autoRestartDelay?: number
   autoRestartSignal?: number
   pvpResult?: PvpResult
+  starThresholds?: [number, number, number]
   onPlayAgain: () => void
   onNextLevel?: () => void
   onMenu: () => void
   onRecipeSelect?: () => void
 }
 
-export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, onPlayAgain, onNextLevel, onMenu, onRecipeSelect }: Props) {
+export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, starThresholds, onPlayAgain, onNextLevel, onMenu, onRecipeSelect }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
+
+  const starCount = starThresholds ? getStarCount(money, starThresholds) : 0
 
   const [countdown, setCountdown] = useState<number | null>(null)
 
@@ -103,7 +101,24 @@ export default function GameOver({ money, served, lost, playerStats, level, high
         })()}
         <h1 className={styles.title}>{level != null ? `Level ${level} Complete!` : "Time's Up!"}</h1>
 
-<div className={styles.stats}>
+        {starThresholds && (
+          <div className={styles.starDisplay}>
+            <div className={styles.finalStarRow}>
+              {['★', '★', '★'].map((_, i) => (
+                <span key={i} className={i < starCount ? styles.finalStarFilled : styles.finalStarEmpty}>
+                  {i < starCount ? '★' : '☆'}
+                </span>
+              ))}
+            </div>
+            <div className={styles.starThresholdRef}>
+              <span>★ ${starThresholds[0].toLocaleString()}</span>
+              <span>★★ ${starThresholds[1].toLocaleString()}</span>
+              <span>★★★ ${starThresholds[2].toLocaleString()}</span>
+            </div>
+          </div>
+        )}
+
+        <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={styles.statValue}>${money}</div>
             <div className={styles.statLabel}>Money Earned</div>
