@@ -26,6 +26,7 @@ The game supports:
 
 - `Free Play`, where the player can tune settings such as speeds and station capacity
 - `Adventure`, a roguelike multi-shift run where each shift must hit a money goal to continue
+- `PvP Mode`, where chat splits into two competing teams
 
 ## Core Game Loop
 
@@ -41,6 +42,54 @@ Each round follows the same basic loop:
 This loop repeats until the round timer expires.
 
 ## Main Modes
+
+## PvP Mode
+
+PvP Mode splits the chat into two teams — Red and Blue — competing to earn more money by the end of the shift. Both teams share the same kitchen, stations, and order queue. The competition comes from ownership: each team's cooked ingredients land in their own prep pool, and only their players can use those items to serve orders.
+
+### Joining a team
+
+Before the game starts, the streamer opens the **PvP Lobby** screen. Players type in chat:
+
+| Command | Effect |
+|---------|--------|
+| `!red` | Join Red Team |
+| `!blue` | Join Blue Team |
+| `!join` | Auto-join the team with fewer players |
+
+Players can only join once — switching teams after joining is not allowed in the lobby unless the streamer moves them.
+
+### Lobby controls (streamer / mods)
+
+The streamer has full control over the roster:
+
+| Command | Effect |
+|---------|--------|
+| `!balance` | Randomly redistributes all joined players evenly across both teams |
+| `!move red @name` / `!move blue @name` | Moves a specific player to the named team |
+
+Players can also be moved by dragging their name card between the Red and Blue panels in the lobby UI.
+
+### Gameplay in PvP
+
+When the game starts, each team cooks independently:
+
+- Cooking commands route the finished ingredient to the cooking player's team prep pool
+- Orders can only be served using ingredients from the serving player's team's pool
+- Money, served count, and stats are tracked per team
+
+All stations are shared — both teams compete for the same limited slots. Kitchen events and heat affect everyone equally.
+
+The **extinguish threshold** in PvP is based on the larger team: `ceil(max(redSize, blueSize) × 0.5)`.
+
+### Winner banner
+
+The game over screen shows a winner banner at the top based on final money totals:
+
+- 🔴 RED WINS! / 🔵 BLUE WINS! — if one team earned more
+- TIE — if both teams ended with the same amount
+
+Each team's final money and served count appear below the banner. The normal per-player leaderboard and round history remain below.
 
 ## Free Play
 
@@ -148,6 +197,9 @@ The command system is the main input method for chat participation. Commands are
 | `serve` | `serve <order#>` | Serve a completed dish to an order |
 | `cool` | `cool <station>` | Reduce a station's heat by 30% |
 | `extinguish` | `extinguish <station>` | Vote to restore an overheated station (requires 30% of active players) |
+| `red` | `!red` | Join Red Team (PvP lobby only) |
+| `blue` | `!blue` | Join Blue Team (PvP lobby only) |
+| `join` | `!join` | Auto-join the smaller team (PvP lobby only) |
 
 ### Mod / Broadcaster Commands
 
@@ -159,6 +211,8 @@ Certain commands are reserved for Twitch moderators and the broadcaster (or the 
 | `!onAutoRestart` | Playing, Game over | Enables auto-restart |
 | `!offAutoRestart` | Playing, Game over | Disables auto-restart and cancels any active countdown |
 | `!exit` | Playing | Ends the round and triggers the normal shift-end → game-over flow |
+| `!balance` | PvP lobby | Randomly distributes all joined players evenly across both teams |
+| `!move red @name` / `!move blue @name` | PvP lobby | Moves a joined player to the specified team |
 
 When a mod command fires, a brief toast notification appears on screen for the streamer and viewers to see. The game over screen also always shows the available commands as a reference, regardless of whether auto-restart is on or off.
 
@@ -243,7 +297,7 @@ The game is designed to remain understandable even during busy rounds.
 The Main Menu is the hub for:
 
 - connecting Twitch
-- entering Adventure or Free Play
+- entering Adventure, Free Play, or PvP Mode
 - starting the tutorial
 - changing Options
 
