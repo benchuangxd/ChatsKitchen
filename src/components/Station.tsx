@@ -45,6 +45,7 @@ interface Props {
   capacity: number
   playerCount: number
   isHighlighted?: boolean
+  pvpLargerTeamSize?: number
 }
 
 
@@ -55,7 +56,7 @@ function heatBorderColor(heat: number, overheated: boolean): string {
   return '#5aad5e'
 }
 
-export default function Station({ station, capacity, playerCount, isHighlighted }: Props) {
+export default function Station({ station, capacity, playerCount, isHighlighted, pvpLargerTeamSize }: Props) {
   const [coolFlash, setCoolFlash] = useState(false)
   const [showCoolText, setShowCoolText] = useState(false)
   const [coolPlayer, setCoolPlayer] = useState<string | null>(null)
@@ -95,7 +96,9 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
   if (!def) return null
 
   const borderColor = heatBorderColor(station.heat, station.overheated)
-  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
+  const extinguishNeeded = pvpLargerTeamSize !== undefined
+    ? Math.max(1, Math.ceil(pvpLargerTeamSize * 0.5))
+    : Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
 
   return (
     <div className={`${styles.station} ${station.overheated ? styles.fire : ''} ${coolFlash ? styles.coolFlash : ''} ${isHighlighted ? styles.highlighted : ''}`} style={{ borderColor }}>
