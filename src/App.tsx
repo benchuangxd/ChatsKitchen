@@ -812,6 +812,7 @@ export default function App() {
               messages={state.chatMessages}
               onSend={handleChatSend}
               onClose={() => setChatOpen(false)}
+              teams={state.teams}
             />
           )}
         </div>

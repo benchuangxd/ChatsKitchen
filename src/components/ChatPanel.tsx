@@ -13,9 +13,10 @@ interface Props {
   messages: ChatMessage[]
   onSend: (text: string) => void
   onClose: () => void
+  teams?: Record<string, 'red' | 'blue'>
 }
 
-export default function ChatPanel({ messages, onSend, onClose }: Props) {
+export default function ChatPanel({ messages, onSend, onClose, teams }: Props) {
   const [input, setInput] = useState('')
   const [historyOpen, setHistoryOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -39,23 +40,28 @@ export default function ChatPanel({ messages, onSend, onClose }: Props) {
         <button className={styles.closeBtn} onClick={onClose}>{'\u{2715}'}</button>
       </div>
       <div className={styles.messages}>
-        {messages.map(msg => (
-          <div key={msg.id} className={`${styles.msg} ${styles[msg.type] || ''}`}>
-            {msg.type === 'system' ? (
-              <span className={styles.text}>{msg.text}</span>
-            ) : (
-              <>
-                <span
-                  className={styles.username}
-                  style={{ color: NAME_COLORS[Math.abs(hashStr(msg.username)) % NAME_COLORS.length] }}
-                >
-                  {msg.username}:
-                </span>
+        {messages.map(msg => {
+          const usernameColor = teams?.[msg.username] === 'red' ? '#e74c3c'
+            : teams?.[msg.username] === 'blue' ? '#3498db'
+            : NAME_COLORS[Math.abs(hashStr(msg.username)) % NAME_COLORS.length]
+          return (
+            <div key={msg.id} className={`${styles.msg} ${styles[msg.type] || ''}`}>
+              {msg.type === 'system' ? (
                 <span className={styles.text}>{msg.text}</span>
-              </>
-            )}
-          </div>
-        ))}
+              ) : (
+                <>
+                  <span
+                    className={styles.username}
+                    style={{ color: usernameColor }}
+                  >
+                    {msg.username}:
+                  </span>
+                  <span className={styles.text}>{msg.text}</span>
+                </>
+              )}
+            </div>
+          )
+        })}
         <div ref={messagesEndRef} />
       </div>
       <div className={styles.inputArea}>
