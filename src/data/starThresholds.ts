@@ -12,6 +12,10 @@ const HAZARD_TYPES: EventType[] = [
 const OPP_TYPES: EventType[] = [
   'chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance',
 ]
+const ALL_EVENT_TYPES: EventType[] = [...HAZARD_TYPES, ...OPP_TYPES]
+
+// cutting_board, mixing_bowl, grinder, and knead_board all use stationCapacity.chopping
+const CHOPPING_CAPACITY_STATIONS = new Set(['cutting_board', 'mixing_bowl', 'grinder', 'knead_board'])
 
 export function computeStarThresholds(options: GameOptions): [number, number, number] {
   const {
@@ -36,9 +40,6 @@ export function computeStarThresholds(options: GameOptions): [number, number, nu
   const completionTime = REACTION_TIME_MS + effectiveCookTime
   const patienceFactor = Math.min(1.0, Math.max(0.15, effectivePatience / (completionTime * 1.5)))
 
-  // cutting_board, mixing_bowl, grinder, and knead_board all use stationCapacity.chopping
-  // (matches the actual slot-limit logic in gameReducer.ts and Kitchen.tsx)
-  const CHOPPING_CAPACITY_STATIONS = new Set(['cutting_board', 'mixing_bowl', 'grinder', 'knead_board'])
   const enabledStations = getEnabledStations(enabledRecipes)
   const stationSlots = enabledStations.reduce(
     (sum, id) => sum + (CHOPPING_CAPACITY_STATIONS.has(id) ? stationCapacity.chopping : stationCapacity.cooking),
@@ -50,9 +51,11 @@ export function computeStarThresholds(options: GameOptions): [number, number, nu
   const theoreticalMax = totalSpawnableOrders * avgReward * patienceFactor * coordinationEfficiency
 
   let eventFactor = 1.0
-  if (kitchenEventsEnabled && enabledKitchenEvents.length > 0) {
-    const hazardCount = enabledKitchenEvents.filter(e => HAZARD_TYPES.includes(e)).length
-    const oppCount = enabledKitchenEvents.filter(e => OPP_TYPES.includes(e)).length
+  if (kitchenEventsEnabled) {
+    // empty list means all events are active (same convention as useKitchenEvents.ts)
+    const activeEvents = enabledKitchenEvents.length === 0 ? ALL_EVENT_TYPES : enabledKitchenEvents
+    const hazardCount = activeEvents.filter(e => HAZARD_TYPES.includes(e)).length
+    const oppCount = activeEvents.filter(e => OPP_TYPES.includes(e)).length
     eventFactor = (1.0 - hazardCount * 0.03) * (1.0 + oppCount * 0.02)
   }
 
