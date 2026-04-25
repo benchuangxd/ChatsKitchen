@@ -93,7 +93,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
 
   const thresholds = computeStarThresholds(options)
-  const recentPlayerCounts = (roundHistory ?? []).slice(-3).map(r => r.playerCount)
+  const recentPlayerCounts = (roundHistory ?? []).slice(0, 3).map(r => r.playerCount)
 
   return (
     <div className={styles.screen}>

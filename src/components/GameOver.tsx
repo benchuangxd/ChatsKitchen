@@ -42,7 +42,7 @@ export default function GameOver({ money, served, lost, playerStats, level, high
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
 
-  const starCount = starThresholds ? getStarCount(money, starThresholds) : 0
+  const starCount = starThresholds ? getStarCount(money, starThresholds) : null
 
   const [countdown, setCountdown] = useState<number | null>(null)
 
@@ -105,8 +105,8 @@ export default function GameOver({ money, served, lost, playerStats, level, high
           <div className={styles.starDisplay}>
             <div className={styles.finalStarRow}>
               {['★', '★', '★'].map((_, i) => (
-                <span key={i} className={i < starCount ? styles.finalStarFilled : styles.finalStarEmpty}>
-                  {i < starCount ? '★' : '☆'}
+                <span key={i} className={i < (starCount ?? 0) ? styles.finalStarFilled : styles.finalStarEmpty}>
+                  {i < (starCount ?? 0) ? '★' : '☆'}
                 </span>
               ))}
             </div>
