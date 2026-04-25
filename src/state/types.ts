@@ -74,8 +74,6 @@ export interface GameOptions {
   kitchenEventSpawnMin: number    // seconds
   kitchenEventSpawnMax: number    // seconds
   kitchenEventDuration: number    // seconds — applies to all timed events (hazard-penalty + opportunity)
-  pvpMode: boolean
-  pvpAutoBalance: boolean
 }
 
 export interface AudioSettings {

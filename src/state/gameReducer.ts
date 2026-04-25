@@ -195,6 +195,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const order = state.orders[orderIdx]
       const recipe = RECIPES[order.dish]
 
+      if (state.teams && !state.teams[user]) {
+        return addMsg(state, 'KITCHEN', `${user} is not on a team!`, 'error')
+      }
+
       // Check preparedItems has all required ingredients (team-aware)
       const needed = [...recipe.plate]
       const available = [...teamPrepItems(state, user)]
@@ -532,7 +536,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return addStat(state, action.user, 'eventParticipations', 1)
 
     case 'JOIN_TEAM': {
-      const teams = { ...(state.teams ?? {}), [action.username]: action.team }
+      if (!state.teams) return state
+      const teams = { ...state.teams, [action.username]: action.team }
       return addMsg({ ...state, teams }, 'KITCHEN', `${action.username} joined Team ${action.team === 'red' ? '🔴 Red' : '🔵 Blue'}!`, 'system')
     }
 
@@ -546,7 +551,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'MOVE_TO_TEAM': {
-      const teams = { ...(state.teams ?? {}), [action.username]: action.team }
+      if (!state.teams) return state
+      const teams = { ...state.teams, [action.username]: action.team }
       return addMsg({ ...state, teams }, 'KITCHEN', `${action.username} moved to Team ${action.team === 'red' ? '🔴 Red' : '🔵 Blue'}`, 'system')
     }
 

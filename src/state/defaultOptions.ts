@@ -16,6 +16,4 @@ export const DEFAULT_GAME_OPTIONS: GameOptions = {
   kitchenEventSpawnMin: 30,
   kitchenEventSpawnMax: 60,
   kitchenEventDuration: 20,
-  pvpMode: false,
-  pvpAutoBalance: true,
 }
