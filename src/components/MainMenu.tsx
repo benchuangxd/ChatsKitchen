@@ -4,6 +4,7 @@ import styles from './MainMenu.module.css'
 
 interface Props {
   onPlay: () => void
+  onPvp: () => void
   onAdventure: () => void
   onOptions: () => void
   onFeedback: () => void
@@ -17,7 +18,7 @@ interface Props {
   onTwitchDisconnect: () => void
 }
 
-export default function MainMenu({ onPlay, onAdventure, onOptions, onFeedback, onCredits, onTutorial, onStartTutorial, twitchChannel, twitchStatus, twitchError, onTwitchConnect, onTwitchDisconnect }: Props) {
+export default function MainMenu({ onPlay, onPvp, onAdventure, onOptions, onFeedback, onCredits, onTutorial, onStartTutorial, twitchChannel, twitchStatus, twitchError, onTwitchConnect, onTwitchDisconnect }: Props) {
   const [twitchInput, setTwitchInput] = useState(twitchChannel || '')
   const isConnected = twitchStatus === 'connected'
   const isConnecting = twitchStatus === 'connecting'
@@ -154,13 +155,23 @@ export default function MainMenu({ onPlay, onAdventure, onOptions, onFeedback, o
             <div className={styles.fpArrow}>▶</div>
           </button>
 
-          <button className={styles.modeAdventures} onClick={onAdventure}>
-            <div>
-              <div className={styles.lvName}>Adventure</div>
-              <div className={styles.lvDesc}>Roguelike runs — how many shifts can you survive?</div>
-            </div>
-            <div className={styles.lvArrow}>→</div>
-          </button>
+          <div className={styles.modeRow}>
+            <button className={styles.modeAdventures} onClick={onAdventure}>
+              <div>
+                <div className={styles.lvName}>Adventure</div>
+                <div className={styles.lvDesc}>Roguelike runs — how many shifts can you survive?</div>
+              </div>
+              <div className={styles.lvArrow}>→</div>
+            </button>
+
+            <button className={styles.modePvp} onClick={onPvp}>
+              <div>
+                <div className={styles.lvName}>PvP</div>
+                <div className={styles.lvDesc}>Two teams compete — most money wins!</div>
+              </div>
+              <div className={styles.lvArrow}>⚔️</div>
+            </button>
+          </div>
 
           <div className={styles.modeBottomRow}>
             <button className={styles.modeOptions} onClick={onOptions}>Options</button>

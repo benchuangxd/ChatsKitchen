@@ -438,3 +438,35 @@
   border-color: #d94f4f;
   color: #d94f4f;
 }
+
+/* PvP banner */
+.pvpBanner {
+  border-radius: 10px;
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.pvpBannerRed  { background: rgba(231,76,60,0.15);  border: 2px solid rgba(231,76,60,0.5); }
+.pvpBannerBlue { background: rgba(52,152,219,0.15); border: 2px solid rgba(52,152,219,0.5); }
+.pvpBannerTie  { background: rgba(240,200,80,0.1);  border: 2px solid rgba(240,200,80,0.3); }
+
+.pvpBannerTitle {
+  font-family: 'Lilita One', cursive;
+  font-size: 28px;
+  color: #f0c850;
+  margin-bottom: 8px;
+}
+
+.pvpScores {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+}
+
+.pvpRed  { color: #e74c3c; }
+.pvpBlue { color: #3498db; }
+.pvpVs   { color: #555; }

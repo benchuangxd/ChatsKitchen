@@ -12,7 +12,7 @@ export type GameAction =
   | { type: 'COOL'; user: string; stationId: string }
   | { type: 'SPAWN_ORDER'; now: number }
   | { type: 'ADD_CHAT'; username: string; text: string; msgType: ChatMessage['type'] }
-  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; orderSpawnRate: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[] }
+  | { type: 'RESET'; shiftDuration: number; cookingSpeed: number; orderSpeed: number; orderSpawnRate: number; stationCapacity: StationCapacity; restrictSlots: boolean; enabledRecipes: string[]; teams?: Record<string, 'red' | 'blue'> }
   | { type: 'ADJUST_COOK_TIMES'; offset: number }
   | { type: 'SET_STATION_HEAT'; stationId: string; heat: number }
   | { type: 'OVERHEAT_STATION'; stationId: string }
@@ -32,13 +32,15 @@ export function createInitialState(
   orderSpawnRate = 1,
   stationCapacity: StationCapacity = { chopping: 3, cooking: 2 },
   restrictSlots = false,
-  enabledRecipes: string[] = Object.keys(RECIPES)
+  enabledRecipes: string[] = Object.keys(RECIPES),
+  teams: Record<string, 'red' | 'blue'> = {}
 ): GameState {
   const stations: Record<string, Station> = {}
   for (const id of Object.keys(STATION_DEFS)) {
     stations[id] = { id, slots: [], heat: 0, overheated: false, extinguishVotes: [] }
   }
 
+  const pvp = Object.keys(teams).length > 0
   return {
     money: 0,
     served: 0,
@@ -63,6 +65,13 @@ export function createInitialState(
     disabledStations: undefined,
     cookingSpeedModifier: undefined,
     moneyMultiplier: undefined,
+    teams: pvp ? teams : undefined,
+    redPreparedItems: pvp ? [] : undefined,
+    bluePreparedItems: pvp ? [] : undefined,
+    redMoney: pvp ? 0 : undefined,
+    blueMoney: pvp ? 0 : undefined,
+    redServed: pvp ? 0 : undefined,
+    blueServed: pvp ? 0 : undefined,
   }
 }
 
@@ -91,10 +100,26 @@ function isUserBusy(state: GameState, user: string): boolean {
   )
 }
 
+function teamPrepItems(state: GameState, user: string): string[] {
+  if (!state.teams) return state.preparedItems
+  const team = state.teams[user]
+  if (team === 'red') return state.redPreparedItems ?? []
+  if (team === 'blue') return state.bluePreparedItems ?? []
+  return []
+}
+
+function setTeamPrepItems(state: GameState, user: string, items: string[]): GameState {
+  if (!state.teams) return { ...state, preparedItems: items }
+  const team = state.teams[user]
+  if (team === 'red') return { ...state, redPreparedItems: items }
+  if (team === 'blue') return { ...state, bluePreparedItems: items }
+  return state
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RESET':
-      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.orderSpawnRate, action.stationCapacity, action.restrictSlots, action.enabledRecipes)
+      return createInitialState(action.shiftDuration, action.cookingSpeed, action.orderSpeed, action.orderSpawnRate, action.stationCapacity, action.restrictSlots, action.enabledRecipes, action.teams ?? {})
 
     case 'ADD_CHAT':
       return addMsg(state, action.username, action.text, action.msgType)
@@ -108,8 +133,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const newVotes = [...station.extinguishVotes, user]
       // playerStats resets to {} on every RESET (new round) — reflects current-round participants only
-      const totalPlayers = Math.max(1, Object.keys(state.playerStats).length)
-      const needed = Math.max(1, Math.ceil(totalPlayers * 0.5))
+      let needed: number
+      if (state.teams) {
+        const redSize = Object.values(state.teams).filter(t => t === 'red').length
+        const blueSize = Object.values(state.teams).filter(t => t === 'blue').length
+        needed = Math.max(1, Math.ceil(Math.max(redSize, blueSize) * 0.5))
+      } else {
+        const totalPlayers = Math.max(1, Object.keys(state.playerStats).length)
+        needed = Math.max(1, Math.ceil(totalPlayers * 0.5))
+      }
       const withStat = addStat(state, user, 'extinguished', 1)
 
       if (newVotes.length >= needed) {
@@ -160,9 +192,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const order = state.orders[orderIdx]
       const recipe = RECIPES[order.dish]
 
-      // Check preparedItems has all required ingredients
+      if (state.teams && !state.teams[user]) {
+        return addMsg(state, 'KITCHEN', `${user} is not on a team!`, 'error')
+      }
+
+      // Check preparedItems has all required ingredients (team-aware)
       const needed = [...recipe.plate]
-      const available = [...state.preparedItems]
+      const available = [...teamPrepItems(state, user)]
       for (const item of needed) {
         const idx = available.indexOf(item)
         if (idx === -1) return addMsg(state, 'KITCHEN', `Missing ${item.replace(/_/g, ' ')} for ${recipe.name}!`, 'error')
@@ -179,8 +215,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       let withStats = addStat(state, user, 'served', 1)
       withStats = addStat(withStats, user, 'moneyEarned', reward)
+
+      let afterPool = setTeamPrepItems(withStats, user, available)
+
+      if (state.teams) {
+        const isRed = state.teams[user] === 'red'
+        afterPool = isRed
+          ? { ...afterPool, redMoney: (afterPool.redMoney ?? 0) + reward, redServed: (afterPool.redServed ?? 0) + 1 }
+          : { ...afterPool, blueMoney: (afterPool.blueMoney ?? 0) + reward, blueServed: (afterPool.blueServed ?? 0) + 1 }
+      }
+
       return addMsg(
-        { ...withStats, preparedItems: available, orders: newOrders, money: withStats.money + reward, served: withStats.served + 1 },
+        { ...afterPool, orders: newOrders, money: afterPool.money + reward, served: afterPool.served + 1 },
         'KITCHEN', `${user} served ${recipe.emoji} ${recipe.name}! +$${reward}`, 'success'
       )
     }
@@ -231,13 +277,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Check ingredient prerequisite
       let afterRequire = withCooldown
       if (matchedStep.requires) {
-        const idx = afterRequire.preparedItems.indexOf(matchedStep.requires)
+        const teamItems = teamPrepItems(afterRequire, user)
+        const idx = teamItems.indexOf(matchedStep.requires)
         if (idx === -1) {
           return addMsg(afterRequire, 'KITCHEN', `Need ${matchedStep.requires.replace(/_/g, ' ')} first!`, 'error')
         }
-        const newItems = [...afterRequire.preparedItems]
+        const newItems = [...teamItems]
         newItems.splice(idx, 1)
-        afterRequire = { ...afterRequire, preparedItems: newItems }
+        afterRequire = setTeamPrepItems(afterRequire, user, newItems)
       }
 
       const speed = state.cookingSpeed
@@ -256,8 +303,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       if (matchedStep.duration === 0) {
         const withStat = addStat(afterRequire, user, 'cooked', 1)
+        const instantItems = [...teamPrepItems(withStat, user), matchedStep.produces]
         return addMsg(
-          { ...withStat, preparedItems: [...withStat.preparedItems, matchedStep.produces] },
+          setTeamPrepItems(withStat, user, instantItems),
           'KITCHEN', `${user} ${PAST_TENSE[cookAction] || cookAction + 'ed'} ${target.replace(/_/g, ' ')}!`, 'success'
         )
       }
@@ -308,6 +356,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const messages = [...state.chatMessages]
       let nextMsgId = state.nextMessageId
       const newPreparedItems = [...state.preparedItems]
+      const newRedPreparedItems = [...(state.redPreparedItems ?? [])]
+      const newBluePreparedItems = [...(state.bluePreparedItems ?? [])]
       let newPlayerStats = { ...state.playerStats }
       // Update all station slots
       for (const [id, station] of Object.entries(newStations)) {
@@ -352,7 +402,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
           // Step C: Check completion (no heat addition — already applied incrementally)
           if (slot.state === 'cooking' && elapsed >= slot.cookDuration) {
-            newPreparedItems.push(slot.produces)
+            if (state.teams) {
+              const team = state.teams[slot.user]
+              if (team === 'red') newRedPreparedItems.push(slot.produces)
+              else if (team === 'blue') newBluePreparedItems.push(slot.produces)
+              // else: unregistered player in PvP — item dropped
+            } else {
+              newPreparedItems.push(slot.produces)
+            }
             delete newActiveUsers[slot.user]
             slotsChanged = true
             messages.push({
@@ -399,7 +456,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const moneyMultiplier = state.moneyMultiplier && now < state.moneyMultiplier.expiresAt
         ? state.moneyMultiplier : undefined
 
-      return { ...state, stations: newStations, activeUsers: newActiveUsers, preparedItems: newPreparedItems, playerStats: newPlayerStats, orders, lost, timeLeft, chatMessages: messages.slice(-200), nextMessageId: nextMsgId, cookingSpeedModifier, moneyMultiplier }
+      return { ...state, stations: newStations, activeUsers: newActiveUsers, preparedItems: newPreparedItems, redPreparedItems: state.teams ? newRedPreparedItems : state.redPreparedItems, bluePreparedItems: state.teams ? newBluePreparedItems : state.bluePreparedItems, playerStats: newPlayerStats, orders, lost, timeLeft, chatMessages: messages.slice(-200), nextMessageId: nextMsgId, cookingSpeedModifier, moneyMultiplier }
     }
 
     case 'ADJUST_COOK_TIMES': {

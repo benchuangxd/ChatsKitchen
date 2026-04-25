@@ -8,6 +8,7 @@ import { useTwitchChat } from './hooks/useTwitchChat'
 import { useGameAudio } from './audio/useGameAudio'
 import { useViewportScale } from './hooks/useViewportScale'
 import MainMenu from './components/MainMenu'
+import PvPLobby from './components/PvPLobby'
 import FreePlaySetup from './components/FreePlaySetup'
 import OptionsScreen from './components/OptionsScreen'
 import Countdown from './components/Countdown'
@@ -38,7 +39,7 @@ import BottomBar from './components/BottomBar'
 import { DEFAULT_GAME_OPTIONS } from './state/defaultOptions'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
+type Screen = 'menu' | 'pvplobby' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
 type TutorialDestination = 'menu' | 'freeplaysetup'
 
 
@@ -106,7 +107,16 @@ export default function App() {
       return DEFAULT_AUDIO_SETTINGS
     }
   })
-  const [finalStats, setFinalStats] = useState<{ money: number; served: number; lost: number; playerStats: Record<string, PlayerStats> }>({ money: 0, served: 0, lost: 0, playerStats: {} })
+  const [finalStats, setFinalStats] = useState<{
+    money: number
+    served: number
+    lost: number
+    playerStats: Record<string, PlayerStats>
+    redMoney?: number
+    blueMoney?: number
+    redServed?: number
+    blueServed?: number
+  }>({ money: 0, served: 0, lost: 0, playerStats: {} })
   const [freePlayHighScore, setFreePlayHighScore] = useState<number>(() => {
     try { return parseInt(localStorage.getItem('chatsKitchen_freePlayHighScore') || '0', 10) } catch { return 0 }
   })
@@ -126,6 +136,9 @@ export default function App() {
   const gameOptionsRef = useRef(gameOptions)
   const [adventureRun, setAdventureRun]   = useState<AdventureRun | null>(null)
   const adventureRunRef                   = useRef<AdventureRun | null>(null)
+  const [pvpLobby, setPvpLobby] = useState<{ red: string[], blue: string[] } | null>(null)
+  const pvpLobbyRef = useRef<{ red: string[], blue: string[] } | null>(null)
+  pvpLobbyRef.current = pvpLobby
   const [adventureBestRun, setAdventureBestRun] = useState<AdventureBestRun | null>(() => {
     try {
       const saved = localStorage.getItem('chatsKitchen_adventureBestRun')
@@ -165,9 +178,34 @@ export default function App() {
 
   const startFreePlay = useCallback(() => {
     setAdventureRun(null)
-    dispatch({ type: 'RESET', shiftDuration: gameOptions.shiftDuration, cookingSpeed: gameOptions.cookingSpeed, orderSpeed: gameOptions.orderSpeed, orderSpawnRate: gameOptions.orderSpawnRate, stationCapacity: gameOptions.stationCapacity, restrictSlots: gameOptions.restrictSlots, enabledRecipes: gameOptions.enabledRecipes })
+    const teams: Record<string, 'red' | 'blue'> = pvpLobbyRef.current
+      ? Object.fromEntries([
+          ...pvpLobbyRef.current.red.map(u => [u, 'red' as const]),
+          ...pvpLobbyRef.current.blue.map(u => [u, 'blue' as const]),
+        ])
+      : {}
+    dispatch({
+      type: 'RESET',
+      shiftDuration: gameOptions.shiftDuration,
+      cookingSpeed: gameOptions.cookingSpeed,
+      orderSpeed: gameOptions.orderSpeed,
+      orderSpawnRate: gameOptions.orderSpawnRate,
+      stationCapacity: gameOptions.stationCapacity,
+      restrictSlots: gameOptions.restrictSlots,
+      enabledRecipes: gameOptions.enabledRecipes,
+      teams,
+    })
     setScreen('countdown')
   }, [gameOptions])
+
+  const startPvp = useCallback(() => {
+    setPvpLobby({ red: [], blue: [] })
+    setScreen('pvplobby')
+  }, [])
+
+  const startPvpGame = useCallback(() => {
+    setScreen('freeplaysetup')
+  }, [])
 
   const startAdventure = useCallback(() => {
     setIsNewBestAdventureRun(false)
@@ -225,6 +263,10 @@ export default function App() {
   const handleMenuAdventure = useCallback(() => {
     checkTwitch(startAdventure)
   }, [checkTwitch, startAdventure])
+
+  const handleMenuPvp = useCallback(() => {
+    checkTwitch(startPvp)
+  }, [checkTwitch, startPvp])
 
   const dismissTutorialPrompt = useCallback(() => {
     setShowTutorialPrompt(false)
@@ -369,7 +411,16 @@ export default function App() {
 
   const handleGameOver = useCallback(() => {
     const s = stateRef.current
-    setFinalStats({ money: s.money, served: s.served, lost: s.lost, playerStats: s.playerStats })
+    setFinalStats({
+      money: s.money,
+      served: s.served,
+      lost: s.lost,
+      playerStats: s.playerStats,
+      redMoney: s.redMoney,
+      blueMoney: s.blueMoney,
+      redServed: s.redServed,
+      blueServed: s.blueServed,
+    })
 
     if (adventureRunRef.current) {
       setAdventureRun(prev => prev
@@ -394,6 +445,45 @@ export default function App() {
     }
     setScreen('shiftend')
   }, [])
+
+  const handleLobbyMetaCommand = useCallback((_user: string, text: string, isMod: boolean) => {
+    if (!isMod) return
+    const cmd = text.trim().toLowerCase()
+
+    if (cmd === '!balance') {
+      setPvpLobby(prev => {
+        if (!prev) return prev
+        const all = [...prev.red, ...prev.blue].sort(() => Math.random() - 0.5)
+        return {
+          red: all.filter((_, i) => i % 2 === 0),
+          blue: all.filter((_, i) => i % 2 !== 0),
+        }
+      })
+      showToast(`⚖️ Teams balanced`)
+      return
+    }
+
+    const moveMatch = cmd.match(/^!move\s+(red|blue)\s+@?(\S+)$/)
+    if (moveMatch) {
+      const team = moveMatch[1] as 'red' | 'blue'
+      const target = moveMatch[2]
+      const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
+      const lobby = pvpLobbyRef.current
+      if (!lobby || (!lobby.red.includes(target) && !lobby.blue.includes(target))) {
+        showToast(`❌ ${target} not found`)
+        return
+      }
+      setPvpLobby(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          [team]: prev[team].includes(target) ? prev[team] : [...prev[team], target],
+          [other]: prev[other].filter(u => u !== target),
+        }
+      })
+      showToast(`↔️ ${target} → ${team}`)
+    }
+  }, [showToast])
 
   const handleMetaCommand = useCallback((user: string, text: string, isMod: boolean) => {
     if (!isMod) return
@@ -427,20 +517,75 @@ export default function App() {
 
   const handleTwitchMessage = useCallback((user: string, text: string, isMod: boolean) => {
     dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
+    // PvP lobby: intercept !red / !blue and lobby mod commands
+    if (screenRef.current === 'pvplobby') {
+      const cmd = text.trim().toLowerCase()
+      if (cmd === '!red' || cmd === '!blue') {
+        const team = cmd === '!red' ? 'red' : 'blue'
+        const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
+        setPvpLobby(prev => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            [team]: prev[team].includes(user) ? prev[team] : [...prev[team], user],
+            [other]: prev[other].filter(u => u !== user),
+          }
+        })
+        return
+      }
+      if (cmd === '!join') {
+        setPvpLobby(prev => {
+          if (!prev) return prev
+          if (prev.red.includes(user) || prev.blue.includes(user)) return prev
+          const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
+          return { ...prev, [team]: [...prev[team], user] }
+        })
+        return
+      }
+      handleLobbyMetaCommand(user, text, isMod)
+      return
+    }
     handleEventCommand(user, text)
     handleTutorialEventCommand(text)
     handleMetaCommand(user, text, isMod)
     if (!isTutorialRef.current) handleCommand(user, text)
-  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand])
+  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand])
 
   const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
   const handleChatSend = useCallback((text: string) => {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
+    if (screenRef.current === 'pvplobby') {
+      const cmd = text.trim().toLowerCase()
+      if (cmd === '!red' || cmd === '!blue') {
+        const team = cmd === '!red' ? 'red' : 'blue'
+        const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
+        setPvpLobby(prev => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            [team]: prev[team].includes('You') ? prev[team] : [...prev[team], 'You'],
+            [other]: prev[other].filter(u => u !== 'You'),
+          }
+        })
+        return
+      }
+      if (cmd === '!join') {
+        setPvpLobby(prev => {
+          if (!prev) return prev
+          if (prev.red.includes('You') || prev.blue.includes('You')) return prev
+          const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
+          return { ...prev, [team]: [...prev[team], 'You'] }
+        })
+        return
+      }
+      handleLobbyMetaCommand('You', text, true)
+      return
+    }
     handleEventCommand('You', text)
     handleTutorialEventCommand(text)
     handleMetaCommand('You', text, true)
     handleCommand('You', text)
-  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand])
+  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand])
 
   const handleShiftEndDone = useCallback(() => {
     const run = adventureRunRef.current
@@ -573,6 +718,7 @@ export default function App() {
     content = (
       <MainMenu
         onPlay={() => handleMenuPlay('freeplaysetup')}
+        onPvp={handleMenuPvp}
         onAdventure={handleMenuAdventure}
         onOptions={() => setScreen('options')}
         onFeedback={() => setShowFeedback(true)}
@@ -584,6 +730,30 @@ export default function App() {
         twitchError={twitchChat.error}
         onTwitchConnect={(ch) => setTwitchChannel(ch)}
         onTwitchDisconnect={() => setTwitchChannel(null)}
+      />
+    )
+  } else if (screen === 'pvplobby') {
+    content = (
+      <PvPLobby
+        red={pvpLobby?.red ?? []}
+        blue={pvpLobby?.blue ?? []}
+        onMovePlayer={(username, team) => setPvpLobby(prev => {
+          if (!prev) return prev
+          const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
+          return {
+            ...prev,
+            [team]: prev[team].includes(username) ? prev[team] : [...prev[team], username],
+            [other]: prev[other].filter(u => u !== username),
+          }
+        })}
+        onBalance={() => setPvpLobby(prev => {
+          if (!prev) return prev
+          const all = [...prev.red, ...prev.blue].sort(() => Math.random() - 0.5)
+          return { red: all.filter((_, i) => i % 2 === 0), blue: all.filter((_, i) => i % 2 !== 0) }
+        })}
+        onClear={() => setPvpLobby(prev => prev ? { red: [], blue: [] } : prev)}
+        onBack={() => { setPvpLobby(null); setScreen('menu') }}
+        onNext={startPvpGame}
       />
     )
   } else if (screen === 'adventurebriefing') {
@@ -602,7 +772,7 @@ export default function App() {
   } else if (screen === 'credits') {
     content = <CreditsScreen onBack={() => setScreen('menu')} />
   } else if (screen === 'freeplaysetup') {
-    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen('menu')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
+    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen(pvpLobby ? 'pvplobby' : 'menu')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
   } else if (screen === 'countdown') {
     content = <Countdown onDone={() => setScreen('playing')} />
   } else if (screen === 'shiftend') {
@@ -630,9 +800,15 @@ export default function App() {
         autoRestart={gameOptions.autoRestart}
         autoRestartDelay={gameOptions.autoRestartDelay}
         autoRestartSignal={autoRestartSignal}
+        pvpResult={finalStats.redMoney !== undefined ? {
+          redMoney: finalStats.redMoney,
+          blueMoney: finalStats.blueMoney ?? 0,
+          redServed: finalStats.redServed ?? 0,
+          blueServed: finalStats.blueServed ?? 0,
+        } : undefined}
         onPlayAgain={startFreePlay}
         onNextLevel={undefined}
-        onMenu={() => setScreen('menu')}
+        onMenu={() => { setPvpLobby(null); setScreen('menu') }}
         onRecipeSelect={() => setScreen('freeplaysetup')}
       />
     )
@@ -679,6 +855,7 @@ export default function App() {
               messages={state.chatMessages}
               onSend={handleChatSend}
               onClose={() => setChatOpen(false)}
+              teams={state.teams}
             />
           )}
         </div>

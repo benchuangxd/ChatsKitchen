@@ -171,4 +171,11 @@ export interface GameState {
   cookingSpeedModifier?: { multiplier: number; expiresAt: number }
   moneyMultiplier?: { multiplier: number; expiresAt: number }
   disabledStations?: string[]
+  teams?: Record<string, 'red' | 'blue'>
+  redPreparedItems?: string[]
+  bluePreparedItems?: string[]
+  redMoney?: number
+  blueMoney?: number
+  redServed?: number
+  blueServed?: number
 }

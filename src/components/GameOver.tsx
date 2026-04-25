@@ -15,6 +15,13 @@ interface RoundRecord {
   lost: number
 }
 
+interface PvpResult {
+  redMoney: number
+  blueMoney: number
+  redServed: number
+  blueServed: number
+}
+
 interface Props {
   money: number
   served: number
@@ -27,13 +34,14 @@ interface Props {
   autoRestart?: boolean
   autoRestartDelay?: number
   autoRestartSignal?: number
+  pvpResult?: PvpResult
   onPlayAgain: () => void
   onNextLevel?: () => void
   onMenu: () => void
   onRecipeSelect?: () => void
 }
 
-export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, onPlayAgain, onNextLevel, onMenu, onRecipeSelect }: Props) {
+export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, onPlayAgain, onNextLevel, onMenu, onRecipeSelect }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
@@ -74,6 +82,25 @@ export default function GameOver({ money, served, lost, playerStats, level, high
   return (
     <div className={styles.screen}>
       <div className={styles.leftCol}>
+        {pvpResult && (() => {
+          const { redMoney, blueMoney, redServed, blueServed } = pvpResult
+          const winner = redMoney > blueMoney ? 'red' : blueMoney > redMoney ? 'blue' : 'tie'
+          const bannerClass = winner === 'red' ? styles.pvpBannerRed
+            : winner === 'blue' ? styles.pvpBannerBlue
+            : styles.pvpBannerTie
+          return (
+            <div className={`${styles.pvpBanner} ${bannerClass}`}>
+              <div className={styles.pvpBannerTitle}>
+                {winner === 'red' ? '🔴 RED WINS!' : winner === 'blue' ? '🔵 BLUE WINS!' : '🤝 TIE!'}
+              </div>
+              <div className={styles.pvpScores}>
+                <span className={styles.pvpRed}>🔴 ${redMoney.toLocaleString()} · {redServed} served</span>
+                <span className={styles.pvpVs}>vs</span>
+                <span className={styles.pvpBlue}>🔵 ${blueMoney.toLocaleString()} · {blueServed} served</span>
+              </div>
+            </div>
+          )
+        })()}
         <h1 className={styles.title}>{level != null ? `Level ${level} Complete!` : "Time's Up!"}</h1>
 
 <div className={styles.stats}>

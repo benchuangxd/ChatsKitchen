@@ -29,9 +29,25 @@ export default function Kitchen({ state, tutorialHighlight }: Props) {
     return next
   })
 
+  const pvpLargerTeamSize = state.teams
+    ? Math.max(
+        Object.values(state.teams).filter(t => t === 'red').length,
+        Object.values(state.teams).filter(t => t === 'blue').length,
+      )
+    : undefined
+
   return (
     <div className={`${styles.kitchen} ${tutorialHighlight === 'kitchen' ? styles.highlighted : ''}`}>
-      <PreparedItems items={state.preparedItems} enabledRecipes={state.enabledRecipes} isHighlighted={tutorialHighlight === 'prepared'} />
+      <PreparedItems
+        items={state.preparedItems}
+        enabledRecipes={state.enabledRecipes}
+        isHighlighted={tutorialHighlight === 'prepared'}
+        pvpMode={!!state.teams}
+        redItems={state.redPreparedItems}
+        blueItems={state.bluePreparedItems}
+        redMoney={state.redMoney}
+        blueMoney={state.blueMoney}
+      />
       <div className={styles.stationsSection}>
         <div className={styles.stationsGrid}>
           {stationIds.map(id => (
@@ -41,6 +57,7 @@ export default function Kitchen({ state, tutorialHighlight }: Props) {
               capacity={getStationCapacity(id, state.stationCapacity, state.restrictSlots)}
               playerCount={Object.keys(state.playerStats).length}
               isHighlighted={tutorialHighlight === id}
+              pvpLargerTeamSize={pvpLargerTeamSize}
             />
           ))}
         </div>
