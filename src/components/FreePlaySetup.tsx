@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { GameOptions } from '../state/types'
+import { GameOptions, RoundRecord } from '../state/types'
 import { RECIPES, RECIPE_SETS, STATION_DEFS } from '../data/recipes'
 import { EVENT_DEFS } from '../data/kitchenEventDefs'
 import { TwitchStatus } from '../hooks/useTwitchChat'
 import { DEFAULT_GAME_OPTIONS } from '../state/defaultOptions'
+import { computeStarThresholds } from '../data/starThresholds'
 import FoodIcon from './FoodIcon'
 import TwitchStatusPill from './TwitchStatusPill'
 import styles from './FreePlaySetup.module.css'
@@ -19,6 +20,7 @@ interface Props {
   onBack: () => void
   twitchStatus: TwitchStatus
   twitchChannel: string | null
+  roundHistory?: RoundRecord[]
 }
 
 const DURATION_MIN = 60000
@@ -84,11 +86,14 @@ function SliderField({ value, min, max, step, format, parse, onChange, suffix }:
   )
 }
 
-export default function FreePlaySetup({ options, onChange, onStart, onBack, twitchStatus, twitchChannel }: Props) {
+export default function FreePlaySetup({ options, onChange, onStart, onBack, twitchStatus, twitchChannel, roundHistory }: Props) {
   const [moreOpen, setMoreOpen] = useState(false)
   const [startWarning, setStartWarning] = useState(false)
   const [hoveredRecipe, setHoveredRecipe] = useState<string | null>(null)
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
+
+  const thresholds = computeStarThresholds(options)
+  const recentPlayerCounts = (roundHistory ?? []).slice(-3).map(r => r.playerCount)
 
   return (
     <div className={styles.screen}>
@@ -310,6 +315,26 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
                   ? 'Automatically starts a new round after the countdown on the game over screen'
                   : 'Game over screen will wait for manual input'}
               </div>
+            </div>
+
+            <div className={styles.moreRow}>
+              <div className={styles.moreLabel}>👥 Expected Players</div>
+              <SliderField
+                value={options.expectedPlayers}
+                min={1}
+                max={200}
+                step={1}
+                format={v => String(v)}
+                parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+                onChange={v => onChange({ ...options, expectedPlayers: v })}
+                suffix="players"
+              />
+              {recentPlayerCounts.length > 0 && (
+                <div className={styles.recentRounds}>
+                  Recent rounds: {recentPlayerCounts.join(' · ')} players
+                </div>
+              )}
+              <div className={styles.hint}>Used to calibrate star rating thresholds</div>
             </div>
 
           </div>
@@ -587,6 +612,20 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
 
           {/* ── Footer ── */}
           <div className={styles.footer} style={{ padding: '0 0 8px 0' }}>
+            <div className={styles.thresholdPreview}>
+              <div className={styles.thresholdRow}>
+                <span className={styles.thresholdStars}>★</span>
+                <span className={styles.thresholdValue}>${thresholds[0].toLocaleString()}</span>
+              </div>
+              <div className={styles.thresholdRow}>
+                <span className={styles.thresholdStars}>★★</span>
+                <span className={styles.thresholdValue}>${thresholds[1].toLocaleString()}</span>
+              </div>
+              <div className={styles.thresholdRow}>
+                <span className={styles.thresholdStars}>★★★</span>
+                <span className={styles.thresholdValue}>${thresholds[2].toLocaleString()}</span>
+              </div>
+            </div>
             <div className={styles.startWarning} style={{ visibility: startWarning ? 'visible' : 'hidden' }}>
               Select at least one recipe to start.
             </div>
