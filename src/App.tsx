@@ -763,6 +763,12 @@ export default function App() {
         autoRestart={gameOptions.autoRestart}
         autoRestartDelay={gameOptions.autoRestartDelay}
         autoRestartSignal={autoRestartSignal}
+        pvpResult={finalStats.redMoney !== undefined ? {
+          redMoney: finalStats.redMoney,
+          blueMoney: finalStats.blueMoney ?? 0,
+          redServed: finalStats.redServed ?? 0,
+          blueServed: finalStats.blueServed ?? 0,
+        } : undefined}
         onPlayAgain={startFreePlay}
         onNextLevel={undefined}
         onMenu={() => { setPvpLobby(null); setScreen('menu') }}
