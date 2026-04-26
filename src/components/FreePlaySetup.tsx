@@ -4,7 +4,6 @@ import { RECIPES, RECIPE_SETS, STATION_DEFS } from '../data/recipes'
 import { EVENT_DEFS } from '../data/kitchenEventDefs'
 import { TwitchStatus } from '../hooks/useTwitchChat'
 import { DEFAULT_GAME_OPTIONS } from '../state/defaultOptions'
-import { computeStarThresholds } from '../data/starThresholds'
 import FoodIcon from './FoodIcon'
 import TwitchStatusPill from './TwitchStatusPill'
 import styles from './FreePlaySetup.module.css'
@@ -92,8 +91,10 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
   const [hoveredRecipe, setHoveredRecipe] = useState<string | null>(null)
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
 
-  const thresholds = computeStarThresholds(options)
   const recentPlayerCounts = (roundHistory ?? []).slice(0, 3).map(r => r.playerCount)
+  const avgRecentPlayers = recentPlayerCounts.length > 0
+    ? Math.round(recentPlayerCounts.reduce((a, b) => a + b, 0) / recentPlayerCounts.length)
+    : null
 
   return (
     <div className={styles.screen}>
@@ -103,6 +104,25 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
           <TwitchStatusPill status={twitchStatus} channel={twitchChannel} />
         </div>
         <h1 className={styles.title}>Customize Your Shift</h1>
+
+        <div className={styles.card}>
+          <div className={styles.cardLabel}>👥 Expected Players</div>
+          <SliderField
+            value={options.expectedPlayers}
+            min={1}
+            max={200}
+            step={1}
+            format={v => String(v)}
+            parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+            onChange={v => onChange({ ...options, expectedPlayers: v })}
+            suffix="players"
+          />
+          {avgRecentPlayers !== null && (
+            <div className={styles.recentRounds}>
+              Avg last {recentPlayerCounts.length} rounds: {avgRecentPlayers} players
+            </div>
+          )}
+        </div>
 
         <div className={styles.card}>
           <div className={styles.cardLabel}>⏱ Duration</div>
@@ -315,26 +335,6 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
                   ? 'Automatically starts a new round after the countdown on the game over screen'
                   : 'Game over screen will wait for manual input'}
               </div>
-            </div>
-
-            <div className={styles.moreRow}>
-              <div className={styles.moreLabel}>👥 Expected Players</div>
-              <SliderField
-                value={options.expectedPlayers}
-                min={1}
-                max={200}
-                step={1}
-                format={v => String(v)}
-                parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
-                onChange={v => onChange({ ...options, expectedPlayers: v })}
-                suffix="players"
-              />
-              {recentPlayerCounts.length > 0 && (
-                <div className={styles.recentRounds}>
-                  Recent rounds: {recentPlayerCounts.join(' · ')} players
-                </div>
-              )}
-              <div className={styles.hint}>Used to calibrate star rating thresholds</div>
             </div>
 
           </div>
@@ -612,20 +612,6 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
 
           {/* ── Footer ── */}
           <div className={styles.footer} style={{ padding: '0 0 8px 0' }}>
-            <div className={styles.thresholdPreview}>
-              <div className={styles.thresholdRow}>
-                <span className={styles.thresholdStars}>★</span>
-                <span className={styles.thresholdValue}>${thresholds[0].toLocaleString()}</span>
-              </div>
-              <div className={styles.thresholdRow}>
-                <span className={styles.thresholdStars}>★★</span>
-                <span className={styles.thresholdValue}>${thresholds[1].toLocaleString()}</span>
-              </div>
-              <div className={styles.thresholdRow}>
-                <span className={styles.thresholdStars}>★★★</span>
-                <span className={styles.thresholdValue}>${thresholds[2].toLocaleString()}</span>
-              </div>
-            </div>
             <div className={styles.startWarning} style={{ visibility: startWarning ? 'visible' : 'hidden' }}>
               Select at least one recipe to start.
             </div>

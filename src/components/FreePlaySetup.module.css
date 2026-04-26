@@ -960,35 +960,9 @@
   margin-bottom: 4px;
 }
 
-.thresholdPreview {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.thresholdRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-}
-
-.thresholdStars {
-  color: #f4c430;
-  letter-spacing: 1px;
-}
-
-.thresholdValue {
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 600;
-}
-
 .recentRounds {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.45);
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: var(--text-secondary);
   margin-top: 4px;
 }

@@ -819,6 +819,7 @@ export default function App() {
         onNextLevel={undefined}
         onMenu={() => { setPvpLobby(null); setScreen('menu') }}
         onRecipeSelect={() => setScreen('freeplaysetup')}
+        onEnableAutoRestart={() => handleGameOptionsChange({ ...gameOptionsRef.current, autoRestart: true })}
       />
     )
   } else if (screen === 'adventureshiftpassed') {
