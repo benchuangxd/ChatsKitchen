@@ -959,3 +959,10 @@
   letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
+
+.recentRounds {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}

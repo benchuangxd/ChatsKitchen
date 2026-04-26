@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { GameOptions } from '../state/types'
+import { GameOptions, RoundRecord } from '../state/types'
 import { RECIPES, RECIPE_SETS, STATION_DEFS } from '../data/recipes'
 import { EVENT_DEFS } from '../data/kitchenEventDefs'
 import { TwitchStatus } from '../hooks/useTwitchChat'
@@ -19,6 +19,7 @@ interface Props {
   onBack: () => void
   twitchStatus: TwitchStatus
   twitchChannel: string | null
+  roundHistory?: RoundRecord[]
 }
 
 const DURATION_MIN = 60000
@@ -84,11 +85,16 @@ function SliderField({ value, min, max, step, format, parse, onChange, suffix }:
   )
 }
 
-export default function FreePlaySetup({ options, onChange, onStart, onBack, twitchStatus, twitchChannel }: Props) {
+export default function FreePlaySetup({ options, onChange, onStart, onBack, twitchStatus, twitchChannel, roundHistory }: Props) {
   const [moreOpen, setMoreOpen] = useState(false)
   const [startWarning, setStartWarning] = useState(false)
   const [hoveredRecipe, setHoveredRecipe] = useState<string | null>(null)
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
+
+  const recentPlayerCounts = (roundHistory ?? []).slice(0, 3).map(r => r.playerCount)
+  const avgRecentPlayers = recentPlayerCounts.length > 0
+    ? Math.round(recentPlayerCounts.reduce((a, b) => a + b, 0) / recentPlayerCounts.length)
+    : null
 
   return (
     <div className={styles.screen}>
@@ -98,6 +104,25 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
           <TwitchStatusPill status={twitchStatus} channel={twitchChannel} />
         </div>
         <h1 className={styles.title}>Customize Your Shift</h1>
+
+        <div className={styles.card}>
+          <div className={styles.cardLabel}>👥 Expected Players</div>
+          <SliderField
+            value={options.expectedPlayers}
+            min={1}
+            max={200}
+            step={1}
+            format={v => String(v)}
+            parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
+            onChange={v => onChange({ ...options, expectedPlayers: v })}
+            suffix="players"
+          />
+          {avgRecentPlayers !== null && (
+            <div className={styles.recentRounds}>
+              Avg last {recentPlayerCounts.length} rounds: {avgRecentPlayers} players
+            </div>
+          )}
+        </div>
 
         <div className={styles.card}>
           <div className={styles.cardLabel}>⏱ Duration</div>

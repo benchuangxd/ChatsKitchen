@@ -49,3 +49,17 @@
   font-size: 18px;
   color: #3a3530;
 }
+
+.starIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 14px;
+  font-size: 18px;
+  color: #f4c430;
+  white-space: nowrap;
+}
+
+.starNext {
+  color: #a08828;
+}

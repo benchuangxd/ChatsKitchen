@@ -1,18 +1,13 @@
 import { useState, useEffect } from 'react'
-import { PlayerStats } from '../state/types'
+import { PlayerStats, RoundRecord } from '../state/types'
 import { NAME_COLORS } from '../data/recipes'
+import { getStarCount } from '../data/starThresholds'
 import styles from './GameOver.module.css'
 
 function hashStr(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
   return h
-}
-
-interface RoundRecord {
-  money: number
-  served: number
-  lost: number
 }
 
 interface PvpResult {
@@ -35,16 +30,20 @@ interface Props {
   autoRestartDelay?: number
   autoRestartSignal?: number
   pvpResult?: PvpResult
+  starThresholds?: [number, number, number]
   onPlayAgain: () => void
   onNextLevel?: () => void
   onMenu: () => void
   onRecipeSelect?: () => void
+  onEnableAutoRestart?: () => void
 }
 
-export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, onPlayAgain, onNextLevel, onMenu, onRecipeSelect }: Props) {
+export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, starThresholds, onPlayAgain, onNextLevel, onMenu, onRecipeSelect, onEnableAutoRestart }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
+
+  const starCount = starThresholds ? getStarCount(money, starThresholds) : null
 
   const [countdown, setCountdown] = useState<number | null>(null)
 
@@ -103,24 +102,41 @@ export default function GameOver({ money, served, lost, playerStats, level, high
         })()}
         <h1 className={styles.title}>{level != null ? `Level ${level} Complete!` : "Time's Up!"}</h1>
 
-<div className={styles.stats}>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>${money}</div>
-            <div className={styles.statLabel}>Money Earned</div>
+        {starThresholds && (
+          <div className={styles.starDisplay}>
+            <div className={styles.finalStarRow}>
+              {['★', '★', '★'].map((_, i) => (
+                <span key={i} className={i < (starCount ?? 0) ? styles.finalStarFilled : styles.finalStarEmpty}>
+                  {i < (starCount ?? 0) ? '★' : '☆'}
+                </span>
+              ))}
+            </div>
+            <div className={styles.starThresholdRef}>
+              <span>★ ${starThresholds[0].toLocaleString()}</span>
+              <span>★★ ${starThresholds[1].toLocaleString()}</span>
+              <span>★★★ ${starThresholds[2].toLocaleString()}</span>
+            </div>
           </div>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>{served}</div>
-            <div className={styles.statLabel}>Orders Served</div>
-          </div>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>{lost}</div>
-            <div className={styles.statLabel}>Orders Lost</div>
-          </div>
+        )}
+
+        <div className={styles.statMoney}>
+          <div className={styles.statValue}>${money.toLocaleString()}</div>
+          <div className={styles.statLabel}>Money Earned</div>
+          {isNewHighScore && (
+            <div className={styles.highScoreNew}>🏆 New High Score!</div>
+          )}
         </div>
 
-        {isNewHighScore && (
-          <div className={styles.highScoreNew}>🏆 New High Score!</div>
-        )}
+        <div className={styles.statsRow}>
+          <div className={styles.stat}>
+            <div className={styles.statValueSmall}>{served}</div>
+            <div className={styles.statLabelSmall}>Orders Served</div>
+          </div>
+          <div className={styles.stat}>
+            <div className={styles.statValueSmall}>{lost}</div>
+            <div className={styles.statLabelSmall}>Orders Lost</div>
+          </div>
+        </div>
 
         <div className={styles.buttons}>
           {level != null && onNextLevel && level < 10 && (
@@ -131,14 +147,16 @@ export default function GameOver({ money, served, lost, playerStats, level, high
           <button className={level != null ? styles.menuBtn : styles.playAgainBtn} onClick={onPlayAgain}>
             {level != null ? 'Repeat Level' : 'Play Again'}
           </button>
-          {level === null && onRecipeSelect && (
-            <button className={styles.menuBtn} onClick={onRecipeSelect}>
-              Recipe Select
+          <div className={styles.btnRow}>
+            {level === null && onRecipeSelect && (
+              <button className={styles.menuBtn} onClick={onRecipeSelect}>
+                Recipe Select
+              </button>
+            )}
+            <button className={styles.menuBtn} onClick={onMenu}>
+              Main Menu
             </button>
-          )}
-          <button className={styles.menuBtn} onClick={onMenu}>
-            Main Menu
-          </button>
+          </div>
         </div>
 
         {level === null && (
@@ -161,6 +179,14 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 <div className={styles.autoRestartHint}>
                   <span>!start</span> to begin now · <span>!onAutoRestart</span> to enable
                 </div>
+                {onEnableAutoRestart && (
+                  <button className={styles.enableBtn} onClick={() => {
+                    onEnableAutoRestart()
+                    setCountdown(autoRestartDelay ?? 60)
+                  }}>
+                    Enable Auto-Restart
+                  </button>
+                )}
               </>
             )}
           </div>
@@ -217,6 +243,7 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 <span className={styles.lbTotal}>Total</span>
               </div>
             </div>
+            <div className={styles.lbScrollBody}>
             {leaderboard.length === 0 ? (
               <div className={styles.lbEmpty}>No players this round</div>
             ) : (
@@ -238,6 +265,7 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 )
               })
             )}
+            </div>
           </div>
         </div>
       </div>

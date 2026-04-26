@@ -1,7 +1,8 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, KitchenEvent } from './state/types'
+import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, KitchenEvent, RoundRecord } from './state/types'
+import { computeStarThresholds } from './data/starThresholds'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
 import { useTwitchChat } from './hooks/useTwitchChat'
@@ -117,11 +118,12 @@ export default function App() {
     redServed?: number
     blueServed?: number
   }>({ money: 0, served: 0, lost: 0, playerStats: {} })
+  const [starThresholds, setStarThresholds] = useState<[number, number, number] | null>(null)
   const [freePlayHighScore, setFreePlayHighScore] = useState<number>(() => {
     try { return parseInt(localStorage.getItem('chatsKitchen_freePlayHighScore') || '0', 10) } catch { return 0 }
   })
   const [isNewHighScore, setIsNewHighScore] = useState(false)
-  const [freePlayHistory, setFreePlayHistory] = useState<{ money: number; served: number; lost: number }[]>(() => {
+  const [freePlayHistory, setFreePlayHistory] = useState<RoundRecord[]>(() => {
     try {
       const saved = localStorage.getItem('chatsKitchen_freePlayHistory')
       return saved ? JSON.parse(saved) : []
@@ -195,6 +197,12 @@ export default function App() {
       enabledRecipes: gameOptions.enabledRecipes,
       teams,
     })
+    // Only set star thresholds for non-PvP Free Play
+    if (!pvpLobbyRef.current) {
+      setStarThresholds(computeStarThresholds(gameOptions))
+    } else {
+      setStarThresholds(null)
+    }
     setScreen('countdown')
   }, [gameOptions])
 
@@ -438,7 +446,7 @@ export default function App() {
         return prev
       })
       setFreePlayHistory(prev => {
-        const updated = [{ money: s.money, served: s.served, lost: s.lost }, ...prev].slice(0, 5)
+        const updated = [{ money: s.money, served: s.served, lost: s.lost, playerCount: Object.keys(s.playerStats).length }, ...prev].slice(0, 5)
         try { localStorage.setItem('chatsKitchen_freePlayHistory', JSON.stringify(updated)) } catch { /* ignore */ }
         return updated
       })
@@ -772,7 +780,7 @@ export default function App() {
   } else if (screen === 'credits') {
     content = <CreditsScreen onBack={() => setScreen('menu')} />
   } else if (screen === 'freeplaysetup') {
-    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen(pvpLobby ? 'pvplobby' : 'menu')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
+    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen(pvpLobby ? 'pvplobby' : 'menu')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} roundHistory={freePlayHistory} />
   } else if (screen === 'countdown') {
     content = <Countdown onDone={() => setScreen('playing')} />
   } else if (screen === 'shiftend') {
@@ -797,6 +805,7 @@ export default function App() {
         highScore={freePlayHighScore}
         isNewHighScore={isNewHighScore}
         roundHistory={freePlayHistory}
+        starThresholds={starThresholds ?? undefined}
         autoRestart={gameOptions.autoRestart}
         autoRestartDelay={gameOptions.autoRestartDelay}
         autoRestartSignal={autoRestartSignal}
@@ -810,6 +819,7 @@ export default function App() {
         onNextLevel={undefined}
         onMenu={() => { setPvpLobby(null); setScreen('menu') }}
         onRecipeSelect={() => setScreen('freeplaysetup')}
+        onEnableAutoRestart={() => handleGameOptionsChange({ ...gameOptionsRef.current, autoRestart: true })}
       />
     )
   } else if (screen === 'adventureshiftpassed') {
@@ -859,7 +869,7 @@ export default function App() {
             />
           )}
         </div>
-        <BottomBar money={state.money} served={state.served} lost={state.lost} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
+        <BottomBar money={state.money} served={state.served} lost={state.lost} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} starThresholds={starThresholds ?? undefined} />
         <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
           <button className={styles.settingsBtn} onClick={() => setPaused(true)}>⚙️</button>
         </div>
