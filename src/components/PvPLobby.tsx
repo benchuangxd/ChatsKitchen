@@ -5,13 +5,14 @@ interface Props {
   red: string[]
   blue: string[]
   onMovePlayer: (username: string, team: 'red' | 'blue') => void
+  onKick: (username: string) => void
   onBalance: () => void
   onClear: () => void
   onBack: () => void
   onNext: () => void
 }
 
-export default function PvPLobby({ red, blue, onMovePlayer, onBalance, onClear, onBack, onNext }: Props) {
+export default function PvPLobby({ red, blue, onMovePlayer, onKick, onBalance, onClear, onBack, onNext }: Props) {
   const [dragUser, setDragUser] = useState<string | null>(null)
   const [dragOverTeam, setDragOverTeam] = useState<'red' | 'blue' | null>(null)
 
@@ -75,7 +76,12 @@ export default function PvPLobby({ red, blue, onMovePlayer, onBalance, onClear, 
                 onDragStart={() => handleDragStart(p)}
                 onDragEnd={handleDragEnd}
               >
-                {p}
+                <span>{p}</span>
+                <button
+                  className={styles.kickBtn}
+                  onClick={e => { e.stopPropagation(); onKick(p) }}
+                  title={`Kick ${p}`}
+                >✕</button>
               </div>
             ))
           }
@@ -120,8 +126,16 @@ export default function PvPLobby({ red, blue, onMovePlayer, onBalance, onClear, 
               <span>auto-join smaller team</span>
             </div>
             <div className={styles.modHintRow}>
+              <span className={styles.modCmd}>!leave</span>
+              <span>unjoin your team</span>
+            </div>
+            <div className={styles.modHintRow}>
               <span className={styles.modCmd}>!move red @name</span>
               <span>mod: move player</span>
+            </div>
+            <div className={styles.modHintRow}>
+              <span className={styles.modCmd}>!kick @name</span>
+              <span>mod: remove player</span>
             </div>
           </div>
         </div>

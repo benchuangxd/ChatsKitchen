@@ -87,15 +87,33 @@ export default function GameOver({ money, served, lost, playerStats, level, high
           const bannerClass = winner === 'red' ? styles.pvpBannerRed
             : winner === 'blue' ? styles.pvpBannerBlue
             : styles.pvpBannerTie
+          const labelClass = winner === 'red' ? styles.pvpWinnerLabelRed
+            : winner === 'blue' ? styles.pvpWinnerLabelBlue
+            : styles.pvpWinnerLabelTie
+          const redWins = winner === 'red' || winner === 'tie'
+          const blueWins = winner === 'blue' || winner === 'tie'
           return (
             <div className={`${styles.pvpBanner} ${bannerClass}`}>
-              <div className={styles.pvpBannerTitle}>
-                {winner === 'red' ? '🔴 RED WINS!' : winner === 'blue' ? '🔵 BLUE WINS!' : '🤝 TIE!'}
+              <div className={`${styles.pvpWinnerLabel} ${labelClass}`}>
+                {winner === 'red' ? '🔴 Red Wins!' : winner === 'blue' ? '🔵 Blue Wins!' : '🤝 Tie!'}
               </div>
-              <div className={styles.pvpScores}>
-                <span className={styles.pvpRed}>🔴 ${redMoney.toLocaleString()} · {redServed} served</span>
-                <span className={styles.pvpVs}>vs</span>
-                <span className={styles.pvpBlue}>🔵 ${blueMoney.toLocaleString()} · {blueServed} served</span>
+              <div className={styles.pvpTeams}>
+                <div className={`${styles.pvpTeamRow} ${redWins ? '' : styles.pvpTeamRowLoser}`}>
+                  <span className={`${redWins ? styles.pvpMoneyWin : styles.pvpMoneyLose} ${styles.pvpRedText}`}>
+                    🔴 ${redMoney.toLocaleString()}
+                  </span>
+                  <span className={redWins ? styles.pvpServedWin : styles.pvpServedLose}>
+                    · {redServed} served
+                  </span>
+                </div>
+                <div className={`${styles.pvpTeamRow} ${blueWins ? '' : styles.pvpTeamRowLoser}`}>
+                  <span className={`${blueWins ? styles.pvpMoneyWin : styles.pvpMoneyLose} ${styles.pvpBlueText}`}>
+                    🔵 ${blueMoney.toLocaleString()}
+                  </span>
+                  <span className={blueWins ? styles.pvpServedWin : styles.pvpServedLose}>
+                    · {blueServed} served
+                  </span>
+                </div>
               </div>
             </div>
           )
