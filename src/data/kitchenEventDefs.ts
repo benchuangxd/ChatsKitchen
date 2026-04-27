@@ -54,10 +54,10 @@ export function makePowerTripEquation(): { display: string; answer: number } {
 const FRENZY_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+='
 const FRENZY_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
-// Generates a random 15 char gibberish string. First char is always
+// Generates a random 10 char gibberish string. First char is always
 // alphanumeric so Twitch doesn't interpret it as a command prefix.
 export function makeTypingFrenzyPhrase(): string {
-  const len = 15
+  const len = 10
   let result = FRENZY_ALPHA[Math.floor(Math.random() * FRENZY_ALPHA.length)]
   for (let i = 1; i < len; i++) {
     result += FRENZY_CHARS[Math.floor(Math.random() * FRENZY_CHARS.length)]
@@ -138,7 +138,7 @@ export const EVENT_DEFS: EventDef[] = [
     emoji: '📦',
     label: 'Glitched Orders',
     description: 'Order tickets are scrambled. Chat must debug the system to restore them.',
-    commandPool: ['FIX', 'DEBUG', 'PATCH'],
+    commandPool: ['RESTART', 'DEBUG', 'PATCH'],
     failDescription: 'Orders scrambled until resolved',
     color: '#7a30cc',
     cmdColor: '#4a1a7a',

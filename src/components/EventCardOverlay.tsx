@@ -10,6 +10,13 @@ interface Props {
   activeEvent: KitchenEvent | null
 }
 
+function cmdLabelText(type: KitchenEvent['type']): string {
+  if (type === 'power_trip') return 'Type the answer'
+  if (type === 'mystery_recipe') return 'Unscramble'
+  if (type === 'typing_frenzy') return 'Type exactly'
+  return 'Type in chat'
+}
+
 function badgeText(category: EventCategory): string {
   if (category === 'hazard-penalty') return '⚠ Hazard'
   if (category === 'hazard-immediate') return '⚠ Immediate'
@@ -128,8 +135,19 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                       )
                     })() : (
                       <>
-                        <div className={styles.cmdLabel}>Type in chat</div>
-                        <div className={styles.cmdBox}>{ev.chosenCommand}</div>
+                        <div className={styles.cmdLabel}>{cmdLabelText(ev.type)}</div>
+                        <div className={`${styles.cmdBox}${ev.type === 'typing_frenzy' ? ` ${styles.cmdBoxFrenzy}` : ''}`}>
+                          {ev.type === 'glitched_orders'
+                            ? ev.chosenCommand.split('').map((char, i) => (
+                                <span
+                                  key={i}
+                                  className={char !== ' ' ? styles.glitchChar : undefined}
+                                  style={{ animationDelay: `${i * 0.11}s` }}
+                                >{char}</span>
+                              ))
+                            : ev.chosenCommand
+                          }
+                        </div>
                         <div className={styles.desc}>{description}</div>
                         {!ev.resolved && !ev.failed && (
                           <div className={styles.bars}>

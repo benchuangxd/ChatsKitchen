@@ -52,7 +52,7 @@ export default function OrdersBar({ state, isHighlighted, isGlitched }: Props) {
   const isUrgent = totalSec <= 60
 
   return (
-    <div className={`${styles.dining} ${isHighlighted ? styles.highlighted : ''}`}>
+    <div className={`${styles.dining} ${isHighlighted ? styles.highlighted : ''} ${isGlitched ? styles.glitchedPanel : ''}`}>
       <div className={styles.timeBlock}>
         <span className={styles.timeLabel}>TIME LEFT</span>
         <span className={`${styles.timeValue} ${isUrgent ? styles.urgent : ''}`}>{timerStr}</span>

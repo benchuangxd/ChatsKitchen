@@ -261,7 +261,7 @@ export function useKitchenEvents(
     const ev = activeEventRef.current
     if (!ev || ev.resolved || ev.failed) return
 
-    const normalized = text.trim().toUpperCase()
+    const normalized = text.trim()
 
     const matchTarget = ev.type === 'mystery_recipe'
       ? ev.payload.anagramAnswer!.toUpperCase()
