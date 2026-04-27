@@ -255,6 +255,26 @@
   cursor: grab;
   user-select: none;
   transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kickBtn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.25;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  transition: opacity 0.15s;
+}
+
+.kickBtn:hover {
+  opacity: 1;
 }
 
 .member:active {
