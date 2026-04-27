@@ -12,6 +12,7 @@ import {
   RAT_INVASION_ITEMS_STOLEN, MYSTERY_RECIPE_ITEMS_REWARDED,
   EVENT_DURATION_MS,
   getIngredientTargets, getProducesValues, makeAnagram,
+  makeAuditGrid, pickCompleteTheDish,
 } from '../data/kitchenEventDefs'
 
 function pickRandom<T>(arr: T[]): T {
@@ -125,6 +126,25 @@ export function useKitchenEvents(
       chosenCommand = sequence.join(' ')
     }
 
+    if (def.type === 'inventory_audit') {
+      const audit = makeAuditGrid(s.enabledRecipes)
+      if (!audit) return
+      payload.auditGrid = audit.grid
+      payload.auditTarget = audit.target
+      payload.auditAnswer = audit.answer
+      chosenCommand = String(audit.answer)
+    }
+
+    if (def.type === 'complete_dish') {
+      const dish = pickCompleteTheDish(s.enabledRecipes)
+      if (!dish) return
+      payload.shownIngredients = dish.shownIngredients
+      payload.missingIngredient = dish.missingIngredient
+      payload.dishName = dish.dishName
+      payload.dishEmoji = dish.dishEmoji
+      chosenCommand = dish.missingIngredient
+    }
+
     const event: KitchenEvent = {
       id,
       category: def.category,
@@ -143,6 +163,10 @@ export function useKitchenEvents(
     const label = def.category === 'opportunity' ? '⚡ Opportunity' : '⚠️ Hazard'
     const chatText = def.type === 'dance'
       ? `${label}: ${def.emoji} ${def.label}! Memorise the sequence and type it in chat!`
+      : def.type === 'complete_dish'
+      ? `${label}: ${def.emoji} ${def.label}! What's missing from ${payload.dishName}? Type the ingredient!`
+      : def.type === 'inventory_audit'
+      ? `${label}: ${def.emoji} ${def.label}! Count the ${payload.auditTarget} in the grid and type the number!`
       : `${label}: ${def.emoji} ${def.label}! Type ${chosenCommand} in chat to help!`
     dispatch({
       type: 'ADD_CHAT',
@@ -187,6 +211,12 @@ export function useKitchenEvents(
     if (event.type === 'dance') {
       dispatch({ type: 'EXTEND_ORDER_PATIENCE', ms: DANCE_PATIENCE_BONUS_MS })
     }
+    if (event.type === 'complete_dish' && event.payload.missingIngredient) {
+      const missingKey = event.payload.missingIngredient.toLowerCase().replace(/ /g, '_')
+      const produces = getProducesValues(s.enabledRecipes)
+      dispatch({ type: 'ADD_PREPARED_ITEMS', items: [missingKey, pickRandom(produces)] })
+      dispatch({ type: 'ADD_CHAT', username: 'KITCHEN', text: `🍽️ Recipe complete! Ingredient added to prep tray!`, msgType: 'success' })
+    }
 
     setActiveEvent(prev => prev?.id === event.id ? { ...prev, resolved: true, progress: 100 } : prev)
 
@@ -209,6 +239,10 @@ export function useKitchenEvents(
     if (event.type === 'angry_chef') {
       dispatch({ type: 'SET_COOKING_SPEED_MODIFIER', multiplier: ANGRY_CHEF_DEBUFF_MULTIPLIER, expiresAt: now + ANGRY_CHEF_DEBUFF_DURATION_MS })
       dispatch({ type: 'ADD_CHAT', username: 'KITCHEN', text: `👨‍🍳 Chef is angry! Cooking speed reduced for 15s!`, msgType: 'error' })
+    }
+    if (event.type === 'inventory_audit' && event.payload.auditAnswer) {
+      dispatch({ type: 'REMOVE_PREPARED_ITEMS', count: event.payload.auditAnswer })
+      dispatch({ type: 'ADD_CHAT', username: 'KITCHEN', text: `🧮 Inspector confiscated ${event.payload.auditAnswer} prepped ingredient(s)!`, msgType: 'error' })
     }
 
     setActiveEvent(prev => prev?.id === event.id ? { ...prev, failed: true } : prev)

@@ -1,5 +1,5 @@
 import { EventCategory, EventType } from '../state/types'
-import { RECIPES } from './recipes'
+import { RECIPES, INGREDIENT_EMOJI } from './recipes'
 
 // Tunable constants
 export const EVENT_SPAWN_MIN_MS = 30_000
@@ -192,6 +192,30 @@ export const EVENT_DEFS: EventDef[] = [
     cmdColor: '#7a1a6a',
     audio: { ambient: 'event-dance-ambient', success: 'event-success', fail: 'event-fail' },
   },
+  {
+    type: 'inventory_audit',
+    category: 'hazard-penalty',
+    emoji: '🧮',
+    label: 'Inventory Audit',
+    description: 'A health inspector arrives! Count the highlighted ingredient in the grid.',
+    commandPool: [],
+    failDescription: 'Fail: inspector confiscates prepped ingredients',
+    color: '#b06020',
+    cmdColor: '#7a3a00',
+    audio: { ambient: 'event-angry-chef-ambient', success: 'event-success', fail: 'event-fail' },
+  },
+  {
+    type: 'complete_dish',
+    category: 'opportunity',
+    emoji: '🍽️',
+    label: 'Complete the Dish',
+    description: 'Two ingredients are shown — type the missing one to complete the recipe.',
+    commandPool: [],
+    rewardDescription: 'Reward: missing ingredient added to prep tray',
+    color: '#20a060',
+    cmdColor: '#0a6030',
+    audio: { ambient: 'event-mystery-ambient', success: 'event-success', fail: 'event-fail' },
+  },
 ]
 
 // Returns all unique step target values from the given recipe keys.
@@ -239,6 +263,63 @@ export function makeAnagram(word: string): string {
     if (result !== word.toUpperCase()) return result
   }
   return chars.join('')
+}
+
+// Builds a 3×3 emoji grid for Inventory Audit. Returns null if not enough variety.
+export function makeAuditGrid(enabledRecipes: string[]): { grid: string[]; target: string; answer: number } | null {
+  const keys = enabledRecipes.length > 0 ? enabledRecipes : Object.keys(RECIPES)
+
+  const emojiPool: string[] = []
+  for (const key of keys) {
+    const recipe = RECIPES[key]
+    if (!recipe) continue
+    for (const item of recipe.plate) {
+      const emoji = INGREDIENT_EMOJI[item]
+      if (emoji && !emojiPool.includes(emoji)) emojiPool.push(emoji)
+    }
+  }
+
+  if (emojiPool.length < 3) return null
+
+  const shuffledPool = [...emojiPool].sort(() => Math.random() - 0.5)
+  const selected = shuffledPool.slice(0, Math.min(4, shuffledPool.length))
+  const target = selected[0]
+  const answer = 2 + Math.floor(Math.random() * 3)  // 2–4
+
+  const slots = Array.from({ length: 9 }, (_, i) => i).sort(() => Math.random() - 0.5)
+  const targetSlots = new Set(slots.slice(0, answer))
+  const nonTarget = selected.slice(1)
+
+  let fillIdx = 0
+  const grid = Array.from({ length: 9 }, (_, i) =>
+    targetSlots.has(i) ? target : nonTarget[fillIdx++ % nonTarget.length]
+  )
+
+  return { grid, target, answer }
+}
+
+// Picks a qualifying recipe and selects which ingredient to hide for Complete the Dish.
+// Returns null if no enabled recipe has 3+ plate items.
+export function pickCompleteTheDish(enabledRecipes: string[]): {
+  dishName: string; dishEmoji: string
+  shownIngredients: string[]; missingIngredient: string
+} | null {
+  const fmt = (s: string) => s.replace(/_/g, ' ').toUpperCase()
+  const keys = (enabledRecipes.length > 0 ? enabledRecipes : Object.keys(RECIPES))
+    .filter(key => { const r = RECIPES[key]; return r && r.plate.length >= 3 })
+
+  if (keys.length === 0) return null
+
+  const key = keys[Math.floor(Math.random() * keys.length)]
+  const recipe = RECIPES[key]
+  const shuffled = [...recipe.plate].sort(() => Math.random() - 0.5)
+
+  return {
+    dishName: recipe.name,
+    dishEmoji: recipe.emoji,
+    shownIngredients: [fmt(shuffled[0]), fmt(shuffled[1])],
+    missingIngredient: fmt(shuffled[2]),
+  }
 }
 
 // Stable character scramble seeded by a number (for glitched order tickets).

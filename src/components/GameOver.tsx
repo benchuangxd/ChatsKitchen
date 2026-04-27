@@ -100,7 +100,7 @@ export default function GameOver({ money, served, lost, playerStats, level, high
             </div>
           )
         })()}
-        <h1 className={styles.title}>{level != null ? `Level ${level} Complete!` : "Time's Up!"}</h1>
+        {level != null && <h1 className={styles.title}>{`Level ${level} Complete!`}</h1>}
 
         {starThresholds && (
           <div className={styles.starDisplay}>

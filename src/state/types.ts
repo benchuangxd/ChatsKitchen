@@ -131,6 +131,7 @@ export type EventType =
   | 'rat_invasion' | 'angry_chef'
   | 'power_trip' | 'smoke_blast' | 'glitched_orders'
   | 'chefs_chant' | 'mystery_recipe' | 'typing_frenzy' | 'dance'
+  | 'inventory_audit' | 'complete_dish'
 
 export type EventCategory = 'hazard-penalty' | 'hazard-immediate' | 'opportunity'
 
@@ -152,6 +153,15 @@ export interface KitchenEvent {
     typingPhrase?: string
     danceSequence?: ('UP' | 'DOWN' | 'LEFT' | 'RIGHT')[]
     powerTripAnswer?: number
+    // inventory_audit
+    auditGrid?: string[]
+    auditTarget?: string
+    auditAnswer?: number
+    // complete_dish
+    shownIngredients?: string[]
+    missingIngredient?: string
+    dishName?: string
+    dishEmoji?: string
   }
 }
 
