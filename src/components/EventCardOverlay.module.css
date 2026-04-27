@@ -7,7 +7,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 22vh;
+  padding-top: 30vh;
 }
 
 /* ── Clip + ticket assembly ── */
@@ -128,11 +128,12 @@
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.35);
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
 /* ── Body ── */
 .body {
-  padding: 14px 16px 6px;
+  padding: 18px 22px 10px;
   color: #3a2e20;
   position: relative;
 }
@@ -148,9 +149,9 @@
 
 .cmdBox {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 700;
-  padding: 7px 12px;
+  padding: 10px 16px;
   border-radius: 6px;
   border-style: dashed;
   border-width: 1.5px;
@@ -160,6 +161,24 @@
   margin-bottom: 10px;
   letter-spacing: 1px;
   white-space: nowrap;
+}
+
+/* Typing Frenzy: switch to a font with very distinct character shapes */
+.cmdBoxFrenzy {
+  font-family: 'Courier New', Menlo, monospace;
+  letter-spacing: 3px;
+}
+
+/* Glitched Orders: per-character rotation + vertical wiggle */
+.glitchChar {
+  display: inline-block;
+  animation: charWiggle 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes charWiggle {
+  0%   { transform: rotate(-14deg) translateY(3px); }
+  50%  { transform: rotate(10deg)  translateY(-4px); }
+  100% { transform: rotate(-6deg)  translateY(2px); }
 }
 
 .desc {
@@ -217,6 +236,84 @@
   border-radius: 6px;
   background: #5a8a40;
   transition: width 0.15s ease;
+}
+
+/* ── Inventory Audit 3×3 grid ── */
+.auditGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.auditTile {
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  background: rgba(0,0,0,0.06);
+  border: 2px solid transparent;
+}
+
+
+/* ── Complete the Dish checklist ── */
+.dishHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--event-cmd-color) 10%, transparent);
+  border-radius: 6px;
+  border-left: 3px solid var(--event-cmd-color);
+}
+
+.dishEmoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.dishName {
+  font-family: 'Lilita One', cursive;
+  font-size: 17px;
+  color: var(--event-cmd-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dishChecklist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.dishCheckItem {
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: #3a2e20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dishCheck {
+  font-size: 15px;
+  color: #5a8a40;
+  flex-shrink: 0;
+  width: 16px;
+}
+
+.dishBlank {
+  color: #9a7a60;
+  font-style: italic;
+}
+
+.dishBlank .dishCheck {
+  color: var(--event-cmd-color);
 }
 
 /* ── Dance Simon Says sequence ── */

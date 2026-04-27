@@ -115,6 +115,22 @@
   padding: 16px 0;
 }
 
+/* ── Glitched Orders panel warp ─────────────── */
+.glitchedPanel {
+  animation: panelWarp 2.2s infinite;
+}
+
+@keyframes panelWarp {
+  0%, 100% { transform: skewY(0deg) translate(0, 0); }
+  8%        { transform: skewY(0.7deg) translate(2px, 0); }
+  16%       { transform: skewY(-0.4deg) translate(-3px, 0); }
+  24%       { transform: skewY(0deg) translate(0, 0); }
+  65%       { transform: skewY(0deg) translate(0, 0); }
+  73%       { transform: skewY(-0.9deg) translate(3px, 0); }
+  81%       { transform: skewY(0.5deg) translate(-2px, 0); }
+  89%       { transform: skewY(0deg) translate(0, 0); }
+}
+
 /* ── Tutorial highlight ─────────────────────── */
 .highlighted {
   outline: 4px solid #a855f7;

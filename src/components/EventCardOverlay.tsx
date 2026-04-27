@@ -10,6 +10,15 @@ interface Props {
   activeEvent: KitchenEvent | null
 }
 
+function cmdLabelText(type: KitchenEvent['type']): string {
+  if (type === 'power_trip') return 'Type the answer'
+  if (type === 'mystery_recipe') return 'Unscramble'
+  if (type === 'typing_frenzy') return 'Type exactly'
+  if (type === 'complete_dish') return 'Type the missing ingredient'
+  if (type === 'inventory_audit') return 'Type the count'
+  return 'Type in chat'
+}
+
 function badgeText(category: EventCategory): string {
   if (category === 'hazard-penalty') return '⚠ Hazard'
   if (category === 'hazard-immediate') return '⚠ Immediate'
@@ -70,6 +79,10 @@ export default function EventCardOverlay({ activeEvent }: Props) {
           : null
         const timeSeconds = ev.timeLeft !== null ? (ev.timeLeft / 1000).toFixed(1) : null
         const showStamp = animState === 'stamping' || animState === 'tearing'
+        const danceSequence = ev.type === 'dance' ? (ev.payload.danceSequence ?? null) : null
+        // First 3 s of the event window: show all arrows; then hide
+        const isDanceRevealing = danceSequence !== null && ev.timeLeft !== null && ev.initialTimeLeft !== null
+          && ev.timeLeft > ev.initialTimeLeft - 3_000
 
         return (
           <div className={styles.overlay}>
@@ -91,45 +104,113 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                     <span className={styles.title}>{def.emoji} {def.label}</span>
                   </div>
                   <div className={styles.body}>
-                    {ev.type === 'dance' && ev.payload.danceSequence ? (() => {
-                      const sequence = ev.payload.danceSequence
-                      // First 3 s of the 12 s window: show all arrows; then hide
-                      const isRevealing = ev.timeLeft !== null && ev.initialTimeLeft !== null
-                        && ev.timeLeft > ev.initialTimeLeft - 3_000
-                      return (
-                        <>
-                          <div className={styles.cmdLabel}>{isRevealing ? '🧠 Memorise!' : '🕺 Type the full sequence!'}</div>
-                          <div className={styles.danceRow}>
-                            {sequence.map((dir, i) => (
-                              <div key={i} className={`${styles.danceStep} ${isRevealing ? styles.danceStepReveal : styles.danceStepPending}`}>
-                                {isRevealing ? DANCE_ARROWS[dir] : '?'}
-                              </div>
-                            ))}
-                          </div>
-                          <div className={styles.desc}>{description}</div>
-                          {!ev.resolved && !ev.failed && (
-                            <div className={styles.bars}>
-                              {timePercent !== null && (
-                                <div>
-                                  <div className={styles.barMeta}><span>Time</span><span>{timeSeconds}s</span></div>
-                                  <div className={styles.barTrack}><div className={styles.barFillTime} style={{ width: `${timePercent}%` }} /></div>
-                                </div>
-                              )}
-                              <div>
-                                <div className={styles.barMeta}>
-                                  <span>Progress</span>
-                                  <span>{ev.respondedUsers.length} / {ev.threshold}</span>
-                                </div>
-                                <div className={styles.barTrack}><div className={styles.barFillProg} style={{ width: `${ev.progress}%` }} /></div>
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      )
-                    })() : (
+                    {danceSequence ? (
                       <>
-                        <div className={styles.cmdLabel}>Type in chat</div>
-                        <div className={styles.cmdBox}>{ev.chosenCommand}</div>
+                        <div className={styles.cmdLabel}>{isDanceRevealing ? '🧠 Memorise!' : '🕺 Type the full sequence!'}</div>
+                        <div className={styles.danceRow}>
+                          {danceSequence.map((dir, i) => (
+                            <div key={i} className={`${styles.danceStep} ${isDanceRevealing ? styles.danceStepReveal : styles.danceStepPending}`}>
+                              {isDanceRevealing ? DANCE_ARROWS[dir] : '?'}
+                            </div>
+                          ))}
+                        </div>
+                        <div className={styles.desc}>{description}</div>
+                        {!ev.resolved && !ev.failed && (
+                          <div className={styles.bars}>
+                            {timePercent !== null && (
+                              <div>
+                                <div className={styles.barMeta}><span>Time</span><span>{timeSeconds}s</span></div>
+                                <div className={styles.barTrack}><div className={styles.barFillTime} style={{ width: `${timePercent}%` }} /></div>
+                              </div>
+                            )}
+                            <div>
+                              <div className={styles.barMeta}>
+                                <span>Progress</span>
+                                <span>{ev.respondedUsers.length} / {ev.threshold}</span>
+                              </div>
+                              <div className={styles.barTrack}><div className={styles.barFillProg} style={{ width: `${ev.progress}%` }} /></div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : ev.type === 'inventory_audit' && ev.payload.auditGrid ? (
+                      <>
+                        <div className={styles.cmdLabel}>How many {ev.payload.auditTarget}?</div>
+                        <div className={styles.auditGrid}>
+                          {ev.payload.auditGrid.map((emoji, i) => (
+                            <div key={i} className={styles.auditTile}>{emoji}</div>
+                          ))}
+                        </div>
+                        <div className={styles.desc}>{description}</div>
+                        {!ev.resolved && !ev.failed && (
+                          <div className={styles.bars}>
+                            {timePercent !== null && (
+                              <div>
+                                <div className={styles.barMeta}><span>Time</span><span>{timeSeconds}s</span></div>
+                                <div className={styles.barTrack}><div className={styles.barFillTime} style={{ width: `${timePercent}%` }} /></div>
+                              </div>
+                            )}
+                            <div>
+                              <div className={styles.barMeta}>
+                                <span>Progress</span>
+                                <span>{ev.respondedUsers.length} / {ev.threshold}</span>
+                              </div>
+                              <div className={styles.barTrack}><div className={styles.barFillProg} style={{ width: `${ev.progress}%` }} /></div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : ev.type === 'complete_dish' && ev.payload.shownIngredients ? (
+                      <>
+                        <div className={styles.dishHeader}>
+                          <span className={styles.dishEmoji}>{ev.payload.dishEmoji}</span>
+                          <span className={styles.dishName}>{ev.payload.dishName}</span>
+                        </div>
+                        <div className={styles.dishChecklist}>
+                          {ev.payload.shownIngredients.map((ing, i) => (
+                            <div key={i} className={styles.dishCheckItem}>
+                              <span className={styles.dishCheck}>✓</span>{ing}
+                            </div>
+                          ))}
+                          <div className={`${styles.dishCheckItem} ${styles.dishBlank}`}>
+                            <span className={styles.dishCheck}>?</span>___________
+                          </div>
+                        </div>
+                        <div className={styles.cmdLabel}>{cmdLabelText(ev.type)}</div>
+                        <div className={styles.desc}>{description}</div>
+                        {!ev.resolved && !ev.failed && (
+                          <div className={styles.bars}>
+                            {timePercent !== null && (
+                              <div>
+                                <div className={styles.barMeta}><span>Time</span><span>{timeSeconds}s</span></div>
+                                <div className={styles.barTrack}><div className={styles.barFillTime} style={{ width: `${timePercent}%` }} /></div>
+                              </div>
+                            )}
+                            <div>
+                              <div className={styles.barMeta}>
+                                <span>Progress</span>
+                                <span>{ev.respondedUsers.length} / {ev.threshold}</span>
+                              </div>
+                              <div className={styles.barTrack}><div className={styles.barFillProg} style={{ width: `${ev.progress}%` }} /></div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className={styles.cmdLabel}>{cmdLabelText(ev.type)}</div>
+                        <div className={`${styles.cmdBox}${ev.type === 'typing_frenzy' ? ` ${styles.cmdBoxFrenzy}` : ''}`}>
+                          {ev.type === 'glitched_orders'
+                            ? ev.chosenCommand.split('').map((char, i) => (
+                                <span
+                                  key={i}
+                                  className={char !== ' ' ? styles.glitchChar : undefined}
+                                  style={{ animationDelay: `${i * 0.11}s` }}
+                                >{char}</span>
+                              ))
+                            : ev.chosenCommand
+                          }
+                        </div>
                         <div className={styles.desc}>{description}</div>
                         {!ev.resolved && !ev.failed && (
                           <div className={styles.bars}>
