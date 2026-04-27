@@ -241,18 +241,18 @@
 /* ── Inventory Audit 3×3 grid ── */
 .auditGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
   margin-bottom: 10px;
 }
 
 .auditTile {
-  height: 48px;
-  border-radius: 8px;
+  height: 42px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: 22px;
   background: rgba(0,0,0,0.06);
   border: 2px solid transparent;
 }

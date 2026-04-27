@@ -265,7 +265,7 @@ export function makeAnagram(word: string): string {
   return chars.join('')
 }
 
-// Builds a 3×3 emoji grid for Inventory Audit. Returns null if not enough variety.
+// Builds a 4×4 emoji grid for Inventory Audit. Returns null if not enough variety.
 export function makeAuditGrid(enabledRecipes: string[]): { grid: string[]; target: string; answer: number } | null {
   const keys = enabledRecipes.length > 0 ? enabledRecipes : Object.keys(RECIPES)
 
@@ -284,14 +284,14 @@ export function makeAuditGrid(enabledRecipes: string[]): { grid: string[]; targe
   const shuffledPool = [...emojiPool].sort(() => Math.random() - 0.5)
   const selected = shuffledPool.slice(0, Math.min(4, shuffledPool.length))
   const target = selected[0]
-  const answer = 2 + Math.floor(Math.random() * 3)  // 2–4
+  const answer = 3 + Math.floor(Math.random() * 4)  // 3–6
 
-  const slots = Array.from({ length: 9 }, (_, i) => i).sort(() => Math.random() - 0.5)
+  const slots = Array.from({ length: 16 }, (_, i) => i).sort(() => Math.random() - 0.5)
   const targetSlots = new Set(slots.slice(0, answer))
   const nonTarget = selected.slice(1)
 
   let fillIdx = 0
-  const grid = Array.from({ length: 9 }, (_, i) =>
+  const grid = Array.from({ length: 16 }, (_, i) =>
     targetSlots.has(i) ? target : nonTarget[fillIdx++ % nonTarget.length]
   )
 
