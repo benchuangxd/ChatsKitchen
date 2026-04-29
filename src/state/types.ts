@@ -8,6 +8,7 @@ export interface StationSlot {
   cookStart: number
   cookDuration: number
   heatApplied: number
+  heatPerCook: number   // total heat this slot contributes when fully cooked (10–20)
   state: SlotState
 }
 
@@ -76,7 +77,6 @@ export interface GameOptions {
   allowShortformCommands: boolean
   autoRestart: boolean
   autoRestartDelay: number  // seconds
-  expectedPlayers: number   // default: 10
   kitchenEventsEnabled: boolean
   enabledKitchenEvents: EventType[]
   kitchenEventSpawnMin: number    // seconds
@@ -91,6 +91,7 @@ export interface AudioSettings {
   musicMuted: boolean
   sfxMuted: boolean
   darkMode: boolean
+  mobileFriendly: boolean
   trackEnabled: { menu: boolean; gameplay: boolean; gameover: boolean }
 }
 

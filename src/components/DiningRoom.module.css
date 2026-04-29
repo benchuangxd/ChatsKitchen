@@ -26,7 +26,7 @@
 
 .timeLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #c8841a;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -67,7 +67,7 @@
   background: #c8841a;
   color: #0d0d0d;
   font-family: 'Lilita One', cursive;
-  font-size: 18px;
+  font-size: var(--base-fs);
   border-radius: 12px;
   padding: 1px 11px;
   min-width: 28px;
@@ -108,7 +108,7 @@
 
 .empty {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #5a5048;
   font-style: italic;
   text-align: center;

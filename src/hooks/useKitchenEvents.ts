@@ -214,8 +214,7 @@ export function useKitchenEvents(
     if (event.type === 'complete_dish' && event.payload.missingIngredient) {
       const missingKey = event.payload.missingIngredient.toLowerCase().replace(/ /g, '_')
       const produces = getProducesValues(s.enabledRecipes)
-      dispatch({ type: 'ADD_PREPARED_ITEMS', items: [missingKey, pickRandom(produces)] })
-      dispatch({ type: 'ADD_CHAT', username: 'KITCHEN', text: `🍽️ Recipe complete! Ingredient added to prep tray!`, msgType: 'success' })
+      dispatch({ type: 'ADD_PREPARED_ITEMS', items: [missingKey, pickRandom(produces)], message: `🍽️ Recipe complete! Ingredients added to prep tray!` })
     }
 
     setActiveEvent(prev => prev?.id === event.id ? { ...prev, resolved: true, progress: 100 } : prev)
@@ -241,8 +240,7 @@ export function useKitchenEvents(
       dispatch({ type: 'ADD_CHAT', username: 'KITCHEN', text: `👨‍🍳 Chef is angry! Cooking speed reduced for 15s!`, msgType: 'error' })
     }
     if (event.type === 'inventory_audit' && event.payload.auditAnswer) {
-      dispatch({ type: 'REMOVE_PREPARED_ITEMS', count: event.payload.auditAnswer })
-      dispatch({ type: 'ADD_CHAT', username: 'KITCHEN', text: `🧮 Inspector confiscated ${event.payload.auditAnswer} prepped ingredient(s)!`, msgType: 'error' })
+      dispatch({ type: 'REMOVE_PREPARED_ITEMS', count: event.payload.auditAnswer, message: `🧮 Inspector confiscated ${event.payload.auditAnswer} prepped ingredient(s)!` })
     }
 
     setActiveEvent(prev => prev?.id === event.id ? { ...prev, failed: true } : prev)
@@ -295,6 +293,10 @@ export function useKitchenEvents(
     const ev = activeEventRef.current
     if (!ev || ev.resolved || ev.failed) return
 
+    // In PvP mode, only registered players can participate
+    const s = stateRef.current
+    if (s.teams && !s.teams[user]) return
+
     const normalized = text.trim()
 
     const matchTarget = ev.type === 'mystery_recipe'
@@ -303,7 +305,13 @@ export function useKitchenEvents(
       ? String(ev.payload.powerTripAnswer!)
       : ev.chosenCommand
 
-    if (normalized !== matchTarget) return
+    // typing_frenzy (wifi password) is case-sensitive; everything else is not
+    const isCaseSensitive = ev.type === 'typing_frenzy'
+    if (isCaseSensitive) {
+      if (normalized !== matchTarget) return
+    } else {
+      if (normalized.toUpperCase() !== matchTarget.toUpperCase()) return
+    }
     if (ev.respondedUsers.includes(user)) return
 
     const newUsers = [...ev.respondedUsers, user]

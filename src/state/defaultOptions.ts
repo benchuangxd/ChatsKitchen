@@ -11,10 +11,9 @@ export const DEFAULT_GAME_OPTIONS: GameOptions = {
   allowShortformCommands: true,
   autoRestart: false,
   autoRestartDelay: 60,
-  expectedPlayers: 10,
   kitchenEventsEnabled: true,
   enabledKitchenEvents: ['angry_chef', 'smoke_blast', 'mystery_recipe', 'dance'] as EventType[],
   kitchenEventSpawnMin: 30,
   kitchenEventSpawnMax: 60,
-  kitchenEventDuration: 20,
+  kitchenEventDuration: 12,
 }

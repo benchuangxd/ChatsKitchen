@@ -26,7 +26,7 @@
   right: 14px;
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   cursor: pointer;
   line-height: 1;
@@ -63,7 +63,7 @@
 
 .toggle {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 600;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid transparent;
@@ -96,7 +96,7 @@
 
 .exitBtn {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 600;
   width: 100%;
   padding: 9px 12px;
@@ -114,7 +114,7 @@
 
 .resumeBtn {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   width: 100%;
   padding: 10px 12px;
@@ -161,14 +161,14 @@
 
 .recipeName {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text);
 }
 
 .recipeSteps {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   line-height: 1.5;
 }

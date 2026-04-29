@@ -85,16 +85,16 @@ function SliderField({ value, min, max, step, format, parse, onChange, suffix }:
   )
 }
 
-export default function FreePlaySetup({ options, onChange, onStart, onBack, twitchStatus, twitchChannel, roundHistory }: Props) {
+export default function FreePlaySetup({ options, onChange, onStart, onBack, twitchStatus, twitchChannel }: Props) {
   const [moreOpen, setMoreOpen] = useState(false)
   const [startWarning, setStartWarning] = useState(false)
+  // Live hover — clears on mouseLeave, used only for moreSection visibility logic
   const [hoveredRecipe, setHoveredRecipe] = useState<string | null>(null)
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
-
-  const recentPlayerCounts = (roundHistory ?? []).slice(0, 3).map(r => r.playerCount)
-  const avgRecentPlayers = recentPlayerCounts.length > 0
-    ? Math.round(recentPlayerCounts.reduce((a, b) => a + b, 0) / recentPlayerCounts.length)
-    : null
+  // Sticky detail — only set on mouseEnter, never cleared on mouseLeave so the
+  // user can scroll the detail panel without the content disappearing
+  const [detailRecipe, setDetailRecipe] = useState<string | null>(null)
+  const [detailEvent, setDetailEvent] = useState<string | null>(null)
 
   return (
     <div className={styles.screen}>
@@ -104,25 +104,6 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
           <TwitchStatusPill status={twitchStatus} channel={twitchChannel} />
         </div>
         <h1 className={styles.title}>Customize Your Shift</h1>
-
-        <div className={styles.card}>
-          <div className={styles.cardLabel}>👥 Expected Players</div>
-          <SliderField
-            value={options.expectedPlayers}
-            min={1}
-            max={200}
-            step={1}
-            format={v => String(v)}
-            parse={s => { const n = parseInt(s, 10); return isNaN(n) ? null : n }}
-            onChange={v => onChange({ ...options, expectedPlayers: v })}
-            suffix="players"
-          />
-          {avgRecentPlayers !== null && (
-            <div className={styles.recentRounds}>
-              Avg last {recentPlayerCounts.length} rounds: {avgRecentPlayers} players
-            </div>
-          )}
-        </div>
 
         <div className={styles.card}>
           <div className={styles.cardLabel}>⏱ Duration</div>
@@ -141,7 +122,10 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
         <div className={styles.moreToggleRow}>
           <button
             className={styles.moreToggle}
-            onClick={() => setMoreOpen(o => !o)}
+            onClick={() => setMoreOpen(o => {
+              if (!o) { setDetailRecipe(null); setDetailEvent(null) }
+              return !o
+            })}
           >
             {moreOpen ? '▲' : '▼'} More Options
           </button>
@@ -340,10 +324,10 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
           </div>
         )}
 
-        {/* ── Shared detail panel — hidden when More Options is open and nothing is hovered ── */}
+        {/* ── Shared detail panel — hidden when More Options is open and nothing is pinned/hovered ── */}
         {(!moreOpen || hoveredRecipe || hoveredEvent) && (() => {
-          if (hoveredRecipe) {
-            const recipe = RECIPES[hoveredRecipe]
+          if (detailRecipe) {
+            const recipe = RECIPES[detailRecipe]
             if (!recipe) return null
             return (
               <div className={styles.detailPanel}>
@@ -362,7 +346,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
                           <span className={styles.stepRequires}>needs {fmtIngredient(step.requires)} →</span>
                         )}
                         <span className={styles.stepStation}>{station?.emoji}</span>
-                        <code className={styles.stepCmd}>!{step.action} {step.target}</code>
+                        <code className={styles.stepCmd}>{step.action} {fmtIngredient(step.target)}</code>
                         <span className={styles.stepArrow}>→</span>
                         <span className={styles.stepProduces}>{fmtIngredient(step.produces)}</span>
                       </div>
@@ -373,8 +357,8 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
             )
           }
 
-          if (hoveredEvent) {
-            const def = EVENT_DEFS.find(d => d.type === hoveredEvent)
+          if (detailEvent) {
+            const def = EVENT_DEFS.find(d => d.type === detailEvent)
             if (!def) return null
             const isHazard = def.category === 'hazard-penalty' || def.category === 'hazard-immediate'
             return (
@@ -484,7 +468,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
                         : [...options.enabledRecipes, key]
                       onChange({ ...options, enabledRecipes: next })
                     }}
-                    onMouseEnter={() => { setHoveredRecipe(key); setHoveredEvent(null) }}
+                    onMouseEnter={() => { setHoveredRecipe(key); setHoveredEvent(null); setDetailRecipe(key); setDetailEvent(null) }}
                     onMouseLeave={() => setHoveredRecipe(null)}
                   >
                     <FoodIcon icon={recipe.emoji} size={22} className={styles.recipeEmoji} />
@@ -581,7 +565,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
                         : [...options.enabledKitchenEvents, def.type]
                       onChange({ ...options, enabledKitchenEvents: next })
                     }}
-                    onMouseEnter={() => { setHoveredEvent(def.type); setHoveredRecipe(null) }}
+                    onMouseEnter={() => { setHoveredEvent(def.type); setHoveredRecipe(null); setDetailEvent(def.type); setDetailRecipe(null) }}
                     onMouseLeave={() => setHoveredEvent(null)}
                   >
                     <span className={`${styles.eventBtnCheck} ${on ? styles.eventBtnCheckOn : ''}`}>✓</span>

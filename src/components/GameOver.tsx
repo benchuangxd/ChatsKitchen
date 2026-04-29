@@ -22,6 +22,7 @@ interface Props {
   served: number
   lost: number
   playerStats: Record<string, PlayerStats>
+  teams?: Record<string, 'red' | 'blue'>
   level: number | null
   highScore?: number
   isNewHighScore?: boolean
@@ -35,10 +36,11 @@ interface Props {
   onNextLevel?: () => void
   onMenu: () => void
   onRecipeSelect?: () => void
+  onPvpLobby?: () => void
   onEnableAutoRestart?: () => void
 }
 
-export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, starThresholds, onPlayAgain, onNextLevel, onMenu, onRecipeSelect, onEnableAutoRestart }: Props) {
+export default function GameOver({ money, served, lost, playerStats, teams, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, starThresholds, onPlayAgain, onNextLevel, onMenu, onRecipeSelect, onPvpLobby, onEnableAutoRestart }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
   const leaderboard = Object.entries(playerStats)
     .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
@@ -171,6 +173,11 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 Recipe Select
               </button>
             )}
+            {onPvpLobby && (
+              <button className={styles.menuBtn} onClick={onPvpLobby}>
+                PvP Lobby
+              </button>
+            )}
             <button className={styles.menuBtn} onClick={onMenu}>
               Main Menu
             </button>
@@ -213,7 +220,48 @@ export default function GameOver({ money, served, lost, playerStats, level, high
 
       <div className={styles.rightCol}>
         <div className={styles.panels}>
-          {roundHistory !== undefined && (
+          {pvpResult && teams && (() => {
+            const mvpStat = (s: PlayerStats) => [
+              { icon: '🍳', label: 'Cooked',  value: s.cooked },
+              { icon: '✅', label: 'Served',  value: s.served },
+              { icon: '🧯', label: 'Extinguished', value: s.extinguished },
+              { icon: '❄️', label: 'Cooled',  value: s.cooled },
+              { icon: '✨', label: 'Events',  value: s.eventParticipations },
+              { icon: '🔥', label: 'Fires',   value: s.firesCaused },
+            ]
+            const redMvp = Object.entries(playerStats)
+              .filter(([n]) => teams[n] === 'red')
+              .sort(([, a], [, b]) => totalActions(b) - totalActions(a))[0]
+            const blueMvp = Object.entries(playerStats)
+              .filter(([n]) => teams[n] === 'blue')
+              .sort(([, a], [, b]) => totalActions(b) - totalActions(a))[0]
+            return (
+              <div className={styles.mvpPanel}>
+                <div className={styles.panelTitle}>⭐ MVP</div>
+                <div className={styles.mvpCols}>
+                  {[{ mvp: redMvp, teamClass: styles.mvpCardRed, icon: '🔴' },
+                    { mvp: blueMvp, teamClass: styles.mvpCardBlue, icon: '🔵' }].map(({ mvp, teamClass, icon }) =>
+                    mvp ? (
+                      <div key={icon} className={`${styles.mvpCard} ${teamClass}`}>
+                        <div className={styles.mvpCardName}>{icon} {mvp[0]}</div>
+                        <div className={styles.mvpCardScore}>{totalActions(mvp[1])} pts</div>
+                        <div className={styles.mvpStats}>
+                          {mvpStat(mvp[1]).map(({ icon: ic, label, value }) => (
+                            <div key={label} className={styles.mvpStatRow}>
+                              <span className={styles.mvpStatIcon}>{ic}</span>
+                              <span className={styles.mvpStatLabel}>{label}</span>
+                              <span className={styles.mvpStatValue}>{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null
+                  )}
+                </div>
+              </div>
+            )
+          })()}
+          {roundHistory !== undefined && !pvpResult && (
             <div className={styles.historyPanel}>
               <div className={styles.panelTitle}>
                 Round History
@@ -268,8 +316,10 @@ export default function GameOver({ money, served, lost, playerStats, level, high
               leaderboard.map(([name, stats], i) => {
                 const color = NAME_COLORS[Math.abs(hashStr(name)) % NAME_COLORS.length]
                 const isYou = name === 'You'
+                const teamColor = teams?.[name]
+                const teamClass = teamColor === 'red' ? styles.lbRed : teamColor === 'blue' ? styles.lbBlue : ''
                 return (
-                  <div key={name} className={`${styles.lbRow} ${isYou ? styles.lbYou : ''}`}>
+                  <div key={name} className={`${styles.lbRow} ${isYou ? styles.lbYou : ''} ${teamClass}`}>
                     <span className={styles.lbRank}>{i + 1}</span>
                     <span className={styles.lbName} style={{ color }}>{name}</span>
                     <span className={styles.lbDetail}>{stats.cooked}</span>

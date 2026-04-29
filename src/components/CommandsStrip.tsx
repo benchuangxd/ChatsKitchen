@@ -36,7 +36,7 @@ export default function CommandsStrip({ stationIds, enabledRecipes }: Props) {
         )
       )
       if (relevantTargets.length > 0) {
-        groups.push({ label: action, targets: '[ingredient]' })
+        groups.push({ label: action, targets: relevantTargets.map(t => t.replace(/_/g, ' ')).join(' / ') })
       }
     }
   }

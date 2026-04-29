@@ -93,18 +93,18 @@ export const RECIPES: Record<string, Recipe> = {
   fried_rice: {
     name: 'Fried Rice', emoji: '\u{1F373}', reward: 55, patience: 75000,
     steps: [
-      { action: 'cook',  target: 'rice',          station: 'rice_pot',      duration: 10000, produces: 'cooked_rice' },
-      { action: 'stir',  target: 'egg',           station: 'wok',           duration: 6000,  produces: 'stir_fried_egg' },
-      { action: 'stir',  target: 'rice',          station: 'wok',           duration: 8000,  produces: 'stir_fried_rice', requires: 'cooked_rice' },
+      { action: 'cook',    target: 'rice', station: 'rice_pot', duration: 10000, produces: 'cooked_rice' },
+      { action: 'stirfry', target: 'egg',  station: 'wok',      duration: 6000,  produces: 'stir_fried_egg' },
+      { action: 'stirfry', target: 'rice', station: 'wok',      duration: 8000,  produces: 'stir_fried_rice', requires: 'cooked_rice' },
     ],
     plate: ['stir_fried_rice', 'stir_fried_egg']
   },
   stir_fried_pork: {
     name: 'Stir-Fried Pork', emoji: '\u{1F35B}', reward: 65, patience: 80000,
     steps: [
-      { action: 'chop', target: 'pork',    station: 'cutting_board', duration: 7000, produces: 'sliced_pork' },
-      { action: 'chop', target: 'spring_onion', station: 'cutting_board', duration: 6000, produces: 'sliced_spring_onion' },
-      { action: 'stir', target: 'pork',         station: 'wok',           duration: 9000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
+      { action: 'chop',    target: 'pork',         station: 'cutting_board', duration: 7000, produces: 'sliced_pork' },
+      { action: 'chop',    target: 'spring_onion', station: 'cutting_board', duration: 6000, produces: 'sliced_spring_onion' },
+      { action: 'stirfry', target: 'pork',         station: 'wok',           duration: 9000, produces: 'stir_fried_pork', requires: 'sliced_pork' },
     ],
     plate: ['stir_fried_pork', 'sliced_spring_onion']
   },
@@ -208,25 +208,25 @@ export const RECIPES: Record<string, Recipe> = {
   shio_pan: {
     name: 'Shio Pan', emoji: '\u{1F950}', reward: 50, patience: 65000,
     steps: [
-      { action: 'knead', target: 'dough',       station: 'knead_board', duration: 7000, produces: 'bread_dough' },
-      { action: 'toast', target: 'bread_dough', station: 'oven',        duration: 9000, produces: 'toasted_bread', requires: 'bread_dough' },
+      { action: 'knead', target: 'dough', station: 'knead_board', duration: 7000, produces: 'bread_dough' },
+      { action: 'toast', target: 'dough', station: 'oven',        duration: 9000, produces: 'toasted_bread', requires: 'bread_dough' },
     ],
     plate: ['toasted_bread']
   },
   melon_pan: {
     name: 'Melon Pan', emoji: '\u{1F36A}', reward: 65, patience: 75000,
     steps: [
-      { action: 'knead', target: 'dough',         station: 'knead_board', duration: 7000,  produces: 'bread_dough' },
-      { action: 'mix',   target: 'cookie_topping', station: 'mixing_bowl', duration: 6000,  produces: 'cookie_dough' },
-      { action: 'toast', target: 'bread_dough',    station: 'oven',        duration: 10000, produces: 'toasted_bread', requires: 'bread_dough' },
+      { action: 'knead', target: 'dough',          station: 'knead_board', duration: 7000,  produces: 'bread_dough' },
+      { action: 'mix',   target: 'topping',         station: 'mixing_bowl', duration: 6000,  produces: 'cookie_dough' },
+      { action: 'toast', target: 'dough',          station: 'oven',        duration: 10000, produces: 'toasted_bread', requires: 'bread_dough' },
     ],
     plate: ['toasted_bread', 'cookie_dough']
   },
   pour_over_coffee: {
     name: 'Pour-Over Coffee', emoji: '\u{2615}', reward: 45, patience: 55000,
     steps: [
-      { action: 'grind', target: 'coffee_beans', station: 'grinder', duration: 5000, produces: 'ground_coffee' },
-      { action: 'boil',  target: 'water',        station: 'stove',   duration: 6000, produces: 'hot_water' },
+      { action: 'grind', target: 'beans', station: 'grinder', duration: 5000, produces: 'ground_coffee' },
+      { action: 'boil',  target: 'water', station: 'stove',   duration: 6000, produces: 'hot_water' },
     ],
     plate: ['ground_coffee', 'hot_water']
   },
@@ -252,19 +252,19 @@ export const RECIPES: Record<string, Recipe> = {
   economic_bee_hoon: {
     name: 'Economic Bee Hoon', emoji: '\u{1F35C}', reward: 65, patience: 80000,
     steps: [
-      { action: 'fry',  target: 'chicken_wing', station: 'fryer', duration: 7000, produces: 'fried_chicken_wing' },
-      { action: 'stir', target: 'bee_hoon',     station: 'wok',   duration: 9000, produces: 'fried_bee_hoon' },
-      { action: 'stir', target: 'vegetables',   station: 'wok',   duration: 6000, produces: 'stir_fried_vegetables' },
-      { action: 'fry',  target: 'egg',          station: 'fryer', duration: 5000, produces: 'fried_egg' },
+      { action: 'fry',    target: 'chicken_wing', station: 'fryer', duration: 7000, produces: 'fried_chicken_wing' },
+      { action: 'stirfry', target: 'bee_hoon',    station: 'wok',   duration: 9000, produces: 'fried_bee_hoon' },
+      { action: 'stirfry', target: 'cabbage',     station: 'wok',   duration: 6000, produces: 'stir_fried_cabbage' },
+      { action: 'fry',    target: 'egg',          station: 'fryer', duration: 5000, produces: 'fried_egg' },
     ],
-    plate: ['fried_chicken_wing', 'fried_bee_hoon', 'stir_fried_vegetables', 'fried_egg']
+    plate: ['fried_chicken_wing', 'fried_bee_hoon', 'stir_fried_cabbage', 'fried_egg']
   },
   roti_prata: {
     name: 'Roti Prata', emoji: '\u{1FAD3}', reward: 55, patience: 70000,
     steps: [
-      { action: 'knead', target: 'dough',      station: 'knead_board', duration: 7000, produces: 'bread_dough' },
-      { action: 'grill', target: 'bread_dough', station: 'grill',       duration: 8000, produces: 'roti_prata', requires: 'bread_dough' },
-      { action: 'boil',  target: 'curry',       station: 'stove',       duration: 5000, produces: 'curry_dip' },
+      { action: 'knead', target: 'prata', station: 'knead_board', duration: 7000, produces: 'kneaded_prata' },
+      { action: 'grill', target: 'prata', station: 'grill',       duration: 8000, produces: 'roti_prata', requires: 'kneaded_prata' },
+      { action: 'boil',  target: 'curry', station: 'stove',       duration: 5000, produces: 'curry_dip' },
     ],
     plate: ['roti_prata', 'curry_dip']
   },
@@ -286,7 +286,7 @@ export const STATION_DEFS: Record<string, StationDef> = {
   fryer:         { name: 'Fryer',         emoji: '\u{1FAD5}', color: '#e8943a', actions: ['fry'] },
   stove:         { name: 'Stove',         emoji: '\u{2668}\u{FE0F}',  color: '#d94f4f', actions: ['boil'] },
   oven:          { name: 'Oven',          emoji: '\u{1F9F1}', color: '#a07862', actions: ['toast', 'roast'] },
-  wok:           { name: 'Wok',           emoji: '🍳', color: '#c85a20', actions: ['stir'] },
+  wok:           { name: 'Wok',           emoji: '🍳', color: '#c85a20', actions: ['stirfry'] },
   steamer:       { name: 'Steamer',       emoji: '\u{1FAD5}', color: '#5a9ab0', actions: ['steam'] },
   stone_pot:     { name: 'Stone Pot',     emoji: '\u{1F372}', color: '#7a5a3a', actions: ['simmer'] },
   rice_pot:      { name: 'Rice Pot',      emoji: '\u{1F35A}', color: '#a08060', actions: ['cook'] },
@@ -372,10 +372,11 @@ export const INGREDIENT_EMOJI: Record<string, string> = {
   // Singapore Hawker Breakfast
   kaya_spread:             '\u{1F36F}',
   fried_bee_hoon:          '\u{1F35C}',
-  stir_fried_vegetables:   '\u{1F966}',
+  stir_fried_cabbage:      '\u{1F96C}',
   fried_egg:               '\u{1F373}',
   chicken_wing:            '\u{1F357}',
   fried_chicken_wing:      '\u{1F357}',
+  kneaded_prata:           '\u{1FAD3}',
   roti_prata:              '\u{1FAD3}',
   curry_dip:               '\u{1F35B}',
   sambal_paste:            '\u{1F336}\u{FE0F}',

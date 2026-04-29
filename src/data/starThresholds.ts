@@ -2,25 +2,26 @@ import { GameOptions, EventType } from '../state/types'
 import { RECIPES, getEnabledStations } from './recipes'
 
 const BASE_SPAWN_INTERVAL_MS = 14000
+const MIN_SPAWN_INTERVAL_MS  = 5000   // floor from shift progression (Math.max(5000, 14000 - shift*1000))
 const REACTION_TIME_MS = 8000
 const COORD_FLOOR = 0.20
 const COORD_RANGE = 0.75  // ceiling = COORD_FLOOR + COORD_RANGE = 0.95
 
 const HAZARD_TYPES: EventType[] = [
-  'rat_invasion', 'angry_chef', 'power_trip', 'smoke_blast', 'glitched_orders',
+  'rat_invasion', 'angry_chef', 'power_trip', 'smoke_blast', 'glitched_orders', 'inventory_audit',
 ]
 const OPP_TYPES: EventType[] = [
-  'chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance',
+  'chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance', 'complete_dish',
 ]
 const ALL_EVENT_TYPES: EventType[] = [...HAZARD_TYPES, ...OPP_TYPES]
 
 // cutting_board, mixing_bowl, grinder, and knead_board all use stationCapacity.chopping
 const CHOPPING_CAPACITY_STATIONS = new Set(['cutting_board', 'mixing_bowl', 'grinder', 'knead_board'])
 
-export function computeStarThresholds(options: GameOptions): [number, number, number] {
+export function computeStarThresholds(options: GameOptions, playerCount: number): [number, number, number] {
   const {
     shiftDuration, cookingSpeed, orderSpeed, orderSpawnRate,
-    enabledRecipes, stationCapacity, expectedPlayers,
+    enabledRecipes, stationCapacity,
     kitchenEventsEnabled, enabledKitchenEvents,
   } = options
 
@@ -33,7 +34,10 @@ export function computeStarThresholds(options: GameOptions): [number, number, nu
   ) / recipes.length
   const avgPatience = recipes.reduce((s, r) => s + r.patience, 0) / recipes.length
 
-  const totalSpawnableOrders = shiftDuration / (BASE_SPAWN_INTERVAL_MS / orderSpawnRate)
+  // Base orders at the slowest spawn rate (no shift progression)
+  const baseSpawnTotal = shiftDuration / (BASE_SPAWN_INTERVAL_MS / orderSpawnRate)
+  // Maximum orders if spawn rate stayed at the minimum interval the whole shift
+  const maxSpawnTotal  = shiftDuration / (MIN_SPAWN_INTERVAL_MS  / orderSpawnRate)
 
   const effectiveCookTime = avgCookTime / cookingSpeed
   const effectivePatience = avgPatience / orderSpeed
@@ -45,10 +49,19 @@ export function computeStarThresholds(options: GameOptions): [number, number, nu
     (sum, id) => sum + (CHOPPING_CAPACITY_STATIONS.has(id) ? stationCapacity.chopping : stationCapacity.cooking),
     0
   )
-  const playerFactor = Math.min(1.0, expectedPlayers / Math.max(1, stationSlots))
-  const coordinationEfficiency = COORD_FLOOR + COORD_RANGE * playerFactor
+  const surplusRatio = playerCount / Math.max(1, stationSlots)
+  const coordinationEfficiency = COORD_FLOOR + COORD_RANGE * Math.min(1.0, surplusRatio)
 
-  const theoreticalMax = totalSpawnableOrders * avgReward * patienceFactor * coordinationEfficiency
+  // Player surplus drives shift-counter acceleration: more players → serve faster →
+  // shift counter ticks up faster → spawn interval tightens toward MIN_SPAWN_INTERVAL_MS.
+  // Modelled as a logarithmic blend from base toward max spawn total,
+  // reaching full acceleration at surplusRatio ≈ 3 (3× more players than slots).
+  const spawnAccelFactor = surplusRatio > 1.0
+    ? Math.min(1.0, Math.log(surplusRatio) / Math.log(3))
+    : 0.0
+  const effectiveSpawnTotal = baseSpawnTotal + spawnAccelFactor * (maxSpawnTotal - baseSpawnTotal)
+
+  const theoreticalMax = effectiveSpawnTotal * avgReward * patienceFactor * coordinationEfficiency
 
   let eventFactor = 1.0
   if (kitchenEventsEnabled) {
@@ -62,9 +75,9 @@ export function computeStarThresholds(options: GameOptions): [number, number, nu
   const adjustedMax = theoreticalMax * eventFactor
   const round5 = (n: number) => Math.round(n / 5) * 5
   return [
-    round5(adjustedMax * 0.40),
-    round5(adjustedMax * 0.65),
-    round5(adjustedMax * 0.88),
+    round5(adjustedMax * 0.45),
+    round5(adjustedMax * 0.70),
+    round5(adjustedMax * 0.92),
   ]
 }
 
