@@ -104,7 +104,7 @@ export default function PvPLobby({ red, blue, onMovePlayer, onKick, onBalance, o
         <div className={styles.leftColScroll}>
           <div className={styles.title}>⚔️ PvP Lobby</div>
           <div className={styles.hint}>
-            Type <strong>!red</strong>, <strong>!blue</strong>, <strong>!join red</strong>, <strong>!join blue</strong>, or <strong>!join</strong> in chat to join a team
+            Type <strong>!red</strong>, <strong>!blue</strong>, or <strong>!join</strong> in chat to join a team
           </div>
 
           <div className={styles.divider} />
