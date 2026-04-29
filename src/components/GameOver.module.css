@@ -505,35 +505,68 @@
 
 /* PvP banner */
 .pvpBanner {
-  border-radius: 10px;
-  padding: 16px 24px;
-  margin-bottom: 20px;
+  border-radius: 12px;
+  padding: 18px 20px 16px;
   text-align: center;
 }
 
-.pvpBannerRed  { background: rgba(231,76,60,0.15);  border: 2px solid rgba(231,76,60,0.5); }
-.pvpBannerBlue { background: rgba(52,152,219,0.15); border: 2px solid rgba(52,152,219,0.5); }
-.pvpBannerTie  { background: rgba(240,200,80,0.1);  border: 2px solid rgba(240,200,80,0.3); }
+.pvpBannerRed  { background: rgba(231,76,60,0.12);  border: 2px solid rgba(231,76,60,0.45); }
+.pvpBannerBlue { background: rgba(52,152,219,0.12); border: 2px solid rgba(52,152,219,0.45); }
+.pvpBannerTie  { background: rgba(240,200,80,0.08); border: 2px solid rgba(240,200,80,0.3); }
 
-.pvpBannerTitle {
+.pvpWinnerLabel {
+  font-family: 'Lilita One', cursive;
+  font-size: 42px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.pvpWinnerLabelRed  { color: #ef5b4a; text-shadow: 0 0 24px rgba(231,76,60,0.45); }
+.pvpWinnerLabelBlue { color: #4daadf; text-shadow: 0 0 24px rgba(52,152,219,0.45); }
+.pvpWinnerLabelTie  { color: #f0c850; text-shadow: 0 0 24px rgba(240,200,80,0.4); }
+
+.pvpTeams {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pvpTeamRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pvpTeamRowLoser {
+  opacity: 0.4;
+}
+
+.pvpRedText  { color: #ef5b4a; }
+.pvpBlueText { color: #4daadf; }
+
+.pvpMoneyWin {
   font-family: 'Lilita One', cursive;
   font-size: 28px;
-  color: #f0c850;
-  margin-bottom: 8px;
 }
 
-.pvpScores {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  font-family: 'Space Mono', monospace;
+.pvpMoneyLose {
+  font-family: 'Lilita One', cursive;
+  font-size: 22px;
+}
+
+.pvpServedWin {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.pvpServedLose {
+  font-family: 'Fredoka', sans-serif;
   font-size: 14px;
+  color: var(--text-secondary);
 }
-
-.pvpRed  { color: #e74c3c; }
-.pvpBlue { color: #3498db; }
-.pvpVs   { color: #555; }
 
 /* PvP MVP panel (right column) */
 .mvpPanel {
@@ -595,6 +628,7 @@
 .mvpStatIcon  { width: 18px; flex-shrink: 0; }
 .mvpStatLabel { flex: 1; color: #8a8070; }
 .mvpStatValue { color: #c8c0b0; }
+
 
 .starDisplay {
   display: flex;

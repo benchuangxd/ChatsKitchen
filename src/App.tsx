@@ -383,6 +383,8 @@ export default function App() {
   }, [startTutorial])
 
   const handleCommand = useCallback((user: string, text: string) => {
+    const teams = stateRef.current.teams
+    if (teams && !teams[user]) return  // PvP: only registered team members can act
     const action = parseCommand(user, text, gameOptions.allowShortformCommands)
     if (action) dispatch(action)
   }, [gameOptions.allowShortformCommands])
@@ -476,6 +478,25 @@ export default function App() {
       return
     }
 
+    const kickMatch = cmd.match(/^!kick\s+@?(\S+)$/)
+    if (kickMatch) {
+      const target = kickMatch[1]
+      const lobby = pvpLobbyRef.current
+      if (!lobby || (!lobby.red.includes(target) && !lobby.blue.includes(target))) {
+        showToast(`❌ ${target} not found`)
+        return
+      }
+      setPvpLobby(prev => {
+        if (!prev) return prev
+        return {
+          red: prev.red.filter(u => u !== target),
+          blue: prev.blue.filter(u => u !== target),
+        }
+      })
+      showToast(`🚫 Kicked ${target}`)
+      return
+    }
+
     const moveMatch = text.trim().match(/^!move\s+(red|blue)\s+@?(\S+)$/i)
     if (moveMatch) {
       const team = moveMatch[1].toLowerCase() as 'red' | 'blue'
@@ -557,6 +578,16 @@ export default function App() {
         })
         return
       }
+      if (cmd === '!leave' || cmd === '!quit') {
+        setPvpLobby(prev => {
+          if (!prev) return prev
+          return {
+            red: prev.red.filter(u => u !== user),
+            blue: prev.blue.filter(u => u !== user),
+          }
+        })
+        return
+      }
       handleLobbyMetaCommand(user, text, isMod)
       return
     }
@@ -590,6 +621,16 @@ export default function App() {
           if (prev.red.includes('You') || prev.blue.includes('You')) return prev
           const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
           return { ...prev, [team]: [...prev[team], 'You'] }
+        })
+        return
+      }
+      if (cmd === '!leave' || cmd === '!quit') {
+        setPvpLobby(prev => {
+          if (!prev) return prev
+          return {
+            red: prev.red.filter(u => u !== 'You'),
+            blue: prev.blue.filter(u => u !== 'You'),
+          }
         })
         return
       }
@@ -769,6 +810,13 @@ export default function App() {
           if (!prev) return prev
           const all = [...prev.red, ...prev.blue].sort(() => Math.random() - 0.5)
           return { red: all.filter((_, i) => i % 2 === 0), blue: all.filter((_, i) => i % 2 !== 0) }
+        })}
+        onKick={username => setPvpLobby(prev => {
+          if (!prev) return prev
+          return {
+            red: prev.red.filter(u => u !== username),
+            blue: prev.blue.filter(u => u !== username),
+          }
         })}
         onClear={() => setPvpLobby(prev => prev ? { red: [], blue: [] } : prev)}
         onBack={() => { setPvpLobby(null); setScreen('menu') }}
