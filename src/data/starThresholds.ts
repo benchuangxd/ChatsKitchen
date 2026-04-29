@@ -1,5 +1,5 @@
 import { GameOptions, EventType } from '../state/types'
-import { RECIPES, getEnabledStations } from './recipes'
+import { RECIPES, getEnabledStations, HEAT_EXEMPT_STATIONS } from './recipes'
 
 const BASE_SPAWN_INTERVAL_MS = 14000
 const MIN_SPAWN_INTERVAL_MS  = 5000   // floor from shift progression (Math.max(5000, 14000 - shift*1000))
@@ -14,8 +14,6 @@ const OPP_TYPES: EventType[] = [
   'chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance', 'complete_dish',
 ]
 
-// cutting_board, mixing_bowl, grinder, and knead_board all use stationCapacity.chopping
-const CHOPPING_CAPACITY_STATIONS = new Set(['cutting_board', 'mixing_bowl', 'grinder', 'knead_board'])
 
 export function computeStarThresholds(options: GameOptions, playerCount: number): [number, number, number] {
   const {
@@ -45,7 +43,7 @@ export function computeStarThresholds(options: GameOptions, playerCount: number)
 
   const enabledStations = getEnabledStations(enabledRecipes)
   const stationSlots = enabledStations.reduce(
-    (sum, id) => sum + (CHOPPING_CAPACITY_STATIONS.has(id) ? stationCapacity.chopping : stationCapacity.cooking),
+    (sum, id) => sum + (HEAT_EXEMPT_STATIONS.has(id) ? stationCapacity.chopping : stationCapacity.cooking),
     0
   )
   const surplusRatio = playerCount / Math.max(1, stationSlots)

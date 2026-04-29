@@ -1,28 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
-import { KitchenEvent, EventCategory } from '../state/types'
+import { KitchenEvent, EventType, EventCategory } from '../state/types'
 import { createPortal } from 'react-dom'
 import { EVENT_DEFS, DanceDir } from '../data/kitchenEventDefs'
 import styles from './EventCardOverlay.module.css'
 
 const DANCE_ARROWS: Record<DanceDir, string> = { UP: '⬆', DOWN: '⬇', LEFT: '⬅', RIGHT: '➡' }
 
+const CMD_LABEL: Partial<Record<EventType, string>> = {
+  power_trip:     'Type the answer',
+  mystery_recipe: 'Unscramble',
+  typing_frenzy:  'Type exactly',
+  complete_dish:  'Type the missing ingredient',
+  inventory_audit:'Type the count',
+}
+
+const BADGE_TEXT: Record<EventCategory, string> = {
+  'hazard-penalty':   '⚠ Hazard',
+  'hazard-immediate': '⚠ Immediate',
+  'opportunity':      '⚡ Opportunity',
+}
+
 interface Props {
   activeEvent: KitchenEvent | null
-}
-
-function cmdLabelText(type: KitchenEvent['type']): string {
-  if (type === 'power_trip') return 'Type the answer'
-  if (type === 'mystery_recipe') return 'Unscramble'
-  if (type === 'typing_frenzy') return 'Type exactly'
-  if (type === 'complete_dish') return 'Type the missing ingredient'
-  if (type === 'inventory_audit') return 'Type the count'
-  return 'Type in chat'
-}
-
-function badgeText(category: EventCategory): string {
-  if (category === 'hazard-penalty') return '⚠ Hazard'
-  if (category === 'hazard-immediate') return '⚠ Immediate'
-  return '⚡ Opportunity'
 }
 
 type AnimState = 'idle' | 'stamping' | 'tearing'
@@ -100,7 +99,7 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                 >
                   <div className={styles.header}>
                     <div className={styles.headerStripe} />
-                    <span className={styles.badge}>{badgeText(ev.category)}</span>
+                    <span className={styles.badge}>{BADGE_TEXT[ev.category]}</span>
                     <span className={styles.title}>{def.emoji} {def.label}</span>
                   </div>
                   <div className={styles.body}>
@@ -176,7 +175,7 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                             <span className={styles.dishCheck}>?</span>___________
                           </div>
                         </div>
-                        <div className={styles.cmdLabel}>{cmdLabelText(ev.type)}</div>
+                        <div className={styles.cmdLabel}>{CMD_LABEL[ev.type] ?? 'Type in chat'}</div>
                         <div className={styles.desc}>{description}</div>
                         {!ev.resolved && !ev.failed && (
                           <div className={styles.bars}>
@@ -198,7 +197,7 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                       </>
                     ) : (
                       <>
-                        <div className={styles.cmdLabel}>{cmdLabelText(ev.type)}</div>
+                        <div className={styles.cmdLabel}>{CMD_LABEL[ev.type] ?? 'Type in chat'}</div>
                         <div className={`${styles.cmdBox}${ev.type === 'typing_frenzy' ? ` ${styles.cmdBoxFrenzy}` : ''}`}>
                           {ev.type === 'glitched_orders'
                             ? ev.chosenCommand.split('').map((char, i) => (

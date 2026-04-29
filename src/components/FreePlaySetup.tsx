@@ -12,6 +12,10 @@ function fmtIngredient(s: string) {
   return s.replace(/_/g, ' ')
 }
 
+const ORPHAN_RECIPE_KEYS = Object.keys(RECIPES).filter(
+  k => !new Set(RECIPE_SETS.flatMap(s => s.recipeKeys)).has(k)
+)
+
 interface Props {
   options: GameOptions
   onChange: (options: GameOptions) => void
@@ -451,8 +455,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
 
             <div className={styles.recipeScroll} style={{ padding: '0 16px 12px 16px' }}>
             {(() => {
-              const allSetKeys = new Set(RECIPE_SETS.flatMap(s => s.recipeKeys))
-              const orphanKeys = Object.keys(RECIPES).filter(k => !allSetKeys.has(k))
+              const orphanKeys = ORPHAN_RECIPE_KEYS
 
               const renderRecipeBtn = (key: string) => {
                 const recipe = RECIPES[key]

@@ -295,6 +295,10 @@ export const STATION_DEFS: Record<string, StationDef> = {
   knead_board:   { name: 'Knead Board',   emoji: '\u{1FAD3}', color: '#d4a860', actions: ['knead'] },
 }
 
+export const HEAT_EXEMPT_STATIONS = new Set([
+  'cutting_board', 'mixing_bowl', 'grinder', 'knead_board',
+])
+
 export function getEnabledStations(enabledRecipes: string[]): string[] {
   const needed = new Set<string>()
   for (const key of enabledRecipes) {
