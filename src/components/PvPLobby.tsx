@@ -120,11 +120,8 @@ export default function PvPLobby({ red, blue, onMovePlayer, onKick, onBalance, o
               <div className={styles.modHintRow}>
                 <span className={styles.modCmd}>!red</span>
                 <span className={styles.modCmd}>!blue</span>
-                <span>join a team</span>
-              </div>
-              <div className={styles.modHintRow}>
                 <span className={styles.modCmd}>!join</span>
-                <span>auto-join smaller team</span>
+                <span>join a team</span>
               </div>
               <div className={styles.modHintRow}>
                 <span className={styles.modCmd}>!leave</span>
