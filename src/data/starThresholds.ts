@@ -13,7 +13,6 @@ const HAZARD_TYPES: EventType[] = [
 const OPP_TYPES: EventType[] = [
   'chefs_chant', 'mystery_recipe', 'typing_frenzy', 'dance', 'complete_dish',
 ]
-const ALL_EVENT_TYPES: EventType[] = [...HAZARD_TYPES, ...OPP_TYPES]
 
 // cutting_board, mixing_bowl, grinder, and knead_board all use stationCapacity.chopping
 const CHOPPING_CAPACITY_STATIONS = new Set(['cutting_board', 'mixing_bowl', 'grinder', 'knead_board'])
@@ -66,7 +65,7 @@ export function computeStarThresholds(options: GameOptions, playerCount: number)
   let eventFactor = 1.0
   if (kitchenEventsEnabled) {
     // empty list means all events are active (same convention as useKitchenEvents.ts)
-    const activeEvents = enabledKitchenEvents.length === 0 ? ALL_EVENT_TYPES : enabledKitchenEvents
+    const activeEvents = enabledKitchenEvents
     const hazardCount = activeEvents.filter(e => HAZARD_TYPES.includes(e)).length
     const oppCount = activeEvents.filter(e => OPP_TYPES.includes(e)).length
     eventFactor = (1.0 - hazardCount * 0.03) * (1.0 + oppCount * 0.02)

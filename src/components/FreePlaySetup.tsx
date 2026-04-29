@@ -532,7 +532,13 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
               <div className={styles.eventSectionActions}>
                 <button
                   className={`${styles.toggleBtn} ${options.kitchenEventsEnabled ? styles.toggleBtnOn : ''}`}
-                  onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
+                  onClick={() => {
+                    const turningOn = !options.kitchenEventsEnabled
+                    const nextEvents = turningOn && options.enabledKitchenEvents.length === 0
+                      ? EVENT_DEFS.map(d => d.type)
+                      : options.enabledKitchenEvents
+                    onChange({ ...options, kitchenEventsEnabled: turningOn, enabledKitchenEvents: nextEvents })
+                  }}
                 >
                   {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
                 </button>

@@ -79,7 +79,7 @@ export function useKitchenEvents(
     const eligibleStations = Object.values(s.stations).filter(st => !st.overheated)
 
     const isAllowed = (type: EventType) =>
-      (enabled.length === 0 || enabled.includes(type)) &&
+      enabled.includes(type) &&
       !(type === 'power_trip' && eligibleStations.length < 2)
 
     // Prefer no back-to-back; fall back to full pool if only one event type enabled
