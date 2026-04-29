@@ -72,7 +72,10 @@ export function useKitchenEvents(
     const threshold = calcThreshold(playerCount)
 
     const enabled = enabledEventsRef.current
-    const eligibleStations = Object.values(s.stations).filter(st => !st.overheated)
+    const alreadyDisabled = new Set(s.disabledStations ?? [])
+    const eligibleStations = Object.values(s.stations).filter(
+      st => !st.overheated && !alreadyDisabled.has(st.id)
+    )
 
     const isAllowed = (type: EventType) =>
       enabled.includes(type) &&
