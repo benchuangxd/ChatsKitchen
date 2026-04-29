@@ -57,6 +57,7 @@ export default function Kitchen({ state, tutorialHighlight }: Props) {
               playerCount={Object.keys(state.playerStats).length}
               isHighlighted={tutorialHighlight === id}
               pvpLargerTeamSize={pvpLargerTeamSize}
+              isDisabled={state.disabledStations?.includes(id) ?? false}
             />
           ))}
         </div>
