@@ -51,6 +51,7 @@ const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   musicMuted: false,
   sfxMuted: false,
   darkMode: true,
+  mobileFriendly: false,
   trackEnabled: { menu: false, gameplay: true, gameover: true }
 }
 
@@ -113,6 +114,7 @@ export default function App() {
     served: number
     lost: number
     playerStats: Record<string, PlayerStats>
+    teams?: Record<string, 'red' | 'blue'>
     redMoney?: number
     blueMoney?: number
     redServed?: number
@@ -197,12 +199,7 @@ export default function App() {
       enabledRecipes: gameOptions.enabledRecipes,
       teams,
     })
-    // Only set star thresholds for non-PvP Free Play
-    if (!pvpLobbyRef.current) {
-      setStarThresholds(computeStarThresholds(gameOptions))
-    } else {
-      setStarThresholds(null)
-    }
+    setStarThresholds(null)
     setScreen('countdown')
   }, [gameOptions])
 
@@ -424,6 +421,7 @@ export default function App() {
       served: s.served,
       lost: s.lost,
       playerStats: s.playerStats,
+      teams: s.teams,
       redMoney: s.redMoney,
       blueMoney: s.blueMoney,
       redServed: s.redServed,
@@ -435,6 +433,13 @@ export default function App() {
         ? { ...prev, accumulatedPlayerStats: mergePlayerStats(prev.accumulatedPlayerStats, s.playerStats) }
         : prev)
     } else {
+      // Compute star thresholds from actual player count (non-PvP free play only)
+      if (!s.teams || Object.keys(s.teams).length === 0) {
+        const playerCount = Object.keys(s.playerStats).length
+        setStarThresholds(computeStarThresholds(gameOptionsRef.current, Math.max(1, playerCount)))
+      } else {
+        setStarThresholds(null)
+      }
       // Free Play: existing high-score + history logic (unchanged)
       setFreePlayHighScore(prev => {
         if (s.money > prev) {
@@ -471,14 +476,16 @@ export default function App() {
       return
     }
 
-    const moveMatch = cmd.match(/^!move\s+(red|blue)\s+@?(\S+)$/)
+    const moveMatch = text.trim().match(/^!move\s+(red|blue)\s+@?(\S+)$/i)
     if (moveMatch) {
-      const team = moveMatch[1] as 'red' | 'blue'
-      const target = moveMatch[2]
+      const team = moveMatch[1].toLowerCase() as 'red' | 'blue'
+      const targetRaw = moveMatch[2]
       const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
       const lobby = pvpLobbyRef.current
-      if (!lobby || (!lobby.red.includes(target) && !lobby.blue.includes(target))) {
-        showToast(`❌ ${target} not found`)
+      const allPlayers = lobby ? [...lobby.red, ...lobby.blue] : []
+      const target = allPlayers.find(u => u.toLowerCase() === targetRaw.toLowerCase())
+      if (!target) {
+        showToast(`❌ ${targetRaw} not found`)
         return
       }
       setPvpLobby(prev => {
@@ -528,8 +535,8 @@ export default function App() {
     // PvP lobby: intercept !red / !blue and lobby mod commands
     if (screenRef.current === 'pvplobby') {
       const cmd = text.trim().toLowerCase()
-      if (cmd === '!red' || cmd === '!blue') {
-        const team = cmd === '!red' ? 'red' : 'blue'
+      if (cmd === '!red' || cmd === '!blue' || cmd === '!join red' || cmd === '!join blue') {
+        const team: 'red' | 'blue' = (cmd === '!red' || cmd === '!join red') ? 'red' : 'blue'
         const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
         setPvpLobby(prev => {
           if (!prev) return prev
@@ -564,8 +571,8 @@ export default function App() {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
     if (screenRef.current === 'pvplobby') {
       const cmd = text.trim().toLowerCase()
-      if (cmd === '!red' || cmd === '!blue') {
-        const team = cmd === '!red' ? 'red' : 'blue'
+      if (cmd === '!red' || cmd === '!blue' || cmd === '!join red' || cmd === '!join blue') {
+        const team: 'red' | 'blue' = (cmd === '!red' || cmd === '!join red') ? 'red' : 'blue'
         const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
         setPvpLobby(prev => {
           if (!prev) return prev
@@ -661,6 +668,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', audioSettings.darkMode ? 'dark' : 'light')
   }, [audioSettings.darkMode])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-mobile', audioSettings.mobileFriendly ? 'true' : 'false')
+  }, [audioSettings.mobileFriendly])
 
   const handleAudioChange = useCallback((settings: AudioSettings) => {
     setAudioSettings(settings)
@@ -809,6 +820,7 @@ export default function App() {
         autoRestart={gameOptions.autoRestart}
         autoRestartDelay={gameOptions.autoRestartDelay}
         autoRestartSignal={autoRestartSignal}
+        teams={finalStats.teams}
         pvpResult={finalStats.redMoney !== undefined ? {
           redMoney: finalStats.redMoney,
           blueMoney: finalStats.blueMoney ?? 0,
@@ -819,6 +831,7 @@ export default function App() {
         onNextLevel={undefined}
         onMenu={() => { setPvpLobby(null); setScreen('menu') }}
         onRecipeSelect={() => setScreen('freeplaysetup')}
+        onPvpLobby={finalStats.redMoney !== undefined ? () => setScreen('pvplobby') : undefined}
         onEnableAutoRestart={() => handleGameOptionsChange({ ...gameOptionsRef.current, autoRestart: true })}
       />
     )
@@ -869,7 +882,7 @@ export default function App() {
             />
           )}
         </div>
-        <BottomBar money={state.money} served={state.served} lost={state.lost} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} starThresholds={starThresholds ?? undefined} />
+        <BottomBar money={state.money} served={state.served} lost={state.lost} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
         <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
           <button className={styles.settingsBtn} onClick={() => setPaused(true)}>⚙️</button>
         </div>

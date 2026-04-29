@@ -70,7 +70,7 @@ export default function TutorialModal({ onClose, onStartCooking }: Props) {
                 <span><code>grill [ingredient]</code><span className={styles.cmdStation}>Grill</span><span className={styles.cmdAlias}>g</span></span>
                 <span><code>fry [ingredient]</code><span className={styles.cmdStation}>Fryer</span><span className={styles.cmdAlias}>f</span></span>
                 <span><code>boil [ingredient]</code><span className={styles.cmdStation}>Stove</span><span className={styles.cmdAlias}>b</span></span>
-                <span><code>stir [ingredient]</code><span className={styles.cmdStation}>Wok</span><span className={styles.cmdAlias}>st</span></span>
+                <span><code>stirfry [ingredient]</code><span className={styles.cmdStation}>Wok</span><span className={styles.cmdAlias}>sf</span></span>
                 <span><code>steam [ingredient]</code><span className={styles.cmdStation}>Steamer</span><span className={styles.cmdAlias}>sm</span></span>
                 <span><code>simmer [ingredient]</code><span className={styles.cmdStation}>Stone Pot</span><span className={styles.cmdAlias}>si</span></span>
                 <span><code>cook [ingredient]</code><span className={styles.cmdStation}>Rice Pot</span><span className={styles.cmdAlias}>ck</span></span>

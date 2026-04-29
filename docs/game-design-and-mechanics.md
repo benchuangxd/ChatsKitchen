@@ -53,9 +53,11 @@ Before the game starts, the streamer opens the **PvP Lobby** screen. Players typ
 
 | Command | Effect |
 |---------|--------|
-| `!red` | Join Red Team |
-| `!blue` | Join Blue Team |
-| `!join` | Auto-join the team with fewer players |
+| `!red` | Join Red Team (moves if already on Blue) |
+| `!blue` | Join Blue Team (moves if already on Red) |
+| `!join red` | Join Red Team directly |
+| `!join blue` | Join Blue Team directly |
+| `!join` | Auto-join the team with fewer players (only if not already on a team) |
 
 Players can only join once — switching teams after joining is not allowed in the lobby unless the streamer moves them.
 
@@ -154,7 +156,7 @@ Examples:
 - `Burger`: chop lettuce, grill patty, toast bun, then serve
 - `Fries`: chop potato → fry potato (requires chopped potato), then serve
 - `Bulgogi`: chop beef → grill beef, chop spring onion, then serve
-- `Fried Rice`: cook rice → stir rice, chop spring onion, then serve
+- `Fried Rice`: cook rice → stirfry rice + stirfry egg, then serve
 
 Some steps require a previously prepared ingredient. For example, fries require chopped potato before frying, and bulgogi requires sliced beef before grilling. These are marked with `→` in the recipe reference.
 
@@ -167,6 +169,13 @@ The kitchen is divided into nine station types, each tied to specific commands:
 - `Fryer` for `fry`
 - `Stove` for `boil`
 - `Oven` for `toast` and `roast`
+- `Wok` for `stirfry`
+- `Steamer` for `steam`
+- `Stone Pot` for `simmer`
+- `Rice Pot` for `cook`
+- `Mixing Bowl` for `mix`
+- `Grinder` for `grind`
+- `Knead Board` for `knead`
 - `Wok` for `stir`
 - `Steamer` for `steam`
 - `Stone Pot` for `simmer`
@@ -190,16 +199,21 @@ The command system is the main input method for chat participation. Commands are
 | `boil` | `boil <item>` | Boil an ingredient on the stove |
 | `toast` | `toast <item>` | Toast an item in the oven |
 | `roast` | `roast <item>` | Roast an item in the oven |
-| `stir` | `stir <item>` | Stir-fry an ingredient in the wok |
+| `stirfry` | `stirfry <item>` | Stir-fry an ingredient in the wok |
 | `steam` | `steam <item>` | Steam an ingredient |
 | `simmer` | `simmer <item>` | Simmer an ingredient in the stone pot |
 | `cook` | `cook <item>` | Cook rice in the rice pot |
 | `serve` | `serve <order#>` | Serve a completed dish to an order |
-| `cool` | `cool <station>` | Reduce a station's heat by 30% |
-| `extinguish` | `extinguish <station>` | Vote to restore an overheated station (requires 30% of active players) |
+| `cool` | `cool <station>` | Reduce a station's heat by 40–60% (random per use) |
+| `extinguish` | `extinguish <station>` | Vote to restore an overheated station (requires 50% of active players) |
+| `mix` | `mix <item>` | Mix an ingredient in the mixing bowl |
+| `grind` | `grind <item>` | Grind an ingredient in the grinder |
+| `knead` | `knead <item>` | Knead dough on the knead board |
 | `red` | `!red` | Join Red Team (PvP lobby only) |
 | `blue` | `!blue` | Join Blue Team (PvP lobby only) |
-| `join` | `!join` | Auto-join the smaller team (PvP lobby only) |
+| `join red` | `!join red` | Join Red Team directly (PvP lobby only) |
+| `join blue` | `!join blue` | Join Blue Team directly (PvP lobby only) |
+| `join` | `!join` | Auto-join the smaller team if not already on one (PvP lobby only) |
 
 ### Mod / Broadcaster Commands
 
@@ -228,10 +242,13 @@ When shortform commands are enabled in Options, single-letter aliases can be use
 | `b` | `boil` |
 | `t` | `toast` |
 | `r` | `roast` |
-| `st` | `stir` |
+| `sf` | `stirfry` |
 | `sm` | `steam` |
 | `si` | `simmer` |
 | `ck` | `cook` |
+| `mx` | `mix` |
+| `gr` | `grind` |
+| `kn` | `knead` |
 | `cl` | `cool` |
 | `s` | `serve` |
 
@@ -261,15 +278,15 @@ Prepared ingredients, active stations, and orders all exist in a shared state. T
 
 ## Heat And Failure Pressure
 
-Every completed cook at a non-chopping station adds 20% heat to that station. Heat is visible on the station's border colour: green (cool) → yellow → orange → red (critical).
+Each cooking slot at a non-chopping station contributes a random amount of heat (10–20%) when fully cooked, applied incrementally as cooking progresses. Heat is visible on the station's border colour: green (cool) → yellow → orange → red (critical).
 
-Players can type `cool <station>` (e.g. `cool grill`) to reduce a station's heat by 30%. There is a per-user cooldown, so the team needs to spread this responsibility.
+Players can type `cool <station>` (e.g. `cool grill`) to reduce a station's heat by a random 40–60%. There is a per-user cooldown, so the team needs to spread this responsibility.
 
 When heat reaches 100%, the station **overheats**:
 
 - all active slots are destroyed and assigned players are freed
 - the station is locked and cannot accept new commands
-- players must collectively type `extinguish <station>` — at least 30% of that round's active players must vote before the station is restored
+- players must collectively type `extinguish <station>` — at least 50% of that round's active players must vote before the station is restored
 - the station returns to 0% heat once extinguished
 
 The chopping board is exempt from heat accumulation and never overheats.
@@ -395,10 +412,10 @@ Steps marked `→` require the prior ingredient in the prepared-items pool befor
 
 | Dish | Steps | Reward | Patience |
 |------|-------|--------|---------|
-| 🍳 Fried Rice | `cook rice` → `stir rice` + `chop spring_onion` | $55 | 75s |
-| 🥢 Stir-Fried Pork | `chop pork` → `stir pork` + `chop cabbage` | $65 | 80s |
+| 🍳 Fried Rice | `cook rice` → `stirfry rice` + `stirfry egg` | $55 | 75s |
+| 🥢 Stir-Fried Pork | `chop pork` → `stirfry pork` + `chop spring_onion` | $65 | 80s |
 | 🧈 Steamed Tofu | `chop tofu` → `steam tofu` + `chop spring_onion` | $45 | 65s |
-| 🥟 Steamed Buns | `chop pork` → `stir pork` + `steam bun` | $55 | 70s |
+| 🥟 Steamed Buns | `chop cabbage` + `steam bun` | $55 | 70s |
 
 ### Korean Kitchen 🇰🇷
 
@@ -435,12 +452,12 @@ Steps marked `→` require the prior ingredient in the prepared-items pool befor
 | 🫕 Fryer | `fry` | +20% per cook | 2 |
 | ♨️ Stove | `boil` | +20% per cook | 2 |
 | 🧱 Oven | `toast` / `roast` | +20% per cook | 2 |
-| 🥘 Wok | `stir` | +20% per cook | 2 |
+| 🥘 Wok | `stirfry` | +10–20% per cook | 2 |
 | 🫕 Steamer | `steam` | +20% per cook | 2 |
 | 🍲 Stone Pot | `simmer` | +20% per cook | 2 |
 | 🍚 Rice Pot | `cook` | +20% per cook | 2 |
 
-All cooking stations reach overheat after 5 completed cooks without cooling. The border colour of each station reflects current heat level. Use `cool <station>` (-30% heat) to prevent lockouts.
+All cooking stations reach overheat after 5–10 completed cooks without cooling (heat per cook is random 10–20%). The border colour of each station reflects current heat level. Use `cool <station>` (-40–60% heat, random) to prevent lockouts.
 
 Slot limits apply separately to the chopping board and to each cooking station type. In Free Play, both limits are configurable in the More Options panel (chopping: 1–8 slots, cooking: 1–8 slots per station type).
 

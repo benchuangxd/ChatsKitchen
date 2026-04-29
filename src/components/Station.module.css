@@ -44,13 +44,13 @@
 .stationName {
   flex: 1;
   font-family: 'Lilita One', cursive;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text);
 }
 
 .heatBadge {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: #e8943a;
   flex-shrink: 0;
@@ -141,14 +141,14 @@
 
 .capacity {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   margin-left: auto;
 }
 
 .idleStatus {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   text-align: center;
   padding: 4px 0;
@@ -201,7 +201,7 @@
 
 .barUser {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   flex-shrink: 0;
   max-width: 100px;
@@ -213,7 +213,7 @@
 
 .barItem {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: rgba(255, 255, 255, 0.75);
   flex: 1;
   overflow: hidden;
@@ -224,7 +224,7 @@
 
 .barRight {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   flex-shrink: 0;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);

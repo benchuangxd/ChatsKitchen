@@ -86,9 +86,11 @@ When the game starts, the roster is merged into the reducer's initial state via 
 
 | Command | Effect |
 |---------|--------|
-| `!red` | Joins Red Team (ignored if already on either team) |
-| `!blue` | Joins Blue Team (ignored if already on either team) |
-| `!join` | Auto-joins the team with fewer players (Red wins tie) |
+| `!red` | Joins Red Team (moves if already on Blue) |
+| `!blue` | Joins Blue Team (moves if already on Red) |
+| `!join red` | Joins Red Team directly (moves if already on Blue) |
+| `!join blue` | Joins Blue Team directly (moves if already on Red) |
+| `!join` | Auto-joins the team with fewer players (Red wins tie); only works if not already on a team |
 
 **Lobby mod commands** (handled in `handleLobbyMetaCommand`, mods/broadcaster only):
 
@@ -151,7 +153,7 @@ Mod detection uses `tags.mod` and `tags.badges.broadcaster` from tmi.js. The loc
 `useGameLoop` dispatches `TICK` actions every 100ms while playing:
 - Decrements station slot elapsed times via wall-clock `cookStart` timestamps (`elapsed = now - slot.cookStart`)
 - Completes cooking when done; auto-collects output into `preparedItems` for all stations
-- Applies heat **incrementally during cooking** (proportional to slot progress); `HEAT_PER_COOK` (20) is the total heat applied per full cook — not at completion. Chopping board and mixing bowl are exempt.
+- Applies heat **incrementally during cooking** (proportional to slot progress); each slot rolls a random `heatPerCook` value (10–20) on creation — the total heat it contributes when fully cooked. Chopping board and mixing bowl are exempt.
 - Decrements order patience; expires orders that run out
 - Spawns new orders at regular intervals. If the order queue empties mid-game, a new order spawns immediately and the spawn rate doubles for 10 seconds.
 - Triggers game over when `timeLeft <= 0`
@@ -192,7 +194,7 @@ interface GameState {
   nextMessageId: number
   playerStats: Record<string, PlayerStats>
   cookingSpeedModifier?: { multiplier: number; expiresAt: number }  // set by Chef's Chant / Angry Chef
-  moneyMultiplier?: { multiplier: number; expiresAt: number }       // set by Typing Frenzy
+  moneyMultiplier?: { multiplier: number; expiresAt: number }       // set by Wifi Password (Typing Frenzy)
   disabledStations?: string[]                // station ids offline during Power Trip
   // PvP fields — only present when pvpMode is active
   teams?: Record<string, 'red' | 'blue'>    // username → team assignment
@@ -247,8 +249,8 @@ interface GameOptions {
 
 | Dish | Key steps | Value |
 |------|-----------|-------|
-| Fried Rice 🍳 | `cook rice` → `stir rice` + `stir egg` | $55 |
-| Stir-Fried Pork 🍛 | `chop pork` → `stir pork` + `chop spring_onion` | $65 |
+| Fried Rice 🍳 | `cook rice` → `stirfry rice` + `stirfry egg` | $55 |
+| Stir-Fried Pork 🍛 | `chop pork` → `stirfry pork` + `chop spring_onion` | $65 |
 | Steamed Tofu 🧈 | `chop tofu` → `steam tofu` + `chop spring_onion` | $45 |
 | Steamed Buns 🥟 | `chop cabbage` + `steam bun` | $55 |
 
@@ -274,9 +276,9 @@ interface GameOptions {
 
 | Dish | Key steps | Value |
 |------|-----------|-------|
-| Shio Pan 🫓 | `knead dough` → `toast bread_dough` | $50 |
-| Melon Pan 🍨 | `knead dough` → `toast bread_dough` + `mix cookie_topping` | $65 |
-| Pour-Over Coffee ☕ | `grind coffee_beans` + `boil water` | $45 |
+| Shio Pan 🫓 | `knead dough` → `toast dough` | $50 |
+| Melon Pan 🍨 | `knead dough` → `toast dough` + `mix topping` | $65 |
+| Pour-Over Coffee ☕ | `grind beans` + `boil water` | $45 |
 | Matcha Latte 🍵 | `mix matcha` + `steam milk` | $55 |
 
 **SG Hawker Breakfast 🇸🇬** (`kaya_toast`, `economic_bee_hoon`, `roti_prata`, `nasi_lemak`)
@@ -284,8 +286,8 @@ interface GameOptions {
 | Dish | Key steps | Value |
 |------|-----------|-------|
 | Kaya Toast 🍞 | `toast bread` + `mix kaya` | $40 |
-| Economic Bee Hoon 🍜 | `fry chicken_wing` + `stir bee_hoon` + `stir vegetables` + `fry egg` | $65 |
-| Roti Prata 🫓 | `knead dough` → `grill bread_dough` + `boil curry` | $55 |
+| Economic Bee Hoon 🍜 | `fry chicken_wing` + `stirfry bee_hoon` + `stirfry cabbage` + `fry egg` | $65 |
+| Roti Prata 🫓 | `knead prata` → `grill prata` + `boil curry` | $55 |
 | Nasi Lemak 🍱 | `cook rice` + `mix sambal` + `fry anchovies` + `fry egg` | $75 |
 
 **Ungrouped** (`fries`, `hot_dog`, `salad` — not in any cuisine set)
@@ -307,7 +309,7 @@ Steps marked `→` require the prior ingredient in `preparedItems` before starti
 | Fryer 🫕 | `!fry <ingredient>` | 2 slots | Yes |
 | Stove ♨️ | `!boil <ingredient>` | 2 slots | Yes |
 | Oven 🧱 | `!toast` / `!roast <ingredient>` | 2 slots | Yes |
-| Wok 🍳 | `!stir <ingredient>` | 2 slots | Yes |
+| Wok 🍳 | `!stirfry <ingredient>` | 2 slots | Yes |
 | Steamer 🫕 | `!steam <ingredient>` | 2 slots | Yes |
 | Stone Pot 🍲 | `!simmer <ingredient>` | 2 slots | Yes |
 | Rice Pot 🍚 | `!cook <ingredient>` | 2 slots | Yes |
@@ -319,9 +321,9 @@ Only stations needed by the currently enabled recipes are rendered. Station capa
 
 ### Heat Mechanic
 
-Heat accumulates **incrementally during cooking** — each tick adds `progress × HEAT_PER_COOK` heat proportional to how far along the slot is. `HEAT_PER_COOK` (20) is the total heat applied per full cook cycle. Chopping Board and Mixing Bowl are exempt from heat.
+Heat accumulates **incrementally during cooking** — each tick adds `progress × heatPerCook - heatApplied` heat, where `heatPerCook` is a per-slot random value rolled at cook start (10–20). Chopping Board and Mixing Bowl are exempt from heat.
 
-Players use `!cool <station>` to reduce heat by `COOL_AMOUNT` (30). `!cool` requires the player to not be actively cooking. When heat reaches 100:
+Players use `!cool <station>` to reduce heat by a random amount (40–60). `!cool` requires the player to not be actively cooking. When heat reaches 100:
 - All slots on that station are destroyed; assigned players are freed
 - Station is locked (`overheated: true`) until extinguished
 - Players vote via `!extinguish <station>`; the station restores when votes reach `ceil(playerCount × 0.5)` (min 1) in cooperative mode, or `ceil(max(redSize, blueSize) × 0.5)` in PvP mode
@@ -375,7 +377,7 @@ Math.max(5000, 14000 - shift * 1000) ms
 | `src/components/EventCardOverlay.tsx` | Receipt-ticket overlay for active kitchen events; dance memorise/type phases |
 | `src/components/Toast.tsx` | Brief fixed-position toast notification for mod command feedback |
 | `src/components/FoodIcon.tsx` | Renders food icons — `<img>` for `/`-prefixed paths, `<span>` for emoji strings |
-| `src/components/PvPLobby.tsx` | Pre-game team selection screen; drag-and-drop roster management; `!red`/`!blue`/`!join` join flow |
+| `src/components/PvPLobby.tsx` | Pre-game team selection screen; drag-and-drop roster management; `!red`/`!blue`/`!join`/`!join red`/`!join blue` join flow |
 | `src/hooks/useBotSimulation.ts` | AI player logic, action priority, cooldown awareness |
 
 ---
@@ -442,9 +444,9 @@ When implementing a new feature of similar scope, create a spec + plan document 
 4. **`activeUsers`** — a player cooking at one station cannot simultaneously use another. Check and clear this map correctly on station completion and overheat. `!cool` and `!extinguish` are instant actions that do not set `activeUsers`.
 5. **Chat messages are capped at 200** — `ADD_CHAT` slices to `chatMessages.slice(-200)`.
 6. **`cookStart` is wall-clock time** — slot progress is `elapsed = now - slot.cookStart`. On unpause, dispatch `ADJUST_COOK_TIMES` to shift all `cookStart` values forward by the pause duration, otherwise paused time counts as elapsed cook time.
-7. **`heatApplied` on slots** — each `StationSlot` tracks how much heat it has already contributed (`heatApplied: number`, init 0). The TICK loop applies `progress × HEAT_PER_COOK - heatApplied` each tick. When adding new slot-creating code paths, always initialise `heatApplied: 0`.
+7. **`heatApplied` and `heatPerCook` on slots** — each `StationSlot` has `heatApplied: number` (init 0, tracks heat already contributed) and `heatPerCook: number` (random 10–20, rolled at cook start). The TICK loop applies `progress × heatPerCook - heatApplied` each tick. When adding new slot-creating code paths, always initialise both to 0.
 8. **Heat-exempt stations** — `cutting_board`, `mixing_bowl`, `grinder`, and `knead_board` are all exempt from heat. Treat them identically in all heat-related checks (TICK heat loop, COOL guard, `getStationCapacity`, bot cool-skip). Both `Kitchen.tsx` and `gameReducer.ts` have local `getStationCapacity` — keep them in sync. All four use `capacity.chopping` for slot limits.
-9. **`!red` and `!blue` are lobby-only** — These commands are intercepted exclusively in `handleTwitchMessage` when `screen === 'pvplobby'` and never reach `commandProcessor.ts`. Do not add `case 'red'` or `case 'blue'` to `commandProcessor.ts` — this would allow players to switch teams mid-game, silently rerouting cooked ingredients to the wrong team's prep pool.
+9. **`!red`, `!blue`, `!join red`, `!join blue` are lobby-only** — These commands are intercepted exclusively in `handleTwitchMessage` when `screen === 'pvplobby'` and never reach `commandProcessor.ts`. Do not add `case 'red'` or `case 'blue'` to `commandProcessor.ts` — this would allow players to switch teams mid-game, silently rerouting cooked ingredients to the wrong team's prep pool.
 10. **PvP lobby state lives in App.tsx, not GameState** — `pvpLobby: { red: string[], blue: string[] } | null` is pre-game state. It is merged into the reducer's RESET action as `teams` when the game starts, then cleared. Do not store it in `GameState`.
 11. **`pvpLobbyRef` for stale closure safety** — Lobby mod commands (`!move`) check `pvpLobbyRef.current` synchronously before calling `setPvpLobby`. Reading `pvpLobby` state directly inside a `useCallback` would see a stale snapshot.
 

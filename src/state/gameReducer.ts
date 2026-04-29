@@ -1,8 +1,8 @@
 import { GameState, Station, Order, ChatMessage, StationSlot, PlayerStats, StationCapacity } from './types'
 import { RECIPES, STATION_DEFS } from '../data/recipes'
 
-export const HEAT_PER_COOK = 20
-export const COOL_AMOUNT   = 30
+export const HEAT_PER_COOK = 20   // kept for reference; actual value is random 10–20 per slot
+export const COOL_AMOUNT   = 50   // midpoint reference only — actual value rolled randomly 40–60 on each use
 
 export type GameAction =
   | { type: 'TICK'; delta: number; now: number }
@@ -16,12 +16,12 @@ export type GameAction =
   | { type: 'ADJUST_COOK_TIMES'; offset: number }
   | { type: 'SET_STATION_HEAT'; stationId: string; heat: number }
   | { type: 'OVERHEAT_STATION'; stationId: string }
-  | { type: 'REMOVE_PREPARED_ITEMS'; count: number }
+  | { type: 'REMOVE_PREPARED_ITEMS'; count: number; message?: string }
   | { type: 'SET_COOKING_SPEED_MODIFIER'; multiplier: number; expiresAt: number }
   | { type: 'DISABLE_STATIONS'; stationIds: string[] }
   | { type: 'ENABLE_STATIONS'; stationIds: string[] }
   | { type: 'ADD_MONEY_MULTIPLIER'; multiplier: number; expiresAt: number }
-  | { type: 'ADD_PREPARED_ITEMS'; items: string[] }
+  | { type: 'ADD_PREPARED_ITEMS'; items: string[]; message?: string }
   | { type: 'EXTEND_ORDER_PATIENCE'; ms: number }
   | { type: 'RECORD_EVENT_PARTICIPATION'; user: string }
 
@@ -173,7 +173,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const cooldown = state.userCooldowns[user] ?? 0
       if (Date.now() - cooldown < 1500) return addMsg(state, 'KITCHEN', `${user} is on cooldown!`, 'error')
 
-      const newHeat = Math.max(0, station.heat - COOL_AMOUNT)
+      const coolAmount = 40 + Math.floor(Math.random() * 21)  // 40–60
+      const newHeat = Math.max(0, station.heat - coolAmount)
       const newStations = { ...state.stations, [stationId]: { ...station, heat: newHeat, lastCooledAt: Date.now(), lastCooledBy: user } }
       const withCooldown = { ...state, stations: newStations, userCooldowns: { ...state.userCooldowns, [user]: Date.now() } }
       const withStat = addStat(withCooldown, user, 'cooled', 1)
@@ -296,10 +297,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         cookStart: now,
         cookDuration: matchedStep.duration / (speed * (state.cookingSpeedModifier?.multiplier ?? 1)),
         heatApplied: 0,
+        heatPerCook: 10 + Math.floor(Math.random() * 11),  // 10–20
         state: 'cooking',
       }
 
-      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted', stir: 'stir-fried', steam: 'steamed', simmer: 'simmered', cook: 'cooked', mix: 'mixed', grind: 'ground', knead: 'kneaded' }
+      const PAST_TENSE: Record<string, string> = { chop: 'chopped', grill: 'grilled', fry: 'fried', boil: 'boiled', toast: 'toasted', roast: 'roasted', stirfry: 'stir-fried', steam: 'steamed', simmer: 'simmered', cook: 'cooked', mix: 'mixed', grind: 'ground', knead: 'kneaded' }
 
       if (matchedStep.duration === 0) {
         const withStat = addStat(afterRequire, user, 'cooked', 1)
@@ -326,8 +328,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'SPAWN_ORDER': {
+      const playerCount = Object.keys(state.playerStats).length
+      const maxOrders = Math.min(15, 5 + Math.floor(playerCount / 8))
       const activeOrders = state.orders.filter(o => !o.served).length
-      if (activeOrders >= 5) return state
+      if (activeOrders >= maxOrders) return state
 
       const dishKeys = state.enabledRecipes.length > 0 ? state.enabledRecipes : Object.keys(RECIPES)
       const dish = dishKeys[Math.floor(Math.random() * dishKeys.length)]
@@ -374,7 +378,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           let updatedSlot = slot
           if (id !== 'cutting_board' && id !== 'mixing_bowl' && id !== 'grinder' && id !== 'knead_board' && slot.state === 'cooking') {
             const progress = Math.min(1, elapsed / slot.cookDuration)
-            const expectedHeat = progress * HEAT_PER_COOK
+            const expectedHeat = progress * slot.heatPerCook
             const heatDelta = expectedHeat - slot.heatApplied
             if (heatDelta > 0) {
               currentHeat += heatDelta
@@ -495,7 +499,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         const idx = Math.floor(Math.random() * items.length)
         items.splice(idx, 1)
       }
-      return addMsg({ ...state, preparedItems: items }, 'KITCHEN', `🐀 Rats stole ${count} prepared ingredient(s)!`, 'error')
+      const msg = action.message ?? `🐀 Rats stole ${count} prepared ingredient(s)!`
+      return addMsg({ ...state, preparedItems: items }, 'KITCHEN', msg, 'error')
     }
 
     case 'SET_COOKING_SPEED_MODIFIER':
@@ -516,11 +521,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'ADD_MONEY_MULTIPLIER':
       return { ...state, moneyMultiplier: { multiplier: action.multiplier, expiresAt: action.expiresAt } }
 
-    case 'ADD_PREPARED_ITEMS':
+    case 'ADD_PREPARED_ITEMS': {
+      const msg = action.message ?? `🧩 Mystery solved! ${action.items.length} ingredients added to the tray!`
       return addMsg(
         { ...state, preparedItems: [...state.preparedItems, ...action.items] },
-        'KITCHEN', `🧩 Mystery solved! ${action.items.length} ingredients added to the tray!`, 'success'
+        'KITCHEN', msg, 'success'
       )
+    }
 
     case 'EXTEND_ORDER_PATIENCE': {
       const updatedOrders = state.orders.map(o =>

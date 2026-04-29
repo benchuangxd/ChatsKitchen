@@ -110,7 +110,7 @@
 
 .badge {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -124,7 +124,7 @@
 
 .title {
   font-family: 'Lilita One', cursive;
-  font-size: 19px;
+  font-size: var(--base-fs);
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.35);
   white-space: nowrap;
@@ -140,7 +140,7 @@
 
 .cmdLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: #9a7a60;
@@ -149,7 +149,7 @@
 
 .cmdBox {
   font-family: 'Space Mono', monospace;
-  font-size: 24px;
+  font-size: var(--ev-md-fs);
   font-weight: 700;
   padding: 10px 16px;
   border-radius: 6px;
@@ -183,7 +183,7 @@
 
 .desc {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   line-height: 1.5;
   color: #8a6a50;
   margin-bottom: 12px;
@@ -203,7 +203,7 @@
   justify-content: space-between;
   gap: 16px;
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #9a7a60;
@@ -238,7 +238,7 @@
   transition: width 0.15s ease;
 }
 
-/* ── Inventory Audit 3×3 grid ── */
+/* ── Inventory Audit 4×4 grid ── */
 .auditGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -252,7 +252,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: var(--ev-sm-fs);
   background: rgba(0,0,0,0.06);
   border: 2px solid transparent;
 }
@@ -271,13 +271,13 @@
 }
 
 .dishEmoji {
-  font-size: 22px;
+  font-size: var(--ev-sm-fs);
   line-height: 1;
 }
 
 .dishName {
   font-family: 'Lilita One', cursive;
-  font-size: 17px;
+  font-size: var(--base-fs);
   color: var(--event-cmd-color);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -292,7 +292,7 @@
 
 .dishCheckItem {
   font-family: 'Space Mono', monospace;
-  font-size: 15px;
+  font-size: var(--ev-xs-fs);
   font-weight: 700;
   color: #3a2e20;
   display: flex;
@@ -301,7 +301,7 @@
 }
 
 .dishCheck {
-  font-size: 15px;
+  font-size: var(--ev-xs-fs);
   color: #5a8a40;
   flex-shrink: 0;
   width: 16px;
@@ -325,13 +325,13 @@
 }
 
 .danceStep {
-  width: 62px;
-  height: 62px;
+  width: var(--ev-dance-sz);
+  height: var(--ev-dance-sz);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
+  font-size: var(--ev-lg-fs);
   font-weight: 700;
   transition: opacity 0.2s ease;
 }
@@ -347,7 +347,7 @@
   background: rgba(0,0,0,0.06);
   color: #9a7a60;
   opacity: 0.4;
-  font-size: 26px;
+  font-size: var(--ev-pend-fs);
 }
 
 @keyframes danceRevealPulse {
@@ -404,12 +404,12 @@
 }
 
 .stampIcon {
-  font-size: 40px;
+  font-size: var(--ev-xl-fs);
   line-height: 1;
 }
 
 .stampText {
-  font-size: 18px;
+  font-size: var(--base-fs);
   letter-spacing: 2px;
   text-transform: uppercase;
   margin-top: 2px;

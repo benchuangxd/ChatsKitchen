@@ -4,7 +4,7 @@ import { RECIPES, INGREDIENT_EMOJI } from './recipes'
 // Tunable constants
 export const EVENT_SPAWN_MIN_MS = 30_000
 export const EVENT_SPAWN_MAX_MS = 60_000
-export const RESOLVE_THRESHOLD_RATIO = 0.8
+export const RESOLVE_THRESHOLD_RATIO = 0.6
 export const ANGRY_CHEF_DEBUFF_MULTIPLIER = 0.7
 export const ANGRY_CHEF_DEBUFF_DURATION_MS = 15_000
 export const CHEFS_CHANT_BOOST_MULTIPLIER = 1.5
@@ -14,7 +14,7 @@ export const TYPING_FRENZY_DURATION_MS = 20_000
 export const DANCE_PATIENCE_BONUS_MS = 15_000
 export const RAT_INVASION_ITEMS_STOLEN = 3
 export const MYSTERY_RECIPE_ITEMS_REWARDED = 3
-export const EVENT_DURATION_MS = 20_000  // default duration for all timed events; overridden by kitchenEventDuration in GameOptions
+export const EVENT_DURATION_MS = 12_000  // default duration for all timed events; overridden by kitchenEventDuration in GameOptions
 
 function randInt(min: number, max: number): number {
   return min + Math.floor(Math.random() * (max - min + 1))
@@ -136,7 +136,7 @@ export const EVENT_DEFS: EventDef[] = [
     type: 'glitched_orders',
     category: 'hazard-immediate',
     emoji: '📦',
-    label: 'Glitched Orders',
+    label: 'Glitched POS',
     description: 'Order tickets are scrambled. Chat must debug the system to restore them.',
     commandPool: ['RESTART', 'DEBUG', 'PATCH'],
     failDescription: 'Orders scrambled until resolved',
@@ -171,9 +171,9 @@ export const EVENT_DEFS: EventDef[] = [
   {
     type: 'typing_frenzy',
     category: 'opportunity',
-    emoji: '⚡',
-    label: 'Typing Frenzy',
-    description: 'A random string flashes on screen — chat races to type it exactly.',
+    emoji: '📶',
+    label: 'Wifi Password',
+    description: 'The wifi password flashes on screen — chat races to type it exactly (case sensitive!).',
     commandPool: [],
     rewardDescription: 'Reward: money multiplier ×1.5 for 20s',
     color: '#88cc00',
@@ -209,7 +209,7 @@ export const EVENT_DEFS: EventDef[] = [
     category: 'opportunity',
     emoji: '🍽️',
     label: 'Complete the Dish',
-    description: 'Two ingredients are shown — type the missing one to complete the recipe.',
+    description: 'All but one ingredient is shown — type the missing one to complete the recipe.',
     commandPool: [],
     rewardDescription: 'Reward: missing ingredient added to prep tray',
     color: '#20a060',
@@ -284,7 +284,7 @@ export function makeAuditGrid(enabledRecipes: string[]): { grid: string[]; targe
   const shuffledPool = [...emojiPool].sort(() => Math.random() - 0.5)
   const selected = shuffledPool.slice(0, Math.min(4, shuffledPool.length))
   const target = selected[0]
-  const answer = 3 + Math.floor(Math.random() * 4)  // 3–6
+  const answer = 3 + Math.floor(Math.random() * 8)  // 3–10
 
   const slots = Array.from({ length: 16 }, (_, i) => i).sort(() => Math.random() - 0.5)
   const targetSlots = new Set(slots.slice(0, answer))
@@ -306,7 +306,7 @@ export function pickCompleteTheDish(enabledRecipes: string[]): {
 } | null {
   const fmt = (s: string) => s.replace(/_/g, ' ').toUpperCase()
   const keys = (enabledRecipes.length > 0 ? enabledRecipes : Object.keys(RECIPES))
-    .filter(key => { const r = RECIPES[key]; return r && r.plate.length >= 3 })
+    .filter(key => { const r = RECIPES[key]; return r && r.plate.length >= 2 })
 
   if (keys.length === 0) return null
 
@@ -317,8 +317,8 @@ export function pickCompleteTheDish(enabledRecipes: string[]): {
   return {
     dishName: recipe.name,
     dishEmoji: recipe.emoji,
-    shownIngredients: [fmt(shuffled[0]), fmt(shuffled[1])],
-    missingIngredient: fmt(shuffled[2]),
+    shownIngredients: shuffled.slice(0, shuffled.length - 1).map(fmt),
+    missingIngredient: fmt(shuffled[shuffled.length - 1]),
   }
 }
 
