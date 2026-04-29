@@ -1,5 +1,5 @@
 import { GameState, Station, Order, ChatMessage, StationSlot, PlayerStats, StationCapacity } from './types'
-import { RECIPES, STATION_DEFS } from '../data/recipes'
+import { RECIPES, STATION_DEFS, HEAT_EXEMPT_STATIONS } from '../data/recipes'
 
 export const HEAT_PER_COOK = 20   // kept for reference; actual value is random 10–20 per slot
 export const COOL_AMOUNT   = 50   // midpoint reference only — actual value rolled randomly 40–60 on each use
@@ -90,7 +90,7 @@ function addStat(state: GameState, user: string, stat: keyof PlayerStats, amount
 
 function getStationCapacity(stationId: string, capacity: StationCapacity, restricted: boolean): number {
   if (!restricted) return Infinity
-  if (stationId === 'cutting_board' || stationId === 'mixing_bowl' || stationId === 'grinder' || stationId === 'knead_board') return capacity.chopping
+  if (HEAT_EXEMPT_STATIONS.has(stationId)) return capacity.chopping
   return capacity.cooking
 }
 
@@ -165,7 +165,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const { user, stationId } = action
       const station = state.stations[stationId]
       if (!station) return addMsg(state, 'KITCHEN', 'Unknown station!', 'error')
-      if (stationId === 'cutting_board' || stationId === 'mixing_bowl' || stationId === 'grinder' || stationId === 'knead_board') return addMsg(state, 'KITCHEN', `The ${STATION_DEFS[stationId].name} doesn't overheat!`, 'error')
+      if (HEAT_EXEMPT_STATIONS.has(stationId)) return addMsg(state, 'KITCHEN', `The ${STATION_DEFS[stationId].name} doesn't overheat!`, 'error')
       if (station.overheated) return addMsg(state, 'KITCHEN', `${STATION_DEFS[stationId].name} is overheated — extinguish it first!`, 'error')
       if (station.heat === 0) return addMsg(state, 'KITCHEN', `${STATION_DEFS[stationId].name} is already cool.`, 'error')
       if (isUserBusy(state, user)) return addMsg(state, 'KITCHEN', `${user} is busy cooking and can't cool right now!`, 'error')
@@ -376,7 +376,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
           // Step A: Apply incremental heat delta (chopping board is exempt)
           let updatedSlot = slot
-          if (id !== 'cutting_board' && id !== 'mixing_bowl' && id !== 'grinder' && id !== 'knead_board' && slot.state === 'cooking') {
+          if (!HEAT_EXEMPT_STATIONS.has(id) && slot.state === 'cooking') {
             const progress = Math.min(1, elapsed / slot.cookDuration)
             const expectedHeat = progress * slot.heatPerCook
             const heatDelta = expectedHeat - slot.heatApplied

@@ -23,6 +23,11 @@ import TutorialPrompt from './components/TutorialPrompt'
 import NoTwitchPrompt from './components/NoTwitchPrompt'
 import TutorialOverlay from './components/TutorialOverlay'
 import { TUTORIAL_STEPS } from './data/tutorialData'
+
+const TUTORIAL_COOL_STEP        = TUTORIAL_STEPS.findIndex(s => s.title === "❄️ Cool it down!")
+const TUTORIAL_EXTINGUISH_STEP  = TUTORIAL_STEPS.findIndex(s => s.title === "🔥 Station on fire!")
+const TUTORIAL_EVENT_INTRO_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🎲 Kitchen Events")
+const TUTORIAL_EVENT_STEP       = TUTORIAL_STEPS.findIndex(s => s.title === "🧩 Mystery Recipe")
 import PauseModal from './components/PauseModal'
 import FeedbackModal from './components/FeedbackModal'
 import { useKitchenEvents } from './hooks/useKitchenEvents'
@@ -328,11 +333,6 @@ export default function App() {
     setChatOpen(true)
     setScreen('playing')
   }, [dispatch])
-
-  const TUTORIAL_COOL_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "❄️ Cool it down!")
-  const TUTORIAL_EXTINGUISH_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🔥 Station on fire!")
-  const TUTORIAL_EVENT_INTRO_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🎲 Kitchen Events")
-  const TUTORIAL_EVENT_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🧩 Mystery Recipe")
 
   const handleTutorialNext = useCallback(() => {
     // Dispatch step-entry side-effects before setTutorialStep so React 18

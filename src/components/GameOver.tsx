@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { PlayerStats, RoundRecord } from '../state/types'
 import { NAME_COLORS } from '../data/recipes'
 import { getStarCount } from '../data/starThresholds'
@@ -42,10 +42,22 @@ interface Props {
 
 export default function GameOver({ money, served, lost, playerStats, teams, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, starThresholds, onPlayAgain, onNextLevel, onMenu, onRecipeSelect, onPvpLobby, onEnableAutoRestart }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
-  const leaderboard = Object.entries(playerStats)
-    .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
+  const leaderboard = useMemo(
+    () => Object.entries(playerStats).sort(([, a], [, b]) => totalActions(b) - totalActions(a)),
+    [playerStats] // eslint-disable-line react-hooks/exhaustive-deps
+  )
 
   const starCount = starThresholds ? getStarCount(money, starThresholds) : null
+
+  const mvps = useMemo(() => {
+    if (!teams) return null
+    const sortByActions = (a: [string, PlayerStats], b: [string, PlayerStats]) => totalActions(b[1]) - totalActions(a[1])
+    const entries = Object.entries(playerStats)
+    return {
+      red:  entries.filter(([n]) => teams[n] === 'red').sort(sortByActions)[0] ?? null,
+      blue: entries.filter(([n]) => teams[n] === 'blue').sort(sortByActions)[0] ?? null,
+    }
+  }, [playerStats, teams]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const [countdown, setCountdown] = useState<number | null>(null)
 
@@ -220,7 +232,7 @@ export default function GameOver({ money, served, lost, playerStats, teams, leve
 
       <div className={styles.rightCol}>
         <div className={styles.panels}>
-          {pvpResult && teams && (() => {
+          {pvpResult && mvps && (() => {
             const mvpStat = (s: PlayerStats) => [
               { icon: '🍳', label: 'Cooked',  value: s.cooked },
               { icon: '✅', label: 'Served',  value: s.served },
@@ -229,18 +241,12 @@ export default function GameOver({ money, served, lost, playerStats, teams, leve
               { icon: '✨', label: 'Events',  value: s.eventParticipations },
               { icon: '🔥', label: 'Fires',   value: s.firesCaused },
             ]
-            const redMvp = Object.entries(playerStats)
-              .filter(([n]) => teams[n] === 'red')
-              .sort(([, a], [, b]) => totalActions(b) - totalActions(a))[0]
-            const blueMvp = Object.entries(playerStats)
-              .filter(([n]) => teams[n] === 'blue')
-              .sort(([, a], [, b]) => totalActions(b) - totalActions(a))[0]
             return (
               <div className={styles.mvpPanel}>
                 <div className={styles.panelTitle}>⭐ MVP</div>
                 <div className={styles.mvpCols}>
-                  {[{ mvp: redMvp, teamClass: styles.mvpCardRed, icon: '🔴' },
-                    { mvp: blueMvp, teamClass: styles.mvpCardBlue, icon: '🔵' }].map(({ mvp, teamClass, icon }) =>
+                  {[{ mvp: mvps.red, teamClass: styles.mvpCardRed, icon: '🔴' },
+                    { mvp: mvps.blue, teamClass: styles.mvpCardBlue, icon: '🔵' }].map(({ mvp, teamClass, icon }) =>
                     mvp ? (
                       <div key={icon} className={`${styles.mvpCard} ${teamClass}`}>
                         <div className={styles.mvpCardName}>{icon} {mvp[0]}</div>

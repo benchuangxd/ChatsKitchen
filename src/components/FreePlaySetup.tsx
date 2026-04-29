@@ -12,6 +12,10 @@ function fmtIngredient(s: string) {
   return s.replace(/_/g, ' ')
 }
 
+const ORPHAN_RECIPE_KEYS = Object.keys(RECIPES).filter(
+  k => !new Set(RECIPE_SETS.flatMap(s => s.recipeKeys)).has(k)
+)
+
 interface Props {
   options: GameOptions
   onChange: (options: GameOptions) => void
@@ -451,8 +455,7 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
 
             <div className={styles.recipeScroll} style={{ padding: '0 16px 12px 16px' }}>
             {(() => {
-              const allSetKeys = new Set(RECIPE_SETS.flatMap(s => s.recipeKeys))
-              const orphanKeys = Object.keys(RECIPES).filter(k => !allSetKeys.has(k))
+              const orphanKeys = ORPHAN_RECIPE_KEYS
 
               const renderRecipeBtn = (key: string) => {
                 const recipe = RECIPES[key]
@@ -532,7 +535,13 @@ export default function FreePlaySetup({ options, onChange, onStart, onBack, twit
               <div className={styles.eventSectionActions}>
                 <button
                   className={`${styles.toggleBtn} ${options.kitchenEventsEnabled ? styles.toggleBtnOn : ''}`}
-                  onClick={() => onChange({ ...options, kitchenEventsEnabled: !options.kitchenEventsEnabled })}
+                  onClick={() => {
+                    const turningOn = !options.kitchenEventsEnabled
+                    const nextEvents = turningOn && options.enabledKitchenEvents.length === 0
+                      ? EVENT_DEFS.map(d => d.type)
+                      : options.enabledKitchenEvents
+                    onChange({ ...options, kitchenEventsEnabled: turningOn, enabledKitchenEvents: nextEvents })
+                  }}
                 >
                   {options.kitchenEventsEnabled ? 'ON' : 'OFF'}
                 </button>

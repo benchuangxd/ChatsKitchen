@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { GameAction } from '../state/gameReducer'
 import { GameState } from '../state/types'
-import { RECIPES, BOT_NAMES } from '../data/recipes'
+import { RECIPES, BOT_NAMES, HEAT_EXEMPT_STATIONS } from '../data/recipes'
 
 const CHATTER = ["let's go!", 'waiting for orders...', 'COOK COOK COOK', 'we got this chat!', 'any orders?']
 
@@ -17,7 +17,7 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
 
   // Cool hot stations (heat >= 60, not overheated)
   for (const [id, station] of Object.entries(state.stations)) {
-    if (id !== 'cutting_board' && id !== 'mixing_bowl' && id !== 'grinder' && id !== 'knead_board' && !station.overheated && station.heat >= 60) return { name, command: `cool ${id}` }
+    if (!HEAT_EXEMPT_STATIONS.has(id) && !station.overheated && station.heat >= 60) return { name, command: `cool ${id}` }
   }
 
   // Serve — check if preparedItems has all ingredients for an active order
@@ -42,7 +42,7 @@ function pickBotAction(state: GameState): { name: string; command: string } | nu
       const station = state.stations[step.station]
       if (!station || station.overheated) continue
 
-      const capacity = (step.station === 'cutting_board' || step.station === 'mixing_bowl' || step.station === 'grinder' || step.station === 'knead_board')
+      const capacity = HEAT_EXEMPT_STATIONS.has(step.station)
         ? state.stationCapacity.chopping
         : state.stationCapacity.cooking
       if (station.slots.length >= capacity) continue

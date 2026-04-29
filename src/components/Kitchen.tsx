@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { GameState } from '../state/types'
-import { getEnabledStations } from '../data/recipes'
+import { getEnabledStations, HEAT_EXEMPT_STATIONS } from '../data/recipes'
 import Station from './Station'
 import PreparedItems from './PreparedItems'
 import CommandsStrip from './CommandsStrip'
@@ -13,8 +13,7 @@ interface Props {
 
 function getStationCapacity(stationId: string, cap: GameState['stationCapacity'], restricted: boolean): number {
   if (!restricted) return Infinity
-  if (stationId === 'cutting_board' || stationId === 'mixing_bowl' || stationId === 'grinder' || stationId === 'knead_board') return cap.chopping
-  return cap.cooking
+  return HEAT_EXEMPT_STATIONS.has(stationId) ? cap.chopping : cap.cooking
 }
 
 export default function Kitchen({ state, tutorialHighlight }: Props) {
@@ -29,12 +28,12 @@ export default function Kitchen({ state, tutorialHighlight }: Props) {
     return next
   })
 
-  const pvpLargerTeamSize = state.teams
-    ? Math.max(
-        Object.values(state.teams).filter(t => t === 'red').length,
-        Object.values(state.teams).filter(t => t === 'blue').length,
-      )
-    : undefined
+  const pvpLargerTeamSize = (() => {
+    if (!state.teams) return undefined
+    let r = 0, b = 0
+    for (const t of Object.values(state.teams)) t === 'red' ? r++ : b++
+    return Math.max(r, b)
+  })()
 
   return (
     <div className={`${styles.kitchen} ${tutorialHighlight === 'kitchen' ? styles.highlighted : ''}`}>
@@ -58,6 +57,7 @@ export default function Kitchen({ state, tutorialHighlight }: Props) {
               playerCount={Object.keys(state.playerStats).length}
               isHighlighted={tutorialHighlight === id}
               pvpLargerTeamSize={pvpLargerTeamSize}
+              isDisabled={state.disabledStations?.includes(id) ?? false}
             />
           ))}
         </div>

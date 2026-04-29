@@ -101,46 +101,43 @@ export default function PvPLobby({ red, blue, onMovePlayer, onKick, onBalance, o
           <button className={styles.backBtn} onClick={onBack}>← Back</button>
         </div>
 
-        <div className={styles.title}>⚔️ PvP Lobby</div>
-        <div className={styles.hint}>
-          Type <strong>!red</strong>, <strong>!blue</strong>, or <strong>!join</strong> in chat to join a team
-        </div>
+        <div className={styles.leftColScroll}>
+          <div className={styles.title}>⚔️ PvP Lobby</div>
+          <div className={styles.hint}>
+            Type <strong>!red</strong>, <strong>!blue</strong>, or <strong>!join</strong> in chat to join a team
+          </div>
 
-        <div className={styles.divider} />
+          <div className={styles.divider} />
 
-        <div className={styles.actionRow}>
-          <button className={styles.actionBtn} onClick={onBalance}>⚖️ Balance Teams</button>
-          <button className={`${styles.actionBtn} ${styles.actionBtnClear}`} onClick={onClear}>✕ Clear Teams</button>
-        </div>
+          <div className={styles.actionRow}>
+            <button className={styles.actionBtn} onClick={onBalance}>⚖️ Balance Teams</button>
+            <button className={`${styles.actionBtn} ${styles.actionBtnClear}`} onClick={onClear}>✕ Clear Teams</button>
+          </div>
 
-        <div className={styles.card}>
-          <div className={styles.cardLabel}>Chat Commands</div>
-          <div className={styles.modHints}>
-            <div className={styles.modHintRow}>
-              <span className={styles.modCmd}>!red</span>
-              <span className={styles.modCmd}>!blue</span>
-              <span>join a team</span>
-            </div>
-            <div className={styles.modHintRow}>
-              <span className={styles.modCmd}>!join</span>
-              <span>auto-join smaller team</span>
-            </div>
-            <div className={styles.modHintRow}>
-              <span className={styles.modCmd}>!leave</span>
-              <span>unjoin your team</span>
-            </div>
-            <div className={styles.modHintRow}>
-              <span className={styles.modCmd}>!move red @name</span>
-              <span>mod: move player</span>
-            </div>
-            <div className={styles.modHintRow}>
-              <span className={styles.modCmd}>!kick @name</span>
-              <span>mod: remove player</span>
+          <div className={styles.card}>
+            <div className={styles.cardLabel}>Chat Commands</div>
+            <div className={styles.modHints}>
+              <div className={styles.modHintRow}>
+                <span className={styles.modCmd}>!red</span>
+                <span className={styles.modCmd}>!blue</span>
+                <span className={styles.modCmd}>!join</span>
+                <span>join a team</span>
+              </div>
+              <div className={styles.modHintRow}>
+                <span className={styles.modCmd}>!leave</span>
+                <span>unjoin your team</span>
+              </div>
+              <div className={styles.modHintRow}>
+                <span className={styles.modCmd}>!move red @name</span>
+                <span>mod: move player</span>
+              </div>
+              <div className={styles.modHintRow}>
+                <span className={styles.modCmd}>!kick @name</span>
+                <span>mod: remove player</span>
+              </div>
             </div>
           </div>
         </div>
-
-        <div className={styles.spacer} />
 
         <button className={styles.startBtn} onClick={onNext}>
           Configure &amp; Start →

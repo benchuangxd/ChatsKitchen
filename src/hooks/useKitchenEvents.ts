@@ -19,6 +19,10 @@ function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
+function pickSpawnInterval(lo: number, hi: number): number {
+  return hi > lo ? lo + Math.random() * (hi - lo) : lo
+}
+
 function calcThreshold(playerCount: number): number {
   return Math.max(1, Math.ceil(playerCount * RESOLVE_THRESHOLD_RATIO))
 }
@@ -54,18 +58,10 @@ export function useKitchenEvents(
   const lastEventTypeRef = useRef<EventType | null>(null)
   const concludingEventIdRef = useRef<string | null>(null)  // prevents double resolve/fail if React hasn't re-rendered yet
   const spawnTimerRef = useRef(0)
-  const pickSpawnInterval = () => {
-    const lo = spawnMinRef.current
-    const hi = spawnMaxRef.current
-    return hi > lo ? lo + Math.random() * (hi - lo) : lo
-  }
+  const spawnIntervalRef = useRef(pickSpawnInterval(spawnMinMs, spawnMaxMs))
 
-  const spawnIntervalRef = useRef(pickSpawnInterval())
-
-  // Reset the spawn countdown whenever the min/max settings change so the new
-  // interval takes effect immediately rather than after the old one expires.
   useEffect(() => {
-    spawnIntervalRef.current = pickSpawnInterval()
+    spawnIntervalRef.current = pickSpawnInterval(spawnMinRef.current, spawnMaxRef.current)
     spawnTimerRef.current = 0
   }, [spawnMinMs, spawnMaxMs])
 
@@ -76,10 +72,13 @@ export function useKitchenEvents(
     const threshold = calcThreshold(playerCount)
 
     const enabled = enabledEventsRef.current
-    const eligibleStations = Object.values(s.stations).filter(st => !st.overheated)
+    const alreadyDisabled = new Set(s.disabledStations ?? [])
+    const eligibleStations = Object.values(s.stations).filter(
+      st => !st.overheated && !alreadyDisabled.has(st.id)
+    )
 
     const isAllowed = (type: EventType) =>
-      (enabled.length === 0 || enabled.includes(type)) &&
+      enabled.includes(type) &&
       !(type === 'power_trip' && eligibleStations.length < 2)
 
     // Prefer no back-to-back; fall back to full pool if only one event type enabled
@@ -266,7 +265,7 @@ export function useKitchenEvents(
           spawnTimerRef.current += 100
           if (spawnTimerRef.current >= spawnIntervalRef.current) {
             spawnTimerRef.current = 0
-            spawnIntervalRef.current = pickSpawnInterval()
+            spawnIntervalRef.current = pickSpawnInterval(spawnMinRef.current, spawnMaxRef.current)
             spawnEvent()
           }
         }
