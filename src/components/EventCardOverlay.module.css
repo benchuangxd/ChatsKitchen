@@ -163,6 +163,19 @@
   white-space: nowrap;
 }
 
+/* Power Trip: operators styled larger and distinctly coloured */
+.eqOp {
+  font-size: 1.5em;
+  font-weight: 900;
+  color: var(--event-cmd-color);
+  padding: 0 2px;
+  vertical-align: middle;
+}
+
+.eqNum {
+  vertical-align: middle;
+}
+
 /* Typing Frenzy: switch to a font with very distinct character shapes */
 .cmdBoxFrenzy {
   font-family: 'Courier New', Menlo, monospace;

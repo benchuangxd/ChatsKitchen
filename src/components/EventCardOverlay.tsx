@@ -207,6 +207,15 @@ export default function EventCardOverlay({ activeEvent }: Props) {
                                   style={{ animationDelay: `${i * 0.11}s` }}
                                 >{char}</span>
                               ))
+                            : ev.type === 'power_trip'
+                            ? ev.chosenCommand.split(' ').map((token, i) => {
+                                const isOp = ['+', '-', '×', '÷', '='].includes(token)
+                                return (
+                                  <span key={i} className={isOp ? styles.eqOp : styles.eqNum}>
+                                    {i > 0 ? ' ' : ''}{token}
+                                  </span>
+                                )
+                              })
                             : ev.chosenCommand
                           }
                         </div>
