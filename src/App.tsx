@@ -1010,7 +1010,7 @@ export default function App() {
         <EventCardOverlay activeEvent={tutorialEvent ?? activeEvent} />
         {paused && (
           <PauseModal
-            enabledRecipes={gameOptions.enabledRecipes}
+            enabledRecipes={state.enabledRecipes}
             audioSettings={audioSettings}
             onAudioChange={handleAudioChange}
             chatOpen={chatOpen}
