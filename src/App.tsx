@@ -1,7 +1,7 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, KitchenEvent, RoundRecord } from './state/types'
+import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, KitchenEvent, RoundRecord, EventType } from './state/types'
 import { computeStarThresholds } from './data/starThresholds'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
@@ -35,6 +35,8 @@ import EventCardOverlay from './components/EventCardOverlay'
 import SmokeOverlay from './components/SmokeOverlay'
 import CreditsScreen from './components/CreditsScreen'
 import Toast from './components/Toast'
+import PlaysetPicker from './components/PlaysetPicker'
+import { DIFFICULTY_PRESETS, type Playset, type Difficulty } from './data/playsets'
 import {
   ADVENTURE_SHIFT_DURATION, getAdventureGoal, pickAdventureRecipes, mergePlayerStats,
 } from './data/adventureMode'
@@ -45,8 +47,16 @@ import BottomBar from './components/BottomBar'
 import { DEFAULT_GAME_OPTIONS } from './state/defaultOptions'
 import styles from './App.module.css'
 
-type Screen = 'menu' | 'pvplobby' | 'adventurebriefing' | 'options' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
-type TutorialDestination = 'menu' | 'freeplaysetup'
+type Screen = 'menu' | 'pvplobby' | 'adventurebriefing' | 'options' | 'playsetpicker' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
+type TutorialDestination = 'menu' | 'playsetpicker' | 'freeplaysetup'
+
+interface ActiveEventOptions {
+  kitchenEventsEnabled: boolean
+  enabledKitchenEvents: EventType[]
+  kitchenEventSpawnMin: number
+  kitchenEventSpawnMax: number
+  kitchenEventDuration: number
+}
 
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
@@ -77,6 +87,7 @@ const TUTORIAL_MYSTERY_EVENT: KitchenEvent = {
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
+  const [activeEventOptions, setActiveEventOptions] = useState<ActiveEventOptions | null>(null)
   const [tutorialOpen, setTutorialOpen] = useState(false)
   const [gameOptions, setGameOptions] = useState<GameOptions>(() => {
     try {
@@ -208,6 +219,31 @@ export default function App() {
     setScreen('countdown')
   }, [gameOptions])
 
+  const startFromPlayset = useCallback((playset: Playset, difficulty: Difficulty) => {
+    const preset = DIFFICULTY_PRESETS[difficulty]
+    setActiveEventOptions({
+      kitchenEventsEnabled: true,
+      enabledKitchenEvents: playset.events,
+      kitchenEventSpawnMin: 60,
+      kitchenEventSpawnMax: 120,
+      kitchenEventDuration: 30,
+    })
+    setAdventureRun(null)
+    dispatch({
+      type: 'RESET',
+      shiftDuration:   preset.shiftDuration,
+      cookingSpeed:    1.0,
+      orderSpeed:      preset.orderSpeed,
+      orderSpawnRate:  preset.orderSpawnRate,
+      stationCapacity: gameOptions.stationCapacity,
+      restrictSlots:   false,
+      enabledRecipes:  playset.recipes,
+      teams: {},
+    })
+    setStarThresholds(null)
+    setScreen('countdown')
+  }, [gameOptions.stationCapacity, dispatch])
+
   const startPvp = useCallback(() => {
     setPvpLobby({ red: [], blue: [] })
     setScreen('pvplobby')
@@ -262,11 +298,14 @@ export default function App() {
   }, [])
 
   const continueFromTutorial = useCallback((destination: TutorialDestination) => {
+    if (destination === 'playsetpicker') {
+      checkTwitch(() => setScreen('playsetpicker'))
+      return
+    }
     if (destination === 'freeplaysetup') {
       checkTwitch(() => setScreen('freeplaysetup'))
       return
     }
-
     setScreen('menu')
   }, [checkTwitch])
 
@@ -396,15 +435,16 @@ export default function App() {
     setTimeout(() => setTutorialEventResolved(true), 1800)
   }, [TUTORIAL_EVENT_STEP])
 
+  const effectiveEventOptions = activeEventOptions ?? gameOptions
   const { activeEvent, handleEventCommand } = useKitchenEvents(
     state,
     dispatch,
-    screen === 'playing' && !isTutorial && gameOptions.kitchenEventsEnabled,
+    screen === 'playing' && !isTutorial && effectiveEventOptions.kitchenEventsEnabled,
     paused,
-    gameOptions.enabledKitchenEvents,
-    gameOptions.kitchenEventSpawnMin * 1000,
-    gameOptions.kitchenEventSpawnMax * 1000,
-    gameOptions.kitchenEventDuration * 1000,
+    effectiveEventOptions.enabledKitchenEvents,
+    effectiveEventOptions.kitchenEventSpawnMin * 1000,
+    effectiveEventOptions.kitchenEventSpawnMax * 1000,
+    effectiveEventOptions.kitchenEventDuration * 1000,
   )
 
   const handleGameOptionsChange = useCallback((options: GameOptions) => {
@@ -417,6 +457,7 @@ export default function App() {
   }, [])
 
   const handleGameOver = useCallback(() => {
+    setActiveEventOptions(null)
     const s = stateRef.current
     setFinalStats({
       money: s.money,
@@ -777,7 +818,7 @@ export default function App() {
   if (screen === 'menu') {
     content = (
       <MainMenu
-        onPlay={() => handleMenuPlay('freeplaysetup')}
+        onPlay={() => handleMenuPlay('playsetpicker')}
         onPvp={handleMenuPvp}
         onAdventure={handleMenuAdventure}
         onOptions={() => setScreen('options')}
@@ -838,6 +879,14 @@ export default function App() {
     content = <OptionsScreen options={gameOptions} onChange={handleGameOptionsChange} audioSettings={audioSettings} onAudioChange={handleAudioChange} onResetAll={handleResetAll} onBack={() => setScreen('menu')} />
   } else if (screen === 'credits') {
     content = <CreditsScreen onBack={() => setScreen('menu')} />
+  } else if (screen === 'playsetpicker') {
+    content = (
+      <PlaysetPicker
+        onStart={startFromPlayset}
+        onCustomise={() => setScreen('freeplaysetup')}
+        onBack={() => setScreen('menu')}
+      />
+    )
   } else if (screen === 'freeplaysetup') {
     content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen(pvpLobby ? 'pvplobby' : 'menu')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} roundHistory={freePlayHistory} />
   } else if (screen === 'countdown') {
@@ -949,6 +998,7 @@ export default function App() {
             onBotsToggle={() => setBotsEnabled(b => !b)}
             onResume={() => setPaused(false)}
             onExit={() => { setPaused(false); setTutorialStep(null); setScreen('menu') }}
+            onPlaysetPicker={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('playsetpicker') } : undefined}
             onRecipeSelect={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('freeplaysetup') } : undefined}
           />
         )}
