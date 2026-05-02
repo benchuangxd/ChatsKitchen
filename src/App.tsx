@@ -151,6 +151,7 @@ export default function App() {
   stateRef.current = state
   const activeEventOptionsRef = useRef(activeEventOptions)
   activeEventOptionsRef.current = activeEventOptions
+  const activeGameOptionsRef = useRef<GameOptions | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [autoRestartSignal, setAutoRestartSignal] = useState(0)
@@ -223,13 +224,23 @@ export default function App() {
 
   const startFromPlayset = useCallback((playset: Playset, difficulty: Difficulty) => {
     const preset = DIFFICULTY_PRESETS[difficulty]
-    setActiveEventOptions({
+    const eventOpts = {
       kitchenEventsEnabled: true,
       enabledKitchenEvents: playset.events,
       kitchenEventSpawnMin: 60,
       kitchenEventSpawnMax: 120,
       kitchenEventDuration: 30, // 30s gives players more time to respond than the 12s default
-    })
+    }
+    setActiveEventOptions(eventOpts)
+    activeGameOptionsRef.current = {
+      ...DEFAULT_GAME_OPTIONS,
+      shiftDuration:  preset.shiftDuration,
+      cookingSpeed:   1.0,
+      orderSpeed:     preset.orderSpeed,
+      orderSpawnRate: preset.orderSpawnRate,
+      enabledRecipes: playset.recipes,
+      ...eventOpts,
+    }
     setAdventureRun(null)
     dispatch({
       type: 'RESET',
@@ -460,6 +471,7 @@ export default function App() {
 
   const handleGameOver = useCallback(() => {
     setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     const s = stateRef.current
     setFinalStats({
       money: s.money,
@@ -481,11 +493,8 @@ export default function App() {
       // Compute star thresholds from actual player count (non-PvP free play only)
       if (!s.teams || Object.keys(s.teams).length === 0) {
         const playerCount = Object.keys(s.playerStats).length
-        // Skip star rating for playset games — gameOptions doesn't reflect the actual playset params
-        setStarThresholds(activeEventOptionsRef.current
-          ? null
-          : computeStarThresholds(gameOptionsRef.current, Math.max(1, playerCount))
-        )
+        const optionsForThresholds = activeGameOptionsRef.current ?? gameOptionsRef.current
+        setStarThresholds(computeStarThresholds(optionsForThresholds, Math.max(1, playerCount)))
       } else {
         setStarThresholds(null)
       }
