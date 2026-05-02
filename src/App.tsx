@@ -149,8 +149,6 @@ export default function App() {
   })
   const stateRef = useRef(state)
   stateRef.current = state
-  const activeEventOptionsRef = useRef(activeEventOptions)
-  activeEventOptionsRef.current = activeEventOptions
   const activeGameOptionsRef = useRef<GameOptions | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -257,7 +255,7 @@ export default function App() {
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [dispatch])
+  }, [])
 
   const startPvp = useCallback(() => {
     setPvpLobby({ red: [], blue: [] })
@@ -499,6 +497,7 @@ export default function App() {
       if (!s.teams || Object.keys(s.teams).length === 0) {
         const playerCount = Object.keys(s.playerStats).length
         const optionsForThresholds = activeGameOptionsRef.current ?? gameOptionsRef.current
+        activeGameOptionsRef.current = null
         setStarThresholds(computeStarThresholds(optionsForThresholds, Math.max(1, playerCount)))
       } else {
         setStarThresholds(null)
@@ -1011,7 +1010,7 @@ export default function App() {
         <EventCardOverlay activeEvent={tutorialEvent ?? activeEvent} />
         {paused && (
           <PauseModal
-            gameOptions={gameOptions}
+            enabledRecipes={gameOptions.enabledRecipes}
             audioSettings={audioSettings}
             onAudioChange={handleAudioChange}
             chatOpen={chatOpen}
