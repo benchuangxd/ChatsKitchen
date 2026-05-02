@@ -31,7 +31,7 @@ export default function Kitchen({ state, tutorialHighlight }: Props) {
   const pvpLargerTeamSize = (() => {
     if (!state.teams) return undefined
     let r = 0, b = 0
-    for (const t of Object.values(state.teams)) t === 'red' ? r++ : b++
+    for (const t of Object.values(state.teams)) { if (t === 'red') r++; else b++ }
     return Math.max(r, b)
   })()
 

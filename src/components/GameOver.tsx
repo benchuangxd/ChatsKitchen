@@ -44,7 +44,7 @@ export default function GameOver({ money, served, lost, playerStats, teams, leve
   const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
   const leaderboard = useMemo(
     () => Object.entries(playerStats).sort(([, a], [, b]) => totalActions(b) - totalActions(a)),
-    [playerStats] // eslint-disable-line react-hooks/exhaustive-deps
+    [playerStats]
   )
 
   const starCount = starThresholds ? getStarCount(money, starThresholds) : null
@@ -57,7 +57,7 @@ export default function GameOver({ money, served, lost, playerStats, teams, leve
       red:  entries.filter(([n]) => teams[n] === 'red').sort(sortByActions)[0] ?? null,
       blue: entries.filter(([n]) => teams[n] === 'blue').sort(sortByActions)[0] ?? null,
     }
-  }, [playerStats, teams]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [playerStats, teams])
 
   const [countdown, setCountdown] = useState<number | null>(null)
 

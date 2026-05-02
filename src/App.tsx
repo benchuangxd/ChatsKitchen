@@ -391,7 +391,7 @@ export default function App() {
       }
     }
     setTutorialStep(s => (s !== null && s < TUTORIAL_STEPS.length - 1 ? s + 1 : s))
-  }, [tutorialStep, dispatch, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP, TUTORIAL_EVENT_STEP])
+  }, [tutorialStep, dispatch])
 
   const handleTutorialBack = useCallback(() => {
     if (tutorialStep === null || tutorialStep <= 0) return
@@ -408,7 +408,7 @@ export default function App() {
       setTutorialEventResolved(false)
     }
     setTutorialStep(prev)
-  }, [tutorialStep, dispatch, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP, TUTORIAL_EVENT_STEP])
+  }, [tutorialStep, dispatch])
 
   const handleTutorialComplete = useCallback(() => {
     setTutorialEvent(null)
@@ -433,7 +433,7 @@ export default function App() {
     if (text.trim().toUpperCase() !== 'SLICED BEEF') return
     setTutorialEvent(ev => ev && !ev.resolved ? { ...ev, resolved: true, progress: 100 } : ev)
     setTimeout(() => setTutorialEventResolved(true), 1800)
-  }, [TUTORIAL_EVENT_STEP])
+  }, [])
 
   const effectiveEventOptions = activeEventOptions ?? gameOptions
   const { activeEvent, handleEventCommand } = useKitchenEvents(
