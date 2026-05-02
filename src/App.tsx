@@ -200,6 +200,8 @@ export default function App() {
   }, [])
 
   const startFreePlay = useCallback(() => {
+    setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     setAdventureRun(null)
     const teams: Record<string, 'red' | 'blue'> = pvpLobbyRef.current
       ? Object.fromEntries([
@@ -267,6 +269,8 @@ export default function App() {
   }, [])
 
   const startAdventure = useCallback(() => {
+    setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     setIsNewBestAdventureRun(false)
     const recipes = pickAdventureRecipes()
     const shift   = 1
@@ -368,6 +372,8 @@ export default function App() {
   }, [continueFromTutorial, tutorialDestination])
 
   const startTutorial = useCallback(() => {
+    setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     dispatch({
       type: 'RESET',
       shiftDuration: 600_000,
@@ -471,7 +477,6 @@ export default function App() {
 
   const handleGameOver = useCallback(() => {
     setActiveEventOptions(null)
-    activeGameOptionsRef.current = null
     const s = stateRef.current
     setFinalStats({
       money: s.money,
@@ -815,6 +820,8 @@ export default function App() {
 
   const isPlaying = screen === 'playing'
   const tutorialGameOver = useCallback(() => {
+    setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     setTutorialStep(null)
     setScreen('menu')
   }, [])
