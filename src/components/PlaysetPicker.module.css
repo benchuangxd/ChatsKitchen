@@ -267,7 +267,7 @@
   background: var(--surface-3);
   border-top: 2px solid var(--border);
   flex-shrink: 0;
-  height: 260px;
+  height: clamp(180px, 30vh, 260px);
 }
 
 .detailArea {

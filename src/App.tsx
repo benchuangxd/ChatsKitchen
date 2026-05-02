@@ -149,6 +149,8 @@ export default function App() {
   })
   const stateRef = useRef(state)
   stateRef.current = state
+  const activeEventOptionsRef = useRef(activeEventOptions)
+  activeEventOptionsRef.current = activeEventOptions
   const [toast, setToast] = useState<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [autoRestartSignal, setAutoRestartSignal] = useState(0)
@@ -226,7 +228,7 @@ export default function App() {
       enabledKitchenEvents: playset.events,
       kitchenEventSpawnMin: 60,
       kitchenEventSpawnMax: 120,
-      kitchenEventDuration: 30,
+      kitchenEventDuration: 30, // 30s gives players more time to respond than the 12s default
     })
     setAdventureRun(null)
     dispatch({
@@ -235,14 +237,14 @@ export default function App() {
       cookingSpeed:    1.0,
       orderSpeed:      preset.orderSpeed,
       orderSpawnRate:  preset.orderSpawnRate,
-      stationCapacity: gameOptions.stationCapacity,
+      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
       restrictSlots:   false,
       enabledRecipes:  playset.recipes,
       teams: {},
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [gameOptions.stationCapacity, dispatch])
+  }, [dispatch])
 
   const startPvp = useCallback(() => {
     setPvpLobby({ red: [], blue: [] })
@@ -479,7 +481,11 @@ export default function App() {
       // Compute star thresholds from actual player count (non-PvP free play only)
       if (!s.teams || Object.keys(s.teams).length === 0) {
         const playerCount = Object.keys(s.playerStats).length
-        setStarThresholds(computeStarThresholds(gameOptionsRef.current, Math.max(1, playerCount)))
+        // Skip star rating for playset games — gameOptions doesn't reflect the actual playset params
+        setStarThresholds(activeEventOptionsRef.current
+          ? null
+          : computeStarThresholds(gameOptionsRef.current, Math.max(1, playerCount))
+        )
       } else {
         setStarThresholds(null)
       }
