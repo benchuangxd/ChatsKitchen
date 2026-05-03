@@ -1,4 +1,5 @@
 .screen {
+  --ps-accent: #b87333;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -24,7 +25,7 @@
   font-family: 'Fredoka', sans-serif;
   font-size: var(--base-fs);
   font-weight: 700;
-  background: #b87333;
+  background: var(--ps-accent);
   color: #fff;
   cursor: pointer;
   transition: transform 0.1s, filter 0.1s;
@@ -38,7 +39,7 @@
 .title {
   font-family: 'Lilita One', cursive;
   font-size: 32px;
-  color: #b87333;
+  color: var(--ps-accent);
 }
 
 .difficultyToggle {
@@ -84,8 +85,8 @@
 .navArrow {
   width: 52px;
   flex-shrink: 0;
-  background: #b87333;
-  border: 2px solid #b87333;
+  background: var(--ps-accent);
+  border: 2px solid var(--ps-accent);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -173,9 +174,9 @@
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 8px;
-  background: rgba(184, 115, 51, 0.15);
-  color: #b87333;
-  border: 1px solid rgba(184, 115, 51, 0.3);
+  background: color-mix(in srgb, var(--ps-accent) 15%, transparent);
+  color: var(--ps-accent);
+  border: 1px solid color-mix(in srgb, var(--ps-accent) 30%, transparent);
 }
 
 .cardStations {
@@ -267,7 +268,7 @@
   background: var(--surface-3);
   border-top: 2px solid var(--border);
   flex-shrink: 0;
-  height: 260px;
+  height: clamp(180px, 30vh, 260px);
 }
 
 .detailArea {
@@ -337,7 +338,7 @@
 .bdReward {
   font-family: 'Space Mono', monospace;
   font-size: 15px;
-  color: #b87333;
+  color: var(--ps-accent);
   font-weight: 700;
 }
 
@@ -407,7 +408,7 @@
 }
 
 .cookBtn {
-  background: #b87333;
+  background: var(--ps-accent);
   color: #fff;
   border: none;
   border-radius: 14px;
@@ -451,7 +452,7 @@
 }
 
 .customiseBtn:hover {
-  border-color: #b87333;
+  border-color: var(--ps-accent);
   color: var(--text);
 }
 

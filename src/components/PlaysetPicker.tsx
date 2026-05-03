@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { PLAYSETS, type Playset, type Difficulty } from '../data/playsets.ts'
 import { RECIPES } from '../data/recipes.ts'
 import { EVENT_DEFS } from '../data/kitchenEventDefs.ts'
@@ -70,7 +70,8 @@ export default function PlaysetPicker({ onStart, onCustomise, onBack }: Props) {
       <div className={styles.carouselArea}>
         <button
           className={`${styles.navArrow}${!canShiftLeft ? ` ${styles.navArrowDisabled}` : ''}`}
-          onClick={() => canShiftLeft && setCarouselStart(s => s - 1)}
+          disabled={!canShiftLeft}
+          onClick={() => setCarouselStart(s => s - 1)}
         >
           ‹
         </button>
@@ -90,9 +91,12 @@ export default function PlaysetPicker({ onStart, onCustomise, onBack }: Props) {
                 key={ps.id}
                 className={cardClass}
                 style={{ '--card-color': ps.themeColor } as React.CSSProperties}
+                role="button"
+                tabIndex={0}
                 onMouseEnter={() => handleCardEnter(ps.id)}
                 onMouseLeave={handleCardLeave}
                 onClick={() => handleCardClick(ps.id)}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(ps.id) } }}
               >
                 <div className={styles.cardHeader}>
                   <div className={styles.cardTitleRow}>
@@ -146,7 +150,8 @@ export default function PlaysetPicker({ onStart, onCustomise, onBack }: Props) {
 
         <button
           className={`${styles.navArrow}${!canShiftRight ? ` ${styles.navArrowDisabled}` : ''}`}
-          onClick={() => canShiftRight && setCarouselStart(s => s + 1)}
+          disabled={!canShiftRight}
+          onClick={() => setCarouselStart(s => s + 1)}
         >
           ›
         </button>
@@ -200,10 +205,10 @@ function DetailBreakdown({ playset }: { playset: Playset }) {
                 </div>
                 <div className={styles.bdSteps}>
                   {recipe.steps.map((step, i) => (
-                    <span key={i} style={{ display: 'contents' }}>
+                    <Fragment key={i}>
                       {i > 0 && <span className={styles.stepArrow}>→</span>}
                       <span className={styles.stepChip}>{step.action} {step.target.replace(/_/g, ' ')}</span>
-                    </span>
+                    </Fragment>
                   ))}
                 </div>
               </div>

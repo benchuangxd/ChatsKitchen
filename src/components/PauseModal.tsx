@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { AudioSettings, GameOptions } from '../state/types'
+import { AudioSettings } from '../state/types'
 import { RECIPES } from '../data/recipes'
 import FoodIcon from './FoodIcon'
 import styles from './PauseModal.module.css'
 
 interface PauseModalProps {
-  gameOptions: GameOptions
+  enabledRecipes: string[]
   audioSettings: AudioSettings
   onAudioChange: (s: AudioSettings) => void
   chatOpen: boolean
@@ -20,7 +20,7 @@ interface PauseModalProps {
 }
 
 export default function PauseModal({
-  gameOptions,
+  enabledRecipes,
   audioSettings,
   onAudioChange,
   chatOpen,
@@ -96,7 +96,7 @@ export default function PauseModal({
         {/* RIGHT COLUMN */}
         <div className={styles.right}>
           <div className={styles.recipeLabel}>Active Recipes</div>
-          {gameOptions.enabledRecipes.map(key => {
+          {enabledRecipes.map(key => {
             const recipe = RECIPES[key]
             if (!recipe) return null
             return (

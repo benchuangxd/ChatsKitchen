@@ -149,6 +149,7 @@ export default function App() {
   })
   const stateRef = useRef(state)
   stateRef.current = state
+  const activeGameOptionsRef = useRef<GameOptions | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [autoRestartSignal, setAutoRestartSignal] = useState(0)
@@ -197,6 +198,8 @@ export default function App() {
   }, [])
 
   const startFreePlay = useCallback(() => {
+    setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     setAdventureRun(null)
     const teams: Record<string, 'red' | 'blue'> = pvpLobbyRef.current
       ? Object.fromEntries([
@@ -221,13 +224,23 @@ export default function App() {
 
   const startFromPlayset = useCallback((playset: Playset, difficulty: Difficulty) => {
     const preset = DIFFICULTY_PRESETS[difficulty]
-    setActiveEventOptions({
+    const eventOpts = {
       kitchenEventsEnabled: true,
       enabledKitchenEvents: playset.events,
       kitchenEventSpawnMin: 60,
       kitchenEventSpawnMax: 120,
-      kitchenEventDuration: 30,
-    })
+      kitchenEventDuration: 30, // 30s gives players more time to respond than the 12s default
+    }
+    setActiveEventOptions(eventOpts)
+    activeGameOptionsRef.current = {
+      ...DEFAULT_GAME_OPTIONS,
+      shiftDuration:  preset.shiftDuration,
+      cookingSpeed:   1.0,
+      orderSpeed:     preset.orderSpeed,
+      orderSpawnRate: preset.orderSpawnRate,
+      enabledRecipes: playset.recipes,
+      ...eventOpts,
+    }
     setAdventureRun(null)
     dispatch({
       type: 'RESET',
@@ -235,14 +248,14 @@ export default function App() {
       cookingSpeed:    1.0,
       orderSpeed:      preset.orderSpeed,
       orderSpawnRate:  preset.orderSpawnRate,
-      stationCapacity: gameOptions.stationCapacity,
+      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
       restrictSlots:   false,
       enabledRecipes:  playset.recipes,
       teams: {},
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [gameOptions.stationCapacity, dispatch])
+  }, [])
 
   const startPvp = useCallback(() => {
     setPvpLobby({ red: [], blue: [] })
@@ -254,6 +267,8 @@ export default function App() {
   }, [])
 
   const startAdventure = useCallback(() => {
+    setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     setIsNewBestAdventureRun(false)
     const recipes = pickAdventureRecipes()
     const shift   = 1
@@ -355,6 +370,8 @@ export default function App() {
   }, [continueFromTutorial, tutorialDestination])
 
   const startTutorial = useCallback(() => {
+    setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     dispatch({
       type: 'RESET',
       shiftDuration: 600_000,
@@ -479,7 +496,9 @@ export default function App() {
       // Compute star thresholds from actual player count (non-PvP free play only)
       if (!s.teams || Object.keys(s.teams).length === 0) {
         const playerCount = Object.keys(s.playerStats).length
-        setStarThresholds(computeStarThresholds(gameOptionsRef.current, Math.max(1, playerCount)))
+        const optionsForThresholds = activeGameOptionsRef.current ?? gameOptionsRef.current
+        activeGameOptionsRef.current = null
+        setStarThresholds(computeStarThresholds(optionsForThresholds, Math.max(1, playerCount)))
       } else {
         setStarThresholds(null)
       }
@@ -800,6 +819,8 @@ export default function App() {
 
   const isPlaying = screen === 'playing'
   const tutorialGameOver = useCallback(() => {
+    setActiveEventOptions(null)
+    activeGameOptionsRef.current = null
     setTutorialStep(null)
     setScreen('menu')
   }, [])
@@ -989,7 +1010,7 @@ export default function App() {
         <EventCardOverlay activeEvent={tutorialEvent ?? activeEvent} />
         {paused && (
           <PauseModal
-            gameOptions={gameOptions}
+            enabledRecipes={state.enabledRecipes}
             audioSettings={audioSettings}
             onAudioChange={handleAudioChange}
             chatOpen={chatOpen}
