@@ -1,5 +1,6 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { useTutorialState } from './hooks/useTutorialState'
+import { usePvpLobby } from './hooks/usePvpLobby'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
 import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, RoundRecord, Screen, TutorialDestination, ActiveEventOptions } from './state/types'
@@ -118,9 +119,6 @@ export default function App() {
   const gameOptionsRef = useRef(gameOptions)
   const [adventureRun, setAdventureRun]   = useState<AdventureRun | null>(null)
   const adventureRunRef                   = useRef<AdventureRun | null>(null)
-  const [pvpLobby, setPvpLobby] = useState<{ red: string[], blue: string[] } | null>(null)
-  const pvpLobbyRef = useRef<{ red: string[], blue: string[] } | null>(null)
-  pvpLobbyRef.current = pvpLobby
   const [adventureBestRun, setAdventureBestRun] = useState<AdventureBestRun | null>(() => {
     try {
       const saved = localStorage.getItem('chatsKitchen_adventureBestRun')
@@ -136,6 +134,14 @@ export default function App() {
   gameOptionsRef.current = gameOptions
   adventureRunRef.current = adventureRun
 
+  const showToast = useCallback((message: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    setToast(message)
+    toastTimerRef.current = setTimeout(() => setToast(null), 2500)
+  }, [])
+
+  const { pvpLobby, setPvpLobby, pvpLobbyRef, startPvp, startPvpGame, handleLobbyMetaCommand, handleLobbyJoin } = usePvpLobby(setScreen, showToast)
+
   const tutorial = useTutorialState(dispatch, setScreen, setActiveEventOptions, activeGameOptionsRef, setChatOpen)
   const {
     tutorialStep, setTutorialStep, tutorialResetKey, tutorialEvent, tutorialEventResolved,
@@ -145,12 +151,6 @@ export default function App() {
     handleTutorialComplete, handleTutorialRepeat, handleTutorialEventCommand,
     handleMenuTutorial, tutorialGameOver, persistHideTutorialPrompt, resetTutorial,
   } = tutorial
-
-  const showToast = useCallback((message: string) => {
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
-    setToast(message)
-    toastTimerRef.current = setTimeout(() => setToast(null), 2500)
-  }, [])
 
   const startFreePlay = useCallback(() => {
     setActiveEventOptions(null)
@@ -175,7 +175,7 @@ export default function App() {
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [gameOptions])
+  }, [gameOptions, pvpLobbyRef])
 
   const startFromPlayset = useCallback((playset: Playset, difficulty: Difficulty) => {
     const preset = DIFFICULTY_PRESETS[difficulty]
@@ -212,14 +212,6 @@ export default function App() {
     setScreen('countdown')
   }, [])
 
-  const startPvp = useCallback(() => {
-    setPvpLobby({ red: [], blue: [] })
-    setScreen('pvplobby')
-  }, [])
-
-  const startPvpGame = useCallback(() => {
-    setScreen('freeplaysetup')
-  }, [])
 
   const startAdventure = useCallback(() => {
     setActiveEventOptions(null)
@@ -388,65 +380,6 @@ export default function App() {
     setScreen('shiftend')
   }, [])
 
-  const handleLobbyMetaCommand = useCallback((_user: string, text: string, isMod: boolean) => {
-    if (!isMod) return
-    const cmd = text.trim().toLowerCase()
-
-    if (cmd === '!balance') {
-      setPvpLobby(prev => {
-        if (!prev) return prev
-        const all = [...prev.red, ...prev.blue].sort(() => Math.random() - 0.5)
-        return {
-          red: all.filter((_, i) => i % 2 === 0),
-          blue: all.filter((_, i) => i % 2 !== 0),
-        }
-      })
-      showToast(`⚖️ Teams balanced`)
-      return
-    }
-
-    const kickMatch = cmd.match(/^!kick\s+@?(\S+)$/)
-    if (kickMatch) {
-      const target = kickMatch[1]
-      const lobby = pvpLobbyRef.current
-      if (!lobby || (!lobby.red.includes(target) && !lobby.blue.includes(target))) {
-        showToast(`❌ ${target} not found`)
-        return
-      }
-      setPvpLobby(prev => {
-        if (!prev) return prev
-        return {
-          red: prev.red.filter(u => u !== target),
-          blue: prev.blue.filter(u => u !== target),
-        }
-      })
-      showToast(`🚫 Kicked ${target}`)
-      return
-    }
-
-    const moveMatch = text.trim().match(/^!move\s+(red|blue)\s+@?(\S+)$/i)
-    if (moveMatch) {
-      const team = moveMatch[1].toLowerCase() as 'red' | 'blue'
-      const targetRaw = moveMatch[2]
-      const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
-      const lobby = pvpLobbyRef.current
-      const allPlayers = lobby ? [...lobby.red, ...lobby.blue] : []
-      const target = allPlayers.find(u => u.toLowerCase() === targetRaw.toLowerCase())
-      if (!target) {
-        showToast(`❌ ${targetRaw} not found`)
-        return
-      }
-      setPvpLobby(prev => {
-        if (!prev) return prev
-        return {
-          ...prev,
-          [team]: prev[team].includes(target) ? prev[team] : [...prev[team], target],
-          [other]: prev[other].filter(u => u !== target),
-        }
-      })
-      showToast(`↔️ ${target} → ${team}`)
-    }
-  }, [showToast])
 
   const handleMetaCommand = useCallback((user: string, text: string, isMod: boolean) => {
     if (!isMod) return
@@ -480,41 +413,9 @@ export default function App() {
 
   const handleTwitchMessage = useCallback((user: string, text: string, isMod: boolean) => {
     dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
-    // PvP lobby: intercept !red / !blue and lobby mod commands
+    // PvP lobby: intercept !red / !blue / !join / !leave and lobby mod commands
     if (screenRef.current === 'pvplobby') {
-      const cmd = text.trim().toLowerCase()
-      if (cmd === '!red' || cmd === '!blue' || cmd === '!join red' || cmd === '!join blue') {
-        const team: 'red' | 'blue' = (cmd === '!red' || cmd === '!join red') ? 'red' : 'blue'
-        const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          return {
-            ...prev,
-            [team]: prev[team].includes(user) ? prev[team] : [...prev[team], user],
-            [other]: prev[other].filter(u => u !== user),
-          }
-        })
-        return
-      }
-      if (cmd === '!join') {
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          if (prev.red.includes(user) || prev.blue.includes(user)) return prev
-          const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
-          return { ...prev, [team]: [...prev[team], user] }
-        })
-        return
-      }
-      if (cmd === '!leave' || cmd === '!quit') {
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          return {
-            red: prev.red.filter(u => u !== user),
-            blue: prev.blue.filter(u => u !== user),
-          }
-        })
-        return
-      }
+      if (handleLobbyJoin(user, text.trim().toLowerCase())) return
       handleLobbyMetaCommand(user, text, isMod)
       return
     }
@@ -522,45 +423,13 @@ export default function App() {
     handleTutorialEventCommand(text)
     handleMetaCommand(user, text, isMod)
     if (!isTutorialRef.current) handleCommand(user, text)
-  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand])
+  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand, handleLobbyJoin])
 
   const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
   const handleChatSend = useCallback((text: string) => {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
     if (screenRef.current === 'pvplobby') {
-      const cmd = text.trim().toLowerCase()
-      if (cmd === '!red' || cmd === '!blue' || cmd === '!join red' || cmd === '!join blue') {
-        const team: 'red' | 'blue' = (cmd === '!red' || cmd === '!join red') ? 'red' : 'blue'
-        const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          return {
-            ...prev,
-            [team]: prev[team].includes('You') ? prev[team] : [...prev[team], 'You'],
-            [other]: prev[other].filter(u => u !== 'You'),
-          }
-        })
-        return
-      }
-      if (cmd === '!join') {
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          if (prev.red.includes('You') || prev.blue.includes('You')) return prev
-          const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
-          return { ...prev, [team]: [...prev[team], 'You'] }
-        })
-        return
-      }
-      if (cmd === '!leave' || cmd === '!quit') {
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          return {
-            red: prev.red.filter(u => u !== 'You'),
-            blue: prev.blue.filter(u => u !== 'You'),
-          }
-        })
-        return
-      }
+      if (handleLobbyJoin('You', text.trim().toLowerCase())) return
       handleLobbyMetaCommand('You', text, true)
       return
     }
@@ -568,7 +437,7 @@ export default function App() {
     handleTutorialEventCommand(text)
     handleMetaCommand('You', text, true)
     handleCommand('You', text)
-  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand])
+  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand, handleLobbyJoin])
 
   const handleShiftEndDone = useCallback(() => {
     const run = adventureRunRef.current
