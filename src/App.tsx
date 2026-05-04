@@ -1,9 +1,10 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { useTutorialState } from './hooks/useTutorialState'
 import { usePvpLobby } from './hooks/usePvpLobby'
+import { useAdventureRun } from './hooks/useAdventureRun'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, RoundRecord, Screen, TutorialDestination, ActiveEventOptions } from './state/types'
+import { AudioSettings, GameOptions, PlayerStats, RoundRecord, Screen, TutorialDestination, ActiveEventOptions } from './state/types'
 import { computeStarThresholds } from './data/starThresholds'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
@@ -30,9 +31,7 @@ import CreditsScreen from './components/CreditsScreen'
 import Toast from './components/Toast'
 import PlaysetPicker from './components/PlaysetPicker'
 import { DIFFICULTY_PRESETS, type Playset, type Difficulty } from './data/playsets'
-import {
-  ADVENTURE_SHIFT_DURATION, getAdventureGoal, pickAdventureRecipes, mergePlayerStats,
-} from './data/adventureMode'
+import { mergePlayerStats } from './data/adventureMode'
 import GameplayScreen from './components/GameplayScreen'
 import { DEFAULT_GAME_OPTIONS } from './state/defaultOptions'
 
@@ -112,27 +111,25 @@ export default function App() {
   const stateRef = useRef(state)
   stateRef.current = state
   const activeGameOptionsRef = useRef<GameOptions | null>(null)
+  const finalStatsRef = useRef(finalStats)
+  finalStatsRef.current = finalStats
   const [toast, setToast] = useState<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [autoRestartSignal, setAutoRestartSignal] = useState(0)
   const screenRef = useRef<Screen>('menu')
   const gameOptionsRef = useRef(gameOptions)
-  const [adventureRun, setAdventureRun]   = useState<AdventureRun | null>(null)
-  const adventureRunRef                   = useRef<AdventureRun | null>(null)
-  const [adventureBestRun, setAdventureBestRun] = useState<AdventureBestRun | null>(() => {
-    try {
-      const saved = localStorage.getItem('chatsKitchen_adventureBestRun')
-      return saved ? JSON.parse(saved) : null
-    } catch { return null }
-  })
-  const [isNewBestAdventureRun, setIsNewBestAdventureRun] = useState(false)
   const [showNoTwitchPrompt, setShowNoTwitchPrompt] = useState(false)
   const pendingActionRef = useRef<(() => void) | null>(null)
+
+  const {
+    adventureRun, setAdventureRun, adventureRunRef, adventureBestRun,
+    isNewBestAdventureRun, startAdventure,
+    handleShiftPassedNext, handleShiftEndDone, resetAdventureBestRun,
+  } = useAdventureRun(dispatch, setScreen, setActiveEventOptions, activeGameOptionsRef, finalStatsRef)
 
   // Keep refs in sync so stable callbacks can read current values
   screenRef.current = screen
   gameOptionsRef.current = gameOptions
-  adventureRunRef.current = adventureRun
 
   const showToast = useCallback((message: string) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
@@ -175,7 +172,7 @@ export default function App() {
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [gameOptions, pvpLobbyRef])
+  }, [gameOptions, pvpLobbyRef, setAdventureRun])
 
   const startFromPlayset = useCallback((playset: Playset, difficulty: Difficulty) => {
     const preset = DIFFICULTY_PRESETS[difficulty]
@@ -210,33 +207,9 @@ export default function App() {
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [])
+  }, [setAdventureRun])
 
 
-  const startAdventure = useCallback(() => {
-    setActiveEventOptions(null)
-    activeGameOptionsRef.current = null
-    setIsNewBestAdventureRun(false)
-    const recipes = pickAdventureRecipes()
-    const shift   = 1
-    const run: AdventureRun = {
-      currentShift: shift,
-      shiftResults: [],
-      currentRecipes: recipes,
-      currentGoal: getAdventureGoal(shift),
-      accumulatedPlayerStats: {},
-    }
-    setAdventureRun(run)
-    dispatch({
-      type: 'RESET',
-      shiftDuration: ADVENTURE_SHIFT_DURATION,
-      cookingSpeed: 1, orderSpeed: 1, orderSpawnRate: 1,
-      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
-      restrictSlots: false,
-      enabledRecipes: recipes,
-    })
-    setScreen('adventurebriefing')
-  }, [])
 
   const checkTwitch = useCallback((action: () => void) => {
     if (!twitchChannel) {
@@ -378,7 +351,7 @@ export default function App() {
       })
     }
     setScreen('shiftend')
-  }, [])
+  }, [adventureRunRef, setAdventureRun])
 
 
   const handleMetaCommand = useCallback((user: string, text: string, isMod: boolean) => {
@@ -406,7 +379,7 @@ export default function App() {
       handleGameOver()
       showToast(`🚪 Round ended by ${user}`)
     }
-  }, [startFreePlay, handleGameOptionsChange, handleGameOver, showToast])
+  }, [startFreePlay, handleGameOptionsChange, handleGameOver, showToast, adventureRunRef])
 
   const isTutorialRef = useRef(isTutorial)
   isTutorialRef.current = isTutorial
@@ -439,68 +412,6 @@ export default function App() {
     handleCommand('You', text)
   }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand, handleLobbyJoin])
 
-  const handleShiftEndDone = useCallback(() => {
-    const run = adventureRunRef.current
-    if (!run) { setScreen('gameover'); return }
-
-    const passed = finalStats.money >= run.currentGoal
-    const result: ShiftResult = {
-      shiftNumber: run.currentShift,
-      recipes:     run.currentRecipes,
-      goalMoney:   run.currentGoal,
-      moneyEarned: finalStats.money,
-      served:      finalStats.served,
-      lost:        finalStats.lost,
-      passed,
-    }
-    const updatedRun: AdventureRun = {
-      ...run,
-      shiftResults: [...run.shiftResults, result],
-    }
-
-    if (passed) {
-      setAdventureRun(updatedRun)
-      setScreen('adventureshiftpassed')
-    } else {
-      setAdventureRun(updatedRun)
-      const totalMoney = updatedRun.shiftResults.reduce((sum, r) => sum + r.moneyEarned, 0)
-      setAdventureBestRun(prev => {
-        const isNew = !prev
-          || updatedRun.currentShift > prev.furthestShift
-          || (updatedRun.currentShift === prev.furthestShift && totalMoney > prev.totalMoney)
-        if (isNew) {
-          const best: AdventureBestRun = { furthestShift: updatedRun.currentShift, totalMoney }
-          try { localStorage.setItem('chatsKitchen_adventureBestRun', JSON.stringify(best)) } catch { /* ignore */ }
-          setIsNewBestAdventureRun(true)
-          return best
-        }
-        return prev
-      })
-      setScreen('adventurerunend')
-    }
-  }, [finalStats])
-
-  const handleShiftPassedNext = useCallback(() => {
-    const run = adventureRunRef.current
-    if (!run) return
-    const nextShift   = run.currentShift + 1
-    const nextRecipes = pickAdventureRecipes()
-    setAdventureRun({
-      ...run,
-      currentShift:   nextShift,
-      currentRecipes: nextRecipes,
-      currentGoal:    getAdventureGoal(nextShift),
-    })
-    dispatch({
-      type: 'RESET',
-      shiftDuration: ADVENTURE_SHIFT_DURATION,
-      cookingSpeed: 1, orderSpeed: 1, orderSpawnRate: 1,
-      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
-      restrictSlots: false,
-      enabledRecipes: nextRecipes,
-    })
-    setScreen('adventurebriefing')
-  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', audioSettings.darkMode ? 'dark' : 'light')
@@ -528,7 +439,7 @@ export default function App() {
   const handleResetAll = useCallback(() => {
     setGameOptions(DEFAULT_GAME_OPTIONS)
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
-    setAdventureBestRun(null)
+    resetAdventureBestRun()
     setFreePlayHighScore(0)
     setIsNewHighScore(false)
     setFreePlayHistory([])
@@ -548,7 +459,7 @@ export default function App() {
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
-  }, [handleTwitchChannelChange, resetTutorial])
+  }, [handleTwitchChannelChange, resetTutorial, resetAdventureBestRun])
 
   const isPlaying = screen === 'playing'
   useGameLoop(state, dispatch, isPlaying ? (isTutorial ? tutorialGameOver : handleGameOver) : undefined, paused, tutorialResetKey)
