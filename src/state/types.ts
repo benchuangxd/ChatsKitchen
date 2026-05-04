@@ -1,3 +1,14 @@
+export type Screen = 'menu' | 'pvplobby' | 'adventurebriefing' | 'options' | 'playsetpicker' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
+export type TutorialDestination = 'menu' | 'playsetpicker' | 'freeplaysetup'
+
+export interface ActiveEventOptions {
+  kitchenEventsEnabled: boolean
+  enabledKitchenEvents: EventType[]
+  kitchenEventSpawnMin: number
+  kitchenEventSpawnMax: number
+  kitchenEventDuration: number
+}
+
 export type SlotState = 'cooking'
 
 export interface StationSlot {
