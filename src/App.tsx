@@ -2,9 +2,10 @@ import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
 import { useTutorialState } from './hooks/useTutorialState'
 import { usePvpLobby } from './hooks/usePvpLobby'
 import { useAdventureRun } from './hooks/useAdventureRun'
+import { useGameSession } from './hooks/useGameSession'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats, RoundRecord, Screen, TutorialDestination, ActiveEventOptions } from './state/types'
+import { AudioSettings, GameOptions, Screen, TutorialDestination, ActiveEventOptions } from './state/types'
 import { computeStarThresholds } from './data/starThresholds'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
@@ -86,33 +87,9 @@ export default function App() {
       return DEFAULT_AUDIO_SETTINGS
     }
   })
-  const [finalStats, setFinalStats] = useState<{
-    money: number
-    served: number
-    lost: number
-    playerStats: Record<string, PlayerStats>
-    teams?: Record<string, 'red' | 'blue'>
-    redMoney?: number
-    blueMoney?: number
-    redServed?: number
-    blueServed?: number
-  }>({ money: 0, served: 0, lost: 0, playerStats: {} })
-  const [starThresholds, setStarThresholds] = useState<[number, number, number] | null>(null)
-  const [freePlayHighScore, setFreePlayHighScore] = useState<number>(() => {
-    try { return parseInt(localStorage.getItem('chatsKitchen_freePlayHighScore') || '0', 10) } catch { return 0 }
-  })
-  const [isNewHighScore, setIsNewHighScore] = useState(false)
-  const [freePlayHistory, setFreePlayHistory] = useState<RoundRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem('chatsKitchen_freePlayHistory')
-      return saved ? JSON.parse(saved) : []
-    } catch { return [] }
-  })
   const stateRef = useRef(state)
   stateRef.current = state
   const activeGameOptionsRef = useRef<GameOptions | null>(null)
-  const finalStatsRef = useRef(finalStats)
-  finalStatsRef.current = finalStats
   const [toast, setToast] = useState<string | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [autoRestartSignal, setAutoRestartSignal] = useState(0)
@@ -120,6 +97,15 @@ export default function App() {
   const gameOptionsRef = useRef(gameOptions)
   const [showNoTwitchPrompt, setShowNoTwitchPrompt] = useState(false)
   const pendingActionRef = useRef<(() => void) | null>(null)
+
+  const {
+    finalStats, setFinalStats, finalStatsRef,
+    starThresholds, setStarThresholds,
+    freePlayHighScore, setFreePlayHighScore,
+    isNewHighScore, setIsNewHighScore,
+    freePlayHistory, setFreePlayHistory,
+    resetSession,
+  } = useGameSession()
 
   const {
     adventureRun, setAdventureRun, adventureRunRef, adventureBestRun,
@@ -172,7 +158,7 @@ export default function App() {
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [gameOptions, pvpLobbyRef, setAdventureRun])
+  }, [gameOptions, pvpLobbyRef, setAdventureRun, setStarThresholds])
 
   const startFromPlayset = useCallback((playset: Playset, difficulty: Difficulty) => {
     const preset = DIFFICULTY_PRESETS[difficulty]
@@ -207,7 +193,7 @@ export default function App() {
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [setAdventureRun])
+  }, [setAdventureRun, setStarThresholds])
 
 
 
@@ -351,7 +337,7 @@ export default function App() {
       })
     }
     setScreen('shiftend')
-  }, [adventureRunRef, setAdventureRun])
+  }, [adventureRunRef, setAdventureRun, setFinalStats, setStarThresholds, setFreePlayHighScore, setIsNewHighScore, setFreePlayHistory])
 
 
   const handleMetaCommand = useCallback((user: string, text: string, isMod: boolean) => {
@@ -440,17 +426,13 @@ export default function App() {
     setGameOptions(DEFAULT_GAME_OPTIONS)
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
     resetAdventureBestRun()
-    setFreePlayHighScore(0)
-    setIsNewHighScore(false)
-    setFreePlayHistory([])
+    resetSession()
     handleTwitchChannelChange(null)
     resetTutorial()
 
     try {
       localStorage.setItem('audioSettings', JSON.stringify(DEFAULT_AUDIO_SETTINGS))
       localStorage.removeItem('chatsKitchen_adventureBestRun')
-      localStorage.removeItem('chatsKitchen_freePlayHighScore')
-      localStorage.removeItem('chatsKitchen_freePlayHistory')
       localStorage.removeItem('chatsKitchen_gameOptions')
       localStorage.removeItem('chatsKitchen_hideTutorialPrompt')
       localStorage.removeItem('preparedItems.showNames')
@@ -459,7 +441,7 @@ export default function App() {
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
-  }, [handleTwitchChannelChange, resetTutorial, resetAdventureBestRun])
+  }, [handleTwitchChannelChange, resetTutorial, resetAdventureBestRun, resetSession])
 
   const isPlaying = screen === 'playing'
   useGameLoop(state, dispatch, isPlaying ? (isTutorial ? tutorialGameOver : handleGameOver) : undefined, paused, tutorialResetKey)
