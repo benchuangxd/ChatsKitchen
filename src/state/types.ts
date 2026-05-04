@@ -1,3 +1,14 @@
+export type Screen = 'menu' | 'pvplobby' | 'adventurebriefing' | 'options' | 'playsetpicker' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
+export type TutorialDestination = 'menu' | 'playsetpicker' | 'freeplaysetup'
+
+export interface ActiveEventOptions {
+  kitchenEventsEnabled: boolean
+  enabledKitchenEvents: EventType[]
+  kitchenEventSpawnMin: number
+  kitchenEventSpawnMax: number
+  kitchenEventDuration: number
+}
+
 export type SlotState = 'cooking'
 
 export interface StationSlot {
@@ -59,6 +70,18 @@ export interface RoundRecord {
   served: number
   lost: number
   playerCount: number
+}
+
+export interface FinalStats {
+  money: number
+  served: number
+  lost: number
+  playerStats: Record<string, PlayerStats>
+  teams?: Record<string, 'red' | 'blue'>
+  redMoney?: number
+  blueMoney?: number
+  redServed?: number
+  blueServed?: number
 }
 
 export interface StationCapacity {

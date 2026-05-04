@@ -1,7 +1,11 @@
 import { useReducer, useCallback, useState, useEffect, useRef } from 'react'
+import { useTutorialState } from './hooks/useTutorialState'
+import { usePvpLobby } from './hooks/usePvpLobby'
+import { useAdventureRun } from './hooks/useAdventureRun'
+import { useGameSession } from './hooks/useGameSession'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { parseCommand } from './state/commandProcessor'
-import { AudioSettings, GameOptions, PlayerStats, AdventureRun, AdventureBestRun, ShiftResult, KitchenEvent, RoundRecord, EventType } from './state/types'
+import { AudioSettings, GameOptions, Screen, TutorialDestination, ActiveEventOptions } from './state/types'
 import { computeStarThresholds } from './data/starThresholds'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useBotSimulation } from './hooks/useBotSimulation'
@@ -21,43 +25,16 @@ import AdventureShiftPassed from './components/AdventureShiftPassed'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
 import NoTwitchPrompt from './components/NoTwitchPrompt'
-import TutorialOverlay from './components/TutorialOverlay'
 import { TUTORIAL_STEPS } from './data/tutorialData'
-
-const TUTORIAL_COOL_STEP        = TUTORIAL_STEPS.findIndex(s => s.title === "❄️ Cool it down!")
-const TUTORIAL_EXTINGUISH_STEP  = TUTORIAL_STEPS.findIndex(s => s.title === "🔥 Station on fire!")
-const TUTORIAL_EVENT_INTRO_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🎲 Kitchen Events")
-const TUTORIAL_EVENT_STEP       = TUTORIAL_STEPS.findIndex(s => s.title === "🧩 Mystery Recipe")
-import PauseModal from './components/PauseModal'
 import FeedbackModal from './components/FeedbackModal'
 import { useKitchenEvents } from './hooks/useKitchenEvents'
-import EventCardOverlay from './components/EventCardOverlay'
-import SmokeOverlay from './components/SmokeOverlay'
 import CreditsScreen from './components/CreditsScreen'
 import Toast from './components/Toast'
 import PlaysetPicker from './components/PlaysetPicker'
 import { DIFFICULTY_PRESETS, type Playset, type Difficulty } from './data/playsets'
-import {
-  ADVENTURE_SHIFT_DURATION, getAdventureGoal, pickAdventureRecipes, mergePlayerStats,
-} from './data/adventureMode'
-import Kitchen from './components/Kitchen'
-import OrdersBar from './components/DiningRoom'
-import ChatPanel from './components/ChatPanel'
-import BottomBar from './components/BottomBar'
+import { mergePlayerStats } from './data/adventureMode'
+import GameplayScreen from './components/GameplayScreen'
 import { DEFAULT_GAME_OPTIONS } from './state/defaultOptions'
-import styles from './App.module.css'
-
-type Screen = 'menu' | 'pvplobby' | 'adventurebriefing' | 'options' | 'playsetpicker' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
-type TutorialDestination = 'menu' | 'playsetpicker' | 'freeplaysetup'
-
-interface ActiveEventOptions {
-  kitchenEventsEnabled: boolean
-  enabledKitchenEvents: EventType[]
-  kitchenEventSpawnMin: number
-  kitchenEventSpawnMax: number
-  kitchenEventDuration: number
-}
-
 
 const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   masterVolume: 1,
@@ -70,25 +47,10 @@ const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   trackEnabled: { menu: false, gameplay: true, gameover: true }
 }
 
-const TUTORIAL_MYSTERY_EVENT: KitchenEvent = {
-  id: 'tutorial_mystery',
-  category: 'opportunity',
-  type: 'mystery_recipe',
-  chosenCommand: 'EDCILS FEEB',
-  progress: 33,
-  threshold: 3,
-  respondedUsers: ['viewer1'],
-  timeLeft: 14000,
-  initialTimeLeft: 20000,
-  resolved: false,
-  failed: false,
-  payload: { anagramAnswer: 'SLICED BEEF' },
-}
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
   const [activeEventOptions, setActiveEventOptions] = useState<ActiveEventOptions | null>(null)
-  const [tutorialOpen, setTutorialOpen] = useState(false)
   const [gameOptions, setGameOptions] = useState<GameOptions>(() => {
     try {
       const saved = localStorage.getItem('chatsKitchen_gameOptions')
@@ -125,28 +87,6 @@ export default function App() {
       return DEFAULT_AUDIO_SETTINGS
     }
   })
-  const [finalStats, setFinalStats] = useState<{
-    money: number
-    served: number
-    lost: number
-    playerStats: Record<string, PlayerStats>
-    teams?: Record<string, 'red' | 'blue'>
-    redMoney?: number
-    blueMoney?: number
-    redServed?: number
-    blueServed?: number
-  }>({ money: 0, served: 0, lost: 0, playerStats: {} })
-  const [starThresholds, setStarThresholds] = useState<[number, number, number] | null>(null)
-  const [freePlayHighScore, setFreePlayHighScore] = useState<number>(() => {
-    try { return parseInt(localStorage.getItem('chatsKitchen_freePlayHighScore') || '0', 10) } catch { return 0 }
-  })
-  const [isNewHighScore, setIsNewHighScore] = useState(false)
-  const [freePlayHistory, setFreePlayHistory] = useState<RoundRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem('chatsKitchen_freePlayHistory')
-      return saved ? JSON.parse(saved) : []
-    } catch { return [] }
-  })
   const stateRef = useRef(state)
   stateRef.current = state
   const activeGameOptionsRef = useRef<GameOptions | null>(null)
@@ -155,47 +95,45 @@ export default function App() {
   const [autoRestartSignal, setAutoRestartSignal] = useState(0)
   const screenRef = useRef<Screen>('menu')
   const gameOptionsRef = useRef(gameOptions)
-  const [adventureRun, setAdventureRun]   = useState<AdventureRun | null>(null)
-  const adventureRunRef                   = useRef<AdventureRun | null>(null)
-  const [pvpLobby, setPvpLobby] = useState<{ red: string[], blue: string[] } | null>(null)
-  const pvpLobbyRef = useRef<{ red: string[], blue: string[] } | null>(null)
-  pvpLobbyRef.current = pvpLobby
-  const [adventureBestRun, setAdventureBestRun] = useState<AdventureBestRun | null>(() => {
-    try {
-      const saved = localStorage.getItem('chatsKitchen_adventureBestRun')
-      return saved ? JSON.parse(saved) : null
-    } catch { return null }
-  })
-  const [isNewBestAdventureRun, setIsNewBestAdventureRun] = useState(false)
-  const [hideTutorialPrompt, setHideTutorialPrompt] = useState(() => {
-    try {
-      return localStorage.getItem('chatsKitchen_hideTutorialPrompt') === 'true'
-    } catch {
-      return false
-    }
-  })
-  const [showTutorialPrompt, setShowTutorialPrompt] = useState(false)
-  const [tutorialDestination, setTutorialDestination] = useState<TutorialDestination>('menu')
   const [showNoTwitchPrompt, setShowNoTwitchPrompt] = useState(false)
   const pendingActionRef = useRef<(() => void) | null>(null)
-  const [tutorialStep, setTutorialStep] = useState<number | null>(null)
-  const [tutorialResetKey, setTutorialResetKey] = useState(0)
-  const [tutorialEvent, setTutorialEvent] = useState<KitchenEvent | null>(null)
-  const [tutorialEventResolved, setTutorialEventResolved] = useState(false)
-  const isTutorial = tutorialStep !== null
-  const tutorialStepRef = useRef(tutorialStep)
-  tutorialStepRef.current = tutorialStep
+
+  const {
+    finalStats, setFinalStats, finalStatsRef,
+    starThresholds, setStarThresholds,
+    freePlayHighScore, setFreePlayHighScore,
+    isNewHighScore, setIsNewHighScore,
+    freePlayHistory, setFreePlayHistory,
+    resetSession,
+  } = useGameSession()
+
+  const {
+    adventureRun, setAdventureRun, adventureRunRef, adventureBestRun,
+    isNewBestAdventureRun, startAdventure,
+    handleShiftPassedNext, handleShiftEndDone, resetAdventureBestRun,
+  } = useAdventureRun(dispatch, setScreen, setActiveEventOptions, activeGameOptionsRef, finalStatsRef)
 
   // Keep refs in sync so stable callbacks can read current values
   screenRef.current = screen
   gameOptionsRef.current = gameOptions
-  adventureRunRef.current = adventureRun
 
   const showToast = useCallback((message: string) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     setToast(message)
     toastTimerRef.current = setTimeout(() => setToast(null), 2500)
   }, [])
+
+  const { pvpLobby, setPvpLobby, pvpLobbyRef, startPvp, startPvpGame, handleLobbyMetaCommand, handleLobbyJoin } = usePvpLobby(setScreen, showToast)
+
+  const tutorial = useTutorialState(dispatch, setScreen, setActiveEventOptions, activeGameOptionsRef, setChatOpen)
+  const {
+    tutorialStep, setTutorialStep, tutorialResetKey, tutorialEvent, tutorialEventResolved,
+    tutorialOpen, setTutorialOpen, showTutorialPrompt, setShowTutorialPrompt,
+    tutorialDestination, setTutorialDestination, hideTutorialPrompt, isTutorial,
+    startTutorial, handleTutorialNext, handleTutorialBack,
+    handleTutorialComplete, handleTutorialRepeat, handleTutorialEventCommand,
+    handleMenuTutorial, tutorialGameOver, persistHideTutorialPrompt, resetTutorial,
+  } = tutorial
 
   const startFreePlay = useCallback(() => {
     setActiveEventOptions(null)
@@ -220,7 +158,7 @@ export default function App() {
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [gameOptions])
+  }, [gameOptions, pvpLobbyRef, setAdventureRun, setStarThresholds])
 
   const startFromPlayset = useCallback((playset: Playset, difficulty: Difficulty) => {
     const preset = DIFFICULTY_PRESETS[difficulty]
@@ -255,41 +193,9 @@ export default function App() {
     })
     setStarThresholds(null)
     setScreen('countdown')
-  }, [])
+  }, [setAdventureRun, setStarThresholds])
 
-  const startPvp = useCallback(() => {
-    setPvpLobby({ red: [], blue: [] })
-    setScreen('pvplobby')
-  }, [])
 
-  const startPvpGame = useCallback(() => {
-    setScreen('freeplaysetup')
-  }, [])
-
-  const startAdventure = useCallback(() => {
-    setActiveEventOptions(null)
-    activeGameOptionsRef.current = null
-    setIsNewBestAdventureRun(false)
-    const recipes = pickAdventureRecipes()
-    const shift   = 1
-    const run: AdventureRun = {
-      currentShift: shift,
-      shiftResults: [],
-      currentRecipes: recipes,
-      currentGoal: getAdventureGoal(shift),
-      accumulatedPlayerStats: {},
-    }
-    setAdventureRun(run)
-    dispatch({
-      type: 'RESET',
-      shiftDuration: ADVENTURE_SHIFT_DURATION,
-      cookingSpeed: 1, orderSpeed: 1, orderSpawnRate: 1,
-      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
-      restrictSlots: false,
-      enabledRecipes: recipes,
-    })
-    setScreen('adventurebriefing')
-  }, [])
 
   const checkTwitch = useCallback((action: () => void) => {
     if (!twitchChannel) {
@@ -335,24 +241,13 @@ export default function App() {
   const dismissTutorialPrompt = useCallback(() => {
     setShowTutorialPrompt(false)
     continueFromTutorial(tutorialDestination)
-  }, [continueFromTutorial, tutorialDestination])
+  }, [continueFromTutorial, tutorialDestination, setShowTutorialPrompt])
 
   const disableTutorialPrompt = useCallback(() => {
-    setHideTutorialPrompt(true)
-    try {
-      localStorage.setItem('chatsKitchen_hideTutorialPrompt', 'true')
-    } catch {
-      // Ignore storage failures; in-memory flag is already set above.
-    }
+    persistHideTutorialPrompt(true)
     setShowTutorialPrompt(false)
     continueFromTutorial(tutorialDestination)
-  }, [continueFromTutorial, tutorialDestination])
-
-  const handleMenuTutorial = useCallback(() => {
-    setTutorialDestination('menu')
-    setTutorialOpen(true)
-    setShowTutorialPrompt(false)
-  }, [])
+  }, [continueFromTutorial, tutorialDestination, persistHideTutorialPrompt, setShowTutorialPrompt])
 
   const handleMenuPlay = useCallback((destination: TutorialDestination) => {
     if (!hideTutorialPrompt) {
@@ -360,83 +255,13 @@ export default function App() {
       setShowTutorialPrompt(true)
       return
     }
-
     continueFromTutorial(destination)
-  }, [continueFromTutorial, hideTutorialPrompt])
+  }, [continueFromTutorial, hideTutorialPrompt, setTutorialDestination, setShowTutorialPrompt])
 
   const handleTutorialStartCooking = useCallback(() => {
     setTutorialOpen(false)
     continueFromTutorial(tutorialDestination)
-  }, [continueFromTutorial, tutorialDestination])
-
-  const startTutorial = useCallback(() => {
-    setActiveEventOptions(null)
-    activeGameOptionsRef.current = null
-    dispatch({
-      type: 'RESET',
-      shiftDuration: 600_000,
-      cookingSpeed: 2,
-      orderSpeed: 0.05,
-      orderSpawnRate: 0.001,
-      stationCapacity: { chopping: 3, cooking: 2 },
-      restrictSlots: false,
-      enabledRecipes: ['fries'],
-    })
-    setShowTutorialPrompt(false)
-    setTutorialOpen(false)
-    setTutorialStep(0)
-    setTutorialResetKey(k => k + 1)
-    setChatOpen(true)
-    setScreen('playing')
-  }, [dispatch])
-
-  const handleTutorialNext = useCallback(() => {
-    // Dispatch step-entry side-effects before setTutorialStep so React 18
-    // batches them into one render — prevents auto-advance race conditions.
-    if (tutorialStep !== null) {
-      const next = tutorialStep + 1
-      if (next === TUTORIAL_COOL_STEP) {
-        dispatch({ type: 'SET_STATION_HEAT', stationId: 'fryer', heat: 90 })
-      } else if (next === TUTORIAL_EXTINGUISH_STEP) {
-        dispatch({ type: 'OVERHEAT_STATION', stationId: 'fryer' })
-      } else if (next === TUTORIAL_EVENT_STEP) {
-        setTutorialEvent(TUTORIAL_MYSTERY_EVENT)
-        setTutorialEventResolved(false)
-      } else if (tutorialStep === TUTORIAL_EVENT_STEP) {
-        setTutorialEvent(null)
-        setTutorialEventResolved(false)
-      }
-    }
-    setTutorialStep(s => (s !== null && s < TUTORIAL_STEPS.length - 1 ? s + 1 : s))
-  }, [tutorialStep, dispatch])
-
-  const handleTutorialBack = useCallback(() => {
-    if (tutorialStep === null || tutorialStep <= 0) return
-    const prev = tutorialStep - 1
-    if (prev === TUTORIAL_COOL_STEP) {
-      dispatch({ type: 'SET_STATION_HEAT', stationId: 'fryer', heat: 90 })
-    } else if (prev === TUTORIAL_EXTINGUISH_STEP) {
-      dispatch({ type: 'OVERHEAT_STATION', stationId: 'fryer' })
-    } else if (prev === TUTORIAL_EVENT_STEP) {
-      setTutorialEvent(TUTORIAL_MYSTERY_EVENT)
-      setTutorialEventResolved(false)
-    } else if (tutorialStep === TUTORIAL_EVENT_STEP) {
-      setTutorialEvent(null)
-      setTutorialEventResolved(false)
-    }
-    setTutorialStep(prev)
-  }, [tutorialStep, dispatch])
-
-  const handleTutorialComplete = useCallback(() => {
-    setTutorialEvent(null)
-    setTutorialEventResolved(false)
-    setTutorialStep(null)
-    setScreen('menu')
-  }, [])
-
-  const handleTutorialRepeat = useCallback(() => {
-    startTutorial()
-  }, [startTutorial])
+  }, [continueFromTutorial, tutorialDestination, setTutorialOpen])
 
   const handleCommand = useCallback((user: string, text: string) => {
     const teams = stateRef.current.teams
@@ -444,13 +269,6 @@ export default function App() {
     const action = parseCommand(user, text, gameOptions.allowShortformCommands)
     if (action) dispatch(action)
   }, [gameOptions.allowShortformCommands])
-
-  const handleTutorialEventCommand = useCallback((text: string) => {
-    if (tutorialStepRef.current !== TUTORIAL_EVENT_STEP) return
-    if (text.trim().toUpperCase() !== 'SLICED BEEF') return
-    setTutorialEvent(ev => ev && !ev.resolved ? { ...ev, resolved: true, progress: 100 } : ev)
-    setTimeout(() => setTutorialEventResolved(true), 1800)
-  }, [])
 
   const effectiveEventOptions = activeEventOptions ?? gameOptions
   const { activeEvent, handleEventCommand } = useKitchenEvents(
@@ -519,67 +337,8 @@ export default function App() {
       })
     }
     setScreen('shiftend')
-  }, [])
+  }, [adventureRunRef, setAdventureRun, setFinalStats, setStarThresholds, setFreePlayHighScore, setIsNewHighScore, setFreePlayHistory])
 
-  const handleLobbyMetaCommand = useCallback((_user: string, text: string, isMod: boolean) => {
-    if (!isMod) return
-    const cmd = text.trim().toLowerCase()
-
-    if (cmd === '!balance') {
-      setPvpLobby(prev => {
-        if (!prev) return prev
-        const all = [...prev.red, ...prev.blue].sort(() => Math.random() - 0.5)
-        return {
-          red: all.filter((_, i) => i % 2 === 0),
-          blue: all.filter((_, i) => i % 2 !== 0),
-        }
-      })
-      showToast(`⚖️ Teams balanced`)
-      return
-    }
-
-    const kickMatch = cmd.match(/^!kick\s+@?(\S+)$/)
-    if (kickMatch) {
-      const target = kickMatch[1]
-      const lobby = pvpLobbyRef.current
-      if (!lobby || (!lobby.red.includes(target) && !lobby.blue.includes(target))) {
-        showToast(`❌ ${target} not found`)
-        return
-      }
-      setPvpLobby(prev => {
-        if (!prev) return prev
-        return {
-          red: prev.red.filter(u => u !== target),
-          blue: prev.blue.filter(u => u !== target),
-        }
-      })
-      showToast(`🚫 Kicked ${target}`)
-      return
-    }
-
-    const moveMatch = text.trim().match(/^!move\s+(red|blue)\s+@?(\S+)$/i)
-    if (moveMatch) {
-      const team = moveMatch[1].toLowerCase() as 'red' | 'blue'
-      const targetRaw = moveMatch[2]
-      const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
-      const lobby = pvpLobbyRef.current
-      const allPlayers = lobby ? [...lobby.red, ...lobby.blue] : []
-      const target = allPlayers.find(u => u.toLowerCase() === targetRaw.toLowerCase())
-      if (!target) {
-        showToast(`❌ ${targetRaw} not found`)
-        return
-      }
-      setPvpLobby(prev => {
-        if (!prev) return prev
-        return {
-          ...prev,
-          [team]: prev[team].includes(target) ? prev[team] : [...prev[team], target],
-          [other]: prev[other].filter(u => u !== target),
-        }
-      })
-      showToast(`↔️ ${target} → ${team}`)
-    }
-  }, [showToast])
 
   const handleMetaCommand = useCallback((user: string, text: string, isMod: boolean) => {
     if (!isMod) return
@@ -606,48 +365,16 @@ export default function App() {
       handleGameOver()
       showToast(`🚪 Round ended by ${user}`)
     }
-  }, [startFreePlay, handleGameOptionsChange, handleGameOver, showToast])
+  }, [startFreePlay, handleGameOptionsChange, handleGameOver, showToast, adventureRunRef])
 
   const isTutorialRef = useRef(isTutorial)
   isTutorialRef.current = isTutorial
 
   const handleTwitchMessage = useCallback((user: string, text: string, isMod: boolean) => {
     dispatch({ type: 'ADD_CHAT', username: user, text, msgType: 'normal' })
-    // PvP lobby: intercept !red / !blue and lobby mod commands
+    // PvP lobby: intercept !red / !blue / !join / !leave and lobby mod commands
     if (screenRef.current === 'pvplobby') {
-      const cmd = text.trim().toLowerCase()
-      if (cmd === '!red' || cmd === '!blue' || cmd === '!join red' || cmd === '!join blue') {
-        const team: 'red' | 'blue' = (cmd === '!red' || cmd === '!join red') ? 'red' : 'blue'
-        const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          return {
-            ...prev,
-            [team]: prev[team].includes(user) ? prev[team] : [...prev[team], user],
-            [other]: prev[other].filter(u => u !== user),
-          }
-        })
-        return
-      }
-      if (cmd === '!join') {
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          if (prev.red.includes(user) || prev.blue.includes(user)) return prev
-          const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
-          return { ...prev, [team]: [...prev[team], user] }
-        })
-        return
-      }
-      if (cmd === '!leave' || cmd === '!quit') {
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          return {
-            red: prev.red.filter(u => u !== user),
-            blue: prev.blue.filter(u => u !== user),
-          }
-        })
-        return
-      }
+      if (handleLobbyJoin(user, text.trim().toLowerCase())) return
       handleLobbyMetaCommand(user, text, isMod)
       return
     }
@@ -655,45 +382,13 @@ export default function App() {
     handleTutorialEventCommand(text)
     handleMetaCommand(user, text, isMod)
     if (!isTutorialRef.current) handleCommand(user, text)
-  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand])
+  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand, handleLobbyJoin])
 
   const twitchChat = useTwitchChat(twitchChannel, handleTwitchMessage)
   const handleChatSend = useCallback((text: string) => {
     dispatch({ type: 'ADD_CHAT', username: 'You', text, msgType: 'normal' })
     if (screenRef.current === 'pvplobby') {
-      const cmd = text.trim().toLowerCase()
-      if (cmd === '!red' || cmd === '!blue' || cmd === '!join red' || cmd === '!join blue') {
-        const team: 'red' | 'blue' = (cmd === '!red' || cmd === '!join red') ? 'red' : 'blue'
-        const other: 'red' | 'blue' = team === 'red' ? 'blue' : 'red'
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          return {
-            ...prev,
-            [team]: prev[team].includes('You') ? prev[team] : [...prev[team], 'You'],
-            [other]: prev[other].filter(u => u !== 'You'),
-          }
-        })
-        return
-      }
-      if (cmd === '!join') {
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          if (prev.red.includes('You') || prev.blue.includes('You')) return prev
-          const team = prev.red.length <= prev.blue.length ? 'red' : 'blue'
-          return { ...prev, [team]: [...prev[team], 'You'] }
-        })
-        return
-      }
-      if (cmd === '!leave' || cmd === '!quit') {
-        setPvpLobby(prev => {
-          if (!prev) return prev
-          return {
-            red: prev.red.filter(u => u !== 'You'),
-            blue: prev.blue.filter(u => u !== 'You'),
-          }
-        })
-        return
-      }
+      if (handleLobbyJoin('You', text.trim().toLowerCase())) return
       handleLobbyMetaCommand('You', text, true)
       return
     }
@@ -701,70 +396,8 @@ export default function App() {
     handleTutorialEventCommand(text)
     handleMetaCommand('You', text, true)
     handleCommand('You', text)
-  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand])
+  }, [handleCommand, handleEventCommand, handleTutorialEventCommand, handleMetaCommand, handleLobbyMetaCommand, handleLobbyJoin])
 
-  const handleShiftEndDone = useCallback(() => {
-    const run = adventureRunRef.current
-    if (!run) { setScreen('gameover'); return }
-
-    const passed = finalStats.money >= run.currentGoal
-    const result: ShiftResult = {
-      shiftNumber: run.currentShift,
-      recipes:     run.currentRecipes,
-      goalMoney:   run.currentGoal,
-      moneyEarned: finalStats.money,
-      served:      finalStats.served,
-      lost:        finalStats.lost,
-      passed,
-    }
-    const updatedRun: AdventureRun = {
-      ...run,
-      shiftResults: [...run.shiftResults, result],
-    }
-
-    if (passed) {
-      setAdventureRun(updatedRun)
-      setScreen('adventureshiftpassed')
-    } else {
-      setAdventureRun(updatedRun)
-      const totalMoney = updatedRun.shiftResults.reduce((sum, r) => sum + r.moneyEarned, 0)
-      setAdventureBestRun(prev => {
-        const isNew = !prev
-          || updatedRun.currentShift > prev.furthestShift
-          || (updatedRun.currentShift === prev.furthestShift && totalMoney > prev.totalMoney)
-        if (isNew) {
-          const best: AdventureBestRun = { furthestShift: updatedRun.currentShift, totalMoney }
-          try { localStorage.setItem('chatsKitchen_adventureBestRun', JSON.stringify(best)) } catch { /* ignore */ }
-          setIsNewBestAdventureRun(true)
-          return best
-        }
-        return prev
-      })
-      setScreen('adventurerunend')
-    }
-  }, [finalStats])
-
-  const handleShiftPassedNext = useCallback(() => {
-    const run = adventureRunRef.current
-    if (!run) return
-    const nextShift   = run.currentShift + 1
-    const nextRecipes = pickAdventureRecipes()
-    setAdventureRun({
-      ...run,
-      currentShift:   nextShift,
-      currentRecipes: nextRecipes,
-      currentGoal:    getAdventureGoal(nextShift),
-    })
-    dispatch({
-      type: 'RESET',
-      shiftDuration: ADVENTURE_SHIFT_DURATION,
-      cookingSpeed: 1, orderSpeed: 1, orderSpawnRate: 1,
-      stationCapacity: DEFAULT_GAME_OPTIONS.stationCapacity,
-      restrictSlots: false,
-      enabledRecipes: nextRecipes,
-    })
-    setScreen('adventurebriefing')
-  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', audioSettings.darkMode ? 'dark' : 'light')
@@ -792,21 +425,14 @@ export default function App() {
   const handleResetAll = useCallback(() => {
     setGameOptions(DEFAULT_GAME_OPTIONS)
     setAudioSettings(DEFAULT_AUDIO_SETTINGS)
-    setAdventureBestRun(null)
-    setFreePlayHighScore(0)
-    setIsNewHighScore(false)
-    setFreePlayHistory([])
+    resetAdventureBestRun()
+    resetSession()
     handleTwitchChannelChange(null)
-    setHideTutorialPrompt(false)
-    setShowTutorialPrompt(false)
-    setTutorialDestination('menu')
-    setTutorialOpen(false)
+    resetTutorial()
 
     try {
       localStorage.setItem('audioSettings', JSON.stringify(DEFAULT_AUDIO_SETTINGS))
       localStorage.removeItem('chatsKitchen_adventureBestRun')
-      localStorage.removeItem('chatsKitchen_freePlayHighScore')
-      localStorage.removeItem('chatsKitchen_freePlayHistory')
       localStorage.removeItem('chatsKitchen_gameOptions')
       localStorage.removeItem('chatsKitchen_hideTutorialPrompt')
       localStorage.removeItem('preparedItems.showNames')
@@ -815,15 +441,9 @@ export default function App() {
     } catch {
       // Ignore storage failures and keep the in-memory reset behavior.
     }
-  }, [handleTwitchChannelChange])
+  }, [handleTwitchChannelChange, resetTutorial, resetAdventureBestRun, resetSession])
 
   const isPlaying = screen === 'playing'
-  const tutorialGameOver = useCallback(() => {
-    setActiveEventOptions(null)
-    activeGameOptionsRef.current = null
-    setTutorialStep(null)
-    setScreen('menu')
-  }, [])
   useGameLoop(state, dispatch, isPlaying ? (isTutorial ? tutorialGameOver : handleGameOver) : undefined, paused, tutorialResetKey)
   useBotSimulation(state, dispatch, handleCommand, isPlaying && botsEnabled)
 
@@ -909,7 +529,7 @@ export default function App() {
       />
     )
   } else if (screen === 'freeplaysetup') {
-    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen(pvpLobby ? 'pvplobby' : 'menu')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} roundHistory={freePlayHistory} />
+    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen(pvpLobby ? 'pvplobby' : 'playsetpicker')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} roundHistory={freePlayHistory} />
   } else if (screen === 'countdown') {
     content = <Countdown onDone={() => setScreen('playing')} />
   } else if (screen === 'shiftend') {
@@ -978,64 +598,33 @@ export default function App() {
     )
   } else {
     content = (
-      <div className={styles.layout}>
-        {state.timeLeft <= 10000 && state.timeLeft > 0 && (
-          <div key={Math.ceil(state.timeLeft / 1000)} className={styles.countdownOverlay}>
-            {Math.ceil(state.timeLeft / 1000)}
-          </div>
-        )}
-        <div className={styles.body}>
-          <OrdersBar
-            state={state}
-            isHighlighted={tutorialHighlight === 'orders'}
-            isGlitched={activeEvent?.type === 'glitched_orders' && !activeEvent.resolved && !activeEvent.failed}
-          />
-          <Kitchen state={state} tutorialHighlight={tutorialHighlight} />
-          {chatOpen && (
-            <ChatPanel
-              messages={state.chatMessages}
-              onSend={handleChatSend}
-              onClose={() => setChatOpen(false)}
-              teams={state.teams}
-            />
-          )}
-        </div>
-        <BottomBar money={state.money} served={state.served} lost={state.lost} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
-        <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
-          <button className={styles.settingsBtn} onClick={() => setPaused(true)}>⚙️</button>
-        </div>
-        {activeEvent?.type === 'smoke_blast' && !activeEvent.resolved && !activeEvent.failed && (
-          <SmokeOverlay progress={activeEvent.progress} />
-        )}
-        <EventCardOverlay activeEvent={tutorialEvent ?? activeEvent} />
-        {paused && (
-          <PauseModal
-            enabledRecipes={state.enabledRecipes}
-            audioSettings={audioSettings}
-            onAudioChange={handleAudioChange}
-            chatOpen={chatOpen}
-            onChatToggle={() => setChatOpen(o => !o)}
-            botsEnabled={botsEnabled}
-            onBotsToggle={() => setBotsEnabled(b => !b)}
-            onResume={() => setPaused(false)}
-            onExit={() => { setPaused(false); setTutorialStep(null); setScreen('menu') }}
-            onPlaysetPicker={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('playsetpicker') } : undefined}
-            onRecipeSelect={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('freeplaysetup') } : undefined}
-          />
-        )}
-        {isTutorial && tutorialStep !== null && (
-          <TutorialOverlay
-            stepIndex={tutorialStep}
-            state={state}
-            onNext={handleTutorialNext}
-            onBack={handleTutorialBack}
-            onSkip={handleTutorialComplete}
-            onRepeat={handleTutorialRepeat}
-            shiftLeft={tutorialStep === TUTORIAL_EVENT_INTRO_STEP || tutorialStep === TUTORIAL_EVENT_STEP}
-            advanceReady={tutorialEventResolved}
-          />
-        )}
-      </div>
+      <GameplayScreen
+        state={state}
+        paused={paused}
+        chatOpen={chatOpen}
+        botsEnabled={botsEnabled}
+        audioSettings={audioSettings}
+        activeEvent={activeEvent}
+        tutorialEvent={tutorialEvent}
+        tutorialStep={tutorialStep}
+        tutorialHighlight={tutorialHighlight}
+        tutorialEventResolved={tutorialEventResolved}
+        isTutorial={isTutorial}
+        twitchStatus={twitchChat.status}
+        twitchChannel={twitchChannel}
+        onChatSend={handleChatSend}
+        onChatOpen={setChatOpen}
+        onPause={setPaused}
+        onAudioChange={handleAudioChange}
+        onExit={() => { setPaused(false); setTutorialStep(null); setScreen('menu') }}
+        onPlaysetPicker={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('playsetpicker') } : undefined}
+        onRecipeSelect={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('freeplaysetup') } : undefined}
+        onTutorialNext={handleTutorialNext}
+        onTutorialBack={handleTutorialBack}
+        onTutorialSkip={handleTutorialComplete}
+        onTutorialRepeat={handleTutorialRepeat}
+        onBotsToggle={() => setBotsEnabled(b => !b)}
+      />
     )
   }
 
