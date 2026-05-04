@@ -37,12 +37,14 @@ export function usePvpLobby(
       return
     }
 
-    const kickMatch = cmd.match(/^!kick\s+@?(\S+)$/)
+    const kickMatch = text.trim().match(/^!kick\s+@?(\S+)$/i)
     if (kickMatch) {
-      const target = kickMatch[1]
+      const targetRaw = kickMatch[1]
       const lobby = pvpLobbyRef.current
-      if (!lobby || (!lobby.red.includes(target) && !lobby.blue.includes(target))) {
-        showToast(`❌ ${target} not found`)
+      const allPlayers = lobby ? [...lobby.red, ...lobby.blue] : []
+      const target = allPlayers.find(u => u.toLowerCase() === targetRaw.toLowerCase())
+      if (!target) {
+        showToast(`❌ ${targetRaw} not found`)
         return
       }
       setPvpLobby(prev => {

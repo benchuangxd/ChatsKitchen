@@ -72,6 +72,18 @@ export interface RoundRecord {
   playerCount: number
 }
 
+export interface FinalStats {
+  money: number
+  served: number
+  lost: number
+  playerStats: Record<string, PlayerStats>
+  teams?: Record<string, 'red' | 'blue'>
+  redMoney?: number
+  blueMoney?: number
+  redServed?: number
+  blueServed?: number
+}
+
 export interface StationCapacity {
   chopping: number    // slots for cutting_board
   cooking: number     // slots per cooking station (grill, fryer, stove, oven)

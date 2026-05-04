@@ -1,17 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
-import { PlayerStats, RoundRecord } from '../state/types'
-
-interface FinalStats {
-  money: number
-  served: number
-  lost: number
-  playerStats: Record<string, PlayerStats>
-  teams?: Record<string, 'red' | 'blue'>
-  redMoney?: number
-  blueMoney?: number
-  redServed?: number
-  blueServed?: number
-}
+import { RoundRecord, FinalStats } from '../state/types'
 
 // Owns game-result state: finalStats, star thresholds, high score, history.
 export function useGameSession() {

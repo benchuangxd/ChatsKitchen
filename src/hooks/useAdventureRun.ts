@@ -1,15 +1,8 @@
 import { useState, useRef, useCallback, Dispatch, SetStateAction } from 'react'
-import { GameOptions, AdventureRun, AdventureBestRun, ShiftResult, PlayerStats, Screen, ActiveEventOptions } from '../state/types'
+import { GameOptions, AdventureRun, AdventureBestRun, ShiftResult, Screen, ActiveEventOptions, FinalStats } from '../state/types'
 import { GameAction } from '../state/gameReducer'
 import { DEFAULT_GAME_OPTIONS } from '../state/defaultOptions'
 import { ADVENTURE_SHIFT_DURATION, getAdventureGoal, pickAdventureRecipes } from '../data/adventureMode'
-
-interface FinalStats {
-  money: number
-  served: number
-  lost: number
-  playerStats: Record<string, PlayerStats>
-}
 
 export function useAdventureRun(
   dispatch: Dispatch<GameAction>,
