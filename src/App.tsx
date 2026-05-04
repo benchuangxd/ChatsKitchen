@@ -568,7 +568,7 @@ export default function App() {
         onPlayAgain={startFreePlay}
         onNextLevel={undefined}
         onMenu={() => { setPvpLobby(null); setScreen('menu') }}
-        onRecipeSelect={() => setScreen('playsetpicker')}
+        onRecipeSelect={() => setScreen('freeplaysetup')}
         onPvpLobby={finalStats.redMoney !== undefined ? () => setScreen('pvplobby') : undefined}
         onEnableAutoRestart={() => handleGameOptionsChange({ ...gameOptionsRef.current, autoRestart: true })}
       />
