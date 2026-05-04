@@ -529,7 +529,7 @@ export default function App() {
       />
     )
   } else if (screen === 'freeplaysetup') {
-    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen(pvpLobby ? 'pvplobby' : 'menu')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} roundHistory={freePlayHistory} />
+    content = <FreePlaySetup options={gameOptions} onChange={handleGameOptionsChange} onStart={startFreePlay} onBack={() => setScreen(pvpLobby ? 'pvplobby' : 'playsetpicker')} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} roundHistory={freePlayHistory} />
   } else if (screen === 'countdown') {
     content = <Countdown onDone={() => setScreen('playing')} />
   } else if (screen === 'shiftend') {
