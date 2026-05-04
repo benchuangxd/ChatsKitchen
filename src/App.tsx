@@ -21,18 +21,9 @@ import AdventureShiftPassed from './components/AdventureShiftPassed'
 import TutorialModal from './components/TutorialModal'
 import TutorialPrompt from './components/TutorialPrompt'
 import NoTwitchPrompt from './components/NoTwitchPrompt'
-import TutorialOverlay from './components/TutorialOverlay'
-import { TUTORIAL_STEPS } from './data/tutorialData'
-
-const TUTORIAL_COOL_STEP        = TUTORIAL_STEPS.findIndex(s => s.title === "❄️ Cool it down!")
-const TUTORIAL_EXTINGUISH_STEP  = TUTORIAL_STEPS.findIndex(s => s.title === "🔥 Station on fire!")
-const TUTORIAL_EVENT_INTRO_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🎲 Kitchen Events")
-const TUTORIAL_EVENT_STEP       = TUTORIAL_STEPS.findIndex(s => s.title === "🧩 Mystery Recipe")
-import PauseModal from './components/PauseModal'
+import { TUTORIAL_STEPS, TUTORIAL_COOL_STEP, TUTORIAL_EXTINGUISH_STEP, TUTORIAL_EVENT_STEP } from './data/tutorialData'
 import FeedbackModal from './components/FeedbackModal'
 import { useKitchenEvents } from './hooks/useKitchenEvents'
-import EventCardOverlay from './components/EventCardOverlay'
-import SmokeOverlay from './components/SmokeOverlay'
 import CreditsScreen from './components/CreditsScreen'
 import Toast from './components/Toast'
 import PlaysetPicker from './components/PlaysetPicker'
@@ -40,12 +31,8 @@ import { DIFFICULTY_PRESETS, type Playset, type Difficulty } from './data/playse
 import {
   ADVENTURE_SHIFT_DURATION, getAdventureGoal, pickAdventureRecipes, mergePlayerStats,
 } from './data/adventureMode'
-import Kitchen from './components/Kitchen'
-import OrdersBar from './components/DiningRoom'
-import ChatPanel from './components/ChatPanel'
-import BottomBar from './components/BottomBar'
+import GameplayScreen from './components/GameplayScreen'
 import { DEFAULT_GAME_OPTIONS } from './state/defaultOptions'
-import styles from './App.module.css'
 
 type Screen = 'menu' | 'pvplobby' | 'adventurebriefing' | 'options' | 'playsetpicker' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
 type TutorialDestination = 'menu' | 'playsetpicker' | 'freeplaysetup'
@@ -978,64 +965,33 @@ export default function App() {
     )
   } else {
     content = (
-      <div className={styles.layout}>
-        {state.timeLeft <= 10000 && state.timeLeft > 0 && (
-          <div key={Math.ceil(state.timeLeft / 1000)} className={styles.countdownOverlay}>
-            {Math.ceil(state.timeLeft / 1000)}
-          </div>
-        )}
-        <div className={styles.body}>
-          <OrdersBar
-            state={state}
-            isHighlighted={tutorialHighlight === 'orders'}
-            isGlitched={activeEvent?.type === 'glitched_orders' && !activeEvent.resolved && !activeEvent.failed}
-          />
-          <Kitchen state={state} tutorialHighlight={tutorialHighlight} />
-          {chatOpen && (
-            <ChatPanel
-              messages={state.chatMessages}
-              onSend={handleChatSend}
-              onClose={() => setChatOpen(false)}
-              teams={state.teams}
-            />
-          )}
-        </div>
-        <BottomBar money={state.money} served={state.served} lost={state.lost} twitchStatus={twitchChat.status} twitchChannel={twitchChannel} />
-        <div className={`${styles.settingsWrapper} ${chatOpen ? styles.settingsWrapperChatOpen : ''}`}>
-          <button className={styles.settingsBtn} onClick={() => setPaused(true)}>⚙️</button>
-        </div>
-        {activeEvent?.type === 'smoke_blast' && !activeEvent.resolved && !activeEvent.failed && (
-          <SmokeOverlay progress={activeEvent.progress} />
-        )}
-        <EventCardOverlay activeEvent={tutorialEvent ?? activeEvent} />
-        {paused && (
-          <PauseModal
-            enabledRecipes={state.enabledRecipes}
-            audioSettings={audioSettings}
-            onAudioChange={handleAudioChange}
-            chatOpen={chatOpen}
-            onChatToggle={() => setChatOpen(o => !o)}
-            botsEnabled={botsEnabled}
-            onBotsToggle={() => setBotsEnabled(b => !b)}
-            onResume={() => setPaused(false)}
-            onExit={() => { setPaused(false); setTutorialStep(null); setScreen('menu') }}
-            onPlaysetPicker={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('playsetpicker') } : undefined}
-            onRecipeSelect={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('freeplaysetup') } : undefined}
-          />
-        )}
-        {isTutorial && tutorialStep !== null && (
-          <TutorialOverlay
-            stepIndex={tutorialStep}
-            state={state}
-            onNext={handleTutorialNext}
-            onBack={handleTutorialBack}
-            onSkip={handleTutorialComplete}
-            onRepeat={handleTutorialRepeat}
-            shiftLeft={tutorialStep === TUTORIAL_EVENT_INTRO_STEP || tutorialStep === TUTORIAL_EVENT_STEP}
-            advanceReady={tutorialEventResolved}
-          />
-        )}
-      </div>
+      <GameplayScreen
+        state={state}
+        paused={paused}
+        chatOpen={chatOpen}
+        botsEnabled={botsEnabled}
+        audioSettings={audioSettings}
+        activeEvent={activeEvent}
+        tutorialEvent={tutorialEvent}
+        tutorialStep={tutorialStep}
+        tutorialHighlight={tutorialHighlight}
+        tutorialEventResolved={tutorialEventResolved}
+        isTutorial={isTutorial}
+        twitchStatus={twitchChat.status}
+        twitchChannel={twitchChannel}
+        onChatSend={handleChatSend}
+        onChatOpen={setChatOpen}
+        onPause={setPaused}
+        onAudioChange={handleAudioChange}
+        onExit={() => { setPaused(false); setTutorialStep(null); setScreen('menu') }}
+        onPlaysetPicker={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('playsetpicker') } : undefined}
+        onRecipeSelect={!adventureRun && !isTutorial ? () => { setPaused(false); setScreen('freeplaysetup') } : undefined}
+        onTutorialNext={handleTutorialNext}
+        onTutorialBack={handleTutorialBack}
+        onTutorialSkip={handleTutorialComplete}
+        onTutorialRepeat={handleTutorialRepeat}
+        onBotsToggle={() => setBotsEnabled(b => !b)}
+      />
     )
   }
 
