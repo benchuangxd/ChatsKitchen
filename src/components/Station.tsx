@@ -45,6 +45,8 @@ interface Props {
   capacity: number
   playerCount: number
   isHighlighted?: boolean
+  pvpLargerTeamSize?: number
+  isDisabled?: boolean
 }
 
 
@@ -55,7 +57,7 @@ function heatBorderColor(heat: number, overheated: boolean): string {
   return '#5aad5e'
 }
 
-export default function Station({ station, capacity, playerCount, isHighlighted }: Props) {
+export default function Station({ station, capacity, playerCount, isHighlighted, pvpLargerTeamSize, isDisabled }: Props) {
   const [coolFlash, setCoolFlash] = useState(false)
   const [showCoolText, setShowCoolText] = useState(false)
   const [coolPlayer, setCoolPlayer] = useState<string | null>(null)
@@ -95,10 +97,12 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
   if (!def) return null
 
   const borderColor = heatBorderColor(station.heat, station.overheated)
-  const extinguishNeeded = Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
+  const extinguishNeeded = pvpLargerTeamSize !== undefined
+    ? Math.max(1, Math.ceil(pvpLargerTeamSize * 0.5))
+    : Math.max(1, Math.ceil(Math.max(1, playerCount) * 0.5))
 
   return (
-    <div className={`${styles.station} ${station.overheated ? styles.fire : ''} ${coolFlash ? styles.coolFlash : ''} ${isHighlighted ? styles.highlighted : ''}`} style={{ borderColor }}>
+    <div className={`${styles.station} ${station.overheated ? styles.fire : ''} ${coolFlash ? styles.coolFlash : ''} ${isHighlighted ? styles.highlighted : ''} ${isDisabled ? styles.disabled : ''}`} style={{ borderColor: isDisabled ? '#2a5acc' : borderColor }}>
       <div className={styles.label}>
         <span className={styles.stationEmoji}>{def.emoji}</span>
         <span className={styles.stationName}>{def.name}</span>
@@ -129,7 +133,12 @@ export default function Station({ station, capacity, playerCount, isHighlighted 
           ))}
         </div>
       )}
-      {station.overheated ? (
+      {isDisabled ? (
+        <div className={styles.offlineOverlay}>
+          <span className={styles.offlineTitle}>⚡ OFFLINE</span>
+          <span className={styles.offlineHint}>Power Trip in progress</span>
+        </div>
+      ) : station.overheated ? (
         <div className={styles.overheatOverlay}>
           <span className={styles.overheatTitle}>🔥 OVERHEATED</span>
           <span className={styles.voteProgress}>

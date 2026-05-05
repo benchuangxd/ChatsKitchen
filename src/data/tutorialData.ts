@@ -135,3 +135,8 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     advanceMode: 'button',
   },
 ]
+
+export const TUTORIAL_COOL_STEP        = TUTORIAL_STEPS.findIndex(s => s.title === "❄️ Cool it down!")
+export const TUTORIAL_EXTINGUISH_STEP  = TUTORIAL_STEPS.findIndex(s => s.title === "🔥 Station on fire!")
+export const TUTORIAL_EVENT_INTRO_STEP = TUTORIAL_STEPS.findIndex(s => s.title === "🎲 Kitchen Events")
+export const TUTORIAL_EVENT_STEP       = TUTORIAL_STEPS.findIndex(s => s.title === "🧩 Mystery Recipe")

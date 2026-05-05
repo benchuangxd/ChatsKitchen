@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
-import { PlayerStats } from '../state/types'
+import { useState, useEffect, useMemo } from 'react'
+import { PlayerStats, RoundRecord } from '../state/types'
 import { NAME_COLORS } from '../data/recipes'
+import { getStarCount } from '../data/starThresholds'
 import styles from './GameOver.module.css'
 
 function hashStr(s: string): number {
@@ -9,10 +10,11 @@ function hashStr(s: string): number {
   return h
 }
 
-interface RoundRecord {
-  money: number
-  served: number
-  lost: number
+interface PvpResult {
+  redMoney: number
+  blueMoney: number
+  redServed: number
+  blueServed: number
 }
 
 interface Props {
@@ -20,6 +22,7 @@ interface Props {
   served: number
   lost: number
   playerStats: Record<string, PlayerStats>
+  teams?: Record<string, 'red' | 'blue'>
   level: number | null
   highScore?: number
   isNewHighScore?: boolean
@@ -27,16 +30,34 @@ interface Props {
   autoRestart?: boolean
   autoRestartDelay?: number
   autoRestartSignal?: number
+  pvpResult?: PvpResult
+  starThresholds?: [number, number, number]
   onPlayAgain: () => void
   onNextLevel?: () => void
   onMenu: () => void
   onRecipeSelect?: () => void
+  onPvpLobby?: () => void
+  onEnableAutoRestart?: () => void
 }
 
-export default function GameOver({ money, served, lost, playerStats, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, onPlayAgain, onNextLevel, onMenu, onRecipeSelect }: Props) {
+export default function GameOver({ money, served, lost, playerStats, teams, level, highScore, isNewHighScore, roundHistory, autoRestart, autoRestartDelay, autoRestartSignal, pvpResult, starThresholds, onPlayAgain, onNextLevel, onMenu, onRecipeSelect, onPvpLobby, onEnableAutoRestart }: Props) {
   const totalActions = (s: PlayerStats) => s.cooked + s.served + s.extinguished + s.cooled + s.eventParticipations - s.firesCaused
-  const leaderboard = Object.entries(playerStats)
-    .sort(([, a], [, b]) => totalActions(b) - totalActions(a))
+  const leaderboard = useMemo(
+    () => Object.entries(playerStats).sort(([, a], [, b]) => totalActions(b) - totalActions(a)),
+    [playerStats]
+  )
+
+  const starCount = starThresholds ? getStarCount(money, starThresholds) : null
+
+  const mvps = useMemo(() => {
+    if (!teams) return null
+    const sortByActions = (a: [string, PlayerStats], b: [string, PlayerStats]) => totalActions(b[1]) - totalActions(a[1])
+    const entries = Object.entries(playerStats)
+    return {
+      red:  entries.filter(([n]) => teams[n] === 'red').sort(sortByActions)[0] ?? null,
+      blue: entries.filter(([n]) => teams[n] === 'blue').sort(sortByActions)[0] ?? null,
+    }
+  }, [playerStats, teams])
 
   const [countdown, setCountdown] = useState<number | null>(null)
 
@@ -74,26 +95,80 @@ export default function GameOver({ money, served, lost, playerStats, level, high
   return (
     <div className={styles.screen}>
       <div className={styles.leftCol}>
-        <h1 className={styles.title}>{level != null ? `Level ${level} Complete!` : "Time's Up!"}</h1>
+        {pvpResult && (() => {
+          const { redMoney, blueMoney, redServed, blueServed } = pvpResult
+          const winner = redMoney > blueMoney ? 'red' : blueMoney > redMoney ? 'blue' : 'tie'
+          const bannerClass = winner === 'red' ? styles.pvpBannerRed
+            : winner === 'blue' ? styles.pvpBannerBlue
+            : styles.pvpBannerTie
+          const labelClass = winner === 'red' ? styles.pvpWinnerLabelRed
+            : winner === 'blue' ? styles.pvpWinnerLabelBlue
+            : styles.pvpWinnerLabelTie
+          const redWins = winner === 'red' || winner === 'tie'
+          const blueWins = winner === 'blue' || winner === 'tie'
+          return (
+            <div className={`${styles.pvpBanner} ${bannerClass}`}>
+              <div className={`${styles.pvpWinnerLabel} ${labelClass}`}>
+                {winner === 'red' ? '🔴 Red Wins!' : winner === 'blue' ? '🔵 Blue Wins!' : '🤝 Tie!'}
+              </div>
+              <div className={styles.pvpTeams}>
+                <div className={`${styles.pvpTeamRow} ${redWins ? '' : styles.pvpTeamRowLoser}`}>
+                  <span className={`${redWins ? styles.pvpMoneyWin : styles.pvpMoneyLose} ${styles.pvpRedText}`}>
+                    🔴 ${redMoney.toLocaleString()}
+                  </span>
+                  <span className={redWins ? styles.pvpServedWin : styles.pvpServedLose}>
+                    · {redServed} served
+                  </span>
+                </div>
+                <div className={`${styles.pvpTeamRow} ${blueWins ? '' : styles.pvpTeamRowLoser}`}>
+                  <span className={`${blueWins ? styles.pvpMoneyWin : styles.pvpMoneyLose} ${styles.pvpBlueText}`}>
+                    🔵 ${blueMoney.toLocaleString()}
+                  </span>
+                  <span className={blueWins ? styles.pvpServedWin : styles.pvpServedLose}>
+                    · {blueServed} served
+                  </span>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+        {level != null && <h1 className={styles.title}>{`Level ${level} Complete!`}</h1>}
 
-<div className={styles.stats}>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>${money}</div>
-            <div className={styles.statLabel}>Money Earned</div>
+        {starThresholds && (
+          <div className={styles.starDisplay}>
+            <div className={styles.finalStarRow}>
+              {['★', '★', '★'].map((_, i) => (
+                <span key={i} className={i < (starCount ?? 0) ? styles.finalStarFilled : styles.finalStarEmpty}>
+                  {i < (starCount ?? 0) ? '★' : '☆'}
+                </span>
+              ))}
+            </div>
+            <div className={styles.starThresholdRef}>
+              <span>★ ${starThresholds[0].toLocaleString()}</span>
+              <span>★★ ${starThresholds[1].toLocaleString()}</span>
+              <span>★★★ ${starThresholds[2].toLocaleString()}</span>
+            </div>
           </div>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>{served}</div>
-            <div className={styles.statLabel}>Orders Served</div>
-          </div>
-          <div className={styles.stat}>
-            <div className={styles.statValue}>{lost}</div>
-            <div className={styles.statLabel}>Orders Lost</div>
-          </div>
+        )}
+
+        <div className={styles.statMoney}>
+          <div className={styles.statValue}>${money.toLocaleString()}</div>
+          <div className={styles.statLabel}>Money Earned</div>
+          {isNewHighScore && (
+            <div className={styles.highScoreNew}>🏆 New High Score!</div>
+          )}
         </div>
 
-        {isNewHighScore && (
-          <div className={styles.highScoreNew}>🏆 New High Score!</div>
-        )}
+        <div className={styles.statsRow}>
+          <div className={styles.stat}>
+            <div className={styles.statValueSmall}>{served}</div>
+            <div className={styles.statLabelSmall}>Orders Served</div>
+          </div>
+          <div className={styles.stat}>
+            <div className={styles.statValueSmall}>{lost}</div>
+            <div className={styles.statLabelSmall}>Orders Lost</div>
+          </div>
+        </div>
 
         <div className={styles.buttons}>
           {level != null && onNextLevel && level < 10 && (
@@ -104,14 +179,21 @@ export default function GameOver({ money, served, lost, playerStats, level, high
           <button className={level != null ? styles.menuBtn : styles.playAgainBtn} onClick={onPlayAgain}>
             {level != null ? 'Repeat Level' : 'Play Again'}
           </button>
-          {level === null && onRecipeSelect && (
-            <button className={styles.menuBtn} onClick={onRecipeSelect}>
-              Recipe Select
+          <div className={styles.btnRow}>
+            {level === null && onRecipeSelect && (
+              <button className={styles.menuBtn} onClick={onRecipeSelect}>
+                Recipe Select
+              </button>
+            )}
+            {onPvpLobby && (
+              <button className={styles.menuBtn} onClick={onPvpLobby}>
+                PvP Lobby
+              </button>
+            )}
+            <button className={styles.menuBtn} onClick={onMenu}>
+              Main Menu
             </button>
-          )}
-          <button className={styles.menuBtn} onClick={onMenu}>
-            Main Menu
-          </button>
+          </div>
         </div>
 
         {level === null && (
@@ -134,6 +216,14 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 <div className={styles.autoRestartHint}>
                   <span>!start</span> to begin now · <span>!onAutoRestart</span> to enable
                 </div>
+                {onEnableAutoRestart && (
+                  <button className={styles.enableBtn} onClick={() => {
+                    onEnableAutoRestart()
+                    setCountdown(autoRestartDelay ?? 60)
+                  }}>
+                    Enable Auto-Restart
+                  </button>
+                )}
               </>
             )}
           </div>
@@ -142,7 +232,42 @@ export default function GameOver({ money, served, lost, playerStats, level, high
 
       <div className={styles.rightCol}>
         <div className={styles.panels}>
-          {roundHistory !== undefined && (
+          {pvpResult && mvps && (() => {
+            const mvpStat = (s: PlayerStats) => [
+              { icon: '🍳', label: 'Cooked',  value: s.cooked },
+              { icon: '✅', label: 'Served',  value: s.served },
+              { icon: '🧯', label: 'Extinguished', value: s.extinguished },
+              { icon: '❄️', label: 'Cooled',  value: s.cooled },
+              { icon: '✨', label: 'Events',  value: s.eventParticipations },
+              { icon: '🔥', label: 'Fires',   value: s.firesCaused },
+            ]
+            return (
+              <div className={styles.mvpPanel}>
+                <div className={styles.panelTitle}>⭐ MVP</div>
+                <div className={styles.mvpCols}>
+                  {[{ mvp: mvps.red, teamClass: styles.mvpCardRed, icon: '🔴' },
+                    { mvp: mvps.blue, teamClass: styles.mvpCardBlue, icon: '🔵' }].map(({ mvp, teamClass, icon }) =>
+                    mvp ? (
+                      <div key={icon} className={`${styles.mvpCard} ${teamClass}`}>
+                        <div className={styles.mvpCardName}>{icon} {mvp[0]}</div>
+                        <div className={styles.mvpCardScore}>{totalActions(mvp[1])} pts</div>
+                        <div className={styles.mvpStats}>
+                          {mvpStat(mvp[1]).map(({ icon: ic, label, value }) => (
+                            <div key={label} className={styles.mvpStatRow}>
+                              <span className={styles.mvpStatIcon}>{ic}</span>
+                              <span className={styles.mvpStatLabel}>{label}</span>
+                              <span className={styles.mvpStatValue}>{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null
+                  )}
+                </div>
+              </div>
+            )
+          })()}
+          {roundHistory !== undefined && !pvpResult && (
             <div className={styles.historyPanel}>
               <div className={styles.panelTitle}>
                 Round History
@@ -190,14 +315,17 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 <span className={styles.lbTotal}>Total</span>
               </div>
             </div>
+            <div className={styles.lbScrollBody}>
             {leaderboard.length === 0 ? (
               <div className={styles.lbEmpty}>No players this round</div>
             ) : (
               leaderboard.map(([name, stats], i) => {
                 const color = NAME_COLORS[Math.abs(hashStr(name)) % NAME_COLORS.length]
                 const isYou = name === 'You'
+                const teamColor = teams?.[name]
+                const teamClass = teamColor === 'red' ? styles.lbRed : teamColor === 'blue' ? styles.lbBlue : ''
                 return (
-                  <div key={name} className={`${styles.lbRow} ${isYou ? styles.lbYou : ''}`}>
+                  <div key={name} className={`${styles.lbRow} ${isYou ? styles.lbYou : ''} ${teamClass}`}>
                     <span className={styles.lbRank}>{i + 1}</span>
                     <span className={styles.lbName} style={{ color }}>{name}</span>
                     <span className={styles.lbDetail}>{stats.cooked}</span>
@@ -211,6 +339,7 @@ export default function GameOver({ money, served, lost, playerStats, level, high
                 )
               })
             )}
+            </div>
           </div>
         </div>
       </div>

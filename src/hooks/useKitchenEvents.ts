@@ -12,10 +12,15 @@ import {
   RAT_INVASION_ITEMS_STOLEN, MYSTERY_RECIPE_ITEMS_REWARDED,
   EVENT_DURATION_MS,
   getIngredientTargets, getProducesValues, makeAnagram,
+  makeAuditGrid, pickCompleteTheDish,
 } from '../data/kitchenEventDefs'
 
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
+}
+
+function pickSpawnInterval(lo: number, hi: number): number {
+  return hi > lo ? lo + Math.random() * (hi - lo) : lo
 }
 
 function calcThreshold(playerCount: number): number {
@@ -53,18 +58,10 @@ export function useKitchenEvents(
   const lastEventTypeRef = useRef<EventType | null>(null)
   const concludingEventIdRef = useRef<string | null>(null)  // prevents double resolve/fail if React hasn't re-rendered yet
   const spawnTimerRef = useRef(0)
-  const pickSpawnInterval = () => {
-    const lo = spawnMinRef.current
-    const hi = spawnMaxRef.current
-    return hi > lo ? lo + Math.random() * (hi - lo) : lo
-  }
+  const spawnIntervalRef = useRef(pickSpawnInterval(spawnMinMs, spawnMaxMs))
 
-  const spawnIntervalRef = useRef(pickSpawnInterval())
-
-  // Reset the spawn countdown whenever the min/max settings change so the new
-  // interval takes effect immediately rather than after the old one expires.
   useEffect(() => {
-    spawnIntervalRef.current = pickSpawnInterval()
+    spawnIntervalRef.current = pickSpawnInterval(spawnMinRef.current, spawnMaxRef.current)
     spawnTimerRef.current = 0
   }, [spawnMinMs, spawnMaxMs])
 
@@ -75,10 +72,13 @@ export function useKitchenEvents(
     const threshold = calcThreshold(playerCount)
 
     const enabled = enabledEventsRef.current
-    const eligibleStations = Object.values(s.stations).filter(st => !st.overheated)
+    const alreadyDisabled = new Set(s.disabledStations ?? [])
+    const eligibleStations = Object.values(s.stations).filter(
+      st => !st.overheated && !alreadyDisabled.has(st.id)
+    )
 
     const isAllowed = (type: EventType) =>
-      (enabled.length === 0 || enabled.includes(type)) &&
+      enabled.includes(type) &&
       !(type === 'power_trip' && eligibleStations.length < 2)
 
     // Prefer no back-to-back; fall back to full pool if only one event type enabled
@@ -125,6 +125,25 @@ export function useKitchenEvents(
       chosenCommand = sequence.join(' ')
     }
 
+    if (def.type === 'inventory_audit') {
+      const audit = makeAuditGrid(s.enabledRecipes)
+      if (!audit) return
+      payload.auditGrid = audit.grid
+      payload.auditTarget = audit.target
+      payload.auditAnswer = audit.answer
+      chosenCommand = String(audit.answer)
+    }
+
+    if (def.type === 'complete_dish') {
+      const dish = pickCompleteTheDish(s.enabledRecipes)
+      if (!dish) return
+      payload.shownIngredients = dish.shownIngredients
+      payload.missingIngredient = dish.missingIngredient
+      payload.dishName = dish.dishName
+      payload.dishEmoji = dish.dishEmoji
+      chosenCommand = dish.missingIngredient
+    }
+
     const event: KitchenEvent = {
       id,
       category: def.category,
@@ -143,6 +162,10 @@ export function useKitchenEvents(
     const label = def.category === 'opportunity' ? '⚡ Opportunity' : '⚠️ Hazard'
     const chatText = def.type === 'dance'
       ? `${label}: ${def.emoji} ${def.label}! Memorise the sequence and type it in chat!`
+      : def.type === 'complete_dish'
+      ? `${label}: ${def.emoji} ${def.label}! What's missing from ${payload.dishName}? Type the ingredient!`
+      : def.type === 'inventory_audit'
+      ? `${label}: ${def.emoji} ${def.label}! Count the ${payload.auditTarget} in the grid and type the number!`
       : `${label}: ${def.emoji} ${def.label}! Type ${chosenCommand} in chat to help!`
     dispatch({
       type: 'ADD_CHAT',
@@ -187,6 +210,11 @@ export function useKitchenEvents(
     if (event.type === 'dance') {
       dispatch({ type: 'EXTEND_ORDER_PATIENCE', ms: DANCE_PATIENCE_BONUS_MS })
     }
+    if (event.type === 'complete_dish' && event.payload.missingIngredient) {
+      const missingKey = event.payload.missingIngredient.toLowerCase().replace(/ /g, '_')
+      const produces = getProducesValues(s.enabledRecipes)
+      dispatch({ type: 'ADD_PREPARED_ITEMS', items: [missingKey, pickRandom(produces)], message: `🍽️ Recipe complete! Ingredients added to prep tray!` })
+    }
 
     setActiveEvent(prev => prev?.id === event.id ? { ...prev, resolved: true, progress: 100 } : prev)
 
@@ -209,6 +237,9 @@ export function useKitchenEvents(
     if (event.type === 'angry_chef') {
       dispatch({ type: 'SET_COOKING_SPEED_MODIFIER', multiplier: ANGRY_CHEF_DEBUFF_MULTIPLIER, expiresAt: now + ANGRY_CHEF_DEBUFF_DURATION_MS })
       dispatch({ type: 'ADD_CHAT', username: 'KITCHEN', text: `👨‍🍳 Chef is angry! Cooking speed reduced for 15s!`, msgType: 'error' })
+    }
+    if (event.type === 'inventory_audit' && event.payload.auditAnswer) {
+      dispatch({ type: 'REMOVE_PREPARED_ITEMS', count: event.payload.auditAnswer, message: `🧮 Inspector confiscated ${event.payload.auditAnswer} prepped ingredient(s)!` })
     }
 
     setActiveEvent(prev => prev?.id === event.id ? { ...prev, failed: true } : prev)
@@ -234,7 +265,7 @@ export function useKitchenEvents(
           spawnTimerRef.current += 100
           if (spawnTimerRef.current >= spawnIntervalRef.current) {
             spawnTimerRef.current = 0
-            spawnIntervalRef.current = pickSpawnInterval()
+            spawnIntervalRef.current = pickSpawnInterval(spawnMinRef.current, spawnMaxRef.current)
             spawnEvent()
           }
         }
@@ -261,7 +292,11 @@ export function useKitchenEvents(
     const ev = activeEventRef.current
     if (!ev || ev.resolved || ev.failed) return
 
-    const normalized = text.trim().toUpperCase()
+    // In PvP mode, only registered players can participate
+    const s = stateRef.current
+    if (s.teams && !s.teams[user]) return
+
+    const normalized = text.trim()
 
     const matchTarget = ev.type === 'mystery_recipe'
       ? ev.payload.anagramAnswer!.toUpperCase()
@@ -269,7 +304,13 @@ export function useKitchenEvents(
       ? String(ev.payload.powerTripAnswer!)
       : ev.chosenCommand
 
-    if (normalized !== matchTarget) return
+    // typing_frenzy (wifi password) is case-sensitive; everything else is not
+    const isCaseSensitive = ev.type === 'typing_frenzy'
+    if (isCaseSensitive) {
+      if (normalized !== matchTarget) return
+    } else {
+      if (normalized.toUpperCase() !== matchTarget.toUpperCase()) return
+    }
     if (ev.respondedUsers.includes(user)) return
 
     const newUsers = [...ev.respondedUsers, user]

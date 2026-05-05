@@ -13,7 +13,7 @@
 
 .sectionTitle {
   font-family: 'Lilita One', cursive;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #f0c850;
 }
 
@@ -23,7 +23,7 @@
   border-radius: 4px;
   padding: 2px 10px;
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #9a8e82;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
@@ -80,7 +80,7 @@
 
 .name {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 600;
   color: #e0d8c8;
   flex: 1;
@@ -111,4 +111,50 @@
 @keyframes tutorialPulse {
   0%, 100% { outline-color: #a855f7; outline-width: 4px; background-color: rgba(168, 85, 247, 0.35); }
   50%       { outline-color: rgba(168, 85, 247, 0.5);  outline-width: 2px; background-color: rgba(168, 85, 247, 0.08); }
+}
+
+/* ── PvP two-column layout ──────────────────── */
+.pvpHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+
+.pvpRow {
+  display: flex;
+  gap: 0;
+}
+
+.pvpHalf {
+  flex: 1;
+  min-width: 0;
+}
+
+.pvpDivider {
+  width: 1px;
+  background: rgba(200, 132, 26, 0.15);
+  margin: 0 12px;
+  flex-shrink: 0;
+}
+
+.pvpTeamHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.pvpLabelRed  { font-family: 'Lilita One', cursive; font-size: 16px; color: #e74c3c; }
+.pvpLabelBlue { font-family: 'Lilita One', cursive; font-size: 16px; color: #3498db; }
+.pvpScore     { font-family: 'Lilita One', cursive; font-size: 16px; color: #f0c850; }
+
+.trayFilledRed {
+  background: rgba(231, 76, 60, 0.12);
+  border: 2px solid rgba(231, 76, 60, 0.55);
+}
+
+.trayFilledBlue {
+  background: rgba(52, 152, 219, 0.12);
+  border: 2px solid rgba(52, 152, 219, 0.55);
 }

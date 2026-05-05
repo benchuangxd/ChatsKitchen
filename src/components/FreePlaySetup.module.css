@@ -45,7 +45,7 @@
   border-radius: 10px;
   padding: 8px 20px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   background: #b87333;
   color: #fff;
@@ -81,7 +81,7 @@
 
 .cardLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text);
   margin-bottom: 4px;
@@ -108,7 +108,7 @@
 
 .selectedLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -123,7 +123,7 @@
 
 .actionBtn {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 6px;
@@ -159,7 +159,7 @@
 
 .selectedEmpty {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-faint);
   align-self: center;
 }
@@ -176,7 +176,7 @@
 
 .selectedChipName {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 600;
   color: var(--text-dim);
   white-space: nowrap;
@@ -187,7 +187,7 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  font-size: 18px;
+  font-size: var(--base-fs);
   line-height: 1;
   padding: 0 2px;
   border-radius: 3px;
@@ -211,7 +211,7 @@
   border-radius: 8px;
   padding: 10px 18px;
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text-secondary);
   background: var(--bg);
@@ -246,7 +246,7 @@
   border-radius: 10px;
   padding: 10px 14px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text-secondary);
   background: var(--bg);
@@ -271,16 +271,16 @@
 }
 
 .recipeEmoji {
-  font-size: 18px;
+  font-size: var(--base-fs);
 }
 
 .recipeName {
-  font-size: 18px;
+  font-size: var(--base-fs);
 }
 
 .recipeReward {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   opacity: 0.75;
 }
 
@@ -350,7 +350,7 @@
   border-radius: 8px;
   padding: 7px 8px;
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text);
   text-align: center;
@@ -364,7 +364,7 @@
 
 .inputSuffix {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
   min-width: 20px;
 }
@@ -384,7 +384,7 @@
   border-radius: 8px;
   padding: 10px 24px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text-secondary);
   background: transparent;
@@ -430,7 +430,7 @@
   align-items: center;
   gap: 8px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text);
 }
@@ -445,7 +445,7 @@
   border-radius: 8px;
   padding: 4px 12px;
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text-secondary);
   background: transparent;
@@ -483,7 +483,7 @@
 
 .moreLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text);
 }
@@ -498,7 +498,7 @@
 
 .slotsLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 600;
   color: var(--text);
 }
@@ -508,7 +508,7 @@
   border-radius: 6px;
   padding: 6px 14px;
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text-secondary);
   background: transparent;
@@ -552,7 +552,7 @@
 
 .capacityLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 600;
   color: var(--text);
   min-width: 110px;
@@ -572,7 +572,7 @@
   background: var(--bg);
   color: var(--text);
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -588,7 +588,7 @@
 
 .capacityValue {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: #b87333;
   min-width: 24px;
@@ -602,7 +602,7 @@
   align-items: center;
   gap: 8px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text);
 }
@@ -613,7 +613,7 @@
 
 .recipeDetailReward {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #b87333;
   font-weight: 700;
 }
@@ -629,31 +629,31 @@
   align-items: center;
   gap: 6px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   flex-wrap: wrap;
 }
 
 .stepNum {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
   min-width: 22px;
 }
 
 .stepStation {
-  font-size: 18px;
+  font-size: var(--base-fs);
 }
 
 .stepRequires {
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
   font-style: italic;
 }
 
 .stepCmd {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: #f0c850;
   background: rgba(240, 200, 80, 0.1);
@@ -664,11 +664,11 @@
 
 .stepArrow {
   color: var(--text-muted);
-  font-size: 18px;
+  font-size: var(--base-fs);
 }
 
 .stepProduces {
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text);
 }
 
@@ -681,7 +681,7 @@
 
 .startWarning {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #d94f4f;
   margin-bottom: 8px;
   text-align: center;
@@ -796,7 +796,7 @@
   border-radius: 8px;
   padding: 8px 12px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 600;
   color: var(--text-secondary);
   background: var(--bg);
@@ -847,13 +847,13 @@
 }
 
 .eventBtnEmoji {
-  font-size: 18px;
+  font-size: var(--base-fs);
   line-height: 1;
   flex-shrink: 0;
 }
 
 .eventBtnName {
-  font-size: 18px;
+  font-size: var(--base-fs);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -875,7 +875,7 @@
 
 .detailEmpty {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
   text-align: center;
   padding: 12px 0;
@@ -890,14 +890,14 @@
   align-items: center;
   gap: 8px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: var(--text);
 }
 
 .detailBadge {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -920,14 +920,14 @@
 
 .detailDesc {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text);
   line-height: 1.5;
 }
 
 .detailConsequence {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   border-radius: 6px;
   padding: 7px 10px;
   line-height: 1.4;
@@ -958,4 +958,11 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
+}
+
+.recentRounds {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
 }

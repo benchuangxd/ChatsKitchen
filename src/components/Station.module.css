@@ -11,6 +11,16 @@
   animation: fireFlash 0.3s infinite alternate;
 }
 
+.disabled {
+  animation: disabledPulse 1.8s ease-in-out infinite alternate;
+  opacity: 0.65;
+}
+
+@keyframes disabledPulse {
+  from { background: rgba(20, 30, 74, 0.85); }
+  to   { background: var(--station-bg); }
+}
+
 @keyframes fireFlash {
   from { background: rgba(74, 20, 16, 0.85); }
   to { background: var(--station-bg); }
@@ -44,13 +54,13 @@
 .stationName {
   flex: 1;
   font-family: 'Lilita One', cursive;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text);
 }
 
 .heatBadge {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: #e8943a;
   flex-shrink: 0;
@@ -141,14 +151,14 @@
 
 .capacity {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   margin-left: auto;
 }
 
 .idleStatus {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   text-align: center;
   padding: 4px 0;
@@ -201,7 +211,7 @@
 
 .barUser {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   flex-shrink: 0;
   max-width: 100px;
@@ -213,7 +223,7 @@
 
 .barItem {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: rgba(255, 255, 255, 0.75);
   flex: 1;
   overflow: hidden;
@@ -224,7 +234,7 @@
 
 .barRight {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   flex-shrink: 0;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
@@ -232,6 +242,30 @@
 
 
 /* ── Overheat overlay ───────────────────────────── */
+.offlineOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  text-align: center;
+}
+
+.offlineTitle {
+  font-family: 'Lilita One', cursive;
+  font-size: 28px;
+  color: #6090ff;
+  text-shadow: 0 1px 8px rgba(60, 100, 255, 0.6);
+}
+
+.offlineHint {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: rgba(100, 140, 255, 0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .overheatOverlay {
   display: flex;
   flex-direction: column;

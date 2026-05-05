@@ -7,7 +7,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 22vh;
+  padding-top: 30vh;
 }
 
 /* ── Clip + ticket assembly ── */
@@ -110,7 +110,7 @@
 
 .badge {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -124,22 +124,23 @@
 
 .title {
   font-family: 'Lilita One', cursive;
-  font-size: 19px;
+  font-size: var(--base-fs);
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.35);
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
 /* ── Body ── */
 .body {
-  padding: 14px 16px 6px;
+  padding: 18px 22px 10px;
   color: #3a2e20;
   position: relative;
 }
 
 .cmdLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: #9a7a60;
@@ -148,9 +149,9 @@
 
 .cmdBox {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--ev-md-fs);
   font-weight: 700;
-  padding: 7px 12px;
+  padding: 10px 16px;
   border-radius: 6px;
   border-style: dashed;
   border-width: 1.5px;
@@ -162,9 +163,40 @@
   white-space: nowrap;
 }
 
+/* Power Trip: operators styled larger and distinctly coloured */
+.eqOp {
+  font-size: 1.5em;
+  font-weight: 900;
+  color: var(--event-cmd-color);
+  padding: 0 2px;
+  vertical-align: middle;
+}
+
+.eqNum {
+  vertical-align: middle;
+}
+
+/* Typing Frenzy: switch to a font with very distinct character shapes */
+.cmdBoxFrenzy {
+  font-family: 'Courier New', Menlo, monospace;
+  letter-spacing: 3px;
+}
+
+/* Glitched Orders: per-character rotation + vertical wiggle */
+.glitchChar {
+  display: inline-block;
+  animation: charWiggle 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes charWiggle {
+  0%   { transform: rotate(-14deg) translateY(3px); }
+  50%  { transform: rotate(10deg)  translateY(-4px); }
+  100% { transform: rotate(-6deg)  translateY(2px); }
+}
+
 .desc {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   line-height: 1.5;
   color: #8a6a50;
   margin-bottom: 12px;
@@ -184,7 +216,7 @@
   justify-content: space-between;
   gap: 16px;
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #9a7a60;
@@ -219,6 +251,84 @@
   transition: width 0.15s ease;
 }
 
+/* ── Inventory Audit 4×4 grid ── */
+.auditGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.auditTile {
+  height: 42px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--ev-sm-fs);
+  background: rgba(0,0,0,0.06);
+  border: 2px solid transparent;
+}
+
+
+/* ── Complete the Dish checklist ── */
+.dishHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--event-cmd-color) 10%, transparent);
+  border-radius: 6px;
+  border-left: 3px solid var(--event-cmd-color);
+}
+
+.dishEmoji {
+  font-size: var(--ev-sm-fs);
+  line-height: 1;
+}
+
+.dishName {
+  font-family: 'Lilita One', cursive;
+  font-size: var(--base-fs);
+  color: var(--event-cmd-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dishChecklist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.dishCheckItem {
+  font-family: 'Space Mono', monospace;
+  font-size: var(--ev-xs-fs);
+  font-weight: 700;
+  color: #3a2e20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dishCheck {
+  font-size: var(--ev-xs-fs);
+  color: #5a8a40;
+  flex-shrink: 0;
+  width: 16px;
+}
+
+.dishBlank {
+  color: #9a7a60;
+  font-style: italic;
+}
+
+.dishBlank .dishCheck {
+  color: var(--event-cmd-color);
+}
+
 /* ── Dance Simon Says sequence ── */
 .danceRow {
   display: flex;
@@ -228,13 +338,13 @@
 }
 
 .danceStep {
-  width: 62px;
-  height: 62px;
+  width: var(--ev-dance-sz);
+  height: var(--ev-dance-sz);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
+  font-size: var(--ev-lg-fs);
   font-weight: 700;
   transition: opacity 0.2s ease;
 }
@@ -250,7 +360,7 @@
   background: rgba(0,0,0,0.06);
   color: #9a7a60;
   opacity: 0.4;
-  font-size: 26px;
+  font-size: var(--ev-pend-fs);
 }
 
 @keyframes danceRevealPulse {
@@ -307,12 +417,12 @@
 }
 
 .stampIcon {
-  font-size: 40px;
+  font-size: var(--ev-xl-fs);
   line-height: 1;
 }
 
 .stampText {
-  font-size: 18px;
+  font-size: var(--base-fs);
   letter-spacing: 2px;
   text-transform: uppercase;
   margin-top: 2px;

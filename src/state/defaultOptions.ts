@@ -15,5 +15,5 @@ export const DEFAULT_GAME_OPTIONS: GameOptions = {
   enabledKitchenEvents: ['angry_chef', 'smoke_blast', 'mystery_recipe', 'dance'] as EventType[],
   kitchenEventSpawnMin: 30,
   kitchenEventSpawnMax: 60,
-  kitchenEventDuration: 20,
+  kitchenEventDuration: 12,
 }

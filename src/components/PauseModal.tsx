@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { AudioSettings, GameOptions } from '../state/types'
+import { AudioSettings } from '../state/types'
 import { RECIPES } from '../data/recipes'
 import FoodIcon from './FoodIcon'
 import styles from './PauseModal.module.css'
 
 interface PauseModalProps {
-  gameOptions: GameOptions
+  enabledRecipes: string[]
   audioSettings: AudioSettings
   onAudioChange: (s: AudioSettings) => void
   chatOpen: boolean
@@ -16,10 +16,11 @@ interface PauseModalProps {
   onResume: () => void
   onExit: () => void
   onRecipeSelect?: () => void
+  onPlaysetPicker?: () => void
 }
 
 export default function PauseModal({
-  gameOptions,
+  enabledRecipes,
   audioSettings,
   onAudioChange,
   chatOpen,
@@ -29,6 +30,7 @@ export default function PauseModal({
   onResume,
   onExit,
   onRecipeSelect,
+  onPlaysetPicker,
 }: PauseModalProps) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -73,9 +75,14 @@ export default function PauseModal({
 
           <div className={styles.divider} />
 
+          {onPlaysetPicker && (
+            <button className={styles.exitBtn} onClick={onPlaysetPicker}>
+              Change Playset
+            </button>
+          )}
           {onRecipeSelect && (
             <button className={styles.exitBtn} onClick={onRecipeSelect}>
-              Recipe Select
+              Customise Shift
             </button>
           )}
           <button className={styles.exitBtn} onClick={onExit}>
@@ -89,7 +96,7 @@ export default function PauseModal({
         {/* RIGHT COLUMN */}
         <div className={styles.right}>
           <div className={styles.recipeLabel}>Active Recipes</div>
-          {gameOptions.enabledRecipes.map(key => {
+          {enabledRecipes.map(key => {
             const recipe = RECIPES[key]
             if (!recipe) return null
             return (

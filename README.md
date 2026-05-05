@@ -8,10 +8,13 @@ A browser-based real-time kitchen game where Twitch chat collectively runs a res
 
 - **Twitch integration** — connect any channel and chat commands become gameplay actions
 - **Cooperative chaos** — 27 recipes across 6 cuisine sets, 12 station types, one shared kitchen
-- **Heat mechanic** — stations heat up gradually during cooking; cool with `cool <station>` or the team must `extinguish` if it overheats
+- **Heat mechanic** — stations heat up during cooking; cool with `cool <station>` (40–60% reduction) or the team must `extinguish` if it overheats
+- **Kitchen Events** — random mid-round challenges (hazards and opportunities) that the whole chat must respond to together
+- **PvP mode** — split chat into Red and Blue teams competing for money in the same kitchen
 - **Adventure mode** — roguelike multi-shift run; survive each shift to unlock the next
+- **Star rating** — dynamic difficulty threshold calibrated to the actual number of players after each round
 - **Bot simulation** — optional AI players fill in when chat is quiet
-- **Configurable** — tune cooking speed, order speed, station capacity, and more in Options
+- **Configurable** — tune cooking speed, order speed, station capacity, kitchen events, and more in Options
 
 ---
 
@@ -50,7 +53,7 @@ Type commands by name in chat. Spaces in ingredient names can be written as spac
 | Boil | `boil <item>` | Stove |
 | Toast | `toast <item>` | Oven |
 | Roast | `roast <item>` | Oven |
-| Stir | `stir <item>` | Wok |
+| Stir-fry | `stirfry <item>` | Wok |
 | Steam | `steam <item>` | Steamer |
 | Simmer | `simmer <item>` | Stone Pot |
 | Cook | `cook <item>` | Rice Pot |
@@ -61,7 +64,7 @@ Type commands by name in chat. Spaces in ingredient names can be written as spac
 | Cool | `cool <station>` | — |
 | Extinguish | `extinguish <station>` | — |
 
-**Shortform aliases** (enable in Options): `c`, `g`, `f`, `b`, `t`, `r`, `st`, `sm`, `si`, `ck`, `mx`, `gr`, `kn`, `cl`, `s` map to chop, grill, fry, boil, toast, roast, stir, steam, simmer, cook, mix, grind, knead, cool, serve.
+**Shortform aliases** (enable in Options): `c`, `g`, `f`, `b`, `t`, `r`, `sf`, `sm`, `si`, `ck`, `mx`, `gr`, `kn`, `cl`, `s` map to chop, grill, fry, boil, toast, roast, stirfry, steam, simmer, cook, mix, grind, knead, cool, serve.
 
 ### Gameplay flow
 
@@ -89,8 +92,8 @@ Steps marked `→` require the prior ingredient in the pool first. Steps joined 
 
 | Dish | Steps | Reward |
 |------|-------|--------|
-| 🍳 Fried Rice | `cook rice` → `stir rice` + `stir egg` | $55 |
-| 🍛 Stir-Fried Pork | `chop pork` → `stir pork` + `chop spring_onion` | $65 |
+| 🍳 Fried Rice | `cook rice` → `stirfry rice` + `stirfry egg` | $55 |
+| 🍛 Stir-Fried Pork | `chop pork` → `stirfry pork` + `chop spring_onion` | $65 |
 | 🧈 Steamed Tofu | `chop tofu` → `steam tofu` + `chop spring_onion` | $45 |
 | 🥟 Steamed Buns | `chop cabbage` + `steam bun` | $55 |
 
@@ -116,9 +119,9 @@ Steps marked `→` require the prior ingredient in the pool first. Steps joined 
 
 | Dish | Steps | Reward |
 |------|-------|--------|
-| 🥐 Shio Pan | `knead dough` → `toast bread_dough` | $50 |
-| 🍪 Melon Pan | `knead dough` → `toast bread_dough` + `mix cookie_topping` | $65 |
-| ☕ Pour-Over Coffee | `grind coffee_beans` + `boil water` | $45 |
+| 🥐 Shio Pan | `knead dough` → `toast dough` | $50 |
+| 🍪 Melon Pan | `knead dough` → `toast dough` + `mix topping` | $65 |
+| ☕ Pour-Over Coffee | `grind beans` + `boil water` | $45 |
 | 🍵 Matcha Latte | `mix matcha` + `steam milk` | $55 |
 
 **SG Hawker Breakfast 🇸🇬**
@@ -126,8 +129,8 @@ Steps marked `→` require the prior ingredient in the pool first. Steps joined 
 | Dish | Steps | Reward |
 |------|-------|--------|
 | 🍞 Kaya Toast | `toast bread` + `mix kaya` | $40 |
-| 🍜 Economic Bee Hoon | `fry chicken_wing` + `stir bee_hoon` + `stir vegetables` + `fry egg` | $65 |
-| 🫓 Roti Prata | `knead dough` → `grill bread_dough` + `boil curry` | $55 |
+| 🍜 Economic Bee Hoon | `fry chicken_wing` + `stirfry bee_hoon` + `stirfry cabbage` + `fry egg` | $65 |
+| 🫓 Roti Prata | `knead prata` → `grill prata` + `boil curry` | $55 |
 | 🍱 Nasi Lemak | `cook rice` + `mix sambal` + `fry anchovies` + `fry egg` | $75 |
 
 **Others**
@@ -142,7 +145,7 @@ Each dish also earns a time bonus of up to +$30 based on how much patience the o
 
 ### Heat & Overheat
 
-Stations heat up **gradually during cooking** — the heat bar rises as the cook progresses, reaching +20% per full cook. The station border colour shows the current level: green (safe) → yellow → orange → red (critical). Type `cool <station>` to reduce heat by 30% (requires not currently cooking).
+Stations heat up **gradually during cooking** — heat is applied incrementally as each cook progresses, contributing a random 10–20% per full cook (rolled when cooking starts). The station border colour shows the current level: green (safe) → yellow → orange → red (critical). Type `cool <station>` to reduce heat by a random 40–60% (requires not currently cooking).
 
 At 100% the station overheats: all active cooks are cancelled and the station locks. At least 50% of that round's players must type `extinguish <station>` to vote it back online. Heat resets to 0 once extinguished.
 
@@ -158,7 +161,13 @@ If the queue is cleared, a new order spawns immediately and the spawn rate doubl
 
 ### Free Play
 
-Sandbox mode. Configure duration (1–9 min, default 3 min), cooking speed, order urgency, order frequency (all 0.25×–3.0×), station slot capacity, and which recipes can appear. The recipe select screen includes a **Selected** panel with Remove All, Select All, and Random 3 shortcuts. Good for practice and casual streaming.
+Sandbox mode. Configure duration (1–9 min, default 3 min), cooking speed, order urgency, order frequency (all 0.25×–3.0×), station slot capacity, kitchen events, and which recipes can appear. The recipe select screen includes a **Selected** panel with Remove All, Select All, and Random 3 shortcuts. Good for practice and casual streaming.
+
+Order capacity and spawn rate scale dynamically during the game based on the number of active players, so the kitchen stays challenging as more viewers join.
+
+### PvP Mode
+
+Split chat into Red and Blue teams. Each team has its own prep tray and earns money independently. The team with more money at the end wins. Join via `!red`, `!blue`, `!join`, `!join red`, or `!join blue` in the lobby.
 
 ### Adventure Mode
 
@@ -190,9 +199,13 @@ The game can also be played locally without Twitch using the built-in chat input
 | Cooking Slots | Max concurrent items per cooking station |
 | Restrict Slots | Enforce slot limits (off = unlimited) |
 | Enabled Recipes | Which dishes can appear as orders |
+| Kitchen Events | Toggle events on/off; configure which event types and frequency |
+| Auto-Restart | Automatically start a new round after game over (Free Play only) |
 | Shortform Commands | Allow single-letter command aliases |
+| Theme | Dark or Light mode |
+| Mobile Friendly | Increases base text size for easier reading on phones and tablets |
 
-Audio settings (volume, mute, dark mode) and level progress persist in the browser. A full reset is available at the bottom of Options.
+Audio settings, display preferences, and high scores persist in the browser. A full reset is available at the bottom of Options.
 
 ---
 
@@ -224,18 +237,21 @@ src/
 │   ├── useGameLoop.ts         # 100ms tick loop
 │   ├── useTwitchChat.ts       # tmi.js client lifecycle
 │   ├── useBotSimulation.ts    # AI bot players
+│   ├── useKitchenEvents.ts    # Kitchen event lifecycle
 │   └── useGameAudio.ts        # Audio management
 ├── components/                # React UI components (PascalCase)
 │   └── FoodIcon.tsx           # Renders emoji or SVG image path
 └── data/
     ├── recipes.ts             # Recipe and station definitions
-    └── levels.ts              # Level configs and star thresholds
+    ├── kitchenEventDefs.ts    # Event definitions and generator functions
+    └── starThresholds.ts      # Star rating threshold computation
 public/
 └── icons/
     ├── dishes/                # SVG icons for recipe dishes
     └── ingredients/           # SVG icons for ingredients
 docs/
-└── game-design-and-mechanics.md  # Full design reference
+├── game-design-and-mechanics.md  # Full design reference
+└── Kitchen Events.md             # Kitchen events system reference
 ```
 
 ---

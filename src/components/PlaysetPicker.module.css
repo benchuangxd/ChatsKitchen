@@ -1,0 +1,465 @@
+.screen {
+  --ps-accent: #b87333;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  background: var(--surface-3);
+  border-bottom: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.backBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 20px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: var(--base-fs);
+  font-weight: 700;
+  background: var(--ps-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.backBtn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.15);
+}
+
+.title {
+  font-family: 'Lilita One', cursive;
+  font-size: 32px;
+  color: var(--ps-accent);
+}
+
+.difficultyToggle {
+  display: flex;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.diffBtn {
+  padding: 8px 22px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: var(--base-fs);
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.diffBtnNormal.active {
+  background: var(--surface);
+  color: #5cb85c;
+}
+
+.diffBtnHard.active {
+  background: var(--surface);
+  color: #e05050;
+}
+
+/* ── Carousel ── */
+.carouselArea {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  padding: 14px 12px 8px;
+  gap: 8px;
+  min-height: 0;
+}
+
+.navArrow {
+  width: 52px;
+  flex-shrink: 0;
+  background: var(--ps-accent);
+  border: 2px solid var(--ps-accent);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 32px;
+  color: #fff;
+  transition: filter 0.15s, transform 0.1s;
+}
+
+.navArrow:hover:not(.navArrowDisabled) {
+  filter: brightness(1.2);
+  transform: scale(1.06);
+}
+
+.navArrowDisabled {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-faint);
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+  filter: none;
+}
+
+.cardsViewport {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  min-height: 0;
+}
+
+/* ── Card ── */
+.card {
+  flex: 1;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  overflow: hidden;
+  min-height: 0;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.cardHovered {
+  border-color: var(--card-color);
+  box-shadow: 0 0 14px -6px var(--card-color);
+}
+
+.cardSelected {
+  border-color: var(--card-color);
+  box-shadow: 0 0 24px -4px var(--card-color);
+}
+
+.cardHeader {
+  padding: 13px 16px 10px;
+  border-bottom: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 3px;
+}
+
+.cardFlag { font-size: 22px; }
+
+.cardName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: var(--base-fs);
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.cardTag {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ps-accent) 15%, transparent);
+  color: var(--ps-accent);
+  border: 1px solid color-mix(in srgb, var(--ps-accent) 30%, transparent);
+}
+
+.cardStations {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+.cardBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  scrollbar-width: thin;
+}
+
+.sectionLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sectionLabelRecipes { color: #5a9ab0; }
+.sectionLabelEvents  { color: #c49820; }
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 7px;
+  border-radius: 8px;
+}
+
+.itemEmoji {
+  font-size: var(--base-fs);
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.itemName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: var(--base-fs);
+  color: var(--text-dim);
+  flex: 1;
+}
+
+.itemMeta {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.evtBadge {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.evtBadgeHazard {
+  background: rgba(208, 64, 64, 0.15);
+  color: #d06060;
+  border: 1px solid rgba(208, 64, 64, 0.25);
+}
+
+.evtBadgeOpportunity {
+  background: rgba(92, 184, 92, 0.12);
+  color: #5cb85c;
+  border: 1px solid rgba(92, 184, 92, 0.25);
+}
+
+/* ── Bottom panel ── */
+.bottomPanel {
+  display: flex;
+  background: var(--surface-3);
+  border-top: 2px solid var(--border);
+  flex-shrink: 0;
+  height: clamp(180px, 30vh, 260px);
+}
+
+.detailArea {
+  flex: 1;
+  padding: 16px 22px;
+  overflow-y: auto;
+  border-right: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  scrollbar-width: thin;
+}
+
+.detailPlaceholder {
+  font-family: 'Space Mono', monospace;
+  color: var(--text-faint);
+  font-size: 15px;
+  font-style: italic;
+}
+
+.breakdown {
+  display: flex;
+  gap: 28px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.breakdownCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.bdItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.bdItem:last-child {
+  border-bottom: none;
+}
+
+.bdEmoji {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.bdInfo { flex: 1; min-width: 0; }
+
+.bdName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: var(--base-fs);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bdReward {
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  color: var(--ps-accent);
+  font-weight: 700;
+}
+
+.bdSteps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.stepChip {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f0c850;
+  background: rgba(240, 200, 80, 0.1);
+  border: 1px solid rgba(240, 200, 80, 0.25);
+  border-radius: 5px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.stepArrow {
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+.bdDesc {
+  font-family: 'Fredoka', sans-serif;
+  font-size: var(--base-fs);
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-top: 3px;
+}
+
+.bdBadge {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.bdBadgeHazard {
+  background: rgba(208, 64, 64, 0.15);
+  color: #d06060;
+  border: 1px solid rgba(208, 64, 64, 0.25);
+}
+
+.bdBadgeOpportunity {
+  background: rgba(92, 184, 92, 0.12);
+  color: #5cb85c;
+  border: 1px solid rgba(92, 184, 92, 0.25);
+}
+
+/* ── Action area ── */
+.actionArea {
+  width: 255px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 22px;
+}
+
+.cookBtn {
+  background: var(--ps-accent);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 0;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.1s, transform 0.1s;
+  width: 100%;
+  letter-spacing: 0.5px;
+}
+
+.cookBtn:hover:not(:disabled) {
+  filter: brightness(1.15);
+  transform: scale(1.02);
+}
+
+.cookBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.cookBtn:disabled {
+  background: var(--surface);
+  color: var(--text-faint);
+  cursor: default;
+}
+
+.customiseBtn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 0;
+  font-family: 'Fredoka', sans-serif;
+  font-size: var(--base-fs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  width: 100%;
+}
+
+.customiseBtn:hover {
+  border-color: var(--ps-accent);
+  color: var(--text);
+}
+
+.hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-faint);
+  text-align: center;
+  font-style: italic;
+}

@@ -29,7 +29,7 @@
 
 .title {
   font-family: 'Lilita One', cursive;
-  font-size: 48px;
+  font-size: 72px;
   color: #ffffff;
   margin: 0;
   text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
@@ -63,18 +63,22 @@
 
 .thresholdMet {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #5cb85c;
   font-weight: 700;
 }
 
 .thresholdUnmet {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
 }
 
-.stats {
+.statMoney {
+  text-align: center;
+}
+
+.statsRow {
   display: flex;
   gap: 32px;
 }
@@ -85,21 +89,35 @@
 
 .statValue {
   font-family: 'Lilita One', cursive;
-  font-size: 36px;
+  font-size: 54px;
   color: #f0c850;
 }
 
 .statLabel {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   margin-top: 4px;
+}
+
+.statValueSmall {
+  font-family: 'Lilita One', cursive;
+  font-size: 24px;
+  color: #f0c850;
+}
+
+.statLabelSmall {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 2px;
 }
 
 .highScoreNew {
   font-family: 'Lilita One', cursive;
   font-size: 28px;
   color: #f0c850;
+  text-align: center;
   text-shadow: 0 0 20px rgba(240, 200, 80, 0.5);
   animation: highScorePulse 0.8s ease-in-out infinite alternate;
 }
@@ -129,7 +147,7 @@
 
 .panelTitle {
   font-family: 'Lilita One', cursive;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-warm);
   text-align: center;
   margin-bottom: 10px;
@@ -141,14 +159,14 @@
 
 .historyBest {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #f0c850;
   font-weight: 700;
 }
 
 .historyEmpty {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
   text-align: center;
   padding: 8px 0;
@@ -165,7 +183,7 @@
 
 .historyHeader span {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
   font-weight: 700;
 }
@@ -193,7 +211,7 @@
 
 .historyRound {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   width: 28px;
   text-align: center;
@@ -202,7 +220,7 @@
 
 .historyMoney {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #f0c850;
   font-weight: 700;
   flex: 1;
@@ -210,7 +228,7 @@
 
 .historyServed {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #5cb85c;
   width: 36px;
   text-align: center;
@@ -219,7 +237,7 @@
 
 .historyLost {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #d94f4f;
   width: 36px;
   text-align: center;
@@ -231,15 +249,23 @@
   background: var(--station-bg);
   border: 2px solid var(--border);
   border-radius: 10px;
-  padding: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lbScrollBody {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  padding: 4px 16px 16px;
 }
 
 .lbEmpty {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
   text-align: center;
   padding: 12px 0;
@@ -247,15 +273,14 @@
 }
 
 .lbStickyHead {
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   background: var(--station-bg);
-  z-index: 1;
+  padding: 16px 16px 0;
 }
 
 .lbTitle {
   font-family: 'Lilita One', cursive;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-warm);
   text-align: center;
   padding-bottom: 8px;
@@ -273,7 +298,7 @@
 
 .lbHeader span {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
   font-weight: 700;
 }
@@ -295,9 +320,19 @@
   border: 1px solid rgba(184, 115, 51, 0.25);
 }
 
+.lbRed {
+  background: rgba(231, 76, 60, 0.08) !important;
+  border-left: 3px solid rgba(231, 76, 60, 0.6);
+}
+
+.lbBlue {
+  background: rgba(52, 152, 219, 0.08) !important;
+  border-left: 3px solid rgba(52, 152, 219, 0.6);
+}
+
 .lbRank {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   font-weight: 700;
   width: 32px;
@@ -307,7 +342,7 @@
 
 .lbName {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   flex: 1;
   overflow: hidden;
@@ -318,7 +353,7 @@
 
 .lbMoney {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #f0c850;
   font-weight: 700;
   width: 64px;
@@ -328,7 +363,7 @@
 
 .lbDetail {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-secondary);
   width: 36px;
   text-align: center;
@@ -337,7 +372,7 @@
 
 .lbTotal {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: #f0c850;
   width: 52px;
@@ -349,15 +384,25 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 240px;
+}
+
+.btnRow {
+  display: flex;
+  gap: 12px;
+}
+
+.btnRow > * {
+  flex: 1;
+  min-width: 0;
 }
 
 .playAgainBtn {
+  width: 100%;
   border: none;
   border-radius: 10px;
   padding: 14px 24px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   background: #b87333;
   color: #fff;
@@ -371,11 +416,12 @@
 }
 
 .menuBtn {
+  width: 100%;
   border: none;
   border-radius: 10px;
   padding: 14px 24px;
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   background: var(--border);
   color: var(--text);
@@ -404,7 +450,7 @@
 
 .autoRestartHint {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: var(--text-muted);
 }
 
@@ -415,7 +461,7 @@
 
 .countdownNum {
   font-family: 'Lilita One', cursive;
-  font-size: 48px;
+  font-size: 72px;
   color: #ffffff;
   vertical-align: middle;
   line-height: 1;
@@ -430,11 +476,188 @@
   color: var(--text-secondary);
   cursor: pointer;
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   transition: border-color 0.15s, color 0.15s;
+}
+
+.enableBtn {
+  align-self: flex-start;
+  padding: 6px 16px;
+  border: 1px solid rgba(92, 184, 92, 0.5);
+  border-radius: 6px;
+  background: transparent;
+  color: #5cb85c;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: var(--base-fs);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.enableBtn:hover {
+  border-color: #5cb85c;
+  color: #6ed06e;
 }
 
 .cancelBtn:hover {
   border-color: #d94f4f;
   color: #d94f4f;
+}
+
+/* PvP banner */
+.pvpBanner {
+  border-radius: 12px;
+  padding: 18px 20px 16px;
+  text-align: center;
+}
+
+.pvpBannerRed  { background: rgba(231,76,60,0.12);  border: 2px solid rgba(231,76,60,0.45); }
+.pvpBannerBlue { background: rgba(52,152,219,0.12); border: 2px solid rgba(52,152,219,0.45); }
+.pvpBannerTie  { background: rgba(240,200,80,0.08); border: 2px solid rgba(240,200,80,0.3); }
+
+.pvpWinnerLabel {
+  font-family: 'Lilita One', cursive;
+  font-size: 42px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.pvpWinnerLabelRed  { color: #ef5b4a; text-shadow: 0 0 24px rgba(231,76,60,0.45); }
+.pvpWinnerLabelBlue { color: #4daadf; text-shadow: 0 0 24px rgba(52,152,219,0.45); }
+.pvpWinnerLabelTie  { color: #f0c850; text-shadow: 0 0 24px rgba(240,200,80,0.4); }
+
+.pvpTeams {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pvpTeamRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pvpTeamRowLoser {
+  opacity: 0.4;
+}
+
+.pvpRedText  { color: #ef5b4a; }
+.pvpBlueText { color: #4daadf; }
+
+.pvpMoneyWin {
+  font-family: 'Lilita One', cursive;
+  font-size: 28px;
+}
+
+.pvpMoneyLose {
+  font-family: 'Lilita One', cursive;
+  font-size: 22px;
+}
+
+.pvpServedWin {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.pvpServedLose {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* PvP MVP panel (right column) */
+.mvpPanel {
+  background: var(--station-bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  flex-shrink: 0;
+}
+
+.mvpCols {
+  display: flex;
+  gap: 10px;
+}
+
+.mvpCard {
+  flex: 1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mvpCardRed  { background: rgba(231,76,60,0.08);  border: 1px solid rgba(231,76,60,0.35); }
+.mvpCardBlue { background: rgba(52,152,219,0.08); border: 1px solid rgba(52,152,219,0.35); }
+
+.mvpCardName {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #e8e0d0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mvpCardScore {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #f0c850;
+  margin-bottom: 4px;
+}
+
+.mvpStats {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mvpStatRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+}
+
+.mvpStatIcon  { width: 18px; flex-shrink: 0; }
+.mvpStatLabel { flex: 1; color: #8a8070; }
+.mvpStatValue { color: #c8c0b0; }
+
+
+.starDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.finalStarRow {
+  display: flex;
+  gap: 8px;
+}
+
+.finalStarFilled {
+  font-size: 72px;
+  color: #f4c430;
+}
+
+.finalStarEmpty {
+  font-size: 72px;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.starThresholdRef {
+  display: flex;
+  gap: 12px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: var(--base-fs);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
 }

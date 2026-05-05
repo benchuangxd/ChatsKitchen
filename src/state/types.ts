@@ -1,3 +1,14 @@
+export type Screen = 'menu' | 'pvplobby' | 'adventurebriefing' | 'options' | 'playsetpicker' | 'freeplaysetup' | 'countdown' | 'playing' | 'shiftend' | 'gameover' | 'adventureshiftpassed' | 'adventurerunend' | 'credits'
+export type TutorialDestination = 'menu' | 'playsetpicker' | 'freeplaysetup'
+
+export interface ActiveEventOptions {
+  kitchenEventsEnabled: boolean
+  enabledKitchenEvents: EventType[]
+  kitchenEventSpawnMin: number
+  kitchenEventSpawnMax: number
+  kitchenEventDuration: number
+}
+
 export type SlotState = 'cooking'
 
 export interface StationSlot {
@@ -8,6 +19,7 @@ export interface StationSlot {
   cookStart: number
   cookDuration: number
   heatApplied: number
+  heatPerCook: number   // total heat this slot contributes when fully cooked (10–20)
   state: SlotState
 }
 
@@ -53,6 +65,25 @@ export interface PlayerStats {
   eventParticipations: number
 }
 
+export interface RoundRecord {
+  money: number
+  served: number
+  lost: number
+  playerCount: number
+}
+
+export interface FinalStats {
+  money: number
+  served: number
+  lost: number
+  playerStats: Record<string, PlayerStats>
+  teams?: Record<string, 'red' | 'blue'>
+  redMoney?: number
+  blueMoney?: number
+  redServed?: number
+  blueServed?: number
+}
+
 export interface StationCapacity {
   chopping: number    // slots for cutting_board
   cooking: number     // slots per cooking station (grill, fryer, stove, oven)
@@ -83,6 +114,7 @@ export interface AudioSettings {
   musicMuted: boolean
   sfxMuted: boolean
   darkMode: boolean
+  mobileFriendly: boolean
   trackEnabled: { menu: boolean; gameplay: boolean; gameover: boolean }
 }
 
@@ -123,6 +155,7 @@ export type EventType =
   | 'rat_invasion' | 'angry_chef'
   | 'power_trip' | 'smoke_blast' | 'glitched_orders'
   | 'chefs_chant' | 'mystery_recipe' | 'typing_frenzy' | 'dance'
+  | 'inventory_audit' | 'complete_dish'
 
 export type EventCategory = 'hazard-penalty' | 'hazard-immediate' | 'opportunity'
 
@@ -144,6 +177,15 @@ export interface KitchenEvent {
     typingPhrase?: string
     danceSequence?: ('UP' | 'DOWN' | 'LEFT' | 'RIGHT')[]
     powerTripAnswer?: number
+    // inventory_audit
+    auditGrid?: string[]
+    auditTarget?: string
+    auditAnswer?: number
+    // complete_dish
+    shownIngredients?: string[]
+    missingIngredient?: string
+    dishName?: string
+    dishEmoji?: string
   }
 }
 
@@ -171,4 +213,11 @@ export interface GameState {
   cookingSpeedModifier?: { multiplier: number; expiresAt: number }
   moneyMultiplier?: { multiplier: number; expiresAt: number }
   disabledStations?: string[]
+  teams?: Record<string, 'red' | 'blue'>
+  redPreparedItems?: string[]
+  bluePreparedItems?: string[]
+  redMoney?: number
+  blueMoney?: number
+  redServed?: number
+  blueServed?: number
 }

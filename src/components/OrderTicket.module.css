@@ -86,7 +86,7 @@
 
 .dishName {
   font-family: 'Lilita One', cursive;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
   line-height: 1.1;
@@ -128,7 +128,7 @@
 }
 
 .ingredientName {
-  font-size: 12px;
+  font-size: calc(var(--base-fs) / 1.5);
   font-family: 'Space Mono', monospace;
   color: #5a5040;
   text-transform: uppercase;
@@ -176,7 +176,7 @@
 
 .orderNumSimple {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   font-weight: 700;
   color: #7a6a58;
   flex-shrink: 0;

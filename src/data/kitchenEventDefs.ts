@@ -1,10 +1,10 @@
 import { EventCategory, EventType } from '../state/types'
-import { RECIPES } from './recipes'
+import { RECIPES, INGREDIENT_EMOJI } from './recipes'
 
 // Tunable constants
 export const EVENT_SPAWN_MIN_MS = 30_000
 export const EVENT_SPAWN_MAX_MS = 60_000
-export const RESOLVE_THRESHOLD_RATIO = 0.8
+export const RESOLVE_THRESHOLD_RATIO = 0.6
 export const ANGRY_CHEF_DEBUFF_MULTIPLIER = 0.7
 export const ANGRY_CHEF_DEBUFF_DURATION_MS = 15_000
 export const CHEFS_CHANT_BOOST_MULTIPLIER = 1.5
@@ -14,7 +14,7 @@ export const TYPING_FRENZY_DURATION_MS = 20_000
 export const DANCE_PATIENCE_BONUS_MS = 15_000
 export const RAT_INVASION_ITEMS_STOLEN = 3
 export const MYSTERY_RECIPE_ITEMS_REWARDED = 3
-export const EVENT_DURATION_MS = 20_000  // default duration for all timed events; overridden by kitchenEventDuration in GameOptions
+export const EVENT_DURATION_MS = 12_000  // default duration for all timed events; overridden by kitchenEventDuration in GameOptions
 
 function randInt(min: number, max: number): number {
   return min + Math.floor(Math.random() * (max - min + 1))
@@ -54,10 +54,10 @@ export function makePowerTripEquation(): { display: string; answer: number } {
 const FRENZY_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*+='
 const FRENZY_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
-// Generates a random 15 char gibberish string. First char is always
+// Generates a random 10 char gibberish string. First char is always
 // alphanumeric so Twitch doesn't interpret it as a command prefix.
 export function makeTypingFrenzyPhrase(): string {
-  const len = 15
+  const len = 10
   let result = FRENZY_ALPHA[Math.floor(Math.random() * FRENZY_ALPHA.length)]
   for (let i = 1; i < len; i++) {
     result += FRENZY_CHARS[Math.floor(Math.random() * FRENZY_CHARS.length)]
@@ -136,9 +136,9 @@ export const EVENT_DEFS: EventDef[] = [
     type: 'glitched_orders',
     category: 'hazard-immediate',
     emoji: '📦',
-    label: 'Glitched Orders',
+    label: 'Glitched POS',
     description: 'Order tickets are scrambled. Chat must debug the system to restore them.',
-    commandPool: ['FIX', 'DEBUG', 'PATCH'],
+    commandPool: ['RESTART', 'DEBUG', 'PATCH'],
     failDescription: 'Orders scrambled until resolved',
     color: '#7a30cc',
     cmdColor: '#4a1a7a',
@@ -171,9 +171,9 @@ export const EVENT_DEFS: EventDef[] = [
   {
     type: 'typing_frenzy',
     category: 'opportunity',
-    emoji: '⚡',
-    label: 'Typing Frenzy',
-    description: 'A random string flashes on screen — chat races to type it exactly.',
+    emoji: '📶',
+    label: 'Wifi Password',
+    description: 'The wifi password flashes on screen — chat races to type it exactly (case sensitive!).',
     commandPool: [],
     rewardDescription: 'Reward: money multiplier ×1.5 for 20s',
     color: '#88cc00',
@@ -191,6 +191,30 @@ export const EVENT_DEFS: EventDef[] = [
     color: '#cc30aa',
     cmdColor: '#7a1a6a',
     audio: { ambient: 'event-dance-ambient', success: 'event-success', fail: 'event-fail' },
+  },
+  {
+    type: 'inventory_audit',
+    category: 'hazard-penalty',
+    emoji: '🧮',
+    label: 'Inventory Audit',
+    description: 'A health inspector arrives! Count the highlighted ingredient in the grid.',
+    commandPool: [],
+    failDescription: 'Fail: inspector confiscates prepped ingredients',
+    color: '#b06020',
+    cmdColor: '#7a3a00',
+    audio: { ambient: 'event-angry-chef-ambient', success: 'event-success', fail: 'event-fail' },
+  },
+  {
+    type: 'complete_dish',
+    category: 'opportunity',
+    emoji: '🍽️',
+    label: 'Complete the Dish',
+    description: 'All but one ingredient is shown — type the missing one to complete the recipe.',
+    commandPool: [],
+    rewardDescription: 'Reward: missing ingredient added to prep tray',
+    color: '#20a060',
+    cmdColor: '#0a6030',
+    audio: { ambient: 'event-mystery-ambient', success: 'event-success', fail: 'event-fail' },
   },
 ]
 
@@ -239,6 +263,63 @@ export function makeAnagram(word: string): string {
     if (result !== word.toUpperCase()) return result
   }
   return chars.join('')
+}
+
+// Builds a 4×4 emoji grid for Inventory Audit. Returns null if not enough variety.
+export function makeAuditGrid(enabledRecipes: string[]): { grid: string[]; target: string; answer: number } | null {
+  const keys = enabledRecipes.length > 0 ? enabledRecipes : Object.keys(RECIPES)
+
+  const emojiPool: string[] = []
+  for (const key of keys) {
+    const recipe = RECIPES[key]
+    if (!recipe) continue
+    for (const item of recipe.plate) {
+      const emoji = INGREDIENT_EMOJI[item]
+      if (emoji && !emojiPool.includes(emoji)) emojiPool.push(emoji)
+    }
+  }
+
+  if (emojiPool.length < 3) return null
+
+  const shuffledPool = [...emojiPool].sort(() => Math.random() - 0.5)
+  const selected = shuffledPool.slice(0, Math.min(4, shuffledPool.length))
+  const target = selected[0]
+  const answer = 3 + Math.floor(Math.random() * 8)  // 3–10
+
+  const slots = Array.from({ length: 16 }, (_, i) => i).sort(() => Math.random() - 0.5)
+  const targetSlots = new Set(slots.slice(0, answer))
+  const nonTarget = selected.slice(1)
+
+  let fillIdx = 0
+  const grid = Array.from({ length: 16 }, (_, i) =>
+    targetSlots.has(i) ? target : nonTarget[fillIdx++ % nonTarget.length]
+  )
+
+  return { grid, target, answer }
+}
+
+// Picks a qualifying recipe and selects which ingredient to hide for Complete the Dish.
+// Returns null if no enabled recipe has 3+ plate items.
+export function pickCompleteTheDish(enabledRecipes: string[]): {
+  dishName: string; dishEmoji: string
+  shownIngredients: string[]; missingIngredient: string
+} | null {
+  const fmt = (s: string) => s.replace(/_/g, ' ').toUpperCase()
+  const keys = (enabledRecipes.length > 0 ? enabledRecipes : Object.keys(RECIPES))
+    .filter(key => { const r = RECIPES[key]; return r && r.plate.length >= 2 })
+
+  if (keys.length === 0) return null
+
+  const key = keys[Math.floor(Math.random() * keys.length)]
+  const recipe = RECIPES[key]
+  const shuffled = [...recipe.plate].sort(() => Math.random() - 0.5)
+
+  return {
+    dishName: recipe.name,
+    dishEmoji: recipe.emoji,
+    shownIngredients: shuffled.slice(0, shuffled.length - 1).map(fmt),
+    missingIngredient: fmt(shuffled[shuffled.length - 1]),
+  }
 }
 
 // Stable character scramble seeded by a number (for glitched order tickets).

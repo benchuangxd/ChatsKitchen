@@ -83,7 +83,9 @@ export function useGameLoop(
       orderTimerRef.current += delta
       const pendingOrders = s.orders.filter(o => !o.served).length
       const isBoosting = now < boostEndTimeRef.current
-      const orderInterval = (13000 / s.orderSpawnRate) / (isBoosting ? EMPTY_BOOST_MULTIPLIER : 1)
+      const playerCount = Object.keys(s.playerStats).length
+      const dynamicSpawnMultiplier = Math.min(3.0, 1.0 + playerCount / 25)
+      const orderInterval = (13000 / s.orderSpawnRate) / (isBoosting ? EMPTY_BOOST_MULTIPLIER : 1) / dynamicSpawnMultiplier
 
       if (!firstOrderSpawned.current && gameTimeRef.current > 2000) {
         dispatch({ type: 'SPAWN_ORDER', now })

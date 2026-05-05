@@ -26,7 +26,7 @@
 
 .timeLabel {
   font-family: 'Space Mono', monospace;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #c8841a;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -67,7 +67,7 @@
   background: #c8841a;
   color: #0d0d0d;
   font-family: 'Lilita One', cursive;
-  font-size: 18px;
+  font-size: var(--base-fs);
   border-radius: 12px;
   padding: 1px 11px;
   min-width: 28px;
@@ -108,11 +108,27 @@
 
 .empty {
   font-family: 'Fredoka', sans-serif;
-  font-size: 18px;
+  font-size: var(--base-fs);
   color: #5a5048;
   font-style: italic;
   text-align: center;
   padding: 16px 0;
+}
+
+/* ── Glitched Orders panel warp ─────────────── */
+.glitchedPanel {
+  animation: panelWarp 2.2s infinite;
+}
+
+@keyframes panelWarp {
+  0%, 100% { transform: skewY(0deg) translate(0, 0); }
+  8%        { transform: skewY(0.7deg) translate(2px, 0); }
+  16%       { transform: skewY(-0.4deg) translate(-3px, 0); }
+  24%       { transform: skewY(0deg) translate(0, 0); }
+  65%       { transform: skewY(0deg) translate(0, 0); }
+  73%       { transform: skewY(-0.9deg) translate(3px, 0); }
+  81%       { transform: skewY(0.5deg) translate(-2px, 0); }
+  89%       { transform: skewY(0deg) translate(0, 0); }
 }
 
 /* ── Tutorial highlight ─────────────────────── */

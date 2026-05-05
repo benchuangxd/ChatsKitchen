@@ -400,6 +400,33 @@
   box-shadow: 0 2px 0 #1e4366;
 }
 
+/* PvP */
+.modePvp {
+  background: linear-gradient(135deg, rgba(180,30,30,0.2) 0%, rgba(30,80,180,0.2) 100%);
+  border: 1px solid rgba(231,76,60,0.4);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s, box-shadow 0.1s;
+  flex: 1;
+  min-height: 0;
+  box-shadow: 0 4px 0 #1e4366;
+  text-align: left;
+}
+
+.modePvp:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.modePvp:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1e4366;
+}
+
 .lvName {
   font-family: 'Fredoka', sans-serif;
   font-size: 30px;
@@ -419,6 +446,14 @@
   font-size: 28px;
   color: rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
+}
+
+/* Adventure + PvP side-by-side */
+.modeRow {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Tutorial + Options row */

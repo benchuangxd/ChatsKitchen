@@ -131,6 +131,15 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
                   {audioSettings.darkMode ? '🌙 Dark' : '☀️ Light'}
                 </button>
               </div>
+              <div className={styles.capacityRow}>
+                <span className={styles.capacityLabel}>Mobile Friendly</span>
+                <button
+                  className={`${styles.muteBtn} ${audioSettings.mobileFriendly ? styles.muteBtnActive : ''}`}
+                  onClick={() => onAudioChange({ ...audioSettings, mobileFriendly: !audioSettings.mobileFriendly })}
+                >
+                  {audioSettings.mobileFriendly ? '📱 ON' : '🖥️ OFF'}
+                </button>
+              </div>
             </div>
 
             <div className={styles.section}>
@@ -146,8 +155,9 @@ export default function OptionsScreen({ options, onChange, audioSettings, onAudi
               <div className={`${styles.shortformGrid} ${options.allowShortformCommands ? '' : styles.shortformDimmed}`}>
                 {([
                   ['c', 'chop'], ['g', 'grill'], ['f', 'fry'], ['b', 'boil'],
-                  ['t', 'toast'], ['r', 'roast'], ['st', 'stir'], ['sm', 'steam'],
-                  ['si', 'simmer'], ['ck', 'cook'], ['cl', 'cool'], ['s', 'serve'],
+                  ['t', 'toast'], ['r', 'roast'], ['sf', 'stirfry'], ['sm', 'steam'],
+                  ['si', 'simmer'], ['ck', 'cook'], ['mx', 'mix'], ['gr', 'grind'],
+                  ['kn', 'knead'], ['cl', 'cool'], ['s', 'serve'],
                 ] as [string, string][]).map(([alias, cmd]) => (
                   <div key={alias} className={styles.shortformEntry}>
                     <span className={styles.shortformAlias}>!{alias}</span>
